@@ -1,0 +1,19 @@
+<!-- <mat-radio-group aria-label="Select an option" [(ngModel)]="view">
+    <mat-radio-button *ngFor="let view of views" [value]="view">
+        {{view}}&nbsp;
+    </mat-radio-button>
+</mat-radio-group>
+<as-split *ngIf="view==carto" direction="vertical">
+    <as-split-area size="100">
+        <app-cartoatc></app-cartoatc>
+    </as-split-area>
+</as-split>
+<app-gongleaflet-splitter *ngIf="view==data"></app-gongleaflet-splitter> -->
+<as-split *ngIf="view==carto" direction="horyzontal">
+    <as-split-area size="50">
+        <app-cartoatc></app-cartoatc>
+    </as-split-area>
+    <as-split-area size="50">
+        <app-gongleaflet-splitter></app-gongleaflet-splitter>
+    </as-split-area>
+</as-split>

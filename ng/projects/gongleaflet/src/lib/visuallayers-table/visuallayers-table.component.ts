@@ -1,0 +1,205 @@
+// generated from NgTableTemplateTS
+import { Component, OnInit, OnChanges, Input, Output, EventEmitter, Inject, Optional } from '@angular/core';
+import { MatTableDataSource } from '@angular/material/table';
+import { MatButton } from '@angular/material/button'
+
+import { MatDialogRef, MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog'
+import { DialogData } from '../front-repo.service'
+import { SelectionModel } from '@angular/cdk/collections';
+
+const allowMultiSelect = true;
+
+import { Router, RouterState } from '@angular/router';
+import { VisualLayerDB } from '../visuallayer-db'
+import { VisualLayerService } from '../visuallayer.service'
+
+import { FrontRepoService, FrontRepo } from '../front-repo.service'
+
+// generated table component
+@Component({
+  selector: 'app-visuallayers-table',
+  templateUrl: './visuallayers-table.component.html',
+  styleUrls: ['./visuallayers-table.component.css'],
+})
+export class VisualLayersTableComponent implements OnInit {
+
+  // used if the component is called as a selection component of VisualLayer instances
+  selection: SelectionModel<VisualLayerDB>;
+  initialSelection = new Array<VisualLayerDB>();
+
+  // the data source for the table
+  visuallayers: VisualLayerDB[];
+
+  // front repo, that will be referenced by this.visuallayers
+  frontRepo: FrontRepo
+
+  // displayedColumns is referenced by the MatTable component for specify what columns
+  // have to be displayed and in what order
+  displayedColumns: string[];
+
+  constructor(
+    private visuallayerService: VisualLayerService,
+    private frontRepoService: FrontRepoService,
+
+    // not null if the component is called as a selection component of visuallayer instances
+    public dialogRef: MatDialogRef<VisualLayersTableComponent>,
+    @Optional() @Inject(MAT_DIALOG_DATA) public dialogData: DialogData,
+
+    private router: Router,
+  ) {
+    // https://stackoverflow.com/questions/54627478/angular-7-routing-to-same-component-but-different-param-not-working
+    // this is for routerLink on same component when only queryParameter changes
+    this.router.routeReuseStrategy.shouldReuseRoute = function () {
+      return false;
+    };
+
+    // observable for changes in structs
+    this.visuallayerService.VisualLayerServiceChanged.subscribe(
+      message => {
+        if (message == "post" || message == "update" || message == "delete") {
+          this.getVisualLayers()
+        }
+      }
+    )
+    if (dialogData == undefined) {
+      this.displayedColumns = ['ID', 'Edit', 'Delete', // insertion point for columns to display
+        "Name",
+        "DisplayName",
+      ]
+    } else {
+      this.displayedColumns = ['select', 'ID', // insertion point for columns to display
+        "Name",
+        "DisplayName",
+      ]
+      this.selection = new SelectionModel<VisualLayerDB>(allowMultiSelect, this.initialSelection);
+    }
+
+  }
+
+  ngOnInit(): void {
+    this.getVisualLayers()
+  }
+
+  getVisualLayers(): void {
+    this.frontRepoService.pull().subscribe(
+      frontRepo => {
+        this.frontRepo = frontRepo
+        console.log("front repo pull returned")
+
+        this.visuallayers = this.frontRepo.VisualLayers_array;
+
+        // insertion point for variables Recoveries
+
+        // in case the component is called as a selection component
+        if (this.dialogData != undefined) {
+          this.visuallayers.forEach(
+            visuallayer => {
+              let ID = this.dialogData.ID
+              let revPointer = visuallayer[this.dialogData.ReversePointer]
+              if (revPointer.Int64 == ID) {
+                this.initialSelection.push(visuallayer)
+              }
+            }
+          )
+          this.selection = new SelectionModel<VisualLayerDB>(allowMultiSelect, this.initialSelection);
+        }
+      }
+    )
+  }
+
+  // newVisualLayer initiate a new visuallayer
+  // create a new VisualLayer objet
+  newVisualLayer() {
+  }
+
+  deleteVisualLayer(visuallayerID: number, visuallayer: VisualLayerDB) {
+    // list of visuallayers is truncated of visuallayer before the delete
+    this.visuallayers = this.visuallayers.filter(h => h !== visuallayer);
+
+    this.visuallayerService.deleteVisualLayer(visuallayerID).subscribe(
+      visuallayer => {
+        this.visuallayerService.VisualLayerServiceChanged.next("delete")
+
+        console.log("visuallayer deleted")
+      }
+    );
+  }
+
+  editVisualLayer(visuallayerID: number, visuallayer: VisualLayerDB) {
+
+  }
+
+  // display visuallayer in router
+  displayVisualLayerInRouter(visuallayerID: number) {
+    this.router.navigate( ["visuallayer-display", visuallayerID])
+  }
+
+  // set editor outlet
+  setEditorRouterOutlet(visuallayerID: number) {
+    this.router.navigate([{
+      outlets: {
+        editor: ["visuallayer-detail", visuallayerID]
+      }
+    }]);
+  }
+
+  // set presentation outlet
+  setPresentationRouterOutlet(visuallayerID: number) {
+    this.router.navigate([{
+      outlets: {
+        presentation: ["visuallayer-presentation", visuallayerID]
+      }
+    }]);
+  }
+
+  /** Whether the number of selected elements matches the total number of rows. */
+  isAllSelected() {
+    const numSelected = this.selection.selected.length;
+    const numRows = this.visuallayers.length;
+    return numSelected === numRows;
+  }
+
+  /** Selects all rows if they are not all selected; otherwise clear selection. */
+  masterToggle() {
+    this.isAllSelected() ?
+      this.selection.clear() :
+      this.visuallayers.forEach(row => this.selection.select(row));
+  }
+
+  save() {
+
+    let toUpdate = new Set<VisualLayerDB>()
+
+    // reset all initial selection of visuallayer that belong to visuallayer through Anarrayofb
+    this.initialSelection.forEach(
+      visuallayer => {
+        visuallayer[this.dialogData.ReversePointer].Int64 = 0
+        visuallayer[this.dialogData.ReversePointer].Valid = true
+        toUpdate.add(visuallayer)
+      }
+    )
+
+    // from selection, set visuallayer that belong to visuallayer through Anarrayofb
+    this.selection.selected.forEach(
+      visuallayer => {
+        console.log("selection ID " + visuallayer.ID)
+        let ID = +this.dialogData.ID
+        visuallayer[this.dialogData.ReversePointer].Int64 = ID
+        visuallayer[this.dialogData.ReversePointer].Valid = true
+        toUpdate.add(visuallayer)
+      }
+    )
+
+    // update all visuallayer (only update selection & initial selection)
+    toUpdate.forEach(
+      visuallayer => {
+        this.visuallayerService.updateVisualLayer(visuallayer)
+          .subscribe(visuallayer => {
+            this.visuallayerService.VisualLayerServiceChanged.next("update")
+            console.log("visuallayer saved")
+          });
+      }
+    )
+    this.dialogRef.close('Pizza!');
+  }
+}

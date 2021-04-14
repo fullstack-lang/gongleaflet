@@ -1,0 +1,69 @@
+<div *ngIf="visualcenter" class="details">
+    <h1 class="details__title">visualcenter</h1>
+    <!-- insertion point for fields specific code -->
+    <!-- -->
+    <div class="details__item">
+        <form>
+            <mat-form-field>
+                <mat-label>Lat</mat-label>
+                <input type="number" [ngModelOptions]="{standalone: true}" matInput [(ngModel)]="visualcenter.Lat">
+            </mat-form-field>
+        </form>
+    </div>
+    <!-- -->
+    <div class="details__item">
+        <form>
+            <mat-form-field>
+                <mat-label>Lng</mat-label>
+                <input type="number" [ngModelOptions]="{standalone: true}" matInput [(ngModel)]="visualcenter.Lng">
+            </mat-form-field>
+        </form>
+    </div>
+    <!-- -->
+    <div class="details__item">
+        <form>
+            <mat-form-field>
+                <mat-label>Name</mat-label>
+                <input name="" [ngModelOptions]="{standalone: true}" matInput [(ngModel)]="visualcenter.Name">
+            </mat-form-field>
+        </form>
+    </div>
+    <!-- -->
+    <div class="details__item">
+        <mat-form-field appearance="fill">
+            <mat-label>VisualColorEnum</mat-label>
+            <mat-select [(ngModel)]="visualcenter.VisualColorEnum">
+                <mat-option *ngFor="let enum of VisualColorEnumList" [value]="enum.value">
+                    {{enum.viewValue}}
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+    </div>
+    <div class="details__item">
+        <mat-form-field>
+            <mat-label>VisualLayer</mat-label>
+            <mat-select [(ngModel)]="visualcenter.VisualLayer">
+                <mat-option>None</mat-option>
+                <mat-option *ngFor="let visuallayer of frontRepo.VisualLayers_array" [value]="visuallayer">
+                    {{visuallayer.Name}}
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+    </div>
+    <div class="details__item">
+        <mat-form-field>
+            <mat-label>VisualIcon</mat-label>
+            <mat-select [(ngModel)]="visualcenter.VisualIcon">
+                <mat-option>None</mat-option>
+                <mat-option *ngFor="let visualicon of frontRepo.VisualIcons_array" [value]="visualicon">
+                    {{visualicon.Name}}
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+    </div>
+    <div class="details__save">
+        <button mat-raised-button color="primary" (click)="save()">
+			Save visualcenter
+		</button>
+    </div>
+</div>

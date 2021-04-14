@@ -1,0 +1,215 @@
+// generated from NgTableTemplateTS
+import { Component, OnInit, OnChanges, Input, Output, EventEmitter, Inject, Optional } from '@angular/core';
+import { MatTableDataSource } from '@angular/material/table';
+import { MatButton } from '@angular/material/button'
+
+import { MatDialogRef, MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog'
+import { DialogData } from '../front-repo.service'
+import { SelectionModel } from '@angular/cdk/collections';
+
+const allowMultiSelect = true;
+
+import { Router, RouterState } from '@angular/router';
+import { VisualCircleDB } from '../visualcircle-db'
+import { VisualCircleService } from '../visualcircle.service'
+
+import { FrontRepoService, FrontRepo } from '../front-repo.service'
+
+// generated table component
+@Component({
+  selector: 'app-visualcircles-table',
+  templateUrl: './visualcircles-table.component.html',
+  styleUrls: ['./visualcircles-table.component.css'],
+})
+export class VisualCirclesTableComponent implements OnInit {
+
+  // used if the component is called as a selection component of VisualCircle instances
+  selection: SelectionModel<VisualCircleDB>;
+  initialSelection = new Array<VisualCircleDB>();
+
+  // the data source for the table
+  visualcircles: VisualCircleDB[];
+
+  // front repo, that will be referenced by this.visualcircles
+  frontRepo: FrontRepo
+
+  // displayedColumns is referenced by the MatTable component for specify what columns
+  // have to be displayed and in what order
+  displayedColumns: string[];
+
+  constructor(
+    private visualcircleService: VisualCircleService,
+    private frontRepoService: FrontRepoService,
+
+    // not null if the component is called as a selection component of visualcircle instances
+    public dialogRef: MatDialogRef<VisualCirclesTableComponent>,
+    @Optional() @Inject(MAT_DIALOG_DATA) public dialogData: DialogData,
+
+    private router: Router,
+  ) {
+    // https://stackoverflow.com/questions/54627478/angular-7-routing-to-same-component-but-different-param-not-working
+    // this is for routerLink on same component when only queryParameter changes
+    this.router.routeReuseStrategy.shouldReuseRoute = function () {
+      return false;
+    };
+
+    // observable for changes in structs
+    this.visualcircleService.VisualCircleServiceChanged.subscribe(
+      message => {
+        if (message == "post" || message == "update" || message == "delete") {
+          this.getVisualCircles()
+        }
+      }
+    )
+    if (dialogData == undefined) {
+      this.displayedColumns = ['ID', 'Edit', 'Delete', // insertion point for columns to display
+        "Lat",
+        "Lng",
+        "Name",
+        "Radius",
+        "VisualColorEnum",
+        "DashStyleEnum",
+        "VisualLayer",
+      ]
+    } else {
+      this.displayedColumns = ['select', 'ID', // insertion point for columns to display
+        "Lat",
+        "Lng",
+        "Name",
+        "Radius",
+        "VisualColorEnum",
+        "DashStyleEnum",
+        "VisualLayer",
+      ]
+      this.selection = new SelectionModel<VisualCircleDB>(allowMultiSelect, this.initialSelection);
+    }
+
+  }
+
+  ngOnInit(): void {
+    this.getVisualCircles()
+  }
+
+  getVisualCircles(): void {
+    this.frontRepoService.pull().subscribe(
+      frontRepo => {
+        this.frontRepo = frontRepo
+        console.log("front repo pull returned")
+
+        this.visualcircles = this.frontRepo.VisualCircles_array;
+
+        // insertion point for variables Recoveries
+
+        // in case the component is called as a selection component
+        if (this.dialogData != undefined) {
+          this.visualcircles.forEach(
+            visualcircle => {
+              let ID = this.dialogData.ID
+              let revPointer = visualcircle[this.dialogData.ReversePointer]
+              if (revPointer.Int64 == ID) {
+                this.initialSelection.push(visualcircle)
+              }
+            }
+          )
+          this.selection = new SelectionModel<VisualCircleDB>(allowMultiSelect, this.initialSelection);
+        }
+      }
+    )
+  }
+
+  // newVisualCircle initiate a new visualcircle
+  // create a new VisualCircle objet
+  newVisualCircle() {
+  }
+
+  deleteVisualCircle(visualcircleID: number, visualcircle: VisualCircleDB) {
+    // list of visualcircles is truncated of visualcircle before the delete
+    this.visualcircles = this.visualcircles.filter(h => h !== visualcircle);
+
+    this.visualcircleService.deleteVisualCircle(visualcircleID).subscribe(
+      visualcircle => {
+        this.visualcircleService.VisualCircleServiceChanged.next("delete")
+
+        console.log("visualcircle deleted")
+      }
+    );
+  }
+
+  editVisualCircle(visualcircleID: number, visualcircle: VisualCircleDB) {
+
+  }
+
+  // display visualcircle in router
+  displayVisualCircleInRouter(visualcircleID: number) {
+    this.router.navigate( ["visualcircle-display", visualcircleID])
+  }
+
+  // set editor outlet
+  setEditorRouterOutlet(visualcircleID: number) {
+    this.router.navigate([{
+      outlets: {
+        editor: ["visualcircle-detail", visualcircleID]
+      }
+    }]);
+  }
+
+  // set presentation outlet
+  setPresentationRouterOutlet(visualcircleID: number) {
+    this.router.navigate([{
+      outlets: {
+        presentation: ["visualcircle-presentation", visualcircleID]
+      }
+    }]);
+  }
+
+  /** Whether the number of selected elements matches the total number of rows. */
+  isAllSelected() {
+    const numSelected = this.selection.selected.length;
+    const numRows = this.visualcircles.length;
+    return numSelected === numRows;
+  }
+
+  /** Selects all rows if they are not all selected; otherwise clear selection. */
+  masterToggle() {
+    this.isAllSelected() ?
+      this.selection.clear() :
+      this.visualcircles.forEach(row => this.selection.select(row));
+  }
+
+  save() {
+
+    let toUpdate = new Set<VisualCircleDB>()
+
+    // reset all initial selection of visualcircle that belong to visualcircle through Anarrayofb
+    this.initialSelection.forEach(
+      visualcircle => {
+        visualcircle[this.dialogData.ReversePointer].Int64 = 0
+        visualcircle[this.dialogData.ReversePointer].Valid = true
+        toUpdate.add(visualcircle)
+      }
+    )
+
+    // from selection, set visualcircle that belong to visualcircle through Anarrayofb
+    this.selection.selected.forEach(
+      visualcircle => {
+        console.log("selection ID " + visualcircle.ID)
+        let ID = +this.dialogData.ID
+        visualcircle[this.dialogData.ReversePointer].Int64 = ID
+        visualcircle[this.dialogData.ReversePointer].Valid = true
+        toUpdate.add(visualcircle)
+      }
+    )
+
+    // update all visualcircle (only update selection & initial selection)
+    toUpdate.forEach(
+      visualcircle => {
+        this.visualcircleService.updateVisualCircle(visualcircle)
+          .subscribe(visualcircle => {
+            this.visualcircleService.VisualCircleServiceChanged.next("update")
+            console.log("visualcircle saved")
+          });
+      }
+    )
+    this.dialogRef.close('Pizza!');
+  }
+}

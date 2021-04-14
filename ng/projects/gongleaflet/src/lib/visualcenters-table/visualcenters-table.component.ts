@@ -1,0 +1,213 @@
+// generated from NgTableTemplateTS
+import { Component, OnInit, OnChanges, Input, Output, EventEmitter, Inject, Optional } from '@angular/core';
+import { MatTableDataSource } from '@angular/material/table';
+import { MatButton } from '@angular/material/button'
+
+import { MatDialogRef, MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog'
+import { DialogData } from '../front-repo.service'
+import { SelectionModel } from '@angular/cdk/collections';
+
+const allowMultiSelect = true;
+
+import { Router, RouterState } from '@angular/router';
+import { VisualCenterDB } from '../visualcenter-db'
+import { VisualCenterService } from '../visualcenter.service'
+
+import { FrontRepoService, FrontRepo } from '../front-repo.service'
+
+// generated table component
+@Component({
+  selector: 'app-visualcenters-table',
+  templateUrl: './visualcenters-table.component.html',
+  styleUrls: ['./visualcenters-table.component.css'],
+})
+export class VisualCentersTableComponent implements OnInit {
+
+  // used if the component is called as a selection component of VisualCenter instances
+  selection: SelectionModel<VisualCenterDB>;
+  initialSelection = new Array<VisualCenterDB>();
+
+  // the data source for the table
+  visualcenters: VisualCenterDB[];
+
+  // front repo, that will be referenced by this.visualcenters
+  frontRepo: FrontRepo
+
+  // displayedColumns is referenced by the MatTable component for specify what columns
+  // have to be displayed and in what order
+  displayedColumns: string[];
+
+  constructor(
+    private visualcenterService: VisualCenterService,
+    private frontRepoService: FrontRepoService,
+
+    // not null if the component is called as a selection component of visualcenter instances
+    public dialogRef: MatDialogRef<VisualCentersTableComponent>,
+    @Optional() @Inject(MAT_DIALOG_DATA) public dialogData: DialogData,
+
+    private router: Router,
+  ) {
+    // https://stackoverflow.com/questions/54627478/angular-7-routing-to-same-component-but-different-param-not-working
+    // this is for routerLink on same component when only queryParameter changes
+    this.router.routeReuseStrategy.shouldReuseRoute = function () {
+      return false;
+    };
+
+    // observable for changes in structs
+    this.visualcenterService.VisualCenterServiceChanged.subscribe(
+      message => {
+        if (message == "post" || message == "update" || message == "delete") {
+          this.getVisualCenters()
+        }
+      }
+    )
+    if (dialogData == undefined) {
+      this.displayedColumns = ['ID', 'Edit', 'Delete', // insertion point for columns to display
+        "Lat",
+        "Lng",
+        "Name",
+        "VisualColorEnum",
+        "VisualLayer",
+        "VisualIcon",
+      ]
+    } else {
+      this.displayedColumns = ['select', 'ID', // insertion point for columns to display
+        "Lat",
+        "Lng",
+        "Name",
+        "VisualColorEnum",
+        "VisualLayer",
+        "VisualIcon",
+      ]
+      this.selection = new SelectionModel<VisualCenterDB>(allowMultiSelect, this.initialSelection);
+    }
+
+  }
+
+  ngOnInit(): void {
+    this.getVisualCenters()
+  }
+
+  getVisualCenters(): void {
+    this.frontRepoService.pull().subscribe(
+      frontRepo => {
+        this.frontRepo = frontRepo
+        console.log("front repo pull returned")
+
+        this.visualcenters = this.frontRepo.VisualCenters_array;
+
+        // insertion point for variables Recoveries
+
+        // in case the component is called as a selection component
+        if (this.dialogData != undefined) {
+          this.visualcenters.forEach(
+            visualcenter => {
+              let ID = this.dialogData.ID
+              let revPointer = visualcenter[this.dialogData.ReversePointer]
+              if (revPointer.Int64 == ID) {
+                this.initialSelection.push(visualcenter)
+              }
+            }
+          )
+          this.selection = new SelectionModel<VisualCenterDB>(allowMultiSelect, this.initialSelection);
+        }
+      }
+    )
+  }
+
+  // newVisualCenter initiate a new visualcenter
+  // create a new VisualCenter objet
+  newVisualCenter() {
+  }
+
+  deleteVisualCenter(visualcenterID: number, visualcenter: VisualCenterDB) {
+    // list of visualcenters is truncated of visualcenter before the delete
+    this.visualcenters = this.visualcenters.filter(h => h !== visualcenter);
+
+    this.visualcenterService.deleteVisualCenter(visualcenterID).subscribe(
+      visualcenter => {
+        this.visualcenterService.VisualCenterServiceChanged.next("delete")
+
+        console.log("visualcenter deleted")
+      }
+    );
+  }
+
+  editVisualCenter(visualcenterID: number, visualcenter: VisualCenterDB) {
+
+  }
+
+  // display visualcenter in router
+  displayVisualCenterInRouter(visualcenterID: number) {
+    this.router.navigate( ["visualcenter-display", visualcenterID])
+  }
+
+  // set editor outlet
+  setEditorRouterOutlet(visualcenterID: number) {
+    this.router.navigate([{
+      outlets: {
+        editor: ["visualcenter-detail", visualcenterID]
+      }
+    }]);
+  }
+
+  // set presentation outlet
+  setPresentationRouterOutlet(visualcenterID: number) {
+    this.router.navigate([{
+      outlets: {
+        presentation: ["visualcenter-presentation", visualcenterID]
+      }
+    }]);
+  }
+
+  /** Whether the number of selected elements matches the total number of rows. */
+  isAllSelected() {
+    const numSelected = this.selection.selected.length;
+    const numRows = this.visualcenters.length;
+    return numSelected === numRows;
+  }
+
+  /** Selects all rows if they are not all selected; otherwise clear selection. */
+  masterToggle() {
+    this.isAllSelected() ?
+      this.selection.clear() :
+      this.visualcenters.forEach(row => this.selection.select(row));
+  }
+
+  save() {
+
+    let toUpdate = new Set<VisualCenterDB>()
+
+    // reset all initial selection of visualcenter that belong to visualcenter through Anarrayofb
+    this.initialSelection.forEach(
+      visualcenter => {
+        visualcenter[this.dialogData.ReversePointer].Int64 = 0
+        visualcenter[this.dialogData.ReversePointer].Valid = true
+        toUpdate.add(visualcenter)
+      }
+    )
+
+    // from selection, set visualcenter that belong to visualcenter through Anarrayofb
+    this.selection.selected.forEach(
+      visualcenter => {
+        console.log("selection ID " + visualcenter.ID)
+        let ID = +this.dialogData.ID
+        visualcenter[this.dialogData.ReversePointer].Int64 = ID
+        visualcenter[this.dialogData.ReversePointer].Valid = true
+        toUpdate.add(visualcenter)
+      }
+    )
+
+    // update all visualcenter (only update selection & initial selection)
+    toUpdate.forEach(
+      visualcenter => {
+        this.visualcenterService.updateVisualCenter(visualcenter)
+          .subscribe(visualcenter => {
+            this.visualcenterService.VisualCenterServiceChanged.next("update")
+            console.log("visualcenter saved")
+          });
+      }
+    )
+    this.dialogRef.close('Pizza!');
+  }
+}

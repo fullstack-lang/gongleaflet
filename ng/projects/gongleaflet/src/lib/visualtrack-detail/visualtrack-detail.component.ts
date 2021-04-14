@@ -1,0 +1,174 @@
+// generated from NgDetailTemplateTS
+import { Component, OnInit } from '@angular/core';
+import { FormControl } from '@angular/forms';
+
+import { VisualTrackDB } from '../visualtrack-db'
+import { VisualTrackService } from '../visualtrack.service'
+
+import { FrontRepoService, FrontRepo } from '../front-repo.service'
+import { MapOfComponents } from '../map-components'
+
+// insertion point for imports
+import { VisualColorEnumSelect, VisualColorEnumList } from '../VisualColorEnum'
+
+import { Router, RouterState, ActivatedRoute } from '@angular/router';
+
+import { MatDialog, MAT_DIALOG_DATA, MatDialogRef, MatDialogConfig } from '@angular/material/dialog';
+
+import { NullInt64 } from '../front-repo.service'
+
+@Component({
+	selector: 'app-visualtrack-detail',
+	templateUrl: './visualtrack-detail.component.html',
+	styleUrls: ['./visualtrack-detail.component.css'],
+})
+export class VisualTrackDetailComponent implements OnInit {
+
+	// insertion point for declarations
+	VisualColorEnumList: VisualColorEnumSelect[]
+	DisplayFormControl = new FormControl(false);
+	DisplayTrackHistoryFormControl = new FormControl(false);
+	DisplayLevelAndSpeedFormControl = new FormControl(false);
+
+	// the VisualTrackDB of interest
+	visualtrack: VisualTrackDB;
+
+	// front repo
+	frontRepo: FrontRepo
+
+	constructor(
+		private visualtrackService: VisualTrackService,
+		private frontRepoService: FrontRepoService,
+		public dialog: MatDialog,
+		private route: ActivatedRoute,
+		private router: Router,
+	) {
+		// https://stackoverflow.com/questions/54627478/angular-7-routing-to-same-component-but-different-param-not-working
+		// this is for routerLink on same component when only queryParameter changes
+		this.router.routeReuseStrategy.shouldReuseRoute = function () {
+			return false;
+		};
+	}
+
+	ngOnInit(): void {
+		this.getVisualTrack()
+
+		// observable for changes in structs
+		this.visualtrackService.VisualTrackServiceChanged.subscribe(
+			message => {
+				if (message == "post" || message == "update" || message == "delete") {
+					this.getVisualTrack()
+				}
+			}
+		)
+
+		// insertion point for initialisation of enums list
+		this.VisualColorEnumList = VisualColorEnumList
+	}
+
+	getVisualTrack(): void {
+		const id = +this.route.snapshot.paramMap.get('id');
+		const association = this.route.snapshot.paramMap.get('association');
+
+		this.frontRepoService.pull().subscribe(
+			frontRepo => {
+				this.frontRepo = frontRepo
+				console.log("front repo VisualTrackPull returned")
+
+				if (id != 0 && association == undefined) {
+					this.visualtrack = frontRepo.VisualTracks.get(id)
+				} else {
+					this.visualtrack = new (VisualTrackDB)
+				}
+
+				// insertion point for recovery of form controls value for bool fields
+				this.DisplayFormControl.setValue(this.visualtrack.Display)
+				this.DisplayTrackHistoryFormControl.setValue(this.visualtrack.DisplayTrackHistory)
+				this.DisplayLevelAndSpeedFormControl.setValue(this.visualtrack.DisplayLevelAndSpeed)
+			}
+		)
+
+
+	}
+
+	save(): void {
+		const id = +this.route.snapshot.paramMap.get('id');
+		const association = this.route.snapshot.paramMap.get('association');
+
+		// insertion point for saving value of form controls of boolean fields
+		if (this.visualtrack.VisualLayerID == undefined) {
+			this.visualtrack.VisualLayerID = new NullInt64
+		}
+		if (this.visualtrack.VisualLayer != undefined) {
+			this.visualtrack.VisualLayerID.Int64 = this.visualtrack.VisualLayer.ID
+			this.visualtrack.VisualLayerID.Valid = true
+			this.visualtrack.VisualLayerName = this.visualtrack.VisualLayer.Name
+		} else {
+			this.visualtrack.VisualLayerID.Int64 = 0
+			this.visualtrack.VisualLayerID.Valid = true
+			this.visualtrack.VisualLayerName = ""
+		}
+		if (this.visualtrack.VisualIconID == undefined) {
+			this.visualtrack.VisualIconID = new NullInt64
+		}
+		if (this.visualtrack.VisualIcon != undefined) {
+			this.visualtrack.VisualIconID.Int64 = this.visualtrack.VisualIcon.ID
+			this.visualtrack.VisualIconID.Valid = true
+			this.visualtrack.VisualIconName = this.visualtrack.VisualIcon.Name
+		} else {
+			this.visualtrack.VisualIconID.Int64 = 0
+			this.visualtrack.VisualIconID.Valid = true
+			this.visualtrack.VisualIconName = ""
+		}
+		this.visualtrack.Display = this.DisplayFormControl.value
+		this.visualtrack.DisplayTrackHistory = this.DisplayTrackHistoryFormControl.value
+		this.visualtrack.DisplayLevelAndSpeed = this.DisplayLevelAndSpeedFormControl.value
+
+		if (id != 0 && association == undefined) {
+			// insertion point for saving value of reverse pointers
+
+			this.visualtrackService.updateVisualTrack(this.visualtrack)
+				.subscribe(visualtrack => {
+					this.visualtrackService.VisualTrackServiceChanged.next("update")
+
+					console.log("visualtrack saved")
+				});
+		} else {
+			switch (association) {
+				// insertion point for saving value of ONE_MANY association reverse pointer
+			}
+			this.visualtrackService.postVisualTrack(this.visualtrack).subscribe(visualtrack => {
+
+				this.visualtrackService.VisualTrackServiceChanged.next("post")
+
+				this.visualtrack = {} // reset fields
+				console.log("visualtrack added")
+			});
+		}
+	}
+
+	// openReverseSelection is a generic function that calls dialog for the edition of 
+	// ONE-MANY association
+	// It uses the MapOfComponent provided by the front repo
+	openReverseSelection(AssociatedStruct: string, reverseField: string) {
+
+		const dialogConfig = new MatDialogConfig();
+
+		// dialogConfig.disableClose = true;
+		dialogConfig.autoFocus = true;
+		dialogConfig.data = {
+			ID: this.visualtrack.ID,
+			ReversePointer: reverseField,
+		};
+		const dialogRef: MatDialogRef<string, any> = this.dialog.open(
+			MapOfComponents.get(AssociatedStruct).get(
+				AssociatedStruct + 'sTableComponent'
+			),
+			dialogConfig
+		);
+
+		dialogRef.afterClosed().subscribe(result => {
+			console.log('The dialog was closed');
+		});
+	}
+}

@@ -1,0 +1,225 @@
+// generated from NgTableTemplateTS
+import { Component, OnInit, OnChanges, Input, Output, EventEmitter, Inject, Optional } from '@angular/core';
+import { MatTableDataSource } from '@angular/material/table';
+import { MatButton } from '@angular/material/button'
+
+import { MatDialogRef, MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog'
+import { DialogData } from '../front-repo.service'
+import { SelectionModel } from '@angular/cdk/collections';
+
+const allowMultiSelect = true;
+
+import { Router, RouterState } from '@angular/router';
+import { VisualLineDB } from '../visualline-db'
+import { VisualLineService } from '../visualline.service'
+
+import { FrontRepoService, FrontRepo } from '../front-repo.service'
+
+// generated table component
+@Component({
+  selector: 'app-visuallines-table',
+  templateUrl: './visuallines-table.component.html',
+  styleUrls: ['./visuallines-table.component.css'],
+})
+export class VisualLinesTableComponent implements OnInit {
+
+  // used if the component is called as a selection component of VisualLine instances
+  selection: SelectionModel<VisualLineDB>;
+  initialSelection = new Array<VisualLineDB>();
+
+  // the data source for the table
+  visuallines: VisualLineDB[];
+
+  // front repo, that will be referenced by this.visuallines
+  frontRepo: FrontRepo
+
+  // displayedColumns is referenced by the MatTable component for specify what columns
+  // have to be displayed and in what order
+  displayedColumns: string[];
+
+  constructor(
+    private visuallineService: VisualLineService,
+    private frontRepoService: FrontRepoService,
+
+    // not null if the component is called as a selection component of visualline instances
+    public dialogRef: MatDialogRef<VisualLinesTableComponent>,
+    @Optional() @Inject(MAT_DIALOG_DATA) public dialogData: DialogData,
+
+    private router: Router,
+  ) {
+    // https://stackoverflow.com/questions/54627478/angular-7-routing-to-same-component-but-different-param-not-working
+    // this is for routerLink on same component when only queryParameter changes
+    this.router.routeReuseStrategy.shouldReuseRoute = function () {
+      return false;
+    };
+
+    // observable for changes in structs
+    this.visuallineService.VisualLineServiceChanged.subscribe(
+      message => {
+        if (message == "post" || message == "update" || message == "delete") {
+          this.getVisualLines()
+        }
+      }
+    )
+    if (dialogData == undefined) {
+      this.displayedColumns = ['ID', 'Edit', 'Delete', // insertion point for columns to display
+        "StartLat",
+        "StartLng",
+        "EndLat",
+        "EndLng",
+        "Name",
+        "VisualColorEnum",
+        "DashStyleEnum",
+        "VisualLayer",
+        "IsTransmitting",
+        "Message",
+        "IsTransmittingBackward",
+        "MessageBackward",
+      ]
+    } else {
+      this.displayedColumns = ['select', 'ID', // insertion point for columns to display
+        "StartLat",
+        "StartLng",
+        "EndLat",
+        "EndLng",
+        "Name",
+        "VisualColorEnum",
+        "DashStyleEnum",
+        "VisualLayer",
+        "IsTransmitting",
+        "Message",
+        "IsTransmittingBackward",
+        "MessageBackward",
+      ]
+      this.selection = new SelectionModel<VisualLineDB>(allowMultiSelect, this.initialSelection);
+    }
+
+  }
+
+  ngOnInit(): void {
+    this.getVisualLines()
+  }
+
+  getVisualLines(): void {
+    this.frontRepoService.pull().subscribe(
+      frontRepo => {
+        this.frontRepo = frontRepo
+        console.log("front repo pull returned")
+
+        this.visuallines = this.frontRepo.VisualLines_array;
+
+        // insertion point for variables Recoveries
+
+        // in case the component is called as a selection component
+        if (this.dialogData != undefined) {
+          this.visuallines.forEach(
+            visualline => {
+              let ID = this.dialogData.ID
+              let revPointer = visualline[this.dialogData.ReversePointer]
+              if (revPointer.Int64 == ID) {
+                this.initialSelection.push(visualline)
+              }
+            }
+          )
+          this.selection = new SelectionModel<VisualLineDB>(allowMultiSelect, this.initialSelection);
+        }
+      }
+    )
+  }
+
+  // newVisualLine initiate a new visualline
+  // create a new VisualLine objet
+  newVisualLine() {
+  }
+
+  deleteVisualLine(visuallineID: number, visualline: VisualLineDB) {
+    // list of visuallines is truncated of visualline before the delete
+    this.visuallines = this.visuallines.filter(h => h !== visualline);
+
+    this.visuallineService.deleteVisualLine(visuallineID).subscribe(
+      visualline => {
+        this.visuallineService.VisualLineServiceChanged.next("delete")
+
+        console.log("visualline deleted")
+      }
+    );
+  }
+
+  editVisualLine(visuallineID: number, visualline: VisualLineDB) {
+
+  }
+
+  // display visualline in router
+  displayVisualLineInRouter(visuallineID: number) {
+    this.router.navigate( ["visualline-display", visuallineID])
+  }
+
+  // set editor outlet
+  setEditorRouterOutlet(visuallineID: number) {
+    this.router.navigate([{
+      outlets: {
+        editor: ["visualline-detail", visuallineID]
+      }
+    }]);
+  }
+
+  // set presentation outlet
+  setPresentationRouterOutlet(visuallineID: number) {
+    this.router.navigate([{
+      outlets: {
+        presentation: ["visualline-presentation", visuallineID]
+      }
+    }]);
+  }
+
+  /** Whether the number of selected elements matches the total number of rows. */
+  isAllSelected() {
+    const numSelected = this.selection.selected.length;
+    const numRows = this.visuallines.length;
+    return numSelected === numRows;
+  }
+
+  /** Selects all rows if they are not all selected; otherwise clear selection. */
+  masterToggle() {
+    this.isAllSelected() ?
+      this.selection.clear() :
+      this.visuallines.forEach(row => this.selection.select(row));
+  }
+
+  save() {
+
+    let toUpdate = new Set<VisualLineDB>()
+
+    // reset all initial selection of visualline that belong to visualline through Anarrayofb
+    this.initialSelection.forEach(
+      visualline => {
+        visualline[this.dialogData.ReversePointer].Int64 = 0
+        visualline[this.dialogData.ReversePointer].Valid = true
+        toUpdate.add(visualline)
+      }
+    )
+
+    // from selection, set visualline that belong to visualline through Anarrayofb
+    this.selection.selected.forEach(
+      visualline => {
+        console.log("selection ID " + visualline.ID)
+        let ID = +this.dialogData.ID
+        visualline[this.dialogData.ReversePointer].Int64 = ID
+        visualline[this.dialogData.ReversePointer].Valid = true
+        toUpdate.add(visualline)
+      }
+    )
+
+    // update all visualline (only update selection & initial selection)
+    toUpdate.forEach(
+      visualline => {
+        this.visuallineService.updateVisualLine(visualline)
+          .subscribe(visualline => {
+            this.visuallineService.VisualLineServiceChanged.next("update")
+            console.log("visualline saved")
+          });
+      }
+    )
+    this.dialogRef.close('Pizza!');
+  }
+}

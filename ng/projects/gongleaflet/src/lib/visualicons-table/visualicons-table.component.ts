@@ -1,0 +1,205 @@
+// generated from NgTableTemplateTS
+import { Component, OnInit, OnChanges, Input, Output, EventEmitter, Inject, Optional } from '@angular/core';
+import { MatTableDataSource } from '@angular/material/table';
+import { MatButton } from '@angular/material/button'
+
+import { MatDialogRef, MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog'
+import { DialogData } from '../front-repo.service'
+import { SelectionModel } from '@angular/cdk/collections';
+
+const allowMultiSelect = true;
+
+import { Router, RouterState } from '@angular/router';
+import { VisualIconDB } from '../visualicon-db'
+import { VisualIconService } from '../visualicon.service'
+
+import { FrontRepoService, FrontRepo } from '../front-repo.service'
+
+// generated table component
+@Component({
+  selector: 'app-visualicons-table',
+  templateUrl: './visualicons-table.component.html',
+  styleUrls: ['./visualicons-table.component.css'],
+})
+export class VisualIconsTableComponent implements OnInit {
+
+  // used if the component is called as a selection component of VisualIcon instances
+  selection: SelectionModel<VisualIconDB>;
+  initialSelection = new Array<VisualIconDB>();
+
+  // the data source for the table
+  visualicons: VisualIconDB[];
+
+  // front repo, that will be referenced by this.visualicons
+  frontRepo: FrontRepo
+
+  // displayedColumns is referenced by the MatTable component for specify what columns
+  // have to be displayed and in what order
+  displayedColumns: string[];
+
+  constructor(
+    private visualiconService: VisualIconService,
+    private frontRepoService: FrontRepoService,
+
+    // not null if the component is called as a selection component of visualicon instances
+    public dialogRef: MatDialogRef<VisualIconsTableComponent>,
+    @Optional() @Inject(MAT_DIALOG_DATA) public dialogData: DialogData,
+
+    private router: Router,
+  ) {
+    // https://stackoverflow.com/questions/54627478/angular-7-routing-to-same-component-but-different-param-not-working
+    // this is for routerLink on same component when only queryParameter changes
+    this.router.routeReuseStrategy.shouldReuseRoute = function () {
+      return false;
+    };
+
+    // observable for changes in structs
+    this.visualiconService.VisualIconServiceChanged.subscribe(
+      message => {
+        if (message == "post" || message == "update" || message == "delete") {
+          this.getVisualIcons()
+        }
+      }
+    )
+    if (dialogData == undefined) {
+      this.displayedColumns = ['ID', 'Edit', 'Delete', // insertion point for columns to display
+        "Name",
+        "SVG",
+      ]
+    } else {
+      this.displayedColumns = ['select', 'ID', // insertion point for columns to display
+        "Name",
+        "SVG",
+      ]
+      this.selection = new SelectionModel<VisualIconDB>(allowMultiSelect, this.initialSelection);
+    }
+
+  }
+
+  ngOnInit(): void {
+    this.getVisualIcons()
+  }
+
+  getVisualIcons(): void {
+    this.frontRepoService.pull().subscribe(
+      frontRepo => {
+        this.frontRepo = frontRepo
+        console.log("front repo pull returned")
+
+        this.visualicons = this.frontRepo.VisualIcons_array;
+
+        // insertion point for variables Recoveries
+
+        // in case the component is called as a selection component
+        if (this.dialogData != undefined) {
+          this.visualicons.forEach(
+            visualicon => {
+              let ID = this.dialogData.ID
+              let revPointer = visualicon[this.dialogData.ReversePointer]
+              if (revPointer.Int64 == ID) {
+                this.initialSelection.push(visualicon)
+              }
+            }
+          )
+          this.selection = new SelectionModel<VisualIconDB>(allowMultiSelect, this.initialSelection);
+        }
+      }
+    )
+  }
+
+  // newVisualIcon initiate a new visualicon
+  // create a new VisualIcon objet
+  newVisualIcon() {
+  }
+
+  deleteVisualIcon(visualiconID: number, visualicon: VisualIconDB) {
+    // list of visualicons is truncated of visualicon before the delete
+    this.visualicons = this.visualicons.filter(h => h !== visualicon);
+
+    this.visualiconService.deleteVisualIcon(visualiconID).subscribe(
+      visualicon => {
+        this.visualiconService.VisualIconServiceChanged.next("delete")
+
+        console.log("visualicon deleted")
+      }
+    );
+  }
+
+  editVisualIcon(visualiconID: number, visualicon: VisualIconDB) {
+
+  }
+
+  // display visualicon in router
+  displayVisualIconInRouter(visualiconID: number) {
+    this.router.navigate( ["visualicon-display", visualiconID])
+  }
+
+  // set editor outlet
+  setEditorRouterOutlet(visualiconID: number) {
+    this.router.navigate([{
+      outlets: {
+        editor: ["visualicon-detail", visualiconID]
+      }
+    }]);
+  }
+
+  // set presentation outlet
+  setPresentationRouterOutlet(visualiconID: number) {
+    this.router.navigate([{
+      outlets: {
+        presentation: ["visualicon-presentation", visualiconID]
+      }
+    }]);
+  }
+
+  /** Whether the number of selected elements matches the total number of rows. */
+  isAllSelected() {
+    const numSelected = this.selection.selected.length;
+    const numRows = this.visualicons.length;
+    return numSelected === numRows;
+  }
+
+  /** Selects all rows if they are not all selected; otherwise clear selection. */
+  masterToggle() {
+    this.isAllSelected() ?
+      this.selection.clear() :
+      this.visualicons.forEach(row => this.selection.select(row));
+  }
+
+  save() {
+
+    let toUpdate = new Set<VisualIconDB>()
+
+    // reset all initial selection of visualicon that belong to visualicon through Anarrayofb
+    this.initialSelection.forEach(
+      visualicon => {
+        visualicon[this.dialogData.ReversePointer].Int64 = 0
+        visualicon[this.dialogData.ReversePointer].Valid = true
+        toUpdate.add(visualicon)
+      }
+    )
+
+    // from selection, set visualicon that belong to visualicon through Anarrayofb
+    this.selection.selected.forEach(
+      visualicon => {
+        console.log("selection ID " + visualicon.ID)
+        let ID = +this.dialogData.ID
+        visualicon[this.dialogData.ReversePointer].Int64 = ID
+        visualicon[this.dialogData.ReversePointer].Valid = true
+        toUpdate.add(visualicon)
+      }
+    )
+
+    // update all visualicon (only update selection & initial selection)
+    toUpdate.forEach(
+      visualicon => {
+        this.visualiconService.updateVisualIcon(visualicon)
+          .subscribe(visualicon => {
+            this.visualiconService.VisualIconServiceChanged.next("update")
+            console.log("visualicon saved")
+          });
+      }
+    )
+    this.dialogRef.close('Pizza!');
+  }
+}
