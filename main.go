@@ -81,5 +81,7 @@ func main() {
 		c.Abort()
 	})
 
+	log.Printf("Server ready serve on localhost:8080")
+
 	r.Run()
 }
