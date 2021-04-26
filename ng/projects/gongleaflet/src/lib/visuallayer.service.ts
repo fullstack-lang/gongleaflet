@@ -53,10 +53,17 @@ export class VisualLayerService {
   //////// Save methods //////////
 
   /** POST: add a new visuallayer to the server */
-  postVisualLayer(visuallayerAPI: VisualLayerAPI): Observable<VisualLayerDB> {
-    return this.http.post<VisualLayerDB>(this.visuallayersUrl, visuallayerAPI, this.httpOptions).pipe(
-      tap((newVisualLayer: VisualLayerDB) => {})
-    );
+  postVisualLayer(visuallayerdb: VisualLayerDB): Observable<VisualLayerDB> {
+
+		// insertion point for reset of pointers and reverse pointers (to avoid circular JSON)
+
+		return this.http.post<VisualLayerDB>(this.visuallayersUrl, visuallayerdb, this.httpOptions).pipe(
+			tap(_ => {
+				// insertion point for restoration of reverse pointers
+				this.log(`posted visuallayerdb id=${visuallayerdb.ID}`)
+			}),
+			catchError(this.handleError<VisualLayerDB>('postVisualLayer'))
+		);
   }
 
   /** DELETE: delete the visuallayerdb from the server */
@@ -75,7 +82,7 @@ export class VisualLayerService {
     const id = typeof visuallayerdb === 'number' ? visuallayerdb : visuallayerdb.ID;
     const url = `${this.visuallayersUrl}/${id}`;
 
-    // insertion point for reset of reverse pointers (to avoid circular JSON)
+    // insertion point for reset of pointers and reverse pointers (to avoid circular JSON)
 
     return this.http.put(url, visuallayerdb, this.httpOptions).pipe(
       tap(_ => {

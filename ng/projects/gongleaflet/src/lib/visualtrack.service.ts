@@ -53,10 +53,19 @@ export class VisualTrackService {
   //////// Save methods //////////
 
   /** POST: add a new visualtrack to the server */
-  postVisualTrack(visualtrackAPI: VisualTrackAPI): Observable<VisualTrackDB> {
-    return this.http.post<VisualTrackDB>(this.visualtracksUrl, visualtrackAPI, this.httpOptions).pipe(
-      tap((newVisualTrack: VisualTrackDB) => {})
-    );
+  postVisualTrack(visualtrackdb: VisualTrackDB): Observable<VisualTrackDB> {
+
+		// insertion point for reset of pointers and reverse pointers (to avoid circular JSON)
+    visualtrackdb.VisualLayer = {}
+    visualtrackdb.VisualIcon = {}
+
+		return this.http.post<VisualTrackDB>(this.visualtracksUrl, visualtrackdb, this.httpOptions).pipe(
+			tap(_ => {
+				// insertion point for restoration of reverse pointers
+				this.log(`posted visualtrackdb id=${visualtrackdb.ID}`)
+			}),
+			catchError(this.handleError<VisualTrackDB>('postVisualTrack'))
+		);
   }
 
   /** DELETE: delete the visualtrackdb from the server */
@@ -75,7 +84,7 @@ export class VisualTrackService {
     const id = typeof visualtrackdb === 'number' ? visualtrackdb : visualtrackdb.ID;
     const url = `${this.visualtracksUrl}/${id}`;
 
-    // insertion point for reset of reverse pointers (to avoid circular JSON)
+    // insertion point for reset of pointers and reverse pointers (to avoid circular JSON)
     visualtrackdb.VisualLayer = {}
     visualtrackdb.VisualIcon = {}
 

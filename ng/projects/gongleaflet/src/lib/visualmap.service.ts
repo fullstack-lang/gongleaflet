@@ -53,10 +53,17 @@ export class VisualMapService {
   //////// Save methods //////////
 
   /** POST: add a new visualmap to the server */
-  postVisualMap(visualmapAPI: VisualMapAPI): Observable<VisualMapDB> {
-    return this.http.post<VisualMapDB>(this.visualmapsUrl, visualmapAPI, this.httpOptions).pipe(
-      tap((newVisualMap: VisualMapDB) => {})
-    );
+  postVisualMap(visualmapdb: VisualMapDB): Observable<VisualMapDB> {
+
+		// insertion point for reset of pointers and reverse pointers (to avoid circular JSON)
+
+		return this.http.post<VisualMapDB>(this.visualmapsUrl, visualmapdb, this.httpOptions).pipe(
+			tap(_ => {
+				// insertion point for restoration of reverse pointers
+				this.log(`posted visualmapdb id=${visualmapdb.ID}`)
+			}),
+			catchError(this.handleError<VisualMapDB>('postVisualMap'))
+		);
   }
 
   /** DELETE: delete the visualmapdb from the server */
@@ -75,7 +82,7 @@ export class VisualMapService {
     const id = typeof visualmapdb === 'number' ? visualmapdb : visualmapdb.ID;
     const url = `${this.visualmapsUrl}/${id}`;
 
-    // insertion point for reset of reverse pointers (to avoid circular JSON)
+    // insertion point for reset of pointers and reverse pointers (to avoid circular JSON)
 
     return this.http.put(url, visualmapdb, this.httpOptions).pipe(
       tap(_ => {

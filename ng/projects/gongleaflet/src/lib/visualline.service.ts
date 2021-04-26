@@ -53,10 +53,18 @@ export class VisualLineService {
   //////// Save methods //////////
 
   /** POST: add a new visualline to the server */
-  postVisualLine(visuallineAPI: VisualLineAPI): Observable<VisualLineDB> {
-    return this.http.post<VisualLineDB>(this.visuallinesUrl, visuallineAPI, this.httpOptions).pipe(
-      tap((newVisualLine: VisualLineDB) => {})
-    );
+  postVisualLine(visuallinedb: VisualLineDB): Observable<VisualLineDB> {
+
+		// insertion point for reset of pointers and reverse pointers (to avoid circular JSON)
+    visuallinedb.VisualLayer = {}
+
+		return this.http.post<VisualLineDB>(this.visuallinesUrl, visuallinedb, this.httpOptions).pipe(
+			tap(_ => {
+				// insertion point for restoration of reverse pointers
+				this.log(`posted visuallinedb id=${visuallinedb.ID}`)
+			}),
+			catchError(this.handleError<VisualLineDB>('postVisualLine'))
+		);
   }
 
   /** DELETE: delete the visuallinedb from the server */
@@ -75,7 +83,7 @@ export class VisualLineService {
     const id = typeof visuallinedb === 'number' ? visuallinedb : visuallinedb.ID;
     const url = `${this.visuallinesUrl}/${id}`;
 
-    // insertion point for reset of reverse pointers (to avoid circular JSON)
+    // insertion point for reset of pointers and reverse pointers (to avoid circular JSON)
     visuallinedb.VisualLayer = {}
 
     return this.http.put(url, visuallinedb, this.httpOptions).pipe(

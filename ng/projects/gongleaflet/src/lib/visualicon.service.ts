@@ -53,10 +53,17 @@ export class VisualIconService {
   //////// Save methods //////////
 
   /** POST: add a new visualicon to the server */
-  postVisualIcon(visualiconAPI: VisualIconAPI): Observable<VisualIconDB> {
-    return this.http.post<VisualIconDB>(this.visualiconsUrl, visualiconAPI, this.httpOptions).pipe(
-      tap((newVisualIcon: VisualIconDB) => {})
-    );
+  postVisualIcon(visualicondb: VisualIconDB): Observable<VisualIconDB> {
+
+		// insertion point for reset of pointers and reverse pointers (to avoid circular JSON)
+
+		return this.http.post<VisualIconDB>(this.visualiconsUrl, visualicondb, this.httpOptions).pipe(
+			tap(_ => {
+				// insertion point for restoration of reverse pointers
+				this.log(`posted visualicondb id=${visualicondb.ID}`)
+			}),
+			catchError(this.handleError<VisualIconDB>('postVisualIcon'))
+		);
   }
 
   /** DELETE: delete the visualicondb from the server */
@@ -75,7 +82,7 @@ export class VisualIconService {
     const id = typeof visualicondb === 'number' ? visualicondb : visualicondb.ID;
     const url = `${this.visualiconsUrl}/${id}`;
 
-    // insertion point for reset of reverse pointers (to avoid circular JSON)
+    // insertion point for reset of pointers and reverse pointers (to avoid circular JSON)
 
     return this.http.put(url, visualicondb, this.httpOptions).pipe(
       tap(_ => {

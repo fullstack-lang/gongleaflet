@@ -53,10 +53,18 @@ export class VisualCircleService {
   //////// Save methods //////////
 
   /** POST: add a new visualcircle to the server */
-  postVisualCircle(visualcircleAPI: VisualCircleAPI): Observable<VisualCircleDB> {
-    return this.http.post<VisualCircleDB>(this.visualcirclesUrl, visualcircleAPI, this.httpOptions).pipe(
-      tap((newVisualCircle: VisualCircleDB) => {})
-    );
+  postVisualCircle(visualcircledb: VisualCircleDB): Observable<VisualCircleDB> {
+
+		// insertion point for reset of pointers and reverse pointers (to avoid circular JSON)
+    visualcircledb.VisualLayer = {}
+
+		return this.http.post<VisualCircleDB>(this.visualcirclesUrl, visualcircledb, this.httpOptions).pipe(
+			tap(_ => {
+				// insertion point for restoration of reverse pointers
+				this.log(`posted visualcircledb id=${visualcircledb.ID}`)
+			}),
+			catchError(this.handleError<VisualCircleDB>('postVisualCircle'))
+		);
   }
 
   /** DELETE: delete the visualcircledb from the server */
@@ -75,7 +83,7 @@ export class VisualCircleService {
     const id = typeof visualcircledb === 'number' ? visualcircledb : visualcircledb.ID;
     const url = `${this.visualcirclesUrl}/${id}`;
 
-    // insertion point for reset of reverse pointers (to avoid circular JSON)
+    // insertion point for reset of pointers and reverse pointers (to avoid circular JSON)
     visualcircledb.VisualLayer = {}
 
     return this.http.put(url, visualcircledb, this.httpOptions).pipe(

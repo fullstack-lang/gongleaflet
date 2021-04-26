@@ -95,7 +95,10 @@ export class VisualLineDetailComponent implements OnInit {
 		const id = +this.route.snapshot.paramMap.get('id');
 		const association = this.route.snapshot.paramMap.get('association');
 
-		// insertion point for saving value of form controls of boolean fields
+		// some fields needs to be translated into serializable forms
+		// pointers fields, after the translation, are nulled in order to perform serialization
+		
+		// insertion point for translation/nullation of each field
 		if (this.visualline.VisualLayerID == undefined) {
 			this.visualline.VisualLayerID = new NullInt64
 		}
@@ -108,9 +111,13 @@ export class VisualLineDetailComponent implements OnInit {
 			this.visualline.VisualLayerID.Valid = true
 			this.visualline.VisualLayerName = ""
 		}
+		
+		// save from the front pointer space to the non pointer space for serialization
+		if (association == undefined) {
+			// insertion point for translation/nullation of each pointers
+		}
 
 		if (id != 0 && association == undefined) {
-			// insertion point for saving value of reverse pointers
 
 			this.visuallineService.updateVisualLine(this.visualline)
 				.subscribe(visualline => {

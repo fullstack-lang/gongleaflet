@@ -53,10 +53,19 @@ export class VisualCenterService {
   //////// Save methods //////////
 
   /** POST: add a new visualcenter to the server */
-  postVisualCenter(visualcenterAPI: VisualCenterAPI): Observable<VisualCenterDB> {
-    return this.http.post<VisualCenterDB>(this.visualcentersUrl, visualcenterAPI, this.httpOptions).pipe(
-      tap((newVisualCenter: VisualCenterDB) => {})
-    );
+  postVisualCenter(visualcenterdb: VisualCenterDB): Observable<VisualCenterDB> {
+
+		// insertion point for reset of pointers and reverse pointers (to avoid circular JSON)
+    visualcenterdb.VisualLayer = {}
+    visualcenterdb.VisualIcon = {}
+
+		return this.http.post<VisualCenterDB>(this.visualcentersUrl, visualcenterdb, this.httpOptions).pipe(
+			tap(_ => {
+				// insertion point for restoration of reverse pointers
+				this.log(`posted visualcenterdb id=${visualcenterdb.ID}`)
+			}),
+			catchError(this.handleError<VisualCenterDB>('postVisualCenter'))
+		);
   }
 
   /** DELETE: delete the visualcenterdb from the server */
@@ -75,7 +84,7 @@ export class VisualCenterService {
     const id = typeof visualcenterdb === 'number' ? visualcenterdb : visualcenterdb.ID;
     const url = `${this.visualcentersUrl}/${id}`;
 
-    // insertion point for reset of reverse pointers (to avoid circular JSON)
+    // insertion point for reset of pointers and reverse pointers (to avoid circular JSON)
     visualcenterdb.VisualLayer = {}
     visualcenterdb.VisualIcon = {}
 
