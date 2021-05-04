@@ -132,7 +132,7 @@ export class VisualCentersTableComponent implements OnInit {
           this.selection = new SelectionModel<VisualCenterDB>(allowMultiSelect, this.initialSelection);
         }
 
-		// update the mat table data source
+        // update the mat table data source
         this.matTableDataSource.data = this.visualcenters
       }
     )

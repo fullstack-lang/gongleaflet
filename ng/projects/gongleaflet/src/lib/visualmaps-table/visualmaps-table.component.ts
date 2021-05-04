@@ -140,7 +140,7 @@ export class VisualMapsTableComponent implements OnInit {
           this.selection = new SelectionModel<VisualMapDB>(allowMultiSelect, this.initialSelection);
         }
 
-		// update the mat table data source
+        // update the mat table data source
         this.matTableDataSource.data = this.visualmaps
       }
     )

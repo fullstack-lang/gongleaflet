@@ -124,7 +124,7 @@ export class VisualIconsTableComponent implements OnInit {
           this.selection = new SelectionModel<VisualIconDB>(allowMultiSelect, this.initialSelection);
         }
 
-		// update the mat table data source
+        // update the mat table data source
         this.matTableDataSource.data = this.visualicons
       }
     )

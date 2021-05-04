@@ -144,7 +144,7 @@ export class VisualLinesTableComponent implements OnInit {
           this.selection = new SelectionModel<VisualLineDB>(allowMultiSelect, this.initialSelection);
         }
 
-		// update the mat table data source
+        // update the mat table data source
         this.matTableDataSource.data = this.visuallines
       }
     )

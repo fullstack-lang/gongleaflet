@@ -173,6 +173,18 @@ export class FrontRepoService {
                 }
               }
             )
+            
+            // sort VisualCenters_array array
+            FrontRepoSingloton.VisualCenters_array.sort((t1, t2) => {
+              if (t1.Name > t2.Name) {
+                return 1;
+              }
+              if (t1.Name < t2.Name) {
+                return -1;
+              }
+              return 0;
+            });
+            
             // init the array
             FrontRepoSingloton.VisualCircles_array = visualcircles
 
@@ -194,6 +206,18 @@ export class FrontRepoService {
                 }
               }
             )
+            
+            // sort VisualCircles_array array
+            FrontRepoSingloton.VisualCircles_array.sort((t1, t2) => {
+              if (t1.Name > t2.Name) {
+                return 1;
+              }
+              if (t1.Name < t2.Name) {
+                return -1;
+              }
+              return 0;
+            });
+            
             // init the array
             FrontRepoSingloton.VisualIcons_array = visualicons
 
@@ -215,6 +239,18 @@ export class FrontRepoService {
                 }
               }
             )
+            
+            // sort VisualIcons_array array
+            FrontRepoSingloton.VisualIcons_array.sort((t1, t2) => {
+              if (t1.Name > t2.Name) {
+                return 1;
+              }
+              if (t1.Name < t2.Name) {
+                return -1;
+              }
+              return 0;
+            });
+            
             // init the array
             FrontRepoSingloton.VisualLayers_array = visuallayers
 
@@ -236,6 +272,18 @@ export class FrontRepoService {
                 }
               }
             )
+            
+            // sort VisualLayers_array array
+            FrontRepoSingloton.VisualLayers_array.sort((t1, t2) => {
+              if (t1.Name > t2.Name) {
+                return 1;
+              }
+              if (t1.Name < t2.Name) {
+                return -1;
+              }
+              return 0;
+            });
+            
             // init the array
             FrontRepoSingloton.VisualLines_array = visuallines
 
@@ -257,6 +305,18 @@ export class FrontRepoService {
                 }
               }
             )
+            
+            // sort VisualLines_array array
+            FrontRepoSingloton.VisualLines_array.sort((t1, t2) => {
+              if (t1.Name > t2.Name) {
+                return 1;
+              }
+              if (t1.Name < t2.Name) {
+                return -1;
+              }
+              return 0;
+            });
+            
             // init the array
             FrontRepoSingloton.VisualMaps_array = visualmaps
 
@@ -278,6 +338,18 @@ export class FrontRepoService {
                 }
               }
             )
+            
+            // sort VisualMaps_array array
+            FrontRepoSingloton.VisualMaps_array.sort((t1, t2) => {
+              if (t1.Name > t2.Name) {
+                return 1;
+              }
+              if (t1.Name < t2.Name) {
+                return -1;
+              }
+              return 0;
+            });
+            
             // init the array
             FrontRepoSingloton.VisualTracks_array = visualtracks
 
@@ -299,6 +371,18 @@ export class FrontRepoService {
                 }
               }
             )
+            
+            // sort VisualTracks_array array
+            FrontRepoSingloton.VisualTracks_array.sort((t1, t2) => {
+              if (t1.Name > t2.Name) {
+                return 1;
+              }
+              if (t1.Name < t2.Name) {
+                return -1;
+              }
+              return 0;
+            });
+            
 
             // 
             // Second Step: redeem pointers between instances (thanks to maps in the First Step)

@@ -263,6 +263,16 @@ export class SidebarComponent implements OnInit {
       nonInstanceNodeId = nonInstanceNodeId + 1
       this.gongNodeTree.push(visualcenterGongNodeStruct)
 
+      this.frontRepo.VisualCenters_array.sort((t1, t2) => {
+        if (t1.Name > t2.Name) {
+          return 1;
+        }
+        if (t1.Name < t2.Name) {
+          return -1;
+        }
+        return 0;
+      });
+
       this.frontRepo.VisualCenters_array.forEach(
         visualcenterDB => {
           let visualcenterGongNodeInstance: GongNode = {
@@ -361,6 +371,16 @@ export class SidebarComponent implements OnInit {
       nonInstanceNodeId = nonInstanceNodeId + 1
       this.gongNodeTree.push(visualcircleGongNodeStruct)
 
+      this.frontRepo.VisualCircles_array.sort((t1, t2) => {
+        if (t1.Name > t2.Name) {
+          return 1;
+        }
+        if (t1.Name < t2.Name) {
+          return -1;
+        }
+        return 0;
+      });
+
       this.frontRepo.VisualCircles_array.forEach(
         visualcircleDB => {
           let visualcircleGongNodeInstance: GongNode = {
@@ -426,6 +446,16 @@ export class SidebarComponent implements OnInit {
       nonInstanceNodeId = nonInstanceNodeId + 1
       this.gongNodeTree.push(visualiconGongNodeStruct)
 
+      this.frontRepo.VisualIcons_array.sort((t1, t2) => {
+        if (t1.Name > t2.Name) {
+          return 1;
+        }
+        if (t1.Name < t2.Name) {
+          return -1;
+        }
+        return 0;
+      });
+
       this.frontRepo.VisualIcons_array.forEach(
         visualiconDB => {
           let visualiconGongNodeInstance: GongNode = {
@@ -458,6 +488,16 @@ export class SidebarComponent implements OnInit {
       nonInstanceNodeId = nonInstanceNodeId + 1
       this.gongNodeTree.push(visuallayerGongNodeStruct)
 
+      this.frontRepo.VisualLayers_array.sort((t1, t2) => {
+        if (t1.Name > t2.Name) {
+          return 1;
+        }
+        if (t1.Name < t2.Name) {
+          return -1;
+        }
+        return 0;
+      });
+
       this.frontRepo.VisualLayers_array.forEach(
         visuallayerDB => {
           let visuallayerGongNodeInstance: GongNode = {
@@ -489,6 +529,16 @@ export class SidebarComponent implements OnInit {
       }
       nonInstanceNodeId = nonInstanceNodeId + 1
       this.gongNodeTree.push(visuallineGongNodeStruct)
+
+      this.frontRepo.VisualLines_array.sort((t1, t2) => {
+        if (t1.Name > t2.Name) {
+          return 1;
+        }
+        if (t1.Name < t2.Name) {
+          return -1;
+        }
+        return 0;
+      });
 
       this.frontRepo.VisualLines_array.forEach(
         visuallineDB => {
@@ -555,6 +605,16 @@ export class SidebarComponent implements OnInit {
       nonInstanceNodeId = nonInstanceNodeId + 1
       this.gongNodeTree.push(visualmapGongNodeStruct)
 
+      this.frontRepo.VisualMaps_array.sort((t1, t2) => {
+        if (t1.Name > t2.Name) {
+          return 1;
+        }
+        if (t1.Name < t2.Name) {
+          return -1;
+        }
+        return 0;
+      });
+
       this.frontRepo.VisualMaps_array.forEach(
         visualmapDB => {
           let visualmapGongNodeInstance: GongNode = {
@@ -586,6 +646,16 @@ export class SidebarComponent implements OnInit {
       }
       nonInstanceNodeId = nonInstanceNodeId + 1
       this.gongNodeTree.push(visualtrackGongNodeStruct)
+
+      this.frontRepo.VisualTracks_array.sort((t1, t2) => {
+        if (t1.Name > t2.Name) {
+          return 1;
+        }
+        if (t1.Name < t2.Name) {
+          return -1;
+        }
+        return 0;
+      });
 
       this.frontRepo.VisualTracks_array.forEach(
         visualtrackDB => {

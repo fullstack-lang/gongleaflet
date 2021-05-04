@@ -134,7 +134,7 @@ export class VisualCirclesTableComponent implements OnInit {
           this.selection = new SelectionModel<VisualCircleDB>(allowMultiSelect, this.initialSelection);
         }
 
-		// update the mat table data source
+        // update the mat table data source
         this.matTableDataSource.data = this.visualcircles
       }
     )
