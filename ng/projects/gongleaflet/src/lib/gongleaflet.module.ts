@@ -22,6 +22,7 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatTreeModule } from '@angular/material/tree';
+import { DragDropModule } from '@angular/cdk/drag-drop';
 
 import { AngularSplitModule, SplitComponent } from 'angular-split';
 
@@ -32,30 +33,37 @@ import { SidebarComponent } from './sidebar/sidebar.component';
 
 // insertion point for imports 
 import { VisualCentersTableComponent } from './visualcenters-table/visualcenters-table.component'
+import { VisualCenterSortingComponent } from './visualcenter-sorting/visualcenter-sorting.component'
 import { VisualCenterDetailComponent } from './visualcenter-detail/visualcenter-detail.component'
 import { VisualCenterPresentationComponent } from './visualcenter-presentation/visualcenter-presentation.component'
 
 import { VisualCirclesTableComponent } from './visualcircles-table/visualcircles-table.component'
+import { VisualCircleSortingComponent } from './visualcircle-sorting/visualcircle-sorting.component'
 import { VisualCircleDetailComponent } from './visualcircle-detail/visualcircle-detail.component'
 import { VisualCirclePresentationComponent } from './visualcircle-presentation/visualcircle-presentation.component'
 
 import { VisualIconsTableComponent } from './visualicons-table/visualicons-table.component'
+import { VisualIconSortingComponent } from './visualicon-sorting/visualicon-sorting.component'
 import { VisualIconDetailComponent } from './visualicon-detail/visualicon-detail.component'
 import { VisualIconPresentationComponent } from './visualicon-presentation/visualicon-presentation.component'
 
 import { VisualLayersTableComponent } from './visuallayers-table/visuallayers-table.component'
+import { VisualLayerSortingComponent } from './visuallayer-sorting/visuallayer-sorting.component'
 import { VisualLayerDetailComponent } from './visuallayer-detail/visuallayer-detail.component'
 import { VisualLayerPresentationComponent } from './visuallayer-presentation/visuallayer-presentation.component'
 
 import { VisualLinesTableComponent } from './visuallines-table/visuallines-table.component'
+import { VisualLineSortingComponent } from './visualline-sorting/visualline-sorting.component'
 import { VisualLineDetailComponent } from './visualline-detail/visualline-detail.component'
 import { VisualLinePresentationComponent } from './visualline-presentation/visualline-presentation.component'
 
 import { VisualMapsTableComponent } from './visualmaps-table/visualmaps-table.component'
+import { VisualMapSortingComponent } from './visualmap-sorting/visualmap-sorting.component'
 import { VisualMapDetailComponent } from './visualmap-detail/visualmap-detail.component'
 import { VisualMapPresentationComponent } from './visualmap-presentation/visualmap-presentation.component'
 
 import { VisualTracksTableComponent } from './visualtracks-table/visualtracks-table.component'
+import { VisualTrackSortingComponent } from './visualtrack-sorting/visualtrack-sorting.component'
 import { VisualTrackDetailComponent } from './visualtrack-detail/visualtrack-detail.component'
 import { VisualTrackPresentationComponent } from './visualtrack-presentation/visualtrack-presentation.component'
 
@@ -64,30 +72,37 @@ import { VisualTrackPresentationComponent } from './visualtrack-presentation/vis
 	declarations: [
 		// insertion point for declarations 
 		VisualCentersTableComponent,
+		VisualCenterSortingComponent,
 		VisualCenterDetailComponent,
 		VisualCenterPresentationComponent,
 
 		VisualCirclesTableComponent,
+		VisualCircleSortingComponent,
 		VisualCircleDetailComponent,
 		VisualCirclePresentationComponent,
 
 		VisualIconsTableComponent,
+		VisualIconSortingComponent,
 		VisualIconDetailComponent,
 		VisualIconPresentationComponent,
 
 		VisualLayersTableComponent,
+		VisualLayerSortingComponent,
 		VisualLayerDetailComponent,
 		VisualLayerPresentationComponent,
 
 		VisualLinesTableComponent,
+		VisualLineSortingComponent,
 		VisualLineDetailComponent,
 		VisualLinePresentationComponent,
 
 		VisualMapsTableComponent,
+		VisualMapSortingComponent,
 		VisualMapDetailComponent,
 		VisualMapPresentationComponent,
 
 		VisualTracksTableComponent,
+		VisualTrackSortingComponent,
 		VisualTrackDetailComponent,
 		VisualTrackPresentationComponent,
 
@@ -120,36 +135,44 @@ import { VisualTrackPresentationComponent } from './visualtrack-presentation/vis
 		MatDialogModule,
 		MatGridListModule,
 		MatTreeModule,
+		DragDropModule,
 
 		AngularSplitModule,
 	],
 	exports: [
 		// insertion point for declarations 
 		VisualCentersTableComponent,
+		VisualCenterSortingComponent,
 		VisualCenterDetailComponent,
 		VisualCenterPresentationComponent,
 
 		VisualCirclesTableComponent,
+		VisualCircleSortingComponent,
 		VisualCircleDetailComponent,
 		VisualCirclePresentationComponent,
 
 		VisualIconsTableComponent,
+		VisualIconSortingComponent,
 		VisualIconDetailComponent,
 		VisualIconPresentationComponent,
 
 		VisualLayersTableComponent,
+		VisualLayerSortingComponent,
 		VisualLayerDetailComponent,
 		VisualLayerPresentationComponent,
 
 		VisualLinesTableComponent,
+		VisualLineSortingComponent,
 		VisualLineDetailComponent,
 		VisualLinePresentationComponent,
 
 		VisualMapsTableComponent,
+		VisualMapSortingComponent,
 		VisualMapDetailComponent,
 		VisualMapPresentationComponent,
 
 		VisualTracksTableComponent,
+		VisualTrackSortingComponent,
 		VisualTrackDetailComponent,
 		VisualTrackPresentationComponent,
 
