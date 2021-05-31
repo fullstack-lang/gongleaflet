@@ -63,8 +63,6 @@ export class VisualLayerDetailComponent implements OnInit {
 		this.frontRepoService.pull().subscribe(
 			frontRepo => {
 				this.frontRepo = frontRepo
-				console.log("front repo VisualLayerPull returned")
-
 				if (id != 0 && association == undefined) {
 					this.visuallayer = frontRepo.VisualLayers.get(id)
 				} else {
@@ -97,8 +95,6 @@ export class VisualLayerDetailComponent implements OnInit {
 			this.visuallayerService.updateVisualLayer(this.visuallayer)
 				.subscribe(visuallayer => {
 					this.visuallayerService.VisualLayerServiceChanged.next("update")
-
-					console.log("visuallayer saved")
 				});
 		} else {
 			switch (association) {
@@ -109,7 +105,6 @@ export class VisualLayerDetailComponent implements OnInit {
 				this.visuallayerService.VisualLayerServiceChanged.next("post")
 
 				this.visuallayer = {} // reset fields
-				console.log("visuallayer added")
 			});
 		}
 	}
@@ -138,7 +133,6 @@ export class VisualLayerDetailComponent implements OnInit {
 		);
 
 		dialogRef.afterClosed().subscribe(result => {
-			console.log('The dialog was closed');
 		});
 	}
 
@@ -161,7 +155,6 @@ export class VisualLayerDetailComponent implements OnInit {
 		);
 
 		dialogRef.afterClosed().subscribe(result => {
-			console.log('The dialog was closed');
 		});
 	}
 }

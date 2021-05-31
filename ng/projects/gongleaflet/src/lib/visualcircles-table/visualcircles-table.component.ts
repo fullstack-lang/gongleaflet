@@ -108,7 +108,6 @@ export class VisualCirclesTableComponent implements OnInit {
     this.frontRepoService.pull().subscribe(
       frontRepo => {
         this.frontRepo = frontRepo
-        console.log("front repo pull returned")
 
         this.visualcircles = this.frontRepo.VisualCircles_array;
 
@@ -146,8 +145,6 @@ export class VisualCirclesTableComponent implements OnInit {
     this.visualcircleService.deleteVisualCircle(visualcircleID).subscribe(
       visualcircle => {
         this.visualcircleService.VisualCircleServiceChanged.next("delete")
-
-        console.log("visualcircle deleted")
       }
     );
   }
@@ -209,7 +206,6 @@ export class VisualCirclesTableComponent implements OnInit {
     // from selection, set visualcircle that belong to visualcircle through Anarrayofb
     this.selection.selected.forEach(
       visualcircle => {
-        console.log("selection ID " + visualcircle.ID)
         let ID = +this.dialogData.ID
         visualcircle[this.dialogData.ReversePointer].Int64 = ID
         visualcircle[this.dialogData.ReversePointer].Valid = true
@@ -223,7 +219,6 @@ export class VisualCirclesTableComponent implements OnInit {
         this.visualcircleService.updateVisualCircle(visualcircle)
           .subscribe(visualcircle => {
             this.visualcircleService.VisualCircleServiceChanged.next("update")
-            console.log("visualcircle saved")
           });
       }
     )

@@ -98,7 +98,6 @@ export class VisualLayersTableComponent implements OnInit {
     this.frontRepoService.pull().subscribe(
       frontRepo => {
         this.frontRepo = frontRepo
-        console.log("front repo pull returned")
 
         this.visuallayers = this.frontRepo.VisualLayers_array;
 
@@ -136,8 +135,6 @@ export class VisualLayersTableComponent implements OnInit {
     this.visuallayerService.deleteVisualLayer(visuallayerID).subscribe(
       visuallayer => {
         this.visuallayerService.VisualLayerServiceChanged.next("delete")
-
-        console.log("visuallayer deleted")
       }
     );
   }
@@ -199,7 +196,6 @@ export class VisualLayersTableComponent implements OnInit {
     // from selection, set visuallayer that belong to visuallayer through Anarrayofb
     this.selection.selected.forEach(
       visuallayer => {
-        console.log("selection ID " + visuallayer.ID)
         let ID = +this.dialogData.ID
         visuallayer[this.dialogData.ReversePointer].Int64 = ID
         visuallayer[this.dialogData.ReversePointer].Valid = true
@@ -213,7 +209,6 @@ export class VisualLayersTableComponent implements OnInit {
         this.visuallayerService.updateVisualLayer(visuallayer)
           .subscribe(visuallayer => {
             this.visuallayerService.VisualLayerServiceChanged.next("update")
-            console.log("visuallayer saved")
           });
       }
     )

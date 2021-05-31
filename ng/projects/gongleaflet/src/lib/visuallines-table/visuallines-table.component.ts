@@ -118,7 +118,6 @@ export class VisualLinesTableComponent implements OnInit {
     this.frontRepoService.pull().subscribe(
       frontRepo => {
         this.frontRepo = frontRepo
-        console.log("front repo pull returned")
 
         this.visuallines = this.frontRepo.VisualLines_array;
 
@@ -156,8 +155,6 @@ export class VisualLinesTableComponent implements OnInit {
     this.visuallineService.deleteVisualLine(visuallineID).subscribe(
       visualline => {
         this.visuallineService.VisualLineServiceChanged.next("delete")
-
-        console.log("visualline deleted")
       }
     );
   }
@@ -219,7 +216,6 @@ export class VisualLinesTableComponent implements OnInit {
     // from selection, set visualline that belong to visualline through Anarrayofb
     this.selection.selected.forEach(
       visualline => {
-        console.log("selection ID " + visualline.ID)
         let ID = +this.dialogData.ID
         visualline[this.dialogData.ReversePointer].Int64 = ID
         visualline[this.dialogData.ReversePointer].Valid = true
@@ -233,7 +229,6 @@ export class VisualLinesTableComponent implements OnInit {
         this.visuallineService.updateVisualLine(visualline)
           .subscribe(visualline => {
             this.visuallineService.VisualLineServiceChanged.next("update")
-            console.log("visualline saved")
           });
       }
     )

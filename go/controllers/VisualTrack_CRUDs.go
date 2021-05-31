@@ -9,7 +9,6 @@ import (
 	"github.com/fullstack-lang/gongleaflet/go/orm"
 
 	"github.com/gin-gonic/gin"
-	"github.com/jinzhu/gorm"
 )
 
 // declaration in order to justify use of the models import
@@ -47,10 +46,11 @@ type VisualTrackInput struct {
 //    default: genericError
 //        200: visualtrackDBsResponse
 func GetVisualTracks(c *gin.Context) {
-	db := c.MustGet("db").(*gorm.DB)
-
-	var visualtracks []orm.VisualTrackDB
-	query := db.Find(&visualtracks)
+	db := orm.BackRepo.BackRepoVisualTrack.GetDB()
+	
+	// source slice
+	var visualtrackDBs []orm.VisualTrackDB
+	query := db.Find(&visualtrackDBs)
 	if query.Error != nil {
 		var returnError GenericError
 		returnError.Body.Code = http.StatusBadRequest
@@ -59,52 +59,23 @@ func GetVisualTracks(c *gin.Context) {
 		return
 	}
 
+	// slice that will be transmitted to the front
+	visualtrackAPIs := make([]orm.VisualTrackAPI, 0)
+
 	// for each visualtrack, update fields from the database nullable fields
-	for idx := range visualtracks {
-		visualtrack := &visualtracks[idx]
-		_ = visualtrack
+	for idx := range visualtrackDBs {
+		visualtrackDB := &visualtrackDBs[idx]
+		_ = visualtrackDB
+		var visualtrackAPI orm.VisualTrackAPI
+
 		// insertion point for updating fields
-		if visualtrack.Lat_Data.Valid {
-			visualtrack.Lat = visualtrack.Lat_Data.Float64
-		}
-
-		if visualtrack.Lng_Data.Valid {
-			visualtrack.Lng = visualtrack.Lng_Data.Float64
-		}
-
-		if visualtrack.Heading_Data.Valid {
-			visualtrack.Heading = visualtrack.Heading_Data.Float64
-		}
-
-		if visualtrack.Level_Data.Valid {
-			visualtrack.Level = visualtrack.Level_Data.Float64
-		}
-
-		if visualtrack.Speed_Data.Valid {
-			visualtrack.Speed = visualtrack.Speed_Data.Float64
-		}
-
-		if visualtrack.VerticalSpeed_Data.Valid {
-			visualtrack.VerticalSpeed = visualtrack.VerticalSpeed_Data.Float64
-		}
-
-		if visualtrack.Name_Data.Valid {
-			visualtrack.Name = visualtrack.Name_Data.String
-		}
-
-		if visualtrack.VisualColorEnum_Data.Valid {
-			visualtrack.VisualColorEnum = models.VisualColorEnum(visualtrack.VisualColorEnum_Data.String)
-		}
-
-		visualtrack.Display = visualtrack.Display_Data.Bool
-
-		visualtrack.DisplayTrackHistory = visualtrack.DisplayTrackHistory_Data.Bool
-
-		visualtrack.DisplayLevelAndSpeed = visualtrack.DisplayLevelAndSpeed_Data.Bool
-
+		visualtrackAPI.ID = visualtrackDB.ID
+		visualtrackDB.CopyBasicFieldsToVisualTrack(&visualtrackAPI.VisualTrack)
+		visualtrackAPI.VisualTrackPointersEnconding = visualtrackDB.VisualTrackPointersEnconding
+		visualtrackAPIs = append(visualtrackAPIs, visualtrackAPI)
 	}
 
-	c.JSON(http.StatusOK, visualtracks)
+	c.JSON(http.StatusOK, visualtrackAPIs)
 }
 
 // PostVisualTrack
@@ -121,7 +92,7 @@ func GetVisualTracks(c *gin.Context) {
 //     Responses:
 //       200: visualtrackDBResponse
 func PostVisualTrack(c *gin.Context) {
-	db := c.MustGet("db").(*gorm.DB)
+	db := orm.BackRepo.BackRepoVisualTrack.GetDB()
 
 	// Validate input
 	var input orm.VisualTrackAPI
@@ -137,40 +108,8 @@ func PostVisualTrack(c *gin.Context) {
 
 	// Create visualtrack
 	visualtrackDB := orm.VisualTrackDB{}
-	visualtrackDB.VisualTrackAPI = input
-	// insertion point for nullable field set
-	visualtrackDB.Lat_Data.Float64 = input.Lat
-	visualtrackDB.Lat_Data.Valid = true
-
-	visualtrackDB.Lng_Data.Float64 = input.Lng
-	visualtrackDB.Lng_Data.Valid = true
-
-	visualtrackDB.Heading_Data.Float64 = input.Heading
-	visualtrackDB.Heading_Data.Valid = true
-
-	visualtrackDB.Level_Data.Float64 = input.Level
-	visualtrackDB.Level_Data.Valid = true
-
-	visualtrackDB.Speed_Data.Float64 = input.Speed
-	visualtrackDB.Speed_Data.Valid = true
-
-	visualtrackDB.VerticalSpeed_Data.Float64 = input.VerticalSpeed
-	visualtrackDB.VerticalSpeed_Data.Valid = true
-
-	visualtrackDB.Name_Data.String = input.Name
-	visualtrackDB.Name_Data.Valid = true
-
-	visualtrackDB.VisualColorEnum_Data.String = string(input.VisualColorEnum)
-	visualtrackDB.VisualColorEnum_Data.Valid = true
-
-	visualtrackDB.Display_Data.Bool = input.Display
-	visualtrackDB.Display_Data.Valid = true
-
-	visualtrackDB.DisplayTrackHistory_Data.Bool = input.DisplayTrackHistory
-	visualtrackDB.DisplayTrackHistory_Data.Valid = true
-
-	visualtrackDB.DisplayLevelAndSpeed_Data.Bool = input.DisplayLevelAndSpeed
-	visualtrackDB.DisplayLevelAndSpeed_Data.Valid = true
+	visualtrackDB.VisualTrackPointersEnconding = input.VisualTrackPointersEnconding
+	visualtrackDB.CopyBasicFieldsFromVisualTrack(&input.VisualTrack)
 
 	query := db.Create(&visualtrackDB)
 	if query.Error != nil {
@@ -198,11 +137,11 @@ func PostVisualTrack(c *gin.Context) {
 //    default: genericError
 //        200: visualtrackDBResponse
 func GetVisualTrack(c *gin.Context) {
-	db := c.MustGet("db").(*gorm.DB)
+	db := orm.BackRepo.BackRepoVisualTrack.GetDB()
 
-	// Get visualtrack in DB
-	var visualtrack orm.VisualTrackDB
-	if err := db.First(&visualtrack, c.Param("id")).Error; err != nil {
+	// Get visualtrackDB in DB
+	var visualtrackDB orm.VisualTrackDB
+	if err := db.First(&visualtrackDB, c.Param("id")).Error; err != nil {
 		var returnError GenericError
 		returnError.Body.Code = http.StatusBadRequest
 		returnError.Body.Message = err.Error()
@@ -210,46 +149,12 @@ func GetVisualTrack(c *gin.Context) {
 		return
 	}
 
-	// insertion point for fields value set from nullable fields
-	if visualtrack.Lat_Data.Valid {
-		visualtrack.Lat = visualtrack.Lat_Data.Float64
-	}
+	var visualtrackAPI orm.VisualTrackAPI
+	visualtrackAPI.ID = visualtrackDB.ID
+	visualtrackAPI.VisualTrackPointersEnconding = visualtrackDB.VisualTrackPointersEnconding
+	visualtrackDB.CopyBasicFieldsToVisualTrack(&visualtrackAPI.VisualTrack)
 
-	if visualtrack.Lng_Data.Valid {
-		visualtrack.Lng = visualtrack.Lng_Data.Float64
-	}
-
-	if visualtrack.Heading_Data.Valid {
-		visualtrack.Heading = visualtrack.Heading_Data.Float64
-	}
-
-	if visualtrack.Level_Data.Valid {
-		visualtrack.Level = visualtrack.Level_Data.Float64
-	}
-
-	if visualtrack.Speed_Data.Valid {
-		visualtrack.Speed = visualtrack.Speed_Data.Float64
-	}
-
-	if visualtrack.VerticalSpeed_Data.Valid {
-		visualtrack.VerticalSpeed = visualtrack.VerticalSpeed_Data.Float64
-	}
-
-	if visualtrack.Name_Data.Valid {
-		visualtrack.Name = visualtrack.Name_Data.String
-	}
-
-	if visualtrack.VisualColorEnum_Data.Valid {
-		visualtrack.VisualColorEnum = models.VisualColorEnum(visualtrack.VisualColorEnum_Data.String)
-	}
-
-	visualtrack.Display = visualtrack.Display_Data.Bool
-
-	visualtrack.DisplayTrackHistory = visualtrack.DisplayTrackHistory_Data.Bool
-
-	visualtrack.DisplayLevelAndSpeed = visualtrack.DisplayLevelAndSpeed_Data.Bool
-
-	c.JSON(http.StatusOK, visualtrack)
+	c.JSON(http.StatusOK, visualtrackAPI)
 }
 
 // UpdateVisualTrack
@@ -262,7 +167,7 @@ func GetVisualTrack(c *gin.Context) {
 //    default: genericError
 //        200: visualtrackDBResponse
 func UpdateVisualTrack(c *gin.Context) {
-	db := c.MustGet("db").(*gorm.DB)
+	db := orm.BackRepo.BackRepoVisualTrack.GetDB()
 
 	// Get model if exist
 	var visualtrackDB orm.VisualTrackDB
@@ -286,41 +191,10 @@ func UpdateVisualTrack(c *gin.Context) {
 	}
 
 	// update
-	// insertion point for nullable field set
-	input.Lat_Data.Float64 = input.Lat
-	input.Lat_Data.Valid = true
+	visualtrackDB.CopyBasicFieldsFromVisualTrack(&input.VisualTrack)
+	visualtrackDB.VisualTrackPointersEnconding = input.VisualTrackPointersEnconding
 
-	input.Lng_Data.Float64 = input.Lng
-	input.Lng_Data.Valid = true
-
-	input.Heading_Data.Float64 = input.Heading
-	input.Heading_Data.Valid = true
-
-	input.Level_Data.Float64 = input.Level
-	input.Level_Data.Valid = true
-
-	input.Speed_Data.Float64 = input.Speed
-	input.Speed_Data.Valid = true
-
-	input.VerticalSpeed_Data.Float64 = input.VerticalSpeed
-	input.VerticalSpeed_Data.Valid = true
-
-	input.Name_Data.String = input.Name
-	input.Name_Data.Valid = true
-
-	input.VisualColorEnum_Data.String = string(input.VisualColorEnum)
-	input.VisualColorEnum_Data.Valid = true
-
-	input.Display_Data.Bool = input.Display
-	input.Display_Data.Valid = true
-
-	input.DisplayTrackHistory_Data.Bool = input.DisplayTrackHistory
-	input.DisplayTrackHistory_Data.Valid = true
-
-	input.DisplayLevelAndSpeed_Data.Bool = input.DisplayLevelAndSpeed
-	input.DisplayLevelAndSpeed_Data.Valid = true
-
-	query = db.Model(&visualtrackDB).Updates(input)
+	query = db.Model(&visualtrackDB).Updates(visualtrackDB)
 	if query.Error != nil {
 		var returnError GenericError
 		returnError.Body.Code = http.StatusBadRequest
@@ -346,7 +220,7 @@ func UpdateVisualTrack(c *gin.Context) {
 // Responses:
 //    default: genericError
 func DeleteVisualTrack(c *gin.Context) {
-	db := c.MustGet("db").(*gorm.DB)
+	db := orm.BackRepo.BackRepoVisualTrack.GetDB()
 
 	// Get model if exist
 	var visualtrackDB orm.VisualTrackDB

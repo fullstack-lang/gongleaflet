@@ -67,18 +67,24 @@ definitions:
       from associations ("Has One" and "Has Many") that are generated to
       fullfill the ORM requirements for associations
     properties:
+      CreatedAt:
+        format: date-time
+        type: string
+      DeletedAt:
+        format: date-time
+        type: string
+      ID:
+        format: uint64
+        type: integer
       Lat:
         format: double
         type: number
         x-go-name: Lng
-      Lat_Data:
-        $ref: '#/definitions/NullFloat64'
-      Lng_Data:
-        $ref: '#/definitions/NullFloat64'
       Name:
         type: string
-      Name_Data:
-        $ref: '#/definitions/NullString'
+      UpdatedAt:
+        format: date-time
+        type: string
       VisualColorEnum:
         enum:
         - LIGHT_BROWN_8D6E63
@@ -88,8 +94,6 @@ definitions:
         - BLUE
         - NONE
         type: string
-      VisualColorEnum_Data:
-        $ref: '#/definitions/NullString'
       VisualIcon:
         $ref: '#/definitions/visualicon'
       VisualIconID:
@@ -111,8 +115,9 @@ definitions:
     x-go-name: VisualCenterAPI
     x-go-package: github.com/fullstack-lang/gongleaflet/go/orm
   visualcenterDB:
-    description: 'It incorporates all fields : from the model, from the generated
-      field for the API and the GORM ID'
+    description: |-
+      It incorporates the GORM ID, basic fields from the model (because they can be serialized),
+      the encoded version of pointers
     properties:
       CreatedAt:
         format: date-time
@@ -123,42 +128,23 @@ definitions:
       ID:
         format: uint64
         type: integer
-      Lat:
-        format: double
-        type: number
-        x-go-name: Lng
       Lat_Data:
         $ref: '#/definitions/NullFloat64'
       Lng_Data:
         $ref: '#/definitions/NullFloat64'
-      Name:
-        type: string
       Name_Data:
         $ref: '#/definitions/NullString'
       UpdatedAt:
         format: date-time
         type: string
-      VisualColorEnum:
-        enum:
-        - LIGHT_BROWN_8D6E63
-        - RED
-        - GREY
-        - GREEN
-        - BLUE
-        - NONE
-        type: string
       VisualColorEnum_Data:
         $ref: '#/definitions/NullString'
-      VisualIcon:
-        $ref: '#/definitions/visualicon'
       VisualIconID:
         $ref: '#/definitions/NullInt64'
       VisualIconName:
         description: all gong Struct has a Name field, this enables this data to object
           field
         type: string
-      VisualLayer:
-        $ref: '#/definitions/visuallayer'
       VisualLayerID:
         $ref: '#/definitions/NullInt64'
       VisualLayerName:
@@ -175,30 +161,32 @@ definitions:
       from associations ("Has One" and "Has Many") that are generated to
       fullfill the ORM requirements for associations
     properties:
+      CreatedAt:
+        format: date-time
+        type: string
       DashStyleEnum:
         enum:
         - FIVE_TEN
         - FIVE_TWENTY
         type: string
-      DashStyleEnum_Data:
-        $ref: '#/definitions/NullString'
+      DeletedAt:
+        format: date-time
+        type: string
+      ID:
+        format: uint64
+        type: integer
       Lat:
         format: double
         type: number
         x-go-name: Lng
-      Lat_Data:
-        $ref: '#/definitions/NullFloat64'
-      Lng_Data:
-        $ref: '#/definitions/NullFloat64'
       Name:
         type: string
-      Name_Data:
-        $ref: '#/definitions/NullString'
       Radius:
         format: double
         type: number
-      Radius_Data:
-        $ref: '#/definitions/NullFloat64'
+      UpdatedAt:
+        format: date-time
+        type: string
       VisualColorEnum:
         enum:
         - LIGHT_BROWN_8D6E63
@@ -208,8 +196,6 @@ definitions:
         - BLUE
         - NONE
         type: string
-      VisualColorEnum_Data:
-        $ref: '#/definitions/NullString'
       VisualLayer:
         $ref: '#/definitions/visuallayer'
       VisualLayerID:
@@ -223,16 +209,12 @@ definitions:
     x-go-name: VisualCircleAPI
     x-go-package: github.com/fullstack-lang/gongleaflet/go/orm
   visualcircleDB:
-    description: 'It incorporates all fields : from the model, from the generated
-      field for the API and the GORM ID'
+    description: |-
+      It incorporates the GORM ID, basic fields from the model (because they can be serialized),
+      the encoded version of pointers
     properties:
       CreatedAt:
         format: date-time
-        type: string
-      DashStyleEnum:
-        enum:
-        - FIVE_TEN
-        - FIVE_TWENTY
         type: string
       DashStyleEnum_Data:
         $ref: '#/definitions/NullString'
@@ -242,39 +224,19 @@ definitions:
       ID:
         format: uint64
         type: integer
-      Lat:
-        format: double
-        type: number
-        x-go-name: Lng
       Lat_Data:
         $ref: '#/definitions/NullFloat64'
       Lng_Data:
         $ref: '#/definitions/NullFloat64'
-      Name:
-        type: string
       Name_Data:
         $ref: '#/definitions/NullString'
-      Radius:
-        format: double
-        type: number
       Radius_Data:
         $ref: '#/definitions/NullFloat64'
       UpdatedAt:
         format: date-time
         type: string
-      VisualColorEnum:
-        enum:
-        - LIGHT_BROWN_8D6E63
-        - RED
-        - GREY
-        - GREEN
-        - BLUE
-        - NONE
-        type: string
       VisualColorEnum_Data:
         $ref: '#/definitions/NullString'
-      VisualLayer:
-        $ref: '#/definitions/visuallayer'
       VisualLayerID:
         $ref: '#/definitions/NullInt64'
       VisualLayerName:
@@ -302,22 +264,6 @@ definitions:
       from associations ("Has One" and "Has Many") that are generated to
       fullfill the ORM requirements for associations
     properties:
-      Name:
-        type: string
-      Name_Data:
-        $ref: '#/definitions/NullString'
-      SVG:
-        type: string
-      SVG_Data:
-        $ref: '#/definitions/NullString'
-    title: VisualIconAPI is the input in POST API
-    type: object
-    x-go-name: VisualIconAPI
-    x-go-package: github.com/fullstack-lang/gongleaflet/go/orm
-  visualiconDB:
-    description: 'It incorporates all fields : from the model, from the generated
-      field for the API and the GORM ID'
-    properties:
       CreatedAt:
         format: date-time
         type: string
@@ -329,10 +275,31 @@ definitions:
         type: integer
       Name:
         type: string
-      Name_Data:
-        $ref: '#/definitions/NullString'
       SVG:
         type: string
+      UpdatedAt:
+        format: date-time
+        type: string
+    title: VisualIconAPI is the input in POST API
+    type: object
+    x-go-name: VisualIconAPI
+    x-go-package: github.com/fullstack-lang/gongleaflet/go/orm
+  visualiconDB:
+    description: |-
+      It incorporates the GORM ID, basic fields from the model (because they can be serialized),
+      the encoded version of pointers
+    properties:
+      CreatedAt:
+        format: date-time
+        type: string
+      DeletedAt:
+        format: date-time
+        type: string
+      ID:
+        format: uint64
+        type: integer
+      Name_Data:
+        $ref: '#/definitions/NullString'
       SVG_Data:
         $ref: '#/definitions/NullString'
       UpdatedAt:
@@ -359,22 +326,6 @@ definitions:
       from associations ("Has One" and "Has Many") that are generated to
       fullfill the ORM requirements for associations
     properties:
-      DisplayName:
-        type: string
-      DisplayName_Data:
-        $ref: '#/definitions/NullString'
-      Name:
-        type: string
-      Name_Data:
-        $ref: '#/definitions/NullString'
-    title: VisualLayerAPI is the input in POST API
-    type: object
-    x-go-name: VisualLayerAPI
-    x-go-package: github.com/fullstack-lang/gongleaflet/go/orm
-  visuallayerDB:
-    description: 'It incorporates all fields : from the model, from the generated
-      field for the API and the GORM ID'
-    properties:
       CreatedAt:
         format: date-time
         type: string
@@ -383,13 +334,34 @@ definitions:
         type: string
       DisplayName:
         type: string
-      DisplayName_Data:
-        $ref: '#/definitions/NullString'
       ID:
         format: uint64
         type: integer
       Name:
         type: string
+      UpdatedAt:
+        format: date-time
+        type: string
+    title: VisualLayerAPI is the input in POST API
+    type: object
+    x-go-name: VisualLayerAPI
+    x-go-package: github.com/fullstack-lang/gongleaflet/go/orm
+  visuallayerDB:
+    description: |-
+      It incorporates the GORM ID, basic fields from the model (because they can be serialized),
+      the encoded version of pointers
+    properties:
+      CreatedAt:
+        format: date-time
+        type: string
+      DeletedAt:
+        format: date-time
+        type: string
+      DisplayName_Data:
+        $ref: '#/definitions/NullString'
+      ID:
+        format: uint64
+        type: integer
       Name_Data:
         $ref: '#/definitions/NullString'
       UpdatedAt:
@@ -405,55 +377,47 @@ definitions:
       from associations ("Has One" and "Has Many") that are generated to
       fullfill the ORM requirements for associations
     properties:
+      CreatedAt:
+        format: date-time
+        type: string
       DashStyleEnum:
         enum:
         - FIVE_TEN
         - FIVE_TWENTY
         type: string
-      DashStyleEnum_Data:
-        $ref: '#/definitions/NullString'
+      DeletedAt:
+        format: date-time
+        type: string
       EndLat:
         format: double
         type: number
         x-go-name: EndLng
-      EndLat_Data:
-        $ref: '#/definitions/NullFloat64'
-      EndLng_Data:
-        $ref: '#/definitions/NullFloat64'
+      ID:
+        format: uint64
+        type: integer
       IsTransmitting:
         enum:
         - IS_TRANSMITTING
         - IS_NOT_TRANSMITTING
         type: string
-      IsTransmitting_Data:
-        $ref: '#/definitions/NullString'
       IsTransmittingBackward:
         enum:
         - IS_TRANSMITTING
         - IS_NOT_TRANSMITTING
         type: string
-      IsTransmittingBackward_Data:
-        $ref: '#/definitions/NullString'
       Message:
         type: string
-      Message_Data:
-        $ref: '#/definitions/NullString'
       MessageBackward:
         type: string
-      MessageBackward_Data:
-        $ref: '#/definitions/NullString'
       Name:
         type: string
-      Name_Data:
-        $ref: '#/definitions/NullString'
       StartLat:
         format: double
         type: number
         x-go-name: StartLng
-      StartLat_Data:
-        $ref: '#/definitions/NullFloat64'
-      StartLng_Data:
-        $ref: '#/definitions/NullFloat64'
+      UpdatedAt:
+        format: date-time
+        type: string
       VisualColorEnum:
         enum:
         - LIGHT_BROWN_8D6E63
@@ -463,8 +427,6 @@ definitions:
         - BLUE
         - NONE
         type: string
-      VisualColorEnum_Data:
-        $ref: '#/definitions/NullString'
       VisualLayer:
         $ref: '#/definitions/visuallayer'
       VisualLayerID:
@@ -478,26 +440,18 @@ definitions:
     x-go-name: VisualLineAPI
     x-go-package: github.com/fullstack-lang/gongleaflet/go/orm
   visuallineDB:
-    description: 'It incorporates all fields : from the model, from the generated
-      field for the API and the GORM ID'
+    description: |-
+      It incorporates the GORM ID, basic fields from the model (because they can be serialized),
+      the encoded version of pointers
     properties:
       CreatedAt:
         format: date-time
-        type: string
-      DashStyleEnum:
-        enum:
-        - FIVE_TEN
-        - FIVE_TWENTY
         type: string
       DashStyleEnum_Data:
         $ref: '#/definitions/NullString'
       DeletedAt:
         format: date-time
         type: string
-      EndLat:
-        format: double
-        type: number
-        x-go-name: EndLng
       EndLat_Data:
         $ref: '#/definitions/NullFloat64'
       EndLng_Data:
@@ -505,36 +459,16 @@ definitions:
       ID:
         format: uint64
         type: integer
-      IsTransmitting:
-        enum:
-        - IS_TRANSMITTING
-        - IS_NOT_TRANSMITTING
-        type: string
       IsTransmitting_Data:
         $ref: '#/definitions/NullString'
-      IsTransmittingBackward:
-        enum:
-        - IS_TRANSMITTING
-        - IS_NOT_TRANSMITTING
-        type: string
       IsTransmittingBackward_Data:
         $ref: '#/definitions/NullString'
-      Message:
-        type: string
       Message_Data:
         $ref: '#/definitions/NullString'
-      MessageBackward:
-        type: string
       MessageBackward_Data:
         $ref: '#/definitions/NullString'
-      Name:
-        type: string
       Name_Data:
         $ref: '#/definitions/NullString'
-      StartLat:
-        format: double
-        type: number
-        x-go-name: StartLng
       StartLat_Data:
         $ref: '#/definitions/NullFloat64'
       StartLng_Data:
@@ -542,19 +476,8 @@ definitions:
       UpdatedAt:
         format: date-time
         type: string
-      VisualColorEnum:
-        enum:
-        - LIGHT_BROWN_8D6E63
-        - RED
-        - GREY
-        - GREEN
-        - BLUE
-        - NONE
-        type: string
       VisualColorEnum_Data:
         $ref: '#/definitions/NullString'
-      VisualLayer:
-        $ref: '#/definitions/visuallayer'
       VisualLayerID:
         $ref: '#/definitions/NullInt64'
       VisualLayerName:
@@ -573,62 +496,8 @@ definitions:
     properties:
       Attribution:
         type: string
-      Attribution_Data:
-        $ref: '#/definitions/NullString'
       AttributionControl:
         type: boolean
-      AttributionControl_Data:
-        $ref: '#/definitions/NullBool'
-      Lat:
-        format: double
-        type: number
-        x-go-name: Lng
-      Lat_Data:
-        $ref: '#/definitions/NullFloat64'
-      Lng_Data:
-        $ref: '#/definitions/NullFloat64'
-      MaxZoom:
-        format: int64
-        type: integer
-      MaxZoom_Data:
-        $ref: '#/definitions/NullInt64'
-      Name:
-        type: string
-      Name_Data:
-        $ref: '#/definitions/NullString'
-      UrlTemplate:
-        type: string
-      UrlTemplate_Data:
-        $ref: '#/definitions/NullString'
-      ZoomControl:
-        type: boolean
-      ZoomControl_Data:
-        $ref: '#/definitions/NullBool'
-      ZoomLevel:
-        format: double
-        type: number
-      ZoomLevel_Data:
-        $ref: '#/definitions/NullFloat64'
-      ZoomSnap:
-        type: boolean
-      ZoomSnap_Data:
-        $ref: '#/definitions/NullBool'
-    title: VisualMapAPI is the input in POST API
-    type: object
-    x-go-name: VisualMapAPI
-    x-go-package: github.com/fullstack-lang/gongleaflet/go/orm
-  visualmapDB:
-    description: 'It incorporates all fields : from the model, from the generated
-      field for the API and the GORM ID'
-    properties:
-      Attribution:
-        type: string
-      Attribution_Data:
-        $ref: '#/definitions/NullString'
-      AttributionControl:
-        type: boolean
-      AttributionControl_Data:
-        $ref: '#/definitions/NullBool'
       CreatedAt:
         format: date-time
         type: string
@@ -642,37 +511,62 @@ definitions:
         format: double
         type: number
         x-go-name: Lng
-      Lat_Data:
-        $ref: '#/definitions/NullFloat64'
-      Lng_Data:
-        $ref: '#/definitions/NullFloat64'
       MaxZoom:
         format: int64
         type: integer
-      MaxZoom_Data:
-        $ref: '#/definitions/NullInt64'
       Name:
         type: string
-      Name_Data:
-        $ref: '#/definitions/NullString'
       UpdatedAt:
         format: date-time
         type: string
       UrlTemplate:
         type: string
-      UrlTemplate_Data:
-        $ref: '#/definitions/NullString'
       ZoomControl:
         type: boolean
-      ZoomControl_Data:
-        $ref: '#/definitions/NullBool'
       ZoomLevel:
         format: double
         type: number
-      ZoomLevel_Data:
-        $ref: '#/definitions/NullFloat64'
       ZoomSnap:
         type: boolean
+    title: VisualMapAPI is the input in POST API
+    type: object
+    x-go-name: VisualMapAPI
+    x-go-package: github.com/fullstack-lang/gongleaflet/go/orm
+  visualmapDB:
+    description: |-
+      It incorporates the GORM ID, basic fields from the model (because they can be serialized),
+      the encoded version of pointers
+    properties:
+      Attribution_Data:
+        $ref: '#/definitions/NullString'
+      AttributionControl_Data:
+        $ref: '#/definitions/NullBool'
+      CreatedAt:
+        format: date-time
+        type: string
+      DeletedAt:
+        format: date-time
+        type: string
+      ID:
+        format: uint64
+        type: integer
+      Lat_Data:
+        $ref: '#/definitions/NullFloat64'
+      Lng_Data:
+        $ref: '#/definitions/NullFloat64'
+      MaxZoom_Data:
+        $ref: '#/definitions/NullInt64'
+      Name_Data:
+        $ref: '#/definitions/NullString'
+      UpdatedAt:
+        format: date-time
+        type: string
+      UrlTemplate_Data:
+        $ref: '#/definitions/NullString'
+      ZoomControl_Data:
+        $ref: '#/definitions/NullBool'
+      ZoomLevel_Data:
+        $ref: '#/definitions/NullFloat64'
       ZoomSnap_Data:
         $ref: '#/definitions/NullBool'
     title: VisualMapDB describes a visualmap in the database
@@ -685,40 +579,32 @@ definitions:
       from associations ("Has One" and "Has Many") that are generated to
       fullfill the ORM requirements for associations
     properties:
+      CreatedAt:
+        format: date-time
+        type: string
+      DeletedAt:
+        format: date-time
+        type: string
       Display:
         type: boolean
-      Display_Data:
-        $ref: '#/definitions/NullBool'
       DisplayLevelAndSpeed:
         description: if true, display level and speed below the icon
         type: boolean
-      DisplayLevelAndSpeed_Data:
-        $ref: '#/definitions/NullBool'
       DisplayTrackHistory:
         description: if true display dots from the trajectory
         type: boolean
-      DisplayTrackHistory_Data:
-        $ref: '#/definitions/NullBool'
-      Heading_Data:
-        $ref: '#/definitions/NullFloat64'
+      ID:
+        format: uint64
+        type: integer
       Lat:
         format: double
         type: number
         x-go-name: VerticalSpeed
-      Lat_Data:
-        $ref: '#/definitions/NullFloat64'
-      Level_Data:
-        $ref: '#/definitions/NullFloat64'
-      Lng_Data:
-        $ref: '#/definitions/NullFloat64'
       Name:
         type: string
-      Name_Data:
-        $ref: '#/definitions/NullString'
-      Speed_Data:
-        $ref: '#/definitions/NullFloat64'
-      VerticalSpeed_Data:
-        $ref: '#/definitions/NullFloat64'
+      UpdatedAt:
+        format: date-time
+        type: string
       VisualColorEnum:
         enum:
         - LIGHT_BROWN_8D6E63
@@ -728,8 +614,6 @@ definitions:
         - BLUE
         - NONE
         type: string
-      VisualColorEnum_Data:
-        $ref: '#/definitions/NullString'
       VisualIcon:
         $ref: '#/definitions/visualicon'
       VisualIconID:
@@ -751,8 +635,9 @@ definitions:
     x-go-name: VisualTrackAPI
     x-go-package: github.com/fullstack-lang/gongleaflet/go/orm
   visualtrackDB:
-    description: 'It incorporates all fields : from the model, from the generated
-      field for the API and the GORM ID'
+    description: |-
+      It incorporates the GORM ID, basic fields from the model (because they can be serialized),
+      the encoded version of pointers
     properties:
       CreatedAt:
         format: date-time
@@ -760,18 +645,10 @@ definitions:
       DeletedAt:
         format: date-time
         type: string
-      Display:
-        type: boolean
       Display_Data:
         $ref: '#/definitions/NullBool'
-      DisplayLevelAndSpeed:
-        description: if true, display level and speed below the icon
-        type: boolean
       DisplayLevelAndSpeed_Data:
         $ref: '#/definitions/NullBool'
-      DisplayTrackHistory:
-        description: if true display dots from the trajectory
-        type: boolean
       DisplayTrackHistory_Data:
         $ref: '#/definitions/NullBool'
       Heading_Data:
@@ -779,18 +656,12 @@ definitions:
       ID:
         format: uint64
         type: integer
-      Lat:
-        format: double
-        type: number
-        x-go-name: VerticalSpeed
       Lat_Data:
         $ref: '#/definitions/NullFloat64'
       Level_Data:
         $ref: '#/definitions/NullFloat64'
       Lng_Data:
         $ref: '#/definitions/NullFloat64'
-      Name:
-        type: string
       Name_Data:
         $ref: '#/definitions/NullString'
       Speed_Data:
@@ -800,27 +671,14 @@ definitions:
         type: string
       VerticalSpeed_Data:
         $ref: '#/definitions/NullFloat64'
-      VisualColorEnum:
-        enum:
-        - LIGHT_BROWN_8D6E63
-        - RED
-        - GREY
-        - GREEN
-        - BLUE
-        - NONE
-        type: string
       VisualColorEnum_Data:
         $ref: '#/definitions/NullString'
-      VisualIcon:
-        $ref: '#/definitions/visualicon'
       VisualIconID:
         $ref: '#/definitions/NullInt64'
       VisualIconName:
         description: all gong Struct has a Name field, this enables this data to object
           field
         type: string
-      VisualLayer:
-        $ref: '#/definitions/visuallayer'
       VisualLayerID:
         $ref: '#/definitions/NullInt64'
       VisualLayerName:
@@ -1476,38 +1334,22 @@ responses:
       ID:
         format: uint64
         type: integer
-      Lat:
-        format: double
-        type: number
       Lat_Data:
         description: |-
-          insertion for fields declaration
+          insertion for basic fields declaration
           Declation for basic field visualcenterDB.Lat {{BasicKind}} (to be completed)
       Lng_Data:
         description: Declation for basic field visualcenterDB.Lng {{BasicKind}} (to
           be completed)
-      Name:
-        type: string
       Name_Data:
         description: Declation for basic field visualcenterDB.Name {{BasicKind}} (to
           be completed)
       UpdatedAt:
         format: date-time
         type: string
-      VisualColorEnum:
-        enum:
-        - - LIGHT_BROWN_8D6E63
-          - RED
-          - GREY
-          - GREEN
-          - BLUE
-          - NONE
-        type: string
       VisualColorEnum_Data:
         description: Declation for basic field visualcenterDB.VisualColorEnum {{BasicKind}}
           (to be completed)
-      VisualIcon:
-        description: VisualIcon
       VisualIconID:
         description: |-
           field VisualIcon is a pointer to another Struct (optional or 0..1)
@@ -1516,10 +1358,9 @@ responses:
         description: all gong Struct has a Name field, this enables this data to object
           field
         type: string
-      VisualLayer:
-        description: VisualLayer the object belongs to
       VisualLayerID:
         description: |-
+          insertion for pointer fields encoding declaration
           field VisualLayer is a pointer to another Struct (optional or 0..1)
           This field is generated into another field to enable AS ONE association
       VisualLayerName:
@@ -1540,11 +1381,6 @@ responses:
       CreatedAt:
         format: date-time
         type: string
-      DashStyleEnum:
-        enum:
-        - - FIVE_TEN
-          - FIVE_TWENTY
-        type: string
       DashStyleEnum_Data:
         description: Declation for basic field visualcircleDB.DashStyleEnum {{BasicKind}}
           (to be completed)
@@ -1554,46 +1390,28 @@ responses:
       ID:
         format: uint64
         type: integer
-      Lat:
-        format: double
-        type: number
       Lat_Data:
         description: |-
-          insertion for fields declaration
+          insertion for basic fields declaration
           Declation for basic field visualcircleDB.Lat {{BasicKind}} (to be completed)
       Lng_Data:
         description: Declation for basic field visualcircleDB.Lng {{BasicKind}} (to
           be completed)
-      Name:
-        type: string
       Name_Data:
         description: Declation for basic field visualcircleDB.Name {{BasicKind}} (to
           be completed)
-      Radius:
-        format: double
-        type: number
       Radius_Data:
         description: Declation for basic field visualcircleDB.Radius {{BasicKind}}
           (to be completed)
       UpdatedAt:
         format: date-time
         type: string
-      VisualColorEnum:
-        enum:
-        - - LIGHT_BROWN_8D6E63
-          - RED
-          - GREY
-          - GREEN
-          - BLUE
-          - NONE
-        type: string
       VisualColorEnum_Data:
         description: Declation for basic field visualcircleDB.VisualColorEnum {{BasicKind}}
           (to be completed)
-      VisualLayer:
-        description: VisualLayer the object belongs to
       VisualLayerID:
         description: |-
+          insertion for pointer fields encoding declaration
           field VisualLayer is a pointer to another Struct (optional or 0..1)
           This field is generated into another field to enable AS ONE association
       VisualLayerName:
@@ -1620,14 +1438,10 @@ responses:
       ID:
         format: uint64
         type: integer
-      Name:
-        type: string
       Name_Data:
         description: |-
-          insertion for fields declaration
+          insertion for basic fields declaration
           Declation for basic field visualiconDB.Name {{BasicKind}} (to be completed)
-      SVG:
-        type: string
       SVG_Data:
         description: Declation for basic field visualiconDB.SVG {{BasicKind}} (to
           be completed)
@@ -1651,19 +1465,15 @@ responses:
       DeletedAt:
         format: date-time
         type: string
-      DisplayName:
-        type: string
       DisplayName_Data:
         description: Declation for basic field visuallayerDB.DisplayName {{BasicKind}}
           (to be completed)
       ID:
         format: uint64
         type: integer
-      Name:
-        type: string
       Name_Data:
         description: |-
-          insertion for fields declaration
+          insertion for basic fields declaration
           Declation for basic field visuallayerDB.Name {{BasicKind}} (to be completed)
       UpdatedAt:
         format: date-time
@@ -1682,20 +1492,12 @@ responses:
       CreatedAt:
         format: date-time
         type: string
-      DashStyleEnum:
-        enum:
-        - - FIVE_TEN
-          - FIVE_TWENTY
-        type: string
       DashStyleEnum_Data:
         description: Declation for basic field visuallineDB.DashStyleEnum {{BasicKind}}
           (to be completed)
       DeletedAt:
         format: date-time
         type: string
-      EndLat:
-        format: double
-        type: number
       EndLat_Data:
         description: Declation for basic field visuallineDB.EndLat {{BasicKind}} (to
           be completed)
@@ -1705,43 +1507,24 @@ responses:
       ID:
         format: uint64
         type: integer
-      IsTransmitting:
-        enum:
-        - - IS_TRANSMITTING
-          - IS_NOT_TRANSMITTING
-        type: string
       IsTransmitting_Data:
         description: Declation for basic field visuallineDB.IsTransmitting {{BasicKind}}
           (to be completed)
-      IsTransmittingBackward:
-        enum:
-        - - IS_TRANSMITTING
-          - IS_NOT_TRANSMITTING
-        type: string
       IsTransmittingBackward_Data:
         description: Declation for basic field visuallineDB.IsTransmittingBackward
           {{BasicKind}} (to be completed)
-      Message:
-        type: string
       Message_Data:
         description: Declation for basic field visuallineDB.Message {{BasicKind}}
           (to be completed)
-      MessageBackward:
-        type: string
       MessageBackward_Data:
         description: Declation for basic field visuallineDB.MessageBackward {{BasicKind}}
           (to be completed)
-      Name:
-        type: string
       Name_Data:
         description: Declation for basic field visuallineDB.Name {{BasicKind}} (to
           be completed)
-      StartLat:
-        format: double
-        type: number
       StartLat_Data:
         description: |-
-          insertion for fields declaration
+          insertion for basic fields declaration
           Declation for basic field visuallineDB.StartLat {{BasicKind}} (to be completed)
       StartLng_Data:
         description: Declation for basic field visuallineDB.StartLng {{BasicKind}}
@@ -1749,22 +1532,12 @@ responses:
       UpdatedAt:
         format: date-time
         type: string
-      VisualColorEnum:
-        enum:
-        - - LIGHT_BROWN_8D6E63
-          - RED
-          - GREY
-          - GREEN
-          - BLUE
-          - NONE
-        type: string
       VisualColorEnum_Data:
         description: Declation for basic field visuallineDB.VisualColorEnum {{BasicKind}}
           (to be completed)
-      VisualLayer:
-        description: VisualLayer the object belongs to
       VisualLayerID:
         description: |-
+          insertion for pointer fields encoding declaration
           field VisualLayer is a pointer to another Struct (optional or 0..1)
           This field is generated into another field to enable AS ONE association
       VisualLayerName:
@@ -1772,7 +1545,7 @@ responses:
           field
         type: string
     schema:
-      $ref: '#/definitions/NullString'
+      $ref: '#/definitions/NullInt64'
   visuallineDBsResponse:
     description: VisualLineDBs arrays visuallineDBs
     schema:
@@ -1782,13 +1555,9 @@ responses:
   visualmapDBResponse:
     description: VisualMapDBResponse provides response
     headers:
-      Attribution:
-        type: string
       Attribution_Data:
         description: Declation for basic field visualmapDB.Attribution {{BasicKind}}
           (to be completed)
-      AttributionControl:
-        type: boolean
       AttributionControl_Data:
         description: |-
           Declation for basic field visualmapDB.AttributionControl bool (to be completed)
@@ -1802,49 +1571,32 @@ responses:
       ID:
         format: uint64
         type: integer
-      Lat:
-        format: double
-        type: number
       Lat_Data:
         description: |-
-          insertion for fields declaration
+          insertion for basic fields declaration
           Declation for basic field visualmapDB.Lat {{BasicKind}} (to be completed)
       Lng_Data:
         description: Declation for basic field visualmapDB.Lng {{BasicKind}} (to be
           completed)
-      MaxZoom:
-        format: int64
-        type: integer
       MaxZoom_Data:
         description: Declation for basic field visualmapDB.MaxZoom {{BasicKind}} (to
           be completed)
-      Name:
-        type: string
       Name_Data:
         description: Declation for basic field visualmapDB.Name {{BasicKind}} (to
           be completed)
       UpdatedAt:
         format: date-time
         type: string
-      UrlTemplate:
-        type: string
       UrlTemplate_Data:
         description: Declation for basic field visualmapDB.UrlTemplate {{BasicKind}}
           (to be completed)
-      ZoomControl:
-        type: boolean
       ZoomControl_Data:
         description: |-
           Declation for basic field visualmapDB.ZoomControl bool (to be completed)
           provide the sql storage for the boolan
-      ZoomLevel:
-        format: double
-        type: number
       ZoomLevel_Data:
         description: Declation for basic field visualmapDB.ZoomLevel {{BasicKind}}
           (to be completed)
-      ZoomSnap:
-        type: boolean
       ZoomSnap_Data:
         description: |-
           Declation for basic field visualmapDB.ZoomSnap bool (to be completed)
@@ -1866,22 +1618,14 @@ responses:
       DeletedAt:
         format: date-time
         type: string
-      Display:
-        type: boolean
       Display_Data:
         description: |-
           Declation for basic field visualtrackDB.Display bool (to be completed)
           provide the sql storage for the boolan
-      DisplayLevelAndSpeed:
-        description: if true, display level and speed below the icon
-        type: boolean
       DisplayLevelAndSpeed_Data:
         description: |-
           Declation for basic field visualtrackDB.DisplayLevelAndSpeed bool (to be completed)
           provide the sql storage for the boolan
-      DisplayTrackHistory:
-        description: if true display dots from the trajectory
-        type: boolean
       DisplayTrackHistory_Data:
         description: |-
           Declation for basic field visualtrackDB.DisplayTrackHistory bool (to be completed)
@@ -1892,12 +1636,9 @@ responses:
       ID:
         format: uint64
         type: integer
-      Lat:
-        format: double
-        type: number
       Lat_Data:
         description: |-
-          insertion for fields declaration
+          insertion for basic fields declaration
           Declation for basic field visualtrackDB.Lat {{BasicKind}} (to be completed)
       Level_Data:
         description: Declation for basic field visualtrackDB.Level {{BasicKind}} (to
@@ -1905,8 +1646,6 @@ responses:
       Lng_Data:
         description: Declation for basic field visualtrackDB.Lng {{BasicKind}} (to
           be completed)
-      Name:
-        type: string
       Name_Data:
         description: Declation for basic field visualtrackDB.Name {{BasicKind}} (to
           be completed)
@@ -1919,19 +1658,9 @@ responses:
       VerticalSpeed_Data:
         description: Declation for basic field visualtrackDB.VerticalSpeed {{BasicKind}}
           (to be completed)
-      VisualColorEnum:
-        enum:
-        - - LIGHT_BROWN_8D6E63
-          - RED
-          - GREY
-          - GREEN
-          - BLUE
-          - NONE
-        type: string
       VisualColorEnum_Data:
         description: Declation for basic field visualtrackDB.VisualColorEnum {{BasicKind}}
           (to be completed)
-      VisualIcon: {}
       VisualIconID:
         description: |-
           field VisualIcon is a pointer to another Struct (optional or 0..1)
@@ -1940,10 +1669,9 @@ responses:
         description: all gong Struct has a Name field, this enables this data to object
           field
         type: string
-      VisualLayer:
-        description: VisualLayer the object belongs to
       VisualLayerID:
         description: |-
+          insertion for pointer fields encoding declaration
           field VisualLayer is a pointer to another Struct (optional or 0..1)
           This field is generated into another field to enable AS ONE association
       VisualLayerName:
@@ -1951,7 +1679,7 @@ responses:
           field
         type: string
     schema:
-      $ref: '#/definitions/NullBool'
+      $ref: '#/definitions/NullInt64'
   visualtrackDBsResponse:
     description: VisualTrackDBs arrays visualtrackDBs
     schema:

@@ -9,7 +9,6 @@ import (
 	"github.com/fullstack-lang/gongleaflet/go/orm"
 
 	"github.com/gin-gonic/gin"
-	"github.com/jinzhu/gorm"
 )
 
 // declaration in order to justify use of the models import
@@ -47,10 +46,11 @@ type VisualLayerInput struct {
 //    default: genericError
 //        200: visuallayerDBsResponse
 func GetVisualLayers(c *gin.Context) {
-	db := c.MustGet("db").(*gorm.DB)
-
-	var visuallayers []orm.VisualLayerDB
-	query := db.Find(&visuallayers)
+	db := orm.BackRepo.BackRepoVisualLayer.GetDB()
+	
+	// source slice
+	var visuallayerDBs []orm.VisualLayerDB
+	query := db.Find(&visuallayerDBs)
 	if query.Error != nil {
 		var returnError GenericError
 		returnError.Body.Code = http.StatusBadRequest
@@ -59,22 +59,23 @@ func GetVisualLayers(c *gin.Context) {
 		return
 	}
 
+	// slice that will be transmitted to the front
+	visuallayerAPIs := make([]orm.VisualLayerAPI, 0)
+
 	// for each visuallayer, update fields from the database nullable fields
-	for idx := range visuallayers {
-		visuallayer := &visuallayers[idx]
-		_ = visuallayer
+	for idx := range visuallayerDBs {
+		visuallayerDB := &visuallayerDBs[idx]
+		_ = visuallayerDB
+		var visuallayerAPI orm.VisualLayerAPI
+
 		// insertion point for updating fields
-		if visuallayer.Name_Data.Valid {
-			visuallayer.Name = visuallayer.Name_Data.String
-		}
-
-		if visuallayer.DisplayName_Data.Valid {
-			visuallayer.DisplayName = visuallayer.DisplayName_Data.String
-		}
-
+		visuallayerAPI.ID = visuallayerDB.ID
+		visuallayerDB.CopyBasicFieldsToVisualLayer(&visuallayerAPI.VisualLayer)
+		visuallayerAPI.VisualLayerPointersEnconding = visuallayerDB.VisualLayerPointersEnconding
+		visuallayerAPIs = append(visuallayerAPIs, visuallayerAPI)
 	}
 
-	c.JSON(http.StatusOK, visuallayers)
+	c.JSON(http.StatusOK, visuallayerAPIs)
 }
 
 // PostVisualLayer
@@ -91,7 +92,7 @@ func GetVisualLayers(c *gin.Context) {
 //     Responses:
 //       200: visuallayerDBResponse
 func PostVisualLayer(c *gin.Context) {
-	db := c.MustGet("db").(*gorm.DB)
+	db := orm.BackRepo.BackRepoVisualLayer.GetDB()
 
 	// Validate input
 	var input orm.VisualLayerAPI
@@ -107,13 +108,8 @@ func PostVisualLayer(c *gin.Context) {
 
 	// Create visuallayer
 	visuallayerDB := orm.VisualLayerDB{}
-	visuallayerDB.VisualLayerAPI = input
-	// insertion point for nullable field set
-	visuallayerDB.Name_Data.String = input.Name
-	visuallayerDB.Name_Data.Valid = true
-
-	visuallayerDB.DisplayName_Data.String = input.DisplayName
-	visuallayerDB.DisplayName_Data.Valid = true
+	visuallayerDB.VisualLayerPointersEnconding = input.VisualLayerPointersEnconding
+	visuallayerDB.CopyBasicFieldsFromVisualLayer(&input.VisualLayer)
 
 	query := db.Create(&visuallayerDB)
 	if query.Error != nil {
@@ -141,11 +137,11 @@ func PostVisualLayer(c *gin.Context) {
 //    default: genericError
 //        200: visuallayerDBResponse
 func GetVisualLayer(c *gin.Context) {
-	db := c.MustGet("db").(*gorm.DB)
+	db := orm.BackRepo.BackRepoVisualLayer.GetDB()
 
-	// Get visuallayer in DB
-	var visuallayer orm.VisualLayerDB
-	if err := db.First(&visuallayer, c.Param("id")).Error; err != nil {
+	// Get visuallayerDB in DB
+	var visuallayerDB orm.VisualLayerDB
+	if err := db.First(&visuallayerDB, c.Param("id")).Error; err != nil {
 		var returnError GenericError
 		returnError.Body.Code = http.StatusBadRequest
 		returnError.Body.Message = err.Error()
@@ -153,16 +149,12 @@ func GetVisualLayer(c *gin.Context) {
 		return
 	}
 
-	// insertion point for fields value set from nullable fields
-	if visuallayer.Name_Data.Valid {
-		visuallayer.Name = visuallayer.Name_Data.String
-	}
+	var visuallayerAPI orm.VisualLayerAPI
+	visuallayerAPI.ID = visuallayerDB.ID
+	visuallayerAPI.VisualLayerPointersEnconding = visuallayerDB.VisualLayerPointersEnconding
+	visuallayerDB.CopyBasicFieldsToVisualLayer(&visuallayerAPI.VisualLayer)
 
-	if visuallayer.DisplayName_Data.Valid {
-		visuallayer.DisplayName = visuallayer.DisplayName_Data.String
-	}
-
-	c.JSON(http.StatusOK, visuallayer)
+	c.JSON(http.StatusOK, visuallayerAPI)
 }
 
 // UpdateVisualLayer
@@ -175,7 +167,7 @@ func GetVisualLayer(c *gin.Context) {
 //    default: genericError
 //        200: visuallayerDBResponse
 func UpdateVisualLayer(c *gin.Context) {
-	db := c.MustGet("db").(*gorm.DB)
+	db := orm.BackRepo.BackRepoVisualLayer.GetDB()
 
 	// Get model if exist
 	var visuallayerDB orm.VisualLayerDB
@@ -199,14 +191,10 @@ func UpdateVisualLayer(c *gin.Context) {
 	}
 
 	// update
-	// insertion point for nullable field set
-	input.Name_Data.String = input.Name
-	input.Name_Data.Valid = true
+	visuallayerDB.CopyBasicFieldsFromVisualLayer(&input.VisualLayer)
+	visuallayerDB.VisualLayerPointersEnconding = input.VisualLayerPointersEnconding
 
-	input.DisplayName_Data.String = input.DisplayName
-	input.DisplayName_Data.Valid = true
-
-	query = db.Model(&visuallayerDB).Updates(input)
+	query = db.Model(&visuallayerDB).Updates(visuallayerDB)
 	if query.Error != nil {
 		var returnError GenericError
 		returnError.Body.Code = http.StatusBadRequest
@@ -232,7 +220,7 @@ func UpdateVisualLayer(c *gin.Context) {
 // Responses:
 //    default: genericError
 func DeleteVisualLayer(c *gin.Context) {
-	db := c.MustGet("db").(*gorm.DB)
+	db := orm.BackRepo.BackRepoVisualLayer.GetDB()
 
 	// Get model if exist
 	var visuallayerDB orm.VisualLayerDB

@@ -98,7 +98,6 @@ export class VisualIconsTableComponent implements OnInit {
     this.frontRepoService.pull().subscribe(
       frontRepo => {
         this.frontRepo = frontRepo
-        console.log("front repo pull returned")
 
         this.visualicons = this.frontRepo.VisualIcons_array;
 
@@ -136,8 +135,6 @@ export class VisualIconsTableComponent implements OnInit {
     this.visualiconService.deleteVisualIcon(visualiconID).subscribe(
       visualicon => {
         this.visualiconService.VisualIconServiceChanged.next("delete")
-
-        console.log("visualicon deleted")
       }
     );
   }
@@ -199,7 +196,6 @@ export class VisualIconsTableComponent implements OnInit {
     // from selection, set visualicon that belong to visualicon through Anarrayofb
     this.selection.selected.forEach(
       visualicon => {
-        console.log("selection ID " + visualicon.ID)
         let ID = +this.dialogData.ID
         visualicon[this.dialogData.ReversePointer].Int64 = ID
         visualicon[this.dialogData.ReversePointer].Valid = true
@@ -213,7 +209,6 @@ export class VisualIconsTableComponent implements OnInit {
         this.visualiconService.updateVisualIcon(visualicon)
           .subscribe(visualicon => {
             this.visualiconService.VisualIconServiceChanged.next("update")
-            console.log("visualicon saved")
           });
       }
     )

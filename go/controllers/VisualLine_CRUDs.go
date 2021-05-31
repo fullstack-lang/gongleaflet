@@ -9,7 +9,6 @@ import (
 	"github.com/fullstack-lang/gongleaflet/go/orm"
 
 	"github.com/gin-gonic/gin"
-	"github.com/jinzhu/gorm"
 )
 
 // declaration in order to justify use of the models import
@@ -47,10 +46,11 @@ type VisualLineInput struct {
 //    default: genericError
 //        200: visuallineDBsResponse
 func GetVisualLines(c *gin.Context) {
-	db := c.MustGet("db").(*gorm.DB)
-
-	var visuallines []orm.VisualLineDB
-	query := db.Find(&visuallines)
+	db := orm.BackRepo.BackRepoVisualLine.GetDB()
+	
+	// source slice
+	var visuallineDBs []orm.VisualLineDB
+	query := db.Find(&visuallineDBs)
 	if query.Error != nil {
 		var returnError GenericError
 		returnError.Body.Code = http.StatusBadRequest
@@ -59,58 +59,23 @@ func GetVisualLines(c *gin.Context) {
 		return
 	}
 
+	// slice that will be transmitted to the front
+	visuallineAPIs := make([]orm.VisualLineAPI, 0)
+
 	// for each visualline, update fields from the database nullable fields
-	for idx := range visuallines {
-		visualline := &visuallines[idx]
-		_ = visualline
+	for idx := range visuallineDBs {
+		visuallineDB := &visuallineDBs[idx]
+		_ = visuallineDB
+		var visuallineAPI orm.VisualLineAPI
+
 		// insertion point for updating fields
-		if visualline.StartLat_Data.Valid {
-			visualline.StartLat = visualline.StartLat_Data.Float64
-		}
-
-		if visualline.StartLng_Data.Valid {
-			visualline.StartLng = visualline.StartLng_Data.Float64
-		}
-
-		if visualline.EndLat_Data.Valid {
-			visualline.EndLat = visualline.EndLat_Data.Float64
-		}
-
-		if visualline.EndLng_Data.Valid {
-			visualline.EndLng = visualline.EndLng_Data.Float64
-		}
-
-		if visualline.Name_Data.Valid {
-			visualline.Name = visualline.Name_Data.String
-		}
-
-		if visualline.VisualColorEnum_Data.Valid {
-			visualline.VisualColorEnum = models.VisualColorEnum(visualline.VisualColorEnum_Data.String)
-		}
-
-		if visualline.DashStyleEnum_Data.Valid {
-			visualline.DashStyleEnum = models.DashStyleEnum(visualline.DashStyleEnum_Data.String)
-		}
-
-		if visualline.IsTransmitting_Data.Valid {
-			visualline.IsTransmitting = models.TransmittingEnum(visualline.IsTransmitting_Data.String)
-		}
-
-		if visualline.Message_Data.Valid {
-			visualline.Message = visualline.Message_Data.String
-		}
-
-		if visualline.IsTransmittingBackward_Data.Valid {
-			visualline.IsTransmittingBackward = models.TransmittingEnum(visualline.IsTransmittingBackward_Data.String)
-		}
-
-		if visualline.MessageBackward_Data.Valid {
-			visualline.MessageBackward = visualline.MessageBackward_Data.String
-		}
-
+		visuallineAPI.ID = visuallineDB.ID
+		visuallineDB.CopyBasicFieldsToVisualLine(&visuallineAPI.VisualLine)
+		visuallineAPI.VisualLinePointersEnconding = visuallineDB.VisualLinePointersEnconding
+		visuallineAPIs = append(visuallineAPIs, visuallineAPI)
 	}
 
-	c.JSON(http.StatusOK, visuallines)
+	c.JSON(http.StatusOK, visuallineAPIs)
 }
 
 // PostVisualLine
@@ -127,7 +92,7 @@ func GetVisualLines(c *gin.Context) {
 //     Responses:
 //       200: visuallineDBResponse
 func PostVisualLine(c *gin.Context) {
-	db := c.MustGet("db").(*gorm.DB)
+	db := orm.BackRepo.BackRepoVisualLine.GetDB()
 
 	// Validate input
 	var input orm.VisualLineAPI
@@ -143,40 +108,8 @@ func PostVisualLine(c *gin.Context) {
 
 	// Create visualline
 	visuallineDB := orm.VisualLineDB{}
-	visuallineDB.VisualLineAPI = input
-	// insertion point for nullable field set
-	visuallineDB.StartLat_Data.Float64 = input.StartLat
-	visuallineDB.StartLat_Data.Valid = true
-
-	visuallineDB.StartLng_Data.Float64 = input.StartLng
-	visuallineDB.StartLng_Data.Valid = true
-
-	visuallineDB.EndLat_Data.Float64 = input.EndLat
-	visuallineDB.EndLat_Data.Valid = true
-
-	visuallineDB.EndLng_Data.Float64 = input.EndLng
-	visuallineDB.EndLng_Data.Valid = true
-
-	visuallineDB.Name_Data.String = input.Name
-	visuallineDB.Name_Data.Valid = true
-
-	visuallineDB.VisualColorEnum_Data.String = string(input.VisualColorEnum)
-	visuallineDB.VisualColorEnum_Data.Valid = true
-
-	visuallineDB.DashStyleEnum_Data.String = string(input.DashStyleEnum)
-	visuallineDB.DashStyleEnum_Data.Valid = true
-
-	visuallineDB.IsTransmitting_Data.String = string(input.IsTransmitting)
-	visuallineDB.IsTransmitting_Data.Valid = true
-
-	visuallineDB.Message_Data.String = input.Message
-	visuallineDB.Message_Data.Valid = true
-
-	visuallineDB.IsTransmittingBackward_Data.String = string(input.IsTransmittingBackward)
-	visuallineDB.IsTransmittingBackward_Data.Valid = true
-
-	visuallineDB.MessageBackward_Data.String = input.MessageBackward
-	visuallineDB.MessageBackward_Data.Valid = true
+	visuallineDB.VisualLinePointersEnconding = input.VisualLinePointersEnconding
+	visuallineDB.CopyBasicFieldsFromVisualLine(&input.VisualLine)
 
 	query := db.Create(&visuallineDB)
 	if query.Error != nil {
@@ -204,11 +137,11 @@ func PostVisualLine(c *gin.Context) {
 //    default: genericError
 //        200: visuallineDBResponse
 func GetVisualLine(c *gin.Context) {
-	db := c.MustGet("db").(*gorm.DB)
+	db := orm.BackRepo.BackRepoVisualLine.GetDB()
 
-	// Get visualline in DB
-	var visualline orm.VisualLineDB
-	if err := db.First(&visualline, c.Param("id")).Error; err != nil {
+	// Get visuallineDB in DB
+	var visuallineDB orm.VisualLineDB
+	if err := db.First(&visuallineDB, c.Param("id")).Error; err != nil {
 		var returnError GenericError
 		returnError.Body.Code = http.StatusBadRequest
 		returnError.Body.Message = err.Error()
@@ -216,52 +149,12 @@ func GetVisualLine(c *gin.Context) {
 		return
 	}
 
-	// insertion point for fields value set from nullable fields
-	if visualline.StartLat_Data.Valid {
-		visualline.StartLat = visualline.StartLat_Data.Float64
-	}
+	var visuallineAPI orm.VisualLineAPI
+	visuallineAPI.ID = visuallineDB.ID
+	visuallineAPI.VisualLinePointersEnconding = visuallineDB.VisualLinePointersEnconding
+	visuallineDB.CopyBasicFieldsToVisualLine(&visuallineAPI.VisualLine)
 
-	if visualline.StartLng_Data.Valid {
-		visualline.StartLng = visualline.StartLng_Data.Float64
-	}
-
-	if visualline.EndLat_Data.Valid {
-		visualline.EndLat = visualline.EndLat_Data.Float64
-	}
-
-	if visualline.EndLng_Data.Valid {
-		visualline.EndLng = visualline.EndLng_Data.Float64
-	}
-
-	if visualline.Name_Data.Valid {
-		visualline.Name = visualline.Name_Data.String
-	}
-
-	if visualline.VisualColorEnum_Data.Valid {
-		visualline.VisualColorEnum = models.VisualColorEnum(visualline.VisualColorEnum_Data.String)
-	}
-
-	if visualline.DashStyleEnum_Data.Valid {
-		visualline.DashStyleEnum = models.DashStyleEnum(visualline.DashStyleEnum_Data.String)
-	}
-
-	if visualline.IsTransmitting_Data.Valid {
-		visualline.IsTransmitting = models.TransmittingEnum(visualline.IsTransmitting_Data.String)
-	}
-
-	if visualline.Message_Data.Valid {
-		visualline.Message = visualline.Message_Data.String
-	}
-
-	if visualline.IsTransmittingBackward_Data.Valid {
-		visualline.IsTransmittingBackward = models.TransmittingEnum(visualline.IsTransmittingBackward_Data.String)
-	}
-
-	if visualline.MessageBackward_Data.Valid {
-		visualline.MessageBackward = visualline.MessageBackward_Data.String
-	}
-
-	c.JSON(http.StatusOK, visualline)
+	c.JSON(http.StatusOK, visuallineAPI)
 }
 
 // UpdateVisualLine
@@ -274,7 +167,7 @@ func GetVisualLine(c *gin.Context) {
 //    default: genericError
 //        200: visuallineDBResponse
 func UpdateVisualLine(c *gin.Context) {
-	db := c.MustGet("db").(*gorm.DB)
+	db := orm.BackRepo.BackRepoVisualLine.GetDB()
 
 	// Get model if exist
 	var visuallineDB orm.VisualLineDB
@@ -298,41 +191,10 @@ func UpdateVisualLine(c *gin.Context) {
 	}
 
 	// update
-	// insertion point for nullable field set
-	input.StartLat_Data.Float64 = input.StartLat
-	input.StartLat_Data.Valid = true
+	visuallineDB.CopyBasicFieldsFromVisualLine(&input.VisualLine)
+	visuallineDB.VisualLinePointersEnconding = input.VisualLinePointersEnconding
 
-	input.StartLng_Data.Float64 = input.StartLng
-	input.StartLng_Data.Valid = true
-
-	input.EndLat_Data.Float64 = input.EndLat
-	input.EndLat_Data.Valid = true
-
-	input.EndLng_Data.Float64 = input.EndLng
-	input.EndLng_Data.Valid = true
-
-	input.Name_Data.String = input.Name
-	input.Name_Data.Valid = true
-
-	input.VisualColorEnum_Data.String = string(input.VisualColorEnum)
-	input.VisualColorEnum_Data.Valid = true
-
-	input.DashStyleEnum_Data.String = string(input.DashStyleEnum)
-	input.DashStyleEnum_Data.Valid = true
-
-	input.IsTransmitting_Data.String = string(input.IsTransmitting)
-	input.IsTransmitting_Data.Valid = true
-
-	input.Message_Data.String = input.Message
-	input.Message_Data.Valid = true
-
-	input.IsTransmittingBackward_Data.String = string(input.IsTransmittingBackward)
-	input.IsTransmittingBackward_Data.Valid = true
-
-	input.MessageBackward_Data.String = input.MessageBackward
-	input.MessageBackward_Data.Valid = true
-
-	query = db.Model(&visuallineDB).Updates(input)
+	query = db.Model(&visuallineDB).Updates(visuallineDB)
 	if query.Error != nil {
 		var returnError GenericError
 		returnError.Body.Code = http.StatusBadRequest
@@ -358,7 +220,7 @@ func UpdateVisualLine(c *gin.Context) {
 // Responses:
 //    default: genericError
 func DeleteVisualLine(c *gin.Context) {
-	db := c.MustGet("db").(*gorm.DB)
+	db := orm.BackRepo.BackRepoVisualLine.GetDB()
 
 	// Get model if exist
 	var visuallineDB orm.VisualLineDB

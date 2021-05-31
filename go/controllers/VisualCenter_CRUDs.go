@@ -9,7 +9,6 @@ import (
 	"github.com/fullstack-lang/gongleaflet/go/orm"
 
 	"github.com/gin-gonic/gin"
-	"github.com/jinzhu/gorm"
 )
 
 // declaration in order to justify use of the models import
@@ -47,10 +46,11 @@ type VisualCenterInput struct {
 //    default: genericError
 //        200: visualcenterDBsResponse
 func GetVisualCenters(c *gin.Context) {
-	db := c.MustGet("db").(*gorm.DB)
-
-	var visualcenters []orm.VisualCenterDB
-	query := db.Find(&visualcenters)
+	db := orm.BackRepo.BackRepoVisualCenter.GetDB()
+	
+	// source slice
+	var visualcenterDBs []orm.VisualCenterDB
+	query := db.Find(&visualcenterDBs)
 	if query.Error != nil {
 		var returnError GenericError
 		returnError.Body.Code = http.StatusBadRequest
@@ -59,30 +59,23 @@ func GetVisualCenters(c *gin.Context) {
 		return
 	}
 
+	// slice that will be transmitted to the front
+	visualcenterAPIs := make([]orm.VisualCenterAPI, 0)
+
 	// for each visualcenter, update fields from the database nullable fields
-	for idx := range visualcenters {
-		visualcenter := &visualcenters[idx]
-		_ = visualcenter
+	for idx := range visualcenterDBs {
+		visualcenterDB := &visualcenterDBs[idx]
+		_ = visualcenterDB
+		var visualcenterAPI orm.VisualCenterAPI
+
 		// insertion point for updating fields
-		if visualcenter.Lat_Data.Valid {
-			visualcenter.Lat = visualcenter.Lat_Data.Float64
-		}
-
-		if visualcenter.Lng_Data.Valid {
-			visualcenter.Lng = visualcenter.Lng_Data.Float64
-		}
-
-		if visualcenter.Name_Data.Valid {
-			visualcenter.Name = visualcenter.Name_Data.String
-		}
-
-		if visualcenter.VisualColorEnum_Data.Valid {
-			visualcenter.VisualColorEnum = models.VisualColorEnum(visualcenter.VisualColorEnum_Data.String)
-		}
-
+		visualcenterAPI.ID = visualcenterDB.ID
+		visualcenterDB.CopyBasicFieldsToVisualCenter(&visualcenterAPI.VisualCenter)
+		visualcenterAPI.VisualCenterPointersEnconding = visualcenterDB.VisualCenterPointersEnconding
+		visualcenterAPIs = append(visualcenterAPIs, visualcenterAPI)
 	}
 
-	c.JSON(http.StatusOK, visualcenters)
+	c.JSON(http.StatusOK, visualcenterAPIs)
 }
 
 // PostVisualCenter
@@ -99,7 +92,7 @@ func GetVisualCenters(c *gin.Context) {
 //     Responses:
 //       200: visualcenterDBResponse
 func PostVisualCenter(c *gin.Context) {
-	db := c.MustGet("db").(*gorm.DB)
+	db := orm.BackRepo.BackRepoVisualCenter.GetDB()
 
 	// Validate input
 	var input orm.VisualCenterAPI
@@ -115,19 +108,8 @@ func PostVisualCenter(c *gin.Context) {
 
 	// Create visualcenter
 	visualcenterDB := orm.VisualCenterDB{}
-	visualcenterDB.VisualCenterAPI = input
-	// insertion point for nullable field set
-	visualcenterDB.Lat_Data.Float64 = input.Lat
-	visualcenterDB.Lat_Data.Valid = true
-
-	visualcenterDB.Lng_Data.Float64 = input.Lng
-	visualcenterDB.Lng_Data.Valid = true
-
-	visualcenterDB.Name_Data.String = input.Name
-	visualcenterDB.Name_Data.Valid = true
-
-	visualcenterDB.VisualColorEnum_Data.String = string(input.VisualColorEnum)
-	visualcenterDB.VisualColorEnum_Data.Valid = true
+	visualcenterDB.VisualCenterPointersEnconding = input.VisualCenterPointersEnconding
+	visualcenterDB.CopyBasicFieldsFromVisualCenter(&input.VisualCenter)
 
 	query := db.Create(&visualcenterDB)
 	if query.Error != nil {
@@ -155,11 +137,11 @@ func PostVisualCenter(c *gin.Context) {
 //    default: genericError
 //        200: visualcenterDBResponse
 func GetVisualCenter(c *gin.Context) {
-	db := c.MustGet("db").(*gorm.DB)
+	db := orm.BackRepo.BackRepoVisualCenter.GetDB()
 
-	// Get visualcenter in DB
-	var visualcenter orm.VisualCenterDB
-	if err := db.First(&visualcenter, c.Param("id")).Error; err != nil {
+	// Get visualcenterDB in DB
+	var visualcenterDB orm.VisualCenterDB
+	if err := db.First(&visualcenterDB, c.Param("id")).Error; err != nil {
 		var returnError GenericError
 		returnError.Body.Code = http.StatusBadRequest
 		returnError.Body.Message = err.Error()
@@ -167,24 +149,12 @@ func GetVisualCenter(c *gin.Context) {
 		return
 	}
 
-	// insertion point for fields value set from nullable fields
-	if visualcenter.Lat_Data.Valid {
-		visualcenter.Lat = visualcenter.Lat_Data.Float64
-	}
+	var visualcenterAPI orm.VisualCenterAPI
+	visualcenterAPI.ID = visualcenterDB.ID
+	visualcenterAPI.VisualCenterPointersEnconding = visualcenterDB.VisualCenterPointersEnconding
+	visualcenterDB.CopyBasicFieldsToVisualCenter(&visualcenterAPI.VisualCenter)
 
-	if visualcenter.Lng_Data.Valid {
-		visualcenter.Lng = visualcenter.Lng_Data.Float64
-	}
-
-	if visualcenter.Name_Data.Valid {
-		visualcenter.Name = visualcenter.Name_Data.String
-	}
-
-	if visualcenter.VisualColorEnum_Data.Valid {
-		visualcenter.VisualColorEnum = models.VisualColorEnum(visualcenter.VisualColorEnum_Data.String)
-	}
-
-	c.JSON(http.StatusOK, visualcenter)
+	c.JSON(http.StatusOK, visualcenterAPI)
 }
 
 // UpdateVisualCenter
@@ -197,7 +167,7 @@ func GetVisualCenter(c *gin.Context) {
 //    default: genericError
 //        200: visualcenterDBResponse
 func UpdateVisualCenter(c *gin.Context) {
-	db := c.MustGet("db").(*gorm.DB)
+	db := orm.BackRepo.BackRepoVisualCenter.GetDB()
 
 	// Get model if exist
 	var visualcenterDB orm.VisualCenterDB
@@ -221,20 +191,10 @@ func UpdateVisualCenter(c *gin.Context) {
 	}
 
 	// update
-	// insertion point for nullable field set
-	input.Lat_Data.Float64 = input.Lat
-	input.Lat_Data.Valid = true
+	visualcenterDB.CopyBasicFieldsFromVisualCenter(&input.VisualCenter)
+	visualcenterDB.VisualCenterPointersEnconding = input.VisualCenterPointersEnconding
 
-	input.Lng_Data.Float64 = input.Lng
-	input.Lng_Data.Valid = true
-
-	input.Name_Data.String = input.Name
-	input.Name_Data.Valid = true
-
-	input.VisualColorEnum_Data.String = string(input.VisualColorEnum)
-	input.VisualColorEnum_Data.Valid = true
-
-	query = db.Model(&visualcenterDB).Updates(input)
+	query = db.Model(&visualcenterDB).Updates(visualcenterDB)
 	if query.Error != nil {
 		var returnError GenericError
 		returnError.Body.Code = http.StatusBadRequest
@@ -260,7 +220,7 @@ func UpdateVisualCenter(c *gin.Context) {
 // Responses:
 //    default: genericError
 func DeleteVisualCenter(c *gin.Context) {
-	db := c.MustGet("db").(*gorm.DB)
+	db := orm.BackRepo.BackRepoVisualCenter.GetDB()
 
 	// Get model if exist
 	var visualcenterDB orm.VisualCenterDB

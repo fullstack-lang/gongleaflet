@@ -3,9 +3,13 @@ package orm
 
 import (
 	"database/sql"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"log"
+	"os"
+	"path/filepath"
 	"sort"
 	"time"
 
@@ -27,27 +31,38 @@ var dummy_VisualLayer_sort sort.Float64Slice
 //
 // swagger:model visuallayerAPI
 type VisualLayerAPI struct {
+	gorm.Model
+
 	models.VisualLayer
 
-	// insertion for fields declaration
+	// encoding of pointers
+	VisualLayerPointersEnconding
+}
+
+// VisualLayerPointersEnconding encodes pointers to Struct and
+// reverse pointers of slice of poitners to Struct
+type VisualLayerPointersEnconding struct {
+	// insertion for pointer fields encoding declaration
+}
+
+// VisualLayerDB describes a visuallayer in the database
+//
+// It incorporates the GORM ID, basic fields from the model (because they can be serialized),
+// the encoded version of pointers
+//
+// swagger:model visuallayerDB
+type VisualLayerDB struct {
+	gorm.Model
+
+	// insertion for basic fields declaration
 	// Declation for basic field visuallayerDB.Name {{BasicKind}} (to be completed)
 	Name_Data sql.NullString
 
 	// Declation for basic field visuallayerDB.DisplayName {{BasicKind}} (to be completed)
 	DisplayName_Data sql.NullString
 
-	// end of insertion
-}
-
-// VisualLayerDB describes a visuallayer in the database
-//
-// It incorporates all fields : from the model, from the generated field for the API and the GORM ID
-//
-// swagger:model visuallayerDB
-type VisualLayerDB struct {
-	gorm.Model
-
-	VisualLayerAPI
+	// encoding of pointers
+	VisualLayerPointersEnconding
 }
 
 // VisualLayerDBs arrays visuallayerDBs
@@ -71,6 +86,17 @@ type BackRepoVisualLayerStruct struct {
 	Map_VisualLayerDBID_VisualLayerPtr *map[uint]*models.VisualLayer
 
 	db *gorm.DB
+}
+
+func (backRepoVisualLayer *BackRepoVisualLayerStruct) GetDB() *gorm.DB {
+	return backRepoVisualLayer.db
+}
+
+// GetVisualLayerDBFromVisualLayerPtr is a handy function to access the back repo instance from the stage instance
+func (backRepoVisualLayer *BackRepoVisualLayerStruct) GetVisualLayerDBFromVisualLayerPtr(visuallayer *models.VisualLayer) (visuallayerDB *VisualLayerDB) {
+	id := (*backRepoVisualLayer.Map_VisualLayerPtr_VisualLayerDBID)[visuallayer]
+	visuallayerDB = (*backRepoVisualLayer.Map_VisualLayerDBID_VisualLayerDB)[id]
+	return
 }
 
 // BackRepoVisualLayer.Init set up the BackRepo of the VisualLayer
@@ -154,7 +180,7 @@ func (backRepoVisualLayer *BackRepoVisualLayerStruct) CommitPhaseOneInstance(vis
 
 	// initiate visuallayer
 	var visuallayerDB VisualLayerDB
-	visuallayerDB.VisualLayer = *visuallayer
+	visuallayerDB.CopyBasicFieldsFromVisualLayer(visuallayer)
 
 	query := backRepoVisualLayer.db.Create(&visuallayerDB)
 	if query.Error != nil {
@@ -187,17 +213,9 @@ func (backRepoVisualLayer *BackRepoVisualLayerStruct) CommitPhaseTwoInstance(bac
 	// fetch matching visuallayerDB
 	if visuallayerDB, ok := (*backRepoVisualLayer.Map_VisualLayerDBID_VisualLayerDB)[idx]; ok {
 
-		{
-			{
-				// insertion point for fields commit
-				visuallayerDB.Name_Data.String = visuallayer.Name
-				visuallayerDB.Name_Data.Valid = true
+		visuallayerDB.CopyBasicFieldsFromVisualLayer(visuallayer)
 
-				visuallayerDB.DisplayName_Data.String = visuallayer.DisplayName
-				visuallayerDB.DisplayName_Data.Valid = true
-
-			}
-		}
+		// insertion point for translating pointers encodings into actual pointers
 		query := backRepoVisualLayer.db.Save(&visuallayerDB)
 		if query.Error != nil {
 			return query.Error
@@ -238,18 +256,23 @@ func (backRepoVisualLayer *BackRepoVisualLayerStruct) CheckoutPhaseOne() (Error 
 // models version of the visuallayerDB
 func (backRepoVisualLayer *BackRepoVisualLayerStruct) CheckoutPhaseOneInstance(visuallayerDB *VisualLayerDB) (Error error) {
 
-	// if absent, create entries in the backRepoVisualLayer maps.
-	visuallayerWithNewFieldValues := visuallayerDB.VisualLayer
-	if _, ok := (*backRepoVisualLayer.Map_VisualLayerDBID_VisualLayerPtr)[visuallayerDB.ID]; !ok {
+	visuallayer, ok := (*backRepoVisualLayer.Map_VisualLayerDBID_VisualLayerPtr)[visuallayerDB.ID]
+	if !ok {
+		visuallayer = new(models.VisualLayer)
 
-		(*backRepoVisualLayer.Map_VisualLayerDBID_VisualLayerPtr)[visuallayerDB.ID] = &visuallayerWithNewFieldValues
-		(*backRepoVisualLayer.Map_VisualLayerPtr_VisualLayerDBID)[&visuallayerWithNewFieldValues] = visuallayerDB.ID
+		(*backRepoVisualLayer.Map_VisualLayerDBID_VisualLayerPtr)[visuallayerDB.ID] = visuallayer
+		(*backRepoVisualLayer.Map_VisualLayerPtr_VisualLayerDBID)[visuallayer] = visuallayerDB.ID
 
 		// append model store with the new element
-		visuallayerWithNewFieldValues.Stage()
+		visuallayer.Stage()
 	}
-	visuallayerDBWithNewFieldValues := *visuallayerDB
-	(*backRepoVisualLayer.Map_VisualLayerDBID_VisualLayerDB)[visuallayerDB.ID] = &visuallayerDBWithNewFieldValues
+	visuallayerDB.CopyBasicFieldsToVisualLayer(visuallayer)
+
+	// preserve pointer to aclassDB. Otherwise, pointer will is recycled and the map of pointers
+	// Map_VisualLayerDBID_VisualLayerDB)[visuallayerDB hold variable pointers
+	visuallayerDB_Data := *visuallayerDB
+	preservedPtrToVisualLayer := &visuallayerDB_Data
+	(*backRepoVisualLayer.Map_VisualLayerDBID_VisualLayerDB)[visuallayerDB.ID] = preservedPtrToVisualLayer
 
 	return
 }
@@ -271,16 +294,8 @@ func (backRepoVisualLayer *BackRepoVisualLayerStruct) CheckoutPhaseTwoInstance(b
 
 	visuallayer := (*backRepoVisualLayer.Map_VisualLayerDBID_VisualLayerPtr)[visuallayerDB.ID]
 	_ = visuallayer // sometimes, there is no code generated. This lines voids the "unused variable" compilation error
-	{
-		{
-			// insertion point for checkout, i.e. update of fields of stage instance from fields of back repo instances
-			//
-			visuallayer.Name = visuallayerDB.Name_Data.String
 
-			visuallayer.DisplayName = visuallayerDB.DisplayName_Data.String
-
-		}
-	}
+	// insertion point for checkout of pointer encoding
 	return
 }
 
@@ -307,5 +322,88 @@ func (backRepo *BackRepoStruct) CheckoutVisualLayer(visuallayer *models.VisualLa
 			backRepo.BackRepoVisualLayer.CheckoutPhaseOneInstance(&visuallayerDB)
 			backRepo.BackRepoVisualLayer.CheckoutPhaseTwoInstance(backRepo, &visuallayerDB)
 		}
+	}
+}
+
+// CopyBasicFieldsToVisualLayerDB is used to copy basic fields between the Stage or the CRUD to the back repo
+func (visuallayerDB *VisualLayerDB) CopyBasicFieldsFromVisualLayer(visuallayer *models.VisualLayer) {
+	// insertion point for fields commit
+	visuallayerDB.Name_Data.String = visuallayer.Name
+	visuallayerDB.Name_Data.Valid = true
+
+	visuallayerDB.DisplayName_Data.String = visuallayer.DisplayName
+	visuallayerDB.DisplayName_Data.Valid = true
+
+}
+
+// CopyBasicFieldsToVisualLayerDB is used to copy basic fields between the Stage or the CRUD to the back repo
+func (visuallayerDB *VisualLayerDB) CopyBasicFieldsToVisualLayer(visuallayer *models.VisualLayer) {
+
+	// insertion point for checkout of basic fields (back repo to stage)
+	visuallayer.Name = visuallayerDB.Name_Data.String
+	visuallayer.DisplayName = visuallayerDB.DisplayName_Data.String
+}
+
+// Backup generates a json file from a slice of all VisualLayerDB instances in the backrepo
+func (backRepoVisualLayer *BackRepoVisualLayerStruct) Backup(dirPath string) {
+
+	filename := filepath.Join(dirPath, "VisualLayerDB.json")
+
+	// organize the map into an array with increasing IDs, in order to have repoductible
+	// backup file
+	var forBackup []*VisualLayerDB
+	for _, visuallayerDB := range *backRepoVisualLayer.Map_VisualLayerDBID_VisualLayerDB {
+		forBackup = append(forBackup, visuallayerDB)
+	}
+
+	sort.Slice(forBackup[:], func(i, j int) bool {
+		return forBackup[i].ID < forBackup[j].ID
+	})
+
+	file, err := json.MarshalIndent(forBackup, "", " ")
+
+	if err != nil {
+		log.Panic("Cannot json VisualLayer ", filename, " ", err.Error())
+	}
+
+	err = ioutil.WriteFile(filename, file, 0644)
+	if err != nil {
+		log.Panic("Cannot write the json VisualLayer file", err.Error())
+	}
+}
+
+func (backRepoVisualLayer *BackRepoVisualLayerStruct) Restore(dirPath string) {
+
+	filename := filepath.Join(dirPath, "VisualLayerDB.json")
+	jsonFile, err := os.Open(filename)
+	// if we os.Open returns an error then handle it
+	if err != nil {
+		log.Panic("Cannot restore/open the json VisualLayer file", filename, " ", err.Error())
+	}
+
+	// read our opened jsonFile as a byte array.
+	byteValue, _ := ioutil.ReadAll(jsonFile)
+
+	var forRestore []*VisualLayerDB
+
+	err = json.Unmarshal(byteValue, &forRestore)
+
+	// fill up Map_VisualLayerDBID_VisualLayerDB
+	for _, visuallayerDB := range forRestore {
+
+		visuallayerDB_ID := visuallayerDB.ID
+		visuallayerDB.ID = 0
+		query := backRepoVisualLayer.db.Create(visuallayerDB)
+		if query.Error != nil {
+			log.Panic(query.Error)
+		}
+		if visuallayerDB_ID != visuallayerDB.ID {
+			log.Panicf("ID of VisualLayer restore ID %d, name %s, has wrong ID %d in DB after create",
+				visuallayerDB_ID, visuallayerDB.Name_Data.String, visuallayerDB.ID)
+		}
+	}
+
+	if err != nil {
+		log.Panic("Cannot restore/unmarshall json VisualLayer file", err.Error())
 	}
 }

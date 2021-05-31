@@ -106,7 +106,6 @@ export class VisualCentersTableComponent implements OnInit {
     this.frontRepoService.pull().subscribe(
       frontRepo => {
         this.frontRepo = frontRepo
-        console.log("front repo pull returned")
 
         this.visualcenters = this.frontRepo.VisualCenters_array;
 
@@ -144,8 +143,6 @@ export class VisualCentersTableComponent implements OnInit {
     this.visualcenterService.deleteVisualCenter(visualcenterID).subscribe(
       visualcenter => {
         this.visualcenterService.VisualCenterServiceChanged.next("delete")
-
-        console.log("visualcenter deleted")
       }
     );
   }
@@ -207,7 +204,6 @@ export class VisualCentersTableComponent implements OnInit {
     // from selection, set visualcenter that belong to visualcenter through Anarrayofb
     this.selection.selected.forEach(
       visualcenter => {
-        console.log("selection ID " + visualcenter.ID)
         let ID = +this.dialogData.ID
         visualcenter[this.dialogData.ReversePointer].Int64 = ID
         visualcenter[this.dialogData.ReversePointer].Valid = true
@@ -221,7 +217,6 @@ export class VisualCentersTableComponent implements OnInit {
         this.visualcenterService.updateVisualCenter(visualcenter)
           .subscribe(visualcenter => {
             this.visualcenterService.VisualCenterServiceChanged.next("update")
-            console.log("visualcenter saved")
           });
       }
     )

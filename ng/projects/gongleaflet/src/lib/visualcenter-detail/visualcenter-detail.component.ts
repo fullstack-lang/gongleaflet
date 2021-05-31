@@ -66,8 +66,6 @@ export class VisualCenterDetailComponent implements OnInit {
 		this.frontRepoService.pull().subscribe(
 			frontRepo => {
 				this.frontRepo = frontRepo
-				console.log("front repo VisualCenterPull returned")
-
 				if (id != 0 && association == undefined) {
 					this.visualcenter = frontRepo.VisualCenters.get(id)
 				} else {
@@ -124,8 +122,6 @@ export class VisualCenterDetailComponent implements OnInit {
 			this.visualcenterService.updateVisualCenter(this.visualcenter)
 				.subscribe(visualcenter => {
 					this.visualcenterService.VisualCenterServiceChanged.next("update")
-
-					console.log("visualcenter saved")
 				});
 		} else {
 			switch (association) {
@@ -136,7 +132,6 @@ export class VisualCenterDetailComponent implements OnInit {
 				this.visualcenterService.VisualCenterServiceChanged.next("post")
 
 				this.visualcenter = {} // reset fields
-				console.log("visualcenter added")
 			});
 		}
 	}
@@ -165,7 +160,6 @@ export class VisualCenterDetailComponent implements OnInit {
 		);
 
 		dialogRef.afterClosed().subscribe(result => {
-			console.log('The dialog was closed');
 		});
 	}
 
@@ -188,7 +182,6 @@ export class VisualCenterDetailComponent implements OnInit {
 		);
 
 		dialogRef.afterClosed().subscribe(result => {
-			console.log('The dialog was closed');
 		});
 	}
 }

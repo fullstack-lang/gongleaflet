@@ -66,8 +66,6 @@ export class VisualMapDetailComponent implements OnInit {
 		this.frontRepoService.pull().subscribe(
 			frontRepo => {
 				this.frontRepo = frontRepo
-				console.log("front repo VisualMapPull returned")
-
 				if (id != 0 && association == undefined) {
 					this.visualmap = frontRepo.VisualMaps.get(id)
 				} else {
@@ -106,8 +104,6 @@ export class VisualMapDetailComponent implements OnInit {
 			this.visualmapService.updateVisualMap(this.visualmap)
 				.subscribe(visualmap => {
 					this.visualmapService.VisualMapServiceChanged.next("update")
-
-					console.log("visualmap saved")
 				});
 		} else {
 			switch (association) {
@@ -118,7 +114,6 @@ export class VisualMapDetailComponent implements OnInit {
 				this.visualmapService.VisualMapServiceChanged.next("post")
 
 				this.visualmap = {} // reset fields
-				console.log("visualmap added")
 			});
 		}
 	}
@@ -147,7 +142,6 @@ export class VisualMapDetailComponent implements OnInit {
 		);
 
 		dialogRef.afterClosed().subscribe(result => {
-			console.log('The dialog was closed');
 		});
 	}
 
@@ -170,7 +164,6 @@ export class VisualMapDetailComponent implements OnInit {
 		);
 
 		dialogRef.afterClosed().subscribe(result => {
-			console.log('The dialog was closed');
 		});
 	}
 }

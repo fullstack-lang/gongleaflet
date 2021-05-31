@@ -69,8 +69,6 @@ export class VisualCircleDetailComponent implements OnInit {
 		this.frontRepoService.pull().subscribe(
 			frontRepo => {
 				this.frontRepo = frontRepo
-				console.log("front repo VisualCirclePull returned")
-
 				if (id != 0 && association == undefined) {
 					this.visualcircle = frontRepo.VisualCircles.get(id)
 				} else {
@@ -115,8 +113,6 @@ export class VisualCircleDetailComponent implements OnInit {
 			this.visualcircleService.updateVisualCircle(this.visualcircle)
 				.subscribe(visualcircle => {
 					this.visualcircleService.VisualCircleServiceChanged.next("update")
-
-					console.log("visualcircle saved")
 				});
 		} else {
 			switch (association) {
@@ -127,7 +123,6 @@ export class VisualCircleDetailComponent implements OnInit {
 				this.visualcircleService.VisualCircleServiceChanged.next("post")
 
 				this.visualcircle = {} // reset fields
-				console.log("visualcircle added")
 			});
 		}
 	}
@@ -156,7 +151,6 @@ export class VisualCircleDetailComponent implements OnInit {
 		);
 
 		dialogRef.afterClosed().subscribe(result => {
-			console.log('The dialog was closed');
 		});
 	}
 
@@ -179,7 +173,6 @@ export class VisualCircleDetailComponent implements OnInit {
 		);
 
 		dialogRef.afterClosed().subscribe(result => {
-			console.log('The dialog was closed');
 		});
 	}
 }

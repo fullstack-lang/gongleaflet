@@ -9,7 +9,6 @@ import (
 	"github.com/fullstack-lang/gongleaflet/go/orm"
 
 	"github.com/gin-gonic/gin"
-	"github.com/jinzhu/gorm"
 )
 
 // declaration in order to justify use of the models import
@@ -47,10 +46,11 @@ type VisualIconInput struct {
 //    default: genericError
 //        200: visualiconDBsResponse
 func GetVisualIcons(c *gin.Context) {
-	db := c.MustGet("db").(*gorm.DB)
-
-	var visualicons []orm.VisualIconDB
-	query := db.Find(&visualicons)
+	db := orm.BackRepo.BackRepoVisualIcon.GetDB()
+	
+	// source slice
+	var visualiconDBs []orm.VisualIconDB
+	query := db.Find(&visualiconDBs)
 	if query.Error != nil {
 		var returnError GenericError
 		returnError.Body.Code = http.StatusBadRequest
@@ -59,22 +59,23 @@ func GetVisualIcons(c *gin.Context) {
 		return
 	}
 
+	// slice that will be transmitted to the front
+	visualiconAPIs := make([]orm.VisualIconAPI, 0)
+
 	// for each visualicon, update fields from the database nullable fields
-	for idx := range visualicons {
-		visualicon := &visualicons[idx]
-		_ = visualicon
+	for idx := range visualiconDBs {
+		visualiconDB := &visualiconDBs[idx]
+		_ = visualiconDB
+		var visualiconAPI orm.VisualIconAPI
+
 		// insertion point for updating fields
-		if visualicon.Name_Data.Valid {
-			visualicon.Name = visualicon.Name_Data.String
-		}
-
-		if visualicon.SVG_Data.Valid {
-			visualicon.SVG = visualicon.SVG_Data.String
-		}
-
+		visualiconAPI.ID = visualiconDB.ID
+		visualiconDB.CopyBasicFieldsToVisualIcon(&visualiconAPI.VisualIcon)
+		visualiconAPI.VisualIconPointersEnconding = visualiconDB.VisualIconPointersEnconding
+		visualiconAPIs = append(visualiconAPIs, visualiconAPI)
 	}
 
-	c.JSON(http.StatusOK, visualicons)
+	c.JSON(http.StatusOK, visualiconAPIs)
 }
 
 // PostVisualIcon
@@ -91,7 +92,7 @@ func GetVisualIcons(c *gin.Context) {
 //     Responses:
 //       200: visualiconDBResponse
 func PostVisualIcon(c *gin.Context) {
-	db := c.MustGet("db").(*gorm.DB)
+	db := orm.BackRepo.BackRepoVisualIcon.GetDB()
 
 	// Validate input
 	var input orm.VisualIconAPI
@@ -107,13 +108,8 @@ func PostVisualIcon(c *gin.Context) {
 
 	// Create visualicon
 	visualiconDB := orm.VisualIconDB{}
-	visualiconDB.VisualIconAPI = input
-	// insertion point for nullable field set
-	visualiconDB.Name_Data.String = input.Name
-	visualiconDB.Name_Data.Valid = true
-
-	visualiconDB.SVG_Data.String = input.SVG
-	visualiconDB.SVG_Data.Valid = true
+	visualiconDB.VisualIconPointersEnconding = input.VisualIconPointersEnconding
+	visualiconDB.CopyBasicFieldsFromVisualIcon(&input.VisualIcon)
 
 	query := db.Create(&visualiconDB)
 	if query.Error != nil {
@@ -141,11 +137,11 @@ func PostVisualIcon(c *gin.Context) {
 //    default: genericError
 //        200: visualiconDBResponse
 func GetVisualIcon(c *gin.Context) {
-	db := c.MustGet("db").(*gorm.DB)
+	db := orm.BackRepo.BackRepoVisualIcon.GetDB()
 
-	// Get visualicon in DB
-	var visualicon orm.VisualIconDB
-	if err := db.First(&visualicon, c.Param("id")).Error; err != nil {
+	// Get visualiconDB in DB
+	var visualiconDB orm.VisualIconDB
+	if err := db.First(&visualiconDB, c.Param("id")).Error; err != nil {
 		var returnError GenericError
 		returnError.Body.Code = http.StatusBadRequest
 		returnError.Body.Message = err.Error()
@@ -153,16 +149,12 @@ func GetVisualIcon(c *gin.Context) {
 		return
 	}
 
-	// insertion point for fields value set from nullable fields
-	if visualicon.Name_Data.Valid {
-		visualicon.Name = visualicon.Name_Data.String
-	}
+	var visualiconAPI orm.VisualIconAPI
+	visualiconAPI.ID = visualiconDB.ID
+	visualiconAPI.VisualIconPointersEnconding = visualiconDB.VisualIconPointersEnconding
+	visualiconDB.CopyBasicFieldsToVisualIcon(&visualiconAPI.VisualIcon)
 
-	if visualicon.SVG_Data.Valid {
-		visualicon.SVG = visualicon.SVG_Data.String
-	}
-
-	c.JSON(http.StatusOK, visualicon)
+	c.JSON(http.StatusOK, visualiconAPI)
 }
 
 // UpdateVisualIcon
@@ -175,7 +167,7 @@ func GetVisualIcon(c *gin.Context) {
 //    default: genericError
 //        200: visualiconDBResponse
 func UpdateVisualIcon(c *gin.Context) {
-	db := c.MustGet("db").(*gorm.DB)
+	db := orm.BackRepo.BackRepoVisualIcon.GetDB()
 
 	// Get model if exist
 	var visualiconDB orm.VisualIconDB
@@ -199,14 +191,10 @@ func UpdateVisualIcon(c *gin.Context) {
 	}
 
 	// update
-	// insertion point for nullable field set
-	input.Name_Data.String = input.Name
-	input.Name_Data.Valid = true
+	visualiconDB.CopyBasicFieldsFromVisualIcon(&input.VisualIcon)
+	visualiconDB.VisualIconPointersEnconding = input.VisualIconPointersEnconding
 
-	input.SVG_Data.String = input.SVG
-	input.SVG_Data.Valid = true
-
-	query = db.Model(&visualiconDB).Updates(input)
+	query = db.Model(&visualiconDB).Updates(visualiconDB)
 	if query.Error != nil {
 		var returnError GenericError
 		returnError.Body.Code = http.StatusBadRequest
@@ -232,7 +220,7 @@ func UpdateVisualIcon(c *gin.Context) {
 // Responses:
 //    default: genericError
 func DeleteVisualIcon(c *gin.Context) {
-	db := c.MustGet("db").(*gorm.DB)
+	db := orm.BackRepo.BackRepoVisualIcon.GetDB()
 
 	// Get model if exist
 	var visualiconDB orm.VisualIconDB

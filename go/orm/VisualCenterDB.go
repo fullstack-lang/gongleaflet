@@ -3,9 +3,13 @@ package orm
 
 import (
 	"database/sql"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"log"
+	"os"
+	"path/filepath"
 	"sort"
 	"time"
 
@@ -27,21 +31,18 @@ var dummy_VisualCenter_sort sort.Float64Slice
 //
 // swagger:model visualcenterAPI
 type VisualCenterAPI struct {
+	gorm.Model
+
 	models.VisualCenter
 
-	// insertion for fields declaration
-	// Declation for basic field visualcenterDB.Lat {{BasicKind}} (to be completed)
-	Lat_Data sql.NullFloat64
+	// encoding of pointers
+	VisualCenterPointersEnconding
+}
 
-	// Declation for basic field visualcenterDB.Lng {{BasicKind}} (to be completed)
-	Lng_Data sql.NullFloat64
-
-	// Declation for basic field visualcenterDB.Name {{BasicKind}} (to be completed)
-	Name_Data sql.NullString
-
-	// Declation for basic field visualcenterDB.VisualColorEnum {{BasicKind}} (to be completed)
-	VisualColorEnum_Data sql.NullString
-
+// VisualCenterPointersEnconding encodes pointers to Struct and
+// reverse pointers of slice of poitners to Struct
+type VisualCenterPointersEnconding struct {
+	// insertion for pointer fields encoding declaration
 	// field VisualLayer is a pointer to another Struct (optional or 0..1)
 	// This field is generated into another field to enable AS ONE association
 	VisualLayerID sql.NullInt64
@@ -56,18 +57,32 @@ type VisualCenterAPI struct {
 	// all gong Struct has a Name field, this enables this data to object field
 	VisualIconName string
 
-	// end of insertion
 }
 
 // VisualCenterDB describes a visualcenter in the database
 //
-// It incorporates all fields : from the model, from the generated field for the API and the GORM ID
+// It incorporates the GORM ID, basic fields from the model (because they can be serialized),
+// the encoded version of pointers
 //
 // swagger:model visualcenterDB
 type VisualCenterDB struct {
 	gorm.Model
 
-	VisualCenterAPI
+	// insertion for basic fields declaration
+	// Declation for basic field visualcenterDB.Lat {{BasicKind}} (to be completed)
+	Lat_Data sql.NullFloat64
+
+	// Declation for basic field visualcenterDB.Lng {{BasicKind}} (to be completed)
+	Lng_Data sql.NullFloat64
+
+	// Declation for basic field visualcenterDB.Name {{BasicKind}} (to be completed)
+	Name_Data sql.NullString
+
+	// Declation for basic field visualcenterDB.VisualColorEnum {{BasicKind}} (to be completed)
+	VisualColorEnum_Data sql.NullString
+
+	// encoding of pointers
+	VisualCenterPointersEnconding
 }
 
 // VisualCenterDBs arrays visualcenterDBs
@@ -91,6 +106,17 @@ type BackRepoVisualCenterStruct struct {
 	Map_VisualCenterDBID_VisualCenterPtr *map[uint]*models.VisualCenter
 
 	db *gorm.DB
+}
+
+func (backRepoVisualCenter *BackRepoVisualCenterStruct) GetDB() *gorm.DB {
+	return backRepoVisualCenter.db
+}
+
+// GetVisualCenterDBFromVisualCenterPtr is a handy function to access the back repo instance from the stage instance
+func (backRepoVisualCenter *BackRepoVisualCenterStruct) GetVisualCenterDBFromVisualCenterPtr(visualcenter *models.VisualCenter) (visualcenterDB *VisualCenterDB) {
+	id := (*backRepoVisualCenter.Map_VisualCenterPtr_VisualCenterDBID)[visualcenter]
+	visualcenterDB = (*backRepoVisualCenter.Map_VisualCenterDBID_VisualCenterDB)[id]
+	return
 }
 
 // BackRepoVisualCenter.Init set up the BackRepo of the VisualCenter
@@ -174,7 +200,7 @@ func (backRepoVisualCenter *BackRepoVisualCenterStruct) CommitPhaseOneInstance(v
 
 	// initiate visualcenter
 	var visualcenterDB VisualCenterDB
-	visualcenterDB.VisualCenter = *visualcenter
+	visualcenterDB.CopyBasicFieldsFromVisualCenter(visualcenter)
 
 	query := backRepoVisualCenter.db.Create(&visualcenterDB)
 	if query.Error != nil {
@@ -207,39 +233,25 @@ func (backRepoVisualCenter *BackRepoVisualCenterStruct) CommitPhaseTwoInstance(b
 	// fetch matching visualcenterDB
 	if visualcenterDB, ok := (*backRepoVisualCenter.Map_VisualCenterDBID_VisualCenterDB)[idx]; ok {
 
-		{
-			{
-				// insertion point for fields commit
-				visualcenterDB.Lat_Data.Float64 = visualcenter.Lat
-				visualcenterDB.Lat_Data.Valid = true
+		visualcenterDB.CopyBasicFieldsFromVisualCenter(visualcenter)
 
-				visualcenterDB.Lng_Data.Float64 = visualcenter.Lng
-				visualcenterDB.Lng_Data.Valid = true
-
-				visualcenterDB.Name_Data.String = visualcenter.Name
-				visualcenterDB.Name_Data.Valid = true
-
-				visualcenterDB.VisualColorEnum_Data.String = string(visualcenter.VisualColorEnum)
-				visualcenterDB.VisualColorEnum_Data.Valid = true
-
-				// commit pointer value visualcenter.VisualLayer translates to updating the visualcenter.VisualLayerID
-				visualcenterDB.VisualLayerID.Valid = true // allow for a 0 value (nil association)
-				if visualcenter.VisualLayer != nil {
-					if VisualLayerId, ok := (*backRepo.BackRepoVisualLayer.Map_VisualLayerPtr_VisualLayerDBID)[visualcenter.VisualLayer]; ok {
-						visualcenterDB.VisualLayerID.Int64 = int64(VisualLayerId)
-					}
-				}
-
-				// commit pointer value visualcenter.VisualIcon translates to updating the visualcenter.VisualIconID
-				visualcenterDB.VisualIconID.Valid = true // allow for a 0 value (nil association)
-				if visualcenter.VisualIcon != nil {
-					if VisualIconId, ok := (*backRepo.BackRepoVisualIcon.Map_VisualIconPtr_VisualIconDBID)[visualcenter.VisualIcon]; ok {
-						visualcenterDB.VisualIconID.Int64 = int64(VisualIconId)
-					}
-				}
-
+		// insertion point for translating pointers encodings into actual pointers
+		// commit pointer value visualcenter.VisualLayer translates to updating the visualcenter.VisualLayerID
+		visualcenterDB.VisualLayerID.Valid = true // allow for a 0 value (nil association)
+		if visualcenter.VisualLayer != nil {
+			if VisualLayerId, ok := (*backRepo.BackRepoVisualLayer.Map_VisualLayerPtr_VisualLayerDBID)[visualcenter.VisualLayer]; ok {
+				visualcenterDB.VisualLayerID.Int64 = int64(VisualLayerId)
 			}
 		}
+
+		// commit pointer value visualcenter.VisualIcon translates to updating the visualcenter.VisualIconID
+		visualcenterDB.VisualIconID.Valid = true // allow for a 0 value (nil association)
+		if visualcenter.VisualIcon != nil {
+			if VisualIconId, ok := (*backRepo.BackRepoVisualIcon.Map_VisualIconPtr_VisualIconDBID)[visualcenter.VisualIcon]; ok {
+				visualcenterDB.VisualIconID.Int64 = int64(VisualIconId)
+			}
+		}
+
 		query := backRepoVisualCenter.db.Save(&visualcenterDB)
 		if query.Error != nil {
 			return query.Error
@@ -280,18 +292,23 @@ func (backRepoVisualCenter *BackRepoVisualCenterStruct) CheckoutPhaseOne() (Erro
 // models version of the visualcenterDB
 func (backRepoVisualCenter *BackRepoVisualCenterStruct) CheckoutPhaseOneInstance(visualcenterDB *VisualCenterDB) (Error error) {
 
-	// if absent, create entries in the backRepoVisualCenter maps.
-	visualcenterWithNewFieldValues := visualcenterDB.VisualCenter
-	if _, ok := (*backRepoVisualCenter.Map_VisualCenterDBID_VisualCenterPtr)[visualcenterDB.ID]; !ok {
+	visualcenter, ok := (*backRepoVisualCenter.Map_VisualCenterDBID_VisualCenterPtr)[visualcenterDB.ID]
+	if !ok {
+		visualcenter = new(models.VisualCenter)
 
-		(*backRepoVisualCenter.Map_VisualCenterDBID_VisualCenterPtr)[visualcenterDB.ID] = &visualcenterWithNewFieldValues
-		(*backRepoVisualCenter.Map_VisualCenterPtr_VisualCenterDBID)[&visualcenterWithNewFieldValues] = visualcenterDB.ID
+		(*backRepoVisualCenter.Map_VisualCenterDBID_VisualCenterPtr)[visualcenterDB.ID] = visualcenter
+		(*backRepoVisualCenter.Map_VisualCenterPtr_VisualCenterDBID)[visualcenter] = visualcenterDB.ID
 
 		// append model store with the new element
-		visualcenterWithNewFieldValues.Stage()
+		visualcenter.Stage()
 	}
-	visualcenterDBWithNewFieldValues := *visualcenterDB
-	(*backRepoVisualCenter.Map_VisualCenterDBID_VisualCenterDB)[visualcenterDB.ID] = &visualcenterDBWithNewFieldValues
+	visualcenterDB.CopyBasicFieldsToVisualCenter(visualcenter)
+
+	// preserve pointer to aclassDB. Otherwise, pointer will is recycled and the map of pointers
+	// Map_VisualCenterDBID_VisualCenterDB)[visualcenterDB hold variable pointers
+	visualcenterDB_Data := *visualcenterDB
+	preservedPtrToVisualCenter := &visualcenterDB_Data
+	(*backRepoVisualCenter.Map_VisualCenterDBID_VisualCenterDB)[visualcenterDB.ID] = preservedPtrToVisualCenter
 
 	return
 }
@@ -313,29 +330,15 @@ func (backRepoVisualCenter *BackRepoVisualCenterStruct) CheckoutPhaseTwoInstance
 
 	visualcenter := (*backRepoVisualCenter.Map_VisualCenterDBID_VisualCenterPtr)[visualcenterDB.ID]
 	_ = visualcenter // sometimes, there is no code generated. This lines voids the "unused variable" compilation error
-	{
-		{
-			// insertion point for checkout, i.e. update of fields of stage instance from fields of back repo instances
-			//
-			visualcenter.Lat = visualcenterDB.Lat_Data.Float64
 
-			visualcenter.Lng = visualcenterDB.Lng_Data.Float64
-
-			visualcenter.Name = visualcenterDB.Name_Data.String
-
-			visualcenter.VisualColorEnum = models.VisualColorEnum(visualcenterDB.VisualColorEnum_Data.String)
-
-			// VisualLayer field
-			if visualcenterDB.VisualLayerID.Int64 != 0 {
-				visualcenter.VisualLayer = (*backRepo.BackRepoVisualLayer.Map_VisualLayerDBID_VisualLayerPtr)[uint(visualcenterDB.VisualLayerID.Int64)]
-			}
-
-			// VisualIcon field
-			if visualcenterDB.VisualIconID.Int64 != 0 {
-				visualcenter.VisualIcon = (*backRepo.BackRepoVisualIcon.Map_VisualIconDBID_VisualIconPtr)[uint(visualcenterDB.VisualIconID.Int64)]
-			}
-
-		}
+	// insertion point for checkout of pointer encoding
+	// VisualLayer field
+	if visualcenterDB.VisualLayerID.Int64 != 0 {
+		visualcenter.VisualLayer = (*backRepo.BackRepoVisualLayer.Map_VisualLayerDBID_VisualLayerPtr)[uint(visualcenterDB.VisualLayerID.Int64)]
+	}
+	// VisualIcon field
+	if visualcenterDB.VisualIconID.Int64 != 0 {
+		visualcenter.VisualIcon = (*backRepo.BackRepoVisualIcon.Map_VisualIconDBID_VisualIconPtr)[uint(visualcenterDB.VisualIconID.Int64)]
 	}
 	return
 }
@@ -363,5 +366,96 @@ func (backRepo *BackRepoStruct) CheckoutVisualCenter(visualcenter *models.Visual
 			backRepo.BackRepoVisualCenter.CheckoutPhaseOneInstance(&visualcenterDB)
 			backRepo.BackRepoVisualCenter.CheckoutPhaseTwoInstance(backRepo, &visualcenterDB)
 		}
+	}
+}
+
+// CopyBasicFieldsToVisualCenterDB is used to copy basic fields between the Stage or the CRUD to the back repo
+func (visualcenterDB *VisualCenterDB) CopyBasicFieldsFromVisualCenter(visualcenter *models.VisualCenter) {
+	// insertion point for fields commit
+	visualcenterDB.Lat_Data.Float64 = visualcenter.Lat
+	visualcenterDB.Lat_Data.Valid = true
+
+	visualcenterDB.Lng_Data.Float64 = visualcenter.Lng
+	visualcenterDB.Lng_Data.Valid = true
+
+	visualcenterDB.Name_Data.String = visualcenter.Name
+	visualcenterDB.Name_Data.Valid = true
+
+	visualcenterDB.VisualColorEnum_Data.String = string(visualcenter.VisualColorEnum)
+	visualcenterDB.VisualColorEnum_Data.Valid = true
+
+}
+
+// CopyBasicFieldsToVisualCenterDB is used to copy basic fields between the Stage or the CRUD to the back repo
+func (visualcenterDB *VisualCenterDB) CopyBasicFieldsToVisualCenter(visualcenter *models.VisualCenter) {
+
+	// insertion point for checkout of basic fields (back repo to stage)
+	visualcenter.Lat = visualcenterDB.Lat_Data.Float64
+	visualcenter.Lng = visualcenterDB.Lng_Data.Float64
+	visualcenter.Name = visualcenterDB.Name_Data.String
+	visualcenter.VisualColorEnum = models.VisualColorEnum(visualcenterDB.VisualColorEnum_Data.String)
+}
+
+// Backup generates a json file from a slice of all VisualCenterDB instances in the backrepo
+func (backRepoVisualCenter *BackRepoVisualCenterStruct) Backup(dirPath string) {
+
+	filename := filepath.Join(dirPath, "VisualCenterDB.json")
+
+	// organize the map into an array with increasing IDs, in order to have repoductible
+	// backup file
+	var forBackup []*VisualCenterDB
+	for _, visualcenterDB := range *backRepoVisualCenter.Map_VisualCenterDBID_VisualCenterDB {
+		forBackup = append(forBackup, visualcenterDB)
+	}
+
+	sort.Slice(forBackup[:], func(i, j int) bool {
+		return forBackup[i].ID < forBackup[j].ID
+	})
+
+	file, err := json.MarshalIndent(forBackup, "", " ")
+
+	if err != nil {
+		log.Panic("Cannot json VisualCenter ", filename, " ", err.Error())
+	}
+
+	err = ioutil.WriteFile(filename, file, 0644)
+	if err != nil {
+		log.Panic("Cannot write the json VisualCenter file", err.Error())
+	}
+}
+
+func (backRepoVisualCenter *BackRepoVisualCenterStruct) Restore(dirPath string) {
+
+	filename := filepath.Join(dirPath, "VisualCenterDB.json")
+	jsonFile, err := os.Open(filename)
+	// if we os.Open returns an error then handle it
+	if err != nil {
+		log.Panic("Cannot restore/open the json VisualCenter file", filename, " ", err.Error())
+	}
+
+	// read our opened jsonFile as a byte array.
+	byteValue, _ := ioutil.ReadAll(jsonFile)
+
+	var forRestore []*VisualCenterDB
+
+	err = json.Unmarshal(byteValue, &forRestore)
+
+	// fill up Map_VisualCenterDBID_VisualCenterDB
+	for _, visualcenterDB := range forRestore {
+
+		visualcenterDB_ID := visualcenterDB.ID
+		visualcenterDB.ID = 0
+		query := backRepoVisualCenter.db.Create(visualcenterDB)
+		if query.Error != nil {
+			log.Panic(query.Error)
+		}
+		if visualcenterDB_ID != visualcenterDB.ID {
+			log.Panicf("ID of VisualCenter restore ID %d, name %s, has wrong ID %d in DB after create",
+				visualcenterDB_ID, visualcenterDB.Name_Data.String, visualcenterDB.ID)
+		}
+	}
+
+	if err != nil {
+		log.Panic("Cannot restore/unmarshall json VisualCenter file", err.Error())
 	}
 }

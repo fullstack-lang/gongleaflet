@@ -72,8 +72,6 @@ export class VisualLineDetailComponent implements OnInit {
 		this.frontRepoService.pull().subscribe(
 			frontRepo => {
 				this.frontRepo = frontRepo
-				console.log("front repo VisualLinePull returned")
-
 				if (id != 0 && association == undefined) {
 					this.visualline = frontRepo.VisualLines.get(id)
 				} else {
@@ -118,8 +116,6 @@ export class VisualLineDetailComponent implements OnInit {
 			this.visuallineService.updateVisualLine(this.visualline)
 				.subscribe(visualline => {
 					this.visuallineService.VisualLineServiceChanged.next("update")
-
-					console.log("visualline saved")
 				});
 		} else {
 			switch (association) {
@@ -130,7 +126,6 @@ export class VisualLineDetailComponent implements OnInit {
 				this.visuallineService.VisualLineServiceChanged.next("post")
 
 				this.visualline = {} // reset fields
-				console.log("visualline added")
 			});
 		}
 	}
@@ -159,7 +154,6 @@ export class VisualLineDetailComponent implements OnInit {
 		);
 
 		dialogRef.afterClosed().subscribe(result => {
-			console.log('The dialog was closed');
 		});
 	}
 
@@ -182,7 +176,6 @@ export class VisualLineDetailComponent implements OnInit {
 		);
 
 		dialogRef.afterClosed().subscribe(result => {
-			console.log('The dialog was closed');
 		});
 	}
 }

@@ -69,8 +69,6 @@ export class VisualTrackDetailComponent implements OnInit {
 		this.frontRepoService.pull().subscribe(
 			frontRepo => {
 				this.frontRepo = frontRepo
-				console.log("front repo VisualTrackPull returned")
-
 				if (id != 0 && association == undefined) {
 					this.visualtrack = frontRepo.VisualTracks.get(id)
 				} else {
@@ -133,8 +131,6 @@ export class VisualTrackDetailComponent implements OnInit {
 			this.visualtrackService.updateVisualTrack(this.visualtrack)
 				.subscribe(visualtrack => {
 					this.visualtrackService.VisualTrackServiceChanged.next("update")
-
-					console.log("visualtrack saved")
 				});
 		} else {
 			switch (association) {
@@ -145,7 +141,6 @@ export class VisualTrackDetailComponent implements OnInit {
 				this.visualtrackService.VisualTrackServiceChanged.next("post")
 
 				this.visualtrack = {} // reset fields
-				console.log("visualtrack added")
 			});
 		}
 	}
@@ -174,7 +169,6 @@ export class VisualTrackDetailComponent implements OnInit {
 		);
 
 		dialogRef.afterClosed().subscribe(result => {
-			console.log('The dialog was closed');
 		});
 	}
 
@@ -197,7 +191,6 @@ export class VisualTrackDetailComponent implements OnInit {
 		);
 
 		dialogRef.afterClosed().subscribe(result => {
-			console.log('The dialog was closed');
 		});
 	}
 }

@@ -3,9 +3,13 @@ package orm
 
 import (
 	"database/sql"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"log"
+	"os"
+	"path/filepath"
 	"sort"
 	"time"
 
@@ -27,27 +31,38 @@ var dummy_VisualIcon_sort sort.Float64Slice
 //
 // swagger:model visualiconAPI
 type VisualIconAPI struct {
+	gorm.Model
+
 	models.VisualIcon
 
-	// insertion for fields declaration
+	// encoding of pointers
+	VisualIconPointersEnconding
+}
+
+// VisualIconPointersEnconding encodes pointers to Struct and
+// reverse pointers of slice of poitners to Struct
+type VisualIconPointersEnconding struct {
+	// insertion for pointer fields encoding declaration
+}
+
+// VisualIconDB describes a visualicon in the database
+//
+// It incorporates the GORM ID, basic fields from the model (because they can be serialized),
+// the encoded version of pointers
+//
+// swagger:model visualiconDB
+type VisualIconDB struct {
+	gorm.Model
+
+	// insertion for basic fields declaration
 	// Declation for basic field visualiconDB.Name {{BasicKind}} (to be completed)
 	Name_Data sql.NullString
 
 	// Declation for basic field visualiconDB.SVG {{BasicKind}} (to be completed)
 	SVG_Data sql.NullString
 
-	// end of insertion
-}
-
-// VisualIconDB describes a visualicon in the database
-//
-// It incorporates all fields : from the model, from the generated field for the API and the GORM ID
-//
-// swagger:model visualiconDB
-type VisualIconDB struct {
-	gorm.Model
-
-	VisualIconAPI
+	// encoding of pointers
+	VisualIconPointersEnconding
 }
 
 // VisualIconDBs arrays visualiconDBs
@@ -71,6 +86,17 @@ type BackRepoVisualIconStruct struct {
 	Map_VisualIconDBID_VisualIconPtr *map[uint]*models.VisualIcon
 
 	db *gorm.DB
+}
+
+func (backRepoVisualIcon *BackRepoVisualIconStruct) GetDB() *gorm.DB {
+	return backRepoVisualIcon.db
+}
+
+// GetVisualIconDBFromVisualIconPtr is a handy function to access the back repo instance from the stage instance
+func (backRepoVisualIcon *BackRepoVisualIconStruct) GetVisualIconDBFromVisualIconPtr(visualicon *models.VisualIcon) (visualiconDB *VisualIconDB) {
+	id := (*backRepoVisualIcon.Map_VisualIconPtr_VisualIconDBID)[visualicon]
+	visualiconDB = (*backRepoVisualIcon.Map_VisualIconDBID_VisualIconDB)[id]
+	return
 }
 
 // BackRepoVisualIcon.Init set up the BackRepo of the VisualIcon
@@ -154,7 +180,7 @@ func (backRepoVisualIcon *BackRepoVisualIconStruct) CommitPhaseOneInstance(visua
 
 	// initiate visualicon
 	var visualiconDB VisualIconDB
-	visualiconDB.VisualIcon = *visualicon
+	visualiconDB.CopyBasicFieldsFromVisualIcon(visualicon)
 
 	query := backRepoVisualIcon.db.Create(&visualiconDB)
 	if query.Error != nil {
@@ -187,17 +213,9 @@ func (backRepoVisualIcon *BackRepoVisualIconStruct) CommitPhaseTwoInstance(backR
 	// fetch matching visualiconDB
 	if visualiconDB, ok := (*backRepoVisualIcon.Map_VisualIconDBID_VisualIconDB)[idx]; ok {
 
-		{
-			{
-				// insertion point for fields commit
-				visualiconDB.Name_Data.String = visualicon.Name
-				visualiconDB.Name_Data.Valid = true
+		visualiconDB.CopyBasicFieldsFromVisualIcon(visualicon)
 
-				visualiconDB.SVG_Data.String = visualicon.SVG
-				visualiconDB.SVG_Data.Valid = true
-
-			}
-		}
+		// insertion point for translating pointers encodings into actual pointers
 		query := backRepoVisualIcon.db.Save(&visualiconDB)
 		if query.Error != nil {
 			return query.Error
@@ -238,18 +256,23 @@ func (backRepoVisualIcon *BackRepoVisualIconStruct) CheckoutPhaseOne() (Error er
 // models version of the visualiconDB
 func (backRepoVisualIcon *BackRepoVisualIconStruct) CheckoutPhaseOneInstance(visualiconDB *VisualIconDB) (Error error) {
 
-	// if absent, create entries in the backRepoVisualIcon maps.
-	visualiconWithNewFieldValues := visualiconDB.VisualIcon
-	if _, ok := (*backRepoVisualIcon.Map_VisualIconDBID_VisualIconPtr)[visualiconDB.ID]; !ok {
+	visualicon, ok := (*backRepoVisualIcon.Map_VisualIconDBID_VisualIconPtr)[visualiconDB.ID]
+	if !ok {
+		visualicon = new(models.VisualIcon)
 
-		(*backRepoVisualIcon.Map_VisualIconDBID_VisualIconPtr)[visualiconDB.ID] = &visualiconWithNewFieldValues
-		(*backRepoVisualIcon.Map_VisualIconPtr_VisualIconDBID)[&visualiconWithNewFieldValues] = visualiconDB.ID
+		(*backRepoVisualIcon.Map_VisualIconDBID_VisualIconPtr)[visualiconDB.ID] = visualicon
+		(*backRepoVisualIcon.Map_VisualIconPtr_VisualIconDBID)[visualicon] = visualiconDB.ID
 
 		// append model store with the new element
-		visualiconWithNewFieldValues.Stage()
+		visualicon.Stage()
 	}
-	visualiconDBWithNewFieldValues := *visualiconDB
-	(*backRepoVisualIcon.Map_VisualIconDBID_VisualIconDB)[visualiconDB.ID] = &visualiconDBWithNewFieldValues
+	visualiconDB.CopyBasicFieldsToVisualIcon(visualicon)
+
+	// preserve pointer to aclassDB. Otherwise, pointer will is recycled and the map of pointers
+	// Map_VisualIconDBID_VisualIconDB)[visualiconDB hold variable pointers
+	visualiconDB_Data := *visualiconDB
+	preservedPtrToVisualIcon := &visualiconDB_Data
+	(*backRepoVisualIcon.Map_VisualIconDBID_VisualIconDB)[visualiconDB.ID] = preservedPtrToVisualIcon
 
 	return
 }
@@ -271,16 +294,8 @@ func (backRepoVisualIcon *BackRepoVisualIconStruct) CheckoutPhaseTwoInstance(bac
 
 	visualicon := (*backRepoVisualIcon.Map_VisualIconDBID_VisualIconPtr)[visualiconDB.ID]
 	_ = visualicon // sometimes, there is no code generated. This lines voids the "unused variable" compilation error
-	{
-		{
-			// insertion point for checkout, i.e. update of fields of stage instance from fields of back repo instances
-			//
-			visualicon.Name = visualiconDB.Name_Data.String
 
-			visualicon.SVG = visualiconDB.SVG_Data.String
-
-		}
-	}
+	// insertion point for checkout of pointer encoding
 	return
 }
 
@@ -307,5 +322,88 @@ func (backRepo *BackRepoStruct) CheckoutVisualIcon(visualicon *models.VisualIcon
 			backRepo.BackRepoVisualIcon.CheckoutPhaseOneInstance(&visualiconDB)
 			backRepo.BackRepoVisualIcon.CheckoutPhaseTwoInstance(backRepo, &visualiconDB)
 		}
+	}
+}
+
+// CopyBasicFieldsToVisualIconDB is used to copy basic fields between the Stage or the CRUD to the back repo
+func (visualiconDB *VisualIconDB) CopyBasicFieldsFromVisualIcon(visualicon *models.VisualIcon) {
+	// insertion point for fields commit
+	visualiconDB.Name_Data.String = visualicon.Name
+	visualiconDB.Name_Data.Valid = true
+
+	visualiconDB.SVG_Data.String = visualicon.SVG
+	visualiconDB.SVG_Data.Valid = true
+
+}
+
+// CopyBasicFieldsToVisualIconDB is used to copy basic fields between the Stage or the CRUD to the back repo
+func (visualiconDB *VisualIconDB) CopyBasicFieldsToVisualIcon(visualicon *models.VisualIcon) {
+
+	// insertion point for checkout of basic fields (back repo to stage)
+	visualicon.Name = visualiconDB.Name_Data.String
+	visualicon.SVG = visualiconDB.SVG_Data.String
+}
+
+// Backup generates a json file from a slice of all VisualIconDB instances in the backrepo
+func (backRepoVisualIcon *BackRepoVisualIconStruct) Backup(dirPath string) {
+
+	filename := filepath.Join(dirPath, "VisualIconDB.json")
+
+	// organize the map into an array with increasing IDs, in order to have repoductible
+	// backup file
+	var forBackup []*VisualIconDB
+	for _, visualiconDB := range *backRepoVisualIcon.Map_VisualIconDBID_VisualIconDB {
+		forBackup = append(forBackup, visualiconDB)
+	}
+
+	sort.Slice(forBackup[:], func(i, j int) bool {
+		return forBackup[i].ID < forBackup[j].ID
+	})
+
+	file, err := json.MarshalIndent(forBackup, "", " ")
+
+	if err != nil {
+		log.Panic("Cannot json VisualIcon ", filename, " ", err.Error())
+	}
+
+	err = ioutil.WriteFile(filename, file, 0644)
+	if err != nil {
+		log.Panic("Cannot write the json VisualIcon file", err.Error())
+	}
+}
+
+func (backRepoVisualIcon *BackRepoVisualIconStruct) Restore(dirPath string) {
+
+	filename := filepath.Join(dirPath, "VisualIconDB.json")
+	jsonFile, err := os.Open(filename)
+	// if we os.Open returns an error then handle it
+	if err != nil {
+		log.Panic("Cannot restore/open the json VisualIcon file", filename, " ", err.Error())
+	}
+
+	// read our opened jsonFile as a byte array.
+	byteValue, _ := ioutil.ReadAll(jsonFile)
+
+	var forRestore []*VisualIconDB
+
+	err = json.Unmarshal(byteValue, &forRestore)
+
+	// fill up Map_VisualIconDBID_VisualIconDB
+	for _, visualiconDB := range forRestore {
+
+		visualiconDB_ID := visualiconDB.ID
+		visualiconDB.ID = 0
+		query := backRepoVisualIcon.db.Create(visualiconDB)
+		if query.Error != nil {
+			log.Panic(query.Error)
+		}
+		if visualiconDB_ID != visualiconDB.ID {
+			log.Panicf("ID of VisualIcon restore ID %d, name %s, has wrong ID %d in DB after create",
+				visualiconDB_ID, visualiconDB.Name_Data.String, visualiconDB.ID)
+		}
+	}
+
+	if err != nil {
+		log.Panic("Cannot restore/unmarshall json VisualIcon file", err.Error())
 	}
 }

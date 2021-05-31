@@ -56,6 +56,10 @@ func main() {
 		log.Fatal("surplus arguments")
 	}
 
+	// setup GORM
+	db := orm.SetupModels(*logDBFlag, "./test.db")
+	orm.BackRepo.Init(db)
+
 	// setup controlers
 	if !*logGINFlag {
 		myfile, _ := os.Create("/tmp/server.log")
@@ -63,15 +67,6 @@ func main() {
 	}
 	r := gin.Default()
 	r.Use(cors.Default())
-
-	// setup GORM
-	db := orm.SetupModels(*logDBFlag, "./test.db")
-
-	// Provide db variable to controllers
-	r.Use(func(c *gin.Context) {
-		c.Set("db", db) // a gin Context can have a map of variable that is set up at runtime
-		c.Next()
-	})
 
 	controllers.RegisterControllers(r)
 	r.Use(static.Serve("/", EmbedFolder(ng, "ng/dist/ng")))

@@ -120,7 +120,6 @@ export class VisualTracksTableComponent implements OnInit {
     this.frontRepoService.pull().subscribe(
       frontRepo => {
         this.frontRepo = frontRepo
-        console.log("front repo pull returned")
 
         this.visualtracks = this.frontRepo.VisualTracks_array;
 
@@ -158,8 +157,6 @@ export class VisualTracksTableComponent implements OnInit {
     this.visualtrackService.deleteVisualTrack(visualtrackID).subscribe(
       visualtrack => {
         this.visualtrackService.VisualTrackServiceChanged.next("delete")
-
-        console.log("visualtrack deleted")
       }
     );
   }
@@ -221,7 +218,6 @@ export class VisualTracksTableComponent implements OnInit {
     // from selection, set visualtrack that belong to visualtrack through Anarrayofb
     this.selection.selected.forEach(
       visualtrack => {
-        console.log("selection ID " + visualtrack.ID)
         let ID = +this.dialogData.ID
         visualtrack[this.dialogData.ReversePointer].Int64 = ID
         visualtrack[this.dialogData.ReversePointer].Valid = true
@@ -235,7 +231,6 @@ export class VisualTracksTableComponent implements OnInit {
         this.visualtrackService.updateVisualTrack(visualtrack)
           .subscribe(visualtrack => {
             this.visualtrackService.VisualTrackServiceChanged.next("update")
-            console.log("visualtrack saved")
           });
       }
     )

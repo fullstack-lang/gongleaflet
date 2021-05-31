@@ -114,7 +114,6 @@ export class VisualMapsTableComponent implements OnInit {
     this.frontRepoService.pull().subscribe(
       frontRepo => {
         this.frontRepo = frontRepo
-        console.log("front repo pull returned")
 
         this.visualmaps = this.frontRepo.VisualMaps_array;
 
@@ -152,8 +151,6 @@ export class VisualMapsTableComponent implements OnInit {
     this.visualmapService.deleteVisualMap(visualmapID).subscribe(
       visualmap => {
         this.visualmapService.VisualMapServiceChanged.next("delete")
-
-        console.log("visualmap deleted")
       }
     );
   }
@@ -215,7 +212,6 @@ export class VisualMapsTableComponent implements OnInit {
     // from selection, set visualmap that belong to visualmap through Anarrayofb
     this.selection.selected.forEach(
       visualmap => {
-        console.log("selection ID " + visualmap.ID)
         let ID = +this.dialogData.ID
         visualmap[this.dialogData.ReversePointer].Int64 = ID
         visualmap[this.dialogData.ReversePointer].Valid = true
@@ -229,7 +225,6 @@ export class VisualMapsTableComponent implements OnInit {
         this.visualmapService.updateVisualMap(visualmap)
           .subscribe(visualmap => {
             this.visualmapService.VisualMapServiceChanged.next("update")
-            console.log("visualmap saved")
           });
       }
     )

@@ -9,7 +9,6 @@ import (
 	"github.com/fullstack-lang/gongleaflet/go/orm"
 
 	"github.com/gin-gonic/gin"
-	"github.com/jinzhu/gorm"
 )
 
 // declaration in order to justify use of the models import
@@ -47,10 +46,11 @@ type VisualCircleInput struct {
 //    default: genericError
 //        200: visualcircleDBsResponse
 func GetVisualCircles(c *gin.Context) {
-	db := c.MustGet("db").(*gorm.DB)
-
-	var visualcircles []orm.VisualCircleDB
-	query := db.Find(&visualcircles)
+	db := orm.BackRepo.BackRepoVisualCircle.GetDB()
+	
+	// source slice
+	var visualcircleDBs []orm.VisualCircleDB
+	query := db.Find(&visualcircleDBs)
 	if query.Error != nil {
 		var returnError GenericError
 		returnError.Body.Code = http.StatusBadRequest
@@ -59,38 +59,23 @@ func GetVisualCircles(c *gin.Context) {
 		return
 	}
 
+	// slice that will be transmitted to the front
+	visualcircleAPIs := make([]orm.VisualCircleAPI, 0)
+
 	// for each visualcircle, update fields from the database nullable fields
-	for idx := range visualcircles {
-		visualcircle := &visualcircles[idx]
-		_ = visualcircle
+	for idx := range visualcircleDBs {
+		visualcircleDB := &visualcircleDBs[idx]
+		_ = visualcircleDB
+		var visualcircleAPI orm.VisualCircleAPI
+
 		// insertion point for updating fields
-		if visualcircle.Lat_Data.Valid {
-			visualcircle.Lat = visualcircle.Lat_Data.Float64
-		}
-
-		if visualcircle.Lng_Data.Valid {
-			visualcircle.Lng = visualcircle.Lng_Data.Float64
-		}
-
-		if visualcircle.Name_Data.Valid {
-			visualcircle.Name = visualcircle.Name_Data.String
-		}
-
-		if visualcircle.Radius_Data.Valid {
-			visualcircle.Radius = visualcircle.Radius_Data.Float64
-		}
-
-		if visualcircle.VisualColorEnum_Data.Valid {
-			visualcircle.VisualColorEnum = models.VisualColorEnum(visualcircle.VisualColorEnum_Data.String)
-		}
-
-		if visualcircle.DashStyleEnum_Data.Valid {
-			visualcircle.DashStyleEnum = models.DashStyleEnum(visualcircle.DashStyleEnum_Data.String)
-		}
-
+		visualcircleAPI.ID = visualcircleDB.ID
+		visualcircleDB.CopyBasicFieldsToVisualCircle(&visualcircleAPI.VisualCircle)
+		visualcircleAPI.VisualCirclePointersEnconding = visualcircleDB.VisualCirclePointersEnconding
+		visualcircleAPIs = append(visualcircleAPIs, visualcircleAPI)
 	}
 
-	c.JSON(http.StatusOK, visualcircles)
+	c.JSON(http.StatusOK, visualcircleAPIs)
 }
 
 // PostVisualCircle
@@ -107,7 +92,7 @@ func GetVisualCircles(c *gin.Context) {
 //     Responses:
 //       200: visualcircleDBResponse
 func PostVisualCircle(c *gin.Context) {
-	db := c.MustGet("db").(*gorm.DB)
+	db := orm.BackRepo.BackRepoVisualCircle.GetDB()
 
 	// Validate input
 	var input orm.VisualCircleAPI
@@ -123,25 +108,8 @@ func PostVisualCircle(c *gin.Context) {
 
 	// Create visualcircle
 	visualcircleDB := orm.VisualCircleDB{}
-	visualcircleDB.VisualCircleAPI = input
-	// insertion point for nullable field set
-	visualcircleDB.Lat_Data.Float64 = input.Lat
-	visualcircleDB.Lat_Data.Valid = true
-
-	visualcircleDB.Lng_Data.Float64 = input.Lng
-	visualcircleDB.Lng_Data.Valid = true
-
-	visualcircleDB.Name_Data.String = input.Name
-	visualcircleDB.Name_Data.Valid = true
-
-	visualcircleDB.Radius_Data.Float64 = input.Radius
-	visualcircleDB.Radius_Data.Valid = true
-
-	visualcircleDB.VisualColorEnum_Data.String = string(input.VisualColorEnum)
-	visualcircleDB.VisualColorEnum_Data.Valid = true
-
-	visualcircleDB.DashStyleEnum_Data.String = string(input.DashStyleEnum)
-	visualcircleDB.DashStyleEnum_Data.Valid = true
+	visualcircleDB.VisualCirclePointersEnconding = input.VisualCirclePointersEnconding
+	visualcircleDB.CopyBasicFieldsFromVisualCircle(&input.VisualCircle)
 
 	query := db.Create(&visualcircleDB)
 	if query.Error != nil {
@@ -169,11 +137,11 @@ func PostVisualCircle(c *gin.Context) {
 //    default: genericError
 //        200: visualcircleDBResponse
 func GetVisualCircle(c *gin.Context) {
-	db := c.MustGet("db").(*gorm.DB)
+	db := orm.BackRepo.BackRepoVisualCircle.GetDB()
 
-	// Get visualcircle in DB
-	var visualcircle orm.VisualCircleDB
-	if err := db.First(&visualcircle, c.Param("id")).Error; err != nil {
+	// Get visualcircleDB in DB
+	var visualcircleDB orm.VisualCircleDB
+	if err := db.First(&visualcircleDB, c.Param("id")).Error; err != nil {
 		var returnError GenericError
 		returnError.Body.Code = http.StatusBadRequest
 		returnError.Body.Message = err.Error()
@@ -181,32 +149,12 @@ func GetVisualCircle(c *gin.Context) {
 		return
 	}
 
-	// insertion point for fields value set from nullable fields
-	if visualcircle.Lat_Data.Valid {
-		visualcircle.Lat = visualcircle.Lat_Data.Float64
-	}
+	var visualcircleAPI orm.VisualCircleAPI
+	visualcircleAPI.ID = visualcircleDB.ID
+	visualcircleAPI.VisualCirclePointersEnconding = visualcircleDB.VisualCirclePointersEnconding
+	visualcircleDB.CopyBasicFieldsToVisualCircle(&visualcircleAPI.VisualCircle)
 
-	if visualcircle.Lng_Data.Valid {
-		visualcircle.Lng = visualcircle.Lng_Data.Float64
-	}
-
-	if visualcircle.Name_Data.Valid {
-		visualcircle.Name = visualcircle.Name_Data.String
-	}
-
-	if visualcircle.Radius_Data.Valid {
-		visualcircle.Radius = visualcircle.Radius_Data.Float64
-	}
-
-	if visualcircle.VisualColorEnum_Data.Valid {
-		visualcircle.VisualColorEnum = models.VisualColorEnum(visualcircle.VisualColorEnum_Data.String)
-	}
-
-	if visualcircle.DashStyleEnum_Data.Valid {
-		visualcircle.DashStyleEnum = models.DashStyleEnum(visualcircle.DashStyleEnum_Data.String)
-	}
-
-	c.JSON(http.StatusOK, visualcircle)
+	c.JSON(http.StatusOK, visualcircleAPI)
 }
 
 // UpdateVisualCircle
@@ -219,7 +167,7 @@ func GetVisualCircle(c *gin.Context) {
 //    default: genericError
 //        200: visualcircleDBResponse
 func UpdateVisualCircle(c *gin.Context) {
-	db := c.MustGet("db").(*gorm.DB)
+	db := orm.BackRepo.BackRepoVisualCircle.GetDB()
 
 	// Get model if exist
 	var visualcircleDB orm.VisualCircleDB
@@ -243,26 +191,10 @@ func UpdateVisualCircle(c *gin.Context) {
 	}
 
 	// update
-	// insertion point for nullable field set
-	input.Lat_Data.Float64 = input.Lat
-	input.Lat_Data.Valid = true
+	visualcircleDB.CopyBasicFieldsFromVisualCircle(&input.VisualCircle)
+	visualcircleDB.VisualCirclePointersEnconding = input.VisualCirclePointersEnconding
 
-	input.Lng_Data.Float64 = input.Lng
-	input.Lng_Data.Valid = true
-
-	input.Name_Data.String = input.Name
-	input.Name_Data.Valid = true
-
-	input.Radius_Data.Float64 = input.Radius
-	input.Radius_Data.Valid = true
-
-	input.VisualColorEnum_Data.String = string(input.VisualColorEnum)
-	input.VisualColorEnum_Data.Valid = true
-
-	input.DashStyleEnum_Data.String = string(input.DashStyleEnum)
-	input.DashStyleEnum_Data.Valid = true
-
-	query = db.Model(&visualcircleDB).Updates(input)
+	query = db.Model(&visualcircleDB).Updates(visualcircleDB)
 	if query.Error != nil {
 		var returnError GenericError
 		returnError.Body.Code = http.StatusBadRequest
@@ -288,7 +220,7 @@ func UpdateVisualCircle(c *gin.Context) {
 // Responses:
 //    default: genericError
 func DeleteVisualCircle(c *gin.Context) {
-	db := c.MustGet("db").(*gorm.DB)
+	db := orm.BackRepo.BackRepoVisualCircle.GetDB()
 
 	// Get model if exist
 	var visualcircleDB orm.VisualCircleDB

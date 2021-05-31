@@ -3,9 +3,13 @@ package orm
 
 import (
 	"database/sql"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"log"
+	"os"
+	"path/filepath"
 	"sort"
 	"time"
 
@@ -27,9 +31,30 @@ var dummy_VisualMap_sort sort.Float64Slice
 //
 // swagger:model visualmapAPI
 type VisualMapAPI struct {
+	gorm.Model
+
 	models.VisualMap
 
-	// insertion for fields declaration
+	// encoding of pointers
+	VisualMapPointersEnconding
+}
+
+// VisualMapPointersEnconding encodes pointers to Struct and
+// reverse pointers of slice of poitners to Struct
+type VisualMapPointersEnconding struct {
+	// insertion for pointer fields encoding declaration
+}
+
+// VisualMapDB describes a visualmap in the database
+//
+// It incorporates the GORM ID, basic fields from the model (because they can be serialized),
+// the encoded version of pointers
+//
+// swagger:model visualmapDB
+type VisualMapDB struct {
+	gorm.Model
+
+	// insertion for basic fields declaration
 	// Declation for basic field visualmapDB.Lat {{BasicKind}} (to be completed)
 	Lat_Data sql.NullFloat64
 
@@ -63,18 +88,8 @@ type VisualMapAPI struct {
 	// provide the sql storage for the boolan
 	ZoomSnap_Data sql.NullBool
 
-	// end of insertion
-}
-
-// VisualMapDB describes a visualmap in the database
-//
-// It incorporates all fields : from the model, from the generated field for the API and the GORM ID
-//
-// swagger:model visualmapDB
-type VisualMapDB struct {
-	gorm.Model
-
-	VisualMapAPI
+	// encoding of pointers
+	VisualMapPointersEnconding
 }
 
 // VisualMapDBs arrays visualmapDBs
@@ -98,6 +113,17 @@ type BackRepoVisualMapStruct struct {
 	Map_VisualMapDBID_VisualMapPtr *map[uint]*models.VisualMap
 
 	db *gorm.DB
+}
+
+func (backRepoVisualMap *BackRepoVisualMapStruct) GetDB() *gorm.DB {
+	return backRepoVisualMap.db
+}
+
+// GetVisualMapDBFromVisualMapPtr is a handy function to access the back repo instance from the stage instance
+func (backRepoVisualMap *BackRepoVisualMapStruct) GetVisualMapDBFromVisualMapPtr(visualmap *models.VisualMap) (visualmapDB *VisualMapDB) {
+	id := (*backRepoVisualMap.Map_VisualMapPtr_VisualMapDBID)[visualmap]
+	visualmapDB = (*backRepoVisualMap.Map_VisualMapDBID_VisualMapDB)[id]
+	return
 }
 
 // BackRepoVisualMap.Init set up the BackRepo of the VisualMap
@@ -181,7 +207,7 @@ func (backRepoVisualMap *BackRepoVisualMapStruct) CommitPhaseOneInstance(visualm
 
 	// initiate visualmap
 	var visualmapDB VisualMapDB
-	visualmapDB.VisualMap = *visualmap
+	visualmapDB.CopyBasicFieldsFromVisualMap(visualmap)
 
 	query := backRepoVisualMap.db.Create(&visualmapDB)
 	if query.Error != nil {
@@ -214,41 +240,9 @@ func (backRepoVisualMap *BackRepoVisualMapStruct) CommitPhaseTwoInstance(backRep
 	// fetch matching visualmapDB
 	if visualmapDB, ok := (*backRepoVisualMap.Map_VisualMapDBID_VisualMapDB)[idx]; ok {
 
-		{
-			{
-				// insertion point for fields commit
-				visualmapDB.Lat_Data.Float64 = visualmap.Lat
-				visualmapDB.Lat_Data.Valid = true
+		visualmapDB.CopyBasicFieldsFromVisualMap(visualmap)
 
-				visualmapDB.Lng_Data.Float64 = visualmap.Lng
-				visualmapDB.Lng_Data.Valid = true
-
-				visualmapDB.Name_Data.String = visualmap.Name
-				visualmapDB.Name_Data.Valid = true
-
-				visualmapDB.ZoomLevel_Data.Float64 = visualmap.ZoomLevel
-				visualmapDB.ZoomLevel_Data.Valid = true
-
-				visualmapDB.UrlTemplate_Data.String = visualmap.UrlTemplate
-				visualmapDB.UrlTemplate_Data.Valid = true
-
-				visualmapDB.Attribution_Data.String = visualmap.Attribution
-				visualmapDB.Attribution_Data.Valid = true
-
-				visualmapDB.MaxZoom_Data.Int64 = int64(visualmap.MaxZoom)
-				visualmapDB.MaxZoom_Data.Valid = true
-
-				visualmapDB.ZoomControl_Data.Bool = visualmap.ZoomControl
-				visualmapDB.ZoomControl_Data.Valid = true
-
-				visualmapDB.AttributionControl_Data.Bool = visualmap.AttributionControl
-				visualmapDB.AttributionControl_Data.Valid = true
-
-				visualmapDB.ZoomSnap_Data.Bool = visualmap.ZoomSnap
-				visualmapDB.ZoomSnap_Data.Valid = true
-
-			}
-		}
+		// insertion point for translating pointers encodings into actual pointers
 		query := backRepoVisualMap.db.Save(&visualmapDB)
 		if query.Error != nil {
 			return query.Error
@@ -289,18 +283,23 @@ func (backRepoVisualMap *BackRepoVisualMapStruct) CheckoutPhaseOne() (Error erro
 // models version of the visualmapDB
 func (backRepoVisualMap *BackRepoVisualMapStruct) CheckoutPhaseOneInstance(visualmapDB *VisualMapDB) (Error error) {
 
-	// if absent, create entries in the backRepoVisualMap maps.
-	visualmapWithNewFieldValues := visualmapDB.VisualMap
-	if _, ok := (*backRepoVisualMap.Map_VisualMapDBID_VisualMapPtr)[visualmapDB.ID]; !ok {
+	visualmap, ok := (*backRepoVisualMap.Map_VisualMapDBID_VisualMapPtr)[visualmapDB.ID]
+	if !ok {
+		visualmap = new(models.VisualMap)
 
-		(*backRepoVisualMap.Map_VisualMapDBID_VisualMapPtr)[visualmapDB.ID] = &visualmapWithNewFieldValues
-		(*backRepoVisualMap.Map_VisualMapPtr_VisualMapDBID)[&visualmapWithNewFieldValues] = visualmapDB.ID
+		(*backRepoVisualMap.Map_VisualMapDBID_VisualMapPtr)[visualmapDB.ID] = visualmap
+		(*backRepoVisualMap.Map_VisualMapPtr_VisualMapDBID)[visualmap] = visualmapDB.ID
 
 		// append model store with the new element
-		visualmapWithNewFieldValues.Stage()
+		visualmap.Stage()
 	}
-	visualmapDBWithNewFieldValues := *visualmapDB
-	(*backRepoVisualMap.Map_VisualMapDBID_VisualMapDB)[visualmapDB.ID] = &visualmapDBWithNewFieldValues
+	visualmapDB.CopyBasicFieldsToVisualMap(visualmap)
+
+	// preserve pointer to aclassDB. Otherwise, pointer will is recycled and the map of pointers
+	// Map_VisualMapDBID_VisualMapDB)[visualmapDB hold variable pointers
+	visualmapDB_Data := *visualmapDB
+	preservedPtrToVisualMap := &visualmapDB_Data
+	(*backRepoVisualMap.Map_VisualMapDBID_VisualMapDB)[visualmapDB.ID] = preservedPtrToVisualMap
 
 	return
 }
@@ -322,29 +321,8 @@ func (backRepoVisualMap *BackRepoVisualMapStruct) CheckoutPhaseTwoInstance(backR
 
 	visualmap := (*backRepoVisualMap.Map_VisualMapDBID_VisualMapPtr)[visualmapDB.ID]
 	_ = visualmap // sometimes, there is no code generated. This lines voids the "unused variable" compilation error
-	{
-		{
-			// insertion point for checkout, i.e. update of fields of stage instance from fields of back repo instances
-			//
-			visualmap.Lat = visualmapDB.Lat_Data.Float64
 
-			visualmap.Lng = visualmapDB.Lng_Data.Float64
-
-			visualmap.Name = visualmapDB.Name_Data.String
-
-			visualmap.ZoomLevel = visualmapDB.ZoomLevel_Data.Float64
-
-			visualmap.UrlTemplate = visualmapDB.UrlTemplate_Data.String
-
-			visualmap.Attribution = visualmapDB.Attribution_Data.String
-
-			visualmap.MaxZoom = int(visualmapDB.MaxZoom_Data.Int64)
-
-			visualmap.ZoomControl = visualmapDB.ZoomControl_Data.Bool
-			visualmap.AttributionControl = visualmapDB.AttributionControl_Data.Bool
-			visualmap.ZoomSnap = visualmapDB.ZoomSnap_Data.Bool
-		}
-	}
+	// insertion point for checkout of pointer encoding
 	return
 }
 
@@ -371,5 +349,120 @@ func (backRepo *BackRepoStruct) CheckoutVisualMap(visualmap *models.VisualMap) {
 			backRepo.BackRepoVisualMap.CheckoutPhaseOneInstance(&visualmapDB)
 			backRepo.BackRepoVisualMap.CheckoutPhaseTwoInstance(backRepo, &visualmapDB)
 		}
+	}
+}
+
+// CopyBasicFieldsToVisualMapDB is used to copy basic fields between the Stage or the CRUD to the back repo
+func (visualmapDB *VisualMapDB) CopyBasicFieldsFromVisualMap(visualmap *models.VisualMap) {
+	// insertion point for fields commit
+	visualmapDB.Lat_Data.Float64 = visualmap.Lat
+	visualmapDB.Lat_Data.Valid = true
+
+	visualmapDB.Lng_Data.Float64 = visualmap.Lng
+	visualmapDB.Lng_Data.Valid = true
+
+	visualmapDB.Name_Data.String = visualmap.Name
+	visualmapDB.Name_Data.Valid = true
+
+	visualmapDB.ZoomLevel_Data.Float64 = visualmap.ZoomLevel
+	visualmapDB.ZoomLevel_Data.Valid = true
+
+	visualmapDB.UrlTemplate_Data.String = visualmap.UrlTemplate
+	visualmapDB.UrlTemplate_Data.Valid = true
+
+	visualmapDB.Attribution_Data.String = visualmap.Attribution
+	visualmapDB.Attribution_Data.Valid = true
+
+	visualmapDB.MaxZoom_Data.Int64 = int64(visualmap.MaxZoom)
+	visualmapDB.MaxZoom_Data.Valid = true
+
+	visualmapDB.ZoomControl_Data.Bool = visualmap.ZoomControl
+	visualmapDB.ZoomControl_Data.Valid = true
+
+	visualmapDB.AttributionControl_Data.Bool = visualmap.AttributionControl
+	visualmapDB.AttributionControl_Data.Valid = true
+
+	visualmapDB.ZoomSnap_Data.Bool = visualmap.ZoomSnap
+	visualmapDB.ZoomSnap_Data.Valid = true
+
+}
+
+// CopyBasicFieldsToVisualMapDB is used to copy basic fields between the Stage or the CRUD to the back repo
+func (visualmapDB *VisualMapDB) CopyBasicFieldsToVisualMap(visualmap *models.VisualMap) {
+
+	// insertion point for checkout of basic fields (back repo to stage)
+	visualmap.Lat = visualmapDB.Lat_Data.Float64
+	visualmap.Lng = visualmapDB.Lng_Data.Float64
+	visualmap.Name = visualmapDB.Name_Data.String
+	visualmap.ZoomLevel = visualmapDB.ZoomLevel_Data.Float64
+	visualmap.UrlTemplate = visualmapDB.UrlTemplate_Data.String
+	visualmap.Attribution = visualmapDB.Attribution_Data.String
+	visualmap.MaxZoom = int(visualmapDB.MaxZoom_Data.Int64)
+	visualmap.ZoomControl = visualmapDB.ZoomControl_Data.Bool
+	visualmap.AttributionControl = visualmapDB.AttributionControl_Data.Bool
+	visualmap.ZoomSnap = visualmapDB.ZoomSnap_Data.Bool
+}
+
+// Backup generates a json file from a slice of all VisualMapDB instances in the backrepo
+func (backRepoVisualMap *BackRepoVisualMapStruct) Backup(dirPath string) {
+
+	filename := filepath.Join(dirPath, "VisualMapDB.json")
+
+	// organize the map into an array with increasing IDs, in order to have repoductible
+	// backup file
+	var forBackup []*VisualMapDB
+	for _, visualmapDB := range *backRepoVisualMap.Map_VisualMapDBID_VisualMapDB {
+		forBackup = append(forBackup, visualmapDB)
+	}
+
+	sort.Slice(forBackup[:], func(i, j int) bool {
+		return forBackup[i].ID < forBackup[j].ID
+	})
+
+	file, err := json.MarshalIndent(forBackup, "", " ")
+
+	if err != nil {
+		log.Panic("Cannot json VisualMap ", filename, " ", err.Error())
+	}
+
+	err = ioutil.WriteFile(filename, file, 0644)
+	if err != nil {
+		log.Panic("Cannot write the json VisualMap file", err.Error())
+	}
+}
+
+func (backRepoVisualMap *BackRepoVisualMapStruct) Restore(dirPath string) {
+
+	filename := filepath.Join(dirPath, "VisualMapDB.json")
+	jsonFile, err := os.Open(filename)
+	// if we os.Open returns an error then handle it
+	if err != nil {
+		log.Panic("Cannot restore/open the json VisualMap file", filename, " ", err.Error())
+	}
+
+	// read our opened jsonFile as a byte array.
+	byteValue, _ := ioutil.ReadAll(jsonFile)
+
+	var forRestore []*VisualMapDB
+
+	err = json.Unmarshal(byteValue, &forRestore)
+
+	// fill up Map_VisualMapDBID_VisualMapDB
+	for _, visualmapDB := range forRestore {
+
+		visualmapDB_ID := visualmapDB.ID
+		visualmapDB.ID = 0
+		query := backRepoVisualMap.db.Create(visualmapDB)
+		if query.Error != nil {
+			log.Panic(query.Error)
+		}
+		if visualmapDB_ID != visualmapDB.ID {
+			log.Panicf("ID of VisualMap restore ID %d, name %s, has wrong ID %d in DB after create",
+				visualmapDB_ID, visualmapDB.Name_Data.String, visualmapDB.ID)
+		}
+	}
+
+	if err != nil {
+		log.Panic("Cannot restore/unmarshall json VisualMap file", err.Error())
 	}
 }

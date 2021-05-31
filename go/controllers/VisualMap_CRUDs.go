@@ -9,7 +9,6 @@ import (
 	"github.com/fullstack-lang/gongleaflet/go/orm"
 
 	"github.com/gin-gonic/gin"
-	"github.com/jinzhu/gorm"
 )
 
 // declaration in order to justify use of the models import
@@ -47,10 +46,11 @@ type VisualMapInput struct {
 //    default: genericError
 //        200: visualmapDBsResponse
 func GetVisualMaps(c *gin.Context) {
-	db := c.MustGet("db").(*gorm.DB)
-
-	var visualmaps []orm.VisualMapDB
-	query := db.Find(&visualmaps)
+	db := orm.BackRepo.BackRepoVisualMap.GetDB()
+	
+	// source slice
+	var visualmapDBs []orm.VisualMapDB
+	query := db.Find(&visualmapDBs)
 	if query.Error != nil {
 		var returnError GenericError
 		returnError.Body.Code = http.StatusBadRequest
@@ -59,48 +59,23 @@ func GetVisualMaps(c *gin.Context) {
 		return
 	}
 
+	// slice that will be transmitted to the front
+	visualmapAPIs := make([]orm.VisualMapAPI, 0)
+
 	// for each visualmap, update fields from the database nullable fields
-	for idx := range visualmaps {
-		visualmap := &visualmaps[idx]
-		_ = visualmap
+	for idx := range visualmapDBs {
+		visualmapDB := &visualmapDBs[idx]
+		_ = visualmapDB
+		var visualmapAPI orm.VisualMapAPI
+
 		// insertion point for updating fields
-		if visualmap.Lat_Data.Valid {
-			visualmap.Lat = visualmap.Lat_Data.Float64
-		}
-
-		if visualmap.Lng_Data.Valid {
-			visualmap.Lng = visualmap.Lng_Data.Float64
-		}
-
-		if visualmap.Name_Data.Valid {
-			visualmap.Name = visualmap.Name_Data.String
-		}
-
-		if visualmap.ZoomLevel_Data.Valid {
-			visualmap.ZoomLevel = visualmap.ZoomLevel_Data.Float64
-		}
-
-		if visualmap.UrlTemplate_Data.Valid {
-			visualmap.UrlTemplate = visualmap.UrlTemplate_Data.String
-		}
-
-		if visualmap.Attribution_Data.Valid {
-			visualmap.Attribution = visualmap.Attribution_Data.String
-		}
-
-		if visualmap.MaxZoom_Data.Valid {
-			visualmap.MaxZoom = int(visualmap.MaxZoom_Data.Int64)
-		}
-
-		visualmap.ZoomControl = visualmap.ZoomControl_Data.Bool
-
-		visualmap.AttributionControl = visualmap.AttributionControl_Data.Bool
-
-		visualmap.ZoomSnap = visualmap.ZoomSnap_Data.Bool
-
+		visualmapAPI.ID = visualmapDB.ID
+		visualmapDB.CopyBasicFieldsToVisualMap(&visualmapAPI.VisualMap)
+		visualmapAPI.VisualMapPointersEnconding = visualmapDB.VisualMapPointersEnconding
+		visualmapAPIs = append(visualmapAPIs, visualmapAPI)
 	}
 
-	c.JSON(http.StatusOK, visualmaps)
+	c.JSON(http.StatusOK, visualmapAPIs)
 }
 
 // PostVisualMap
@@ -117,7 +92,7 @@ func GetVisualMaps(c *gin.Context) {
 //     Responses:
 //       200: visualmapDBResponse
 func PostVisualMap(c *gin.Context) {
-	db := c.MustGet("db").(*gorm.DB)
+	db := orm.BackRepo.BackRepoVisualMap.GetDB()
 
 	// Validate input
 	var input orm.VisualMapAPI
@@ -133,37 +108,8 @@ func PostVisualMap(c *gin.Context) {
 
 	// Create visualmap
 	visualmapDB := orm.VisualMapDB{}
-	visualmapDB.VisualMapAPI = input
-	// insertion point for nullable field set
-	visualmapDB.Lat_Data.Float64 = input.Lat
-	visualmapDB.Lat_Data.Valid = true
-
-	visualmapDB.Lng_Data.Float64 = input.Lng
-	visualmapDB.Lng_Data.Valid = true
-
-	visualmapDB.Name_Data.String = input.Name
-	visualmapDB.Name_Data.Valid = true
-
-	visualmapDB.ZoomLevel_Data.Float64 = input.ZoomLevel
-	visualmapDB.ZoomLevel_Data.Valid = true
-
-	visualmapDB.UrlTemplate_Data.String = input.UrlTemplate
-	visualmapDB.UrlTemplate_Data.Valid = true
-
-	visualmapDB.Attribution_Data.String = input.Attribution
-	visualmapDB.Attribution_Data.Valid = true
-
-	visualmapDB.MaxZoom_Data.Int64 = int64(input.MaxZoom)
-	visualmapDB.MaxZoom_Data.Valid = true
-
-	visualmapDB.ZoomControl_Data.Bool = input.ZoomControl
-	visualmapDB.ZoomControl_Data.Valid = true
-
-	visualmapDB.AttributionControl_Data.Bool = input.AttributionControl
-	visualmapDB.AttributionControl_Data.Valid = true
-
-	visualmapDB.ZoomSnap_Data.Bool = input.ZoomSnap
-	visualmapDB.ZoomSnap_Data.Valid = true
+	visualmapDB.VisualMapPointersEnconding = input.VisualMapPointersEnconding
+	visualmapDB.CopyBasicFieldsFromVisualMap(&input.VisualMap)
 
 	query := db.Create(&visualmapDB)
 	if query.Error != nil {
@@ -191,11 +137,11 @@ func PostVisualMap(c *gin.Context) {
 //    default: genericError
 //        200: visualmapDBResponse
 func GetVisualMap(c *gin.Context) {
-	db := c.MustGet("db").(*gorm.DB)
+	db := orm.BackRepo.BackRepoVisualMap.GetDB()
 
-	// Get visualmap in DB
-	var visualmap orm.VisualMapDB
-	if err := db.First(&visualmap, c.Param("id")).Error; err != nil {
+	// Get visualmapDB in DB
+	var visualmapDB orm.VisualMapDB
+	if err := db.First(&visualmapDB, c.Param("id")).Error; err != nil {
 		var returnError GenericError
 		returnError.Body.Code = http.StatusBadRequest
 		returnError.Body.Message = err.Error()
@@ -203,42 +149,12 @@ func GetVisualMap(c *gin.Context) {
 		return
 	}
 
-	// insertion point for fields value set from nullable fields
-	if visualmap.Lat_Data.Valid {
-		visualmap.Lat = visualmap.Lat_Data.Float64
-	}
+	var visualmapAPI orm.VisualMapAPI
+	visualmapAPI.ID = visualmapDB.ID
+	visualmapAPI.VisualMapPointersEnconding = visualmapDB.VisualMapPointersEnconding
+	visualmapDB.CopyBasicFieldsToVisualMap(&visualmapAPI.VisualMap)
 
-	if visualmap.Lng_Data.Valid {
-		visualmap.Lng = visualmap.Lng_Data.Float64
-	}
-
-	if visualmap.Name_Data.Valid {
-		visualmap.Name = visualmap.Name_Data.String
-	}
-
-	if visualmap.ZoomLevel_Data.Valid {
-		visualmap.ZoomLevel = visualmap.ZoomLevel_Data.Float64
-	}
-
-	if visualmap.UrlTemplate_Data.Valid {
-		visualmap.UrlTemplate = visualmap.UrlTemplate_Data.String
-	}
-
-	if visualmap.Attribution_Data.Valid {
-		visualmap.Attribution = visualmap.Attribution_Data.String
-	}
-
-	if visualmap.MaxZoom_Data.Valid {
-		visualmap.MaxZoom = int(visualmap.MaxZoom_Data.Int64)
-	}
-
-	visualmap.ZoomControl = visualmap.ZoomControl_Data.Bool
-
-	visualmap.AttributionControl = visualmap.AttributionControl_Data.Bool
-
-	visualmap.ZoomSnap = visualmap.ZoomSnap_Data.Bool
-
-	c.JSON(http.StatusOK, visualmap)
+	c.JSON(http.StatusOK, visualmapAPI)
 }
 
 // UpdateVisualMap
@@ -251,7 +167,7 @@ func GetVisualMap(c *gin.Context) {
 //    default: genericError
 //        200: visualmapDBResponse
 func UpdateVisualMap(c *gin.Context) {
-	db := c.MustGet("db").(*gorm.DB)
+	db := orm.BackRepo.BackRepoVisualMap.GetDB()
 
 	// Get model if exist
 	var visualmapDB orm.VisualMapDB
@@ -275,38 +191,10 @@ func UpdateVisualMap(c *gin.Context) {
 	}
 
 	// update
-	// insertion point for nullable field set
-	input.Lat_Data.Float64 = input.Lat
-	input.Lat_Data.Valid = true
+	visualmapDB.CopyBasicFieldsFromVisualMap(&input.VisualMap)
+	visualmapDB.VisualMapPointersEnconding = input.VisualMapPointersEnconding
 
-	input.Lng_Data.Float64 = input.Lng
-	input.Lng_Data.Valid = true
-
-	input.Name_Data.String = input.Name
-	input.Name_Data.Valid = true
-
-	input.ZoomLevel_Data.Float64 = input.ZoomLevel
-	input.ZoomLevel_Data.Valid = true
-
-	input.UrlTemplate_Data.String = input.UrlTemplate
-	input.UrlTemplate_Data.Valid = true
-
-	input.Attribution_Data.String = input.Attribution
-	input.Attribution_Data.Valid = true
-
-	input.MaxZoom_Data.Int64 = int64(input.MaxZoom)
-	input.MaxZoom_Data.Valid = true
-
-	input.ZoomControl_Data.Bool = input.ZoomControl
-	input.ZoomControl_Data.Valid = true
-
-	input.AttributionControl_Data.Bool = input.AttributionControl
-	input.AttributionControl_Data.Valid = true
-
-	input.ZoomSnap_Data.Bool = input.ZoomSnap
-	input.ZoomSnap_Data.Valid = true
-
-	query = db.Model(&visualmapDB).Updates(input)
+	query = db.Model(&visualmapDB).Updates(visualmapDB)
 	if query.Error != nil {
 		var returnError GenericError
 		returnError.Body.Code = http.StatusBadRequest
@@ -332,7 +220,7 @@ func UpdateVisualMap(c *gin.Context) {
 // Responses:
 //    default: genericError
 func DeleteVisualMap(c *gin.Context) {
-	db := c.MustGet("db").(*gorm.DB)
+	db := orm.BackRepo.BackRepoVisualMap.GetDB()
 
 	// Get model if exist
 	var visualmapDB orm.VisualMapDB

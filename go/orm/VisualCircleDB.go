@@ -3,9 +3,13 @@ package orm
 
 import (
 	"database/sql"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"log"
+	"os"
+	"path/filepath"
 	"sort"
 	"time"
 
@@ -27,9 +31,37 @@ var dummy_VisualCircle_sort sort.Float64Slice
 //
 // swagger:model visualcircleAPI
 type VisualCircleAPI struct {
+	gorm.Model
+
 	models.VisualCircle
 
-	// insertion for fields declaration
+	// encoding of pointers
+	VisualCirclePointersEnconding
+}
+
+// VisualCirclePointersEnconding encodes pointers to Struct and
+// reverse pointers of slice of poitners to Struct
+type VisualCirclePointersEnconding struct {
+	// insertion for pointer fields encoding declaration
+	// field VisualLayer is a pointer to another Struct (optional or 0..1)
+	// This field is generated into another field to enable AS ONE association
+	VisualLayerID sql.NullInt64
+
+	// all gong Struct has a Name field, this enables this data to object field
+	VisualLayerName string
+
+}
+
+// VisualCircleDB describes a visualcircle in the database
+//
+// It incorporates the GORM ID, basic fields from the model (because they can be serialized),
+// the encoded version of pointers
+//
+// swagger:model visualcircleDB
+type VisualCircleDB struct {
+	gorm.Model
+
+	// insertion for basic fields declaration
 	// Declation for basic field visualcircleDB.Lat {{BasicKind}} (to be completed)
 	Lat_Data sql.NullFloat64
 
@@ -48,25 +80,8 @@ type VisualCircleAPI struct {
 	// Declation for basic field visualcircleDB.DashStyleEnum {{BasicKind}} (to be completed)
 	DashStyleEnum_Data sql.NullString
 
-	// field VisualLayer is a pointer to another Struct (optional or 0..1)
-	// This field is generated into another field to enable AS ONE association
-	VisualLayerID sql.NullInt64
-
-	// all gong Struct has a Name field, this enables this data to object field
-	VisualLayerName string
-
-	// end of insertion
-}
-
-// VisualCircleDB describes a visualcircle in the database
-//
-// It incorporates all fields : from the model, from the generated field for the API and the GORM ID
-//
-// swagger:model visualcircleDB
-type VisualCircleDB struct {
-	gorm.Model
-
-	VisualCircleAPI
+	// encoding of pointers
+	VisualCirclePointersEnconding
 }
 
 // VisualCircleDBs arrays visualcircleDBs
@@ -90,6 +105,17 @@ type BackRepoVisualCircleStruct struct {
 	Map_VisualCircleDBID_VisualCirclePtr *map[uint]*models.VisualCircle
 
 	db *gorm.DB
+}
+
+func (backRepoVisualCircle *BackRepoVisualCircleStruct) GetDB() *gorm.DB {
+	return backRepoVisualCircle.db
+}
+
+// GetVisualCircleDBFromVisualCirclePtr is a handy function to access the back repo instance from the stage instance
+func (backRepoVisualCircle *BackRepoVisualCircleStruct) GetVisualCircleDBFromVisualCirclePtr(visualcircle *models.VisualCircle) (visualcircleDB *VisualCircleDB) {
+	id := (*backRepoVisualCircle.Map_VisualCirclePtr_VisualCircleDBID)[visualcircle]
+	visualcircleDB = (*backRepoVisualCircle.Map_VisualCircleDBID_VisualCircleDB)[id]
+	return
 }
 
 // BackRepoVisualCircle.Init set up the BackRepo of the VisualCircle
@@ -173,7 +199,7 @@ func (backRepoVisualCircle *BackRepoVisualCircleStruct) CommitPhaseOneInstance(v
 
 	// initiate visualcircle
 	var visualcircleDB VisualCircleDB
-	visualcircleDB.VisualCircle = *visualcircle
+	visualcircleDB.CopyBasicFieldsFromVisualCircle(visualcircle)
 
 	query := backRepoVisualCircle.db.Create(&visualcircleDB)
 	if query.Error != nil {
@@ -206,37 +232,17 @@ func (backRepoVisualCircle *BackRepoVisualCircleStruct) CommitPhaseTwoInstance(b
 	// fetch matching visualcircleDB
 	if visualcircleDB, ok := (*backRepoVisualCircle.Map_VisualCircleDBID_VisualCircleDB)[idx]; ok {
 
-		{
-			{
-				// insertion point for fields commit
-				visualcircleDB.Lat_Data.Float64 = visualcircle.Lat
-				visualcircleDB.Lat_Data.Valid = true
+		visualcircleDB.CopyBasicFieldsFromVisualCircle(visualcircle)
 
-				visualcircleDB.Lng_Data.Float64 = visualcircle.Lng
-				visualcircleDB.Lng_Data.Valid = true
-
-				visualcircleDB.Name_Data.String = visualcircle.Name
-				visualcircleDB.Name_Data.Valid = true
-
-				visualcircleDB.Radius_Data.Float64 = visualcircle.Radius
-				visualcircleDB.Radius_Data.Valid = true
-
-				visualcircleDB.VisualColorEnum_Data.String = string(visualcircle.VisualColorEnum)
-				visualcircleDB.VisualColorEnum_Data.Valid = true
-
-				visualcircleDB.DashStyleEnum_Data.String = string(visualcircle.DashStyleEnum)
-				visualcircleDB.DashStyleEnum_Data.Valid = true
-
-				// commit pointer value visualcircle.VisualLayer translates to updating the visualcircle.VisualLayerID
-				visualcircleDB.VisualLayerID.Valid = true // allow for a 0 value (nil association)
-				if visualcircle.VisualLayer != nil {
-					if VisualLayerId, ok := (*backRepo.BackRepoVisualLayer.Map_VisualLayerPtr_VisualLayerDBID)[visualcircle.VisualLayer]; ok {
-						visualcircleDB.VisualLayerID.Int64 = int64(VisualLayerId)
-					}
-				}
-
+		// insertion point for translating pointers encodings into actual pointers
+		// commit pointer value visualcircle.VisualLayer translates to updating the visualcircle.VisualLayerID
+		visualcircleDB.VisualLayerID.Valid = true // allow for a 0 value (nil association)
+		if visualcircle.VisualLayer != nil {
+			if VisualLayerId, ok := (*backRepo.BackRepoVisualLayer.Map_VisualLayerPtr_VisualLayerDBID)[visualcircle.VisualLayer]; ok {
+				visualcircleDB.VisualLayerID.Int64 = int64(VisualLayerId)
 			}
 		}
+
 		query := backRepoVisualCircle.db.Save(&visualcircleDB)
 		if query.Error != nil {
 			return query.Error
@@ -277,18 +283,23 @@ func (backRepoVisualCircle *BackRepoVisualCircleStruct) CheckoutPhaseOne() (Erro
 // models version of the visualcircleDB
 func (backRepoVisualCircle *BackRepoVisualCircleStruct) CheckoutPhaseOneInstance(visualcircleDB *VisualCircleDB) (Error error) {
 
-	// if absent, create entries in the backRepoVisualCircle maps.
-	visualcircleWithNewFieldValues := visualcircleDB.VisualCircle
-	if _, ok := (*backRepoVisualCircle.Map_VisualCircleDBID_VisualCirclePtr)[visualcircleDB.ID]; !ok {
+	visualcircle, ok := (*backRepoVisualCircle.Map_VisualCircleDBID_VisualCirclePtr)[visualcircleDB.ID]
+	if !ok {
+		visualcircle = new(models.VisualCircle)
 
-		(*backRepoVisualCircle.Map_VisualCircleDBID_VisualCirclePtr)[visualcircleDB.ID] = &visualcircleWithNewFieldValues
-		(*backRepoVisualCircle.Map_VisualCirclePtr_VisualCircleDBID)[&visualcircleWithNewFieldValues] = visualcircleDB.ID
+		(*backRepoVisualCircle.Map_VisualCircleDBID_VisualCirclePtr)[visualcircleDB.ID] = visualcircle
+		(*backRepoVisualCircle.Map_VisualCirclePtr_VisualCircleDBID)[visualcircle] = visualcircleDB.ID
 
 		// append model store with the new element
-		visualcircleWithNewFieldValues.Stage()
+		visualcircle.Stage()
 	}
-	visualcircleDBWithNewFieldValues := *visualcircleDB
-	(*backRepoVisualCircle.Map_VisualCircleDBID_VisualCircleDB)[visualcircleDB.ID] = &visualcircleDBWithNewFieldValues
+	visualcircleDB.CopyBasicFieldsToVisualCircle(visualcircle)
+
+	// preserve pointer to aclassDB. Otherwise, pointer will is recycled and the map of pointers
+	// Map_VisualCircleDBID_VisualCircleDB)[visualcircleDB hold variable pointers
+	visualcircleDB_Data := *visualcircleDB
+	preservedPtrToVisualCircle := &visualcircleDB_Data
+	(*backRepoVisualCircle.Map_VisualCircleDBID_VisualCircleDB)[visualcircleDB.ID] = preservedPtrToVisualCircle
 
 	return
 }
@@ -310,28 +321,11 @@ func (backRepoVisualCircle *BackRepoVisualCircleStruct) CheckoutPhaseTwoInstance
 
 	visualcircle := (*backRepoVisualCircle.Map_VisualCircleDBID_VisualCirclePtr)[visualcircleDB.ID]
 	_ = visualcircle // sometimes, there is no code generated. This lines voids the "unused variable" compilation error
-	{
-		{
-			// insertion point for checkout, i.e. update of fields of stage instance from fields of back repo instances
-			//
-			visualcircle.Lat = visualcircleDB.Lat_Data.Float64
 
-			visualcircle.Lng = visualcircleDB.Lng_Data.Float64
-
-			visualcircle.Name = visualcircleDB.Name_Data.String
-
-			visualcircle.Radius = visualcircleDB.Radius_Data.Float64
-
-			visualcircle.VisualColorEnum = models.VisualColorEnum(visualcircleDB.VisualColorEnum_Data.String)
-
-			visualcircle.DashStyleEnum = models.DashStyleEnum(visualcircleDB.DashStyleEnum_Data.String)
-
-			// VisualLayer field
-			if visualcircleDB.VisualLayerID.Int64 != 0 {
-				visualcircle.VisualLayer = (*backRepo.BackRepoVisualLayer.Map_VisualLayerDBID_VisualLayerPtr)[uint(visualcircleDB.VisualLayerID.Int64)]
-			}
-
-		}
+	// insertion point for checkout of pointer encoding
+	// VisualLayer field
+	if visualcircleDB.VisualLayerID.Int64 != 0 {
+		visualcircle.VisualLayer = (*backRepo.BackRepoVisualLayer.Map_VisualLayerDBID_VisualLayerPtr)[uint(visualcircleDB.VisualLayerID.Int64)]
 	}
 	return
 }
@@ -359,5 +353,104 @@ func (backRepo *BackRepoStruct) CheckoutVisualCircle(visualcircle *models.Visual
 			backRepo.BackRepoVisualCircle.CheckoutPhaseOneInstance(&visualcircleDB)
 			backRepo.BackRepoVisualCircle.CheckoutPhaseTwoInstance(backRepo, &visualcircleDB)
 		}
+	}
+}
+
+// CopyBasicFieldsToVisualCircleDB is used to copy basic fields between the Stage or the CRUD to the back repo
+func (visualcircleDB *VisualCircleDB) CopyBasicFieldsFromVisualCircle(visualcircle *models.VisualCircle) {
+	// insertion point for fields commit
+	visualcircleDB.Lat_Data.Float64 = visualcircle.Lat
+	visualcircleDB.Lat_Data.Valid = true
+
+	visualcircleDB.Lng_Data.Float64 = visualcircle.Lng
+	visualcircleDB.Lng_Data.Valid = true
+
+	visualcircleDB.Name_Data.String = visualcircle.Name
+	visualcircleDB.Name_Data.Valid = true
+
+	visualcircleDB.Radius_Data.Float64 = visualcircle.Radius
+	visualcircleDB.Radius_Data.Valid = true
+
+	visualcircleDB.VisualColorEnum_Data.String = string(visualcircle.VisualColorEnum)
+	visualcircleDB.VisualColorEnum_Data.Valid = true
+
+	visualcircleDB.DashStyleEnum_Data.String = string(visualcircle.DashStyleEnum)
+	visualcircleDB.DashStyleEnum_Data.Valid = true
+
+}
+
+// CopyBasicFieldsToVisualCircleDB is used to copy basic fields between the Stage or the CRUD to the back repo
+func (visualcircleDB *VisualCircleDB) CopyBasicFieldsToVisualCircle(visualcircle *models.VisualCircle) {
+
+	// insertion point for checkout of basic fields (back repo to stage)
+	visualcircle.Lat = visualcircleDB.Lat_Data.Float64
+	visualcircle.Lng = visualcircleDB.Lng_Data.Float64
+	visualcircle.Name = visualcircleDB.Name_Data.String
+	visualcircle.Radius = visualcircleDB.Radius_Data.Float64
+	visualcircle.VisualColorEnum = models.VisualColorEnum(visualcircleDB.VisualColorEnum_Data.String)
+	visualcircle.DashStyleEnum = models.DashStyleEnum(visualcircleDB.DashStyleEnum_Data.String)
+}
+
+// Backup generates a json file from a slice of all VisualCircleDB instances in the backrepo
+func (backRepoVisualCircle *BackRepoVisualCircleStruct) Backup(dirPath string) {
+
+	filename := filepath.Join(dirPath, "VisualCircleDB.json")
+
+	// organize the map into an array with increasing IDs, in order to have repoductible
+	// backup file
+	var forBackup []*VisualCircleDB
+	for _, visualcircleDB := range *backRepoVisualCircle.Map_VisualCircleDBID_VisualCircleDB {
+		forBackup = append(forBackup, visualcircleDB)
+	}
+
+	sort.Slice(forBackup[:], func(i, j int) bool {
+		return forBackup[i].ID < forBackup[j].ID
+	})
+
+	file, err := json.MarshalIndent(forBackup, "", " ")
+
+	if err != nil {
+		log.Panic("Cannot json VisualCircle ", filename, " ", err.Error())
+	}
+
+	err = ioutil.WriteFile(filename, file, 0644)
+	if err != nil {
+		log.Panic("Cannot write the json VisualCircle file", err.Error())
+	}
+}
+
+func (backRepoVisualCircle *BackRepoVisualCircleStruct) Restore(dirPath string) {
+
+	filename := filepath.Join(dirPath, "VisualCircleDB.json")
+	jsonFile, err := os.Open(filename)
+	// if we os.Open returns an error then handle it
+	if err != nil {
+		log.Panic("Cannot restore/open the json VisualCircle file", filename, " ", err.Error())
+	}
+
+	// read our opened jsonFile as a byte array.
+	byteValue, _ := ioutil.ReadAll(jsonFile)
+
+	var forRestore []*VisualCircleDB
+
+	err = json.Unmarshal(byteValue, &forRestore)
+
+	// fill up Map_VisualCircleDBID_VisualCircleDB
+	for _, visualcircleDB := range forRestore {
+
+		visualcircleDB_ID := visualcircleDB.ID
+		visualcircleDB.ID = 0
+		query := backRepoVisualCircle.db.Create(visualcircleDB)
+		if query.Error != nil {
+			log.Panic(query.Error)
+		}
+		if visualcircleDB_ID != visualcircleDB.ID {
+			log.Panicf("ID of VisualCircle restore ID %d, name %s, has wrong ID %d in DB after create",
+				visualcircleDB_ID, visualcircleDB.Name_Data.String, visualcircleDB.ID)
+		}
+	}
+
+	if err != nil {
+		log.Panic("Cannot restore/unmarshall json VisualCircle file", err.Error())
 	}
 }

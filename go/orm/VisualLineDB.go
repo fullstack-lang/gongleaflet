@@ -3,9 +3,13 @@ package orm
 
 import (
 	"database/sql"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"log"
+	"os"
+	"path/filepath"
 	"sort"
 	"time"
 
@@ -27,9 +31,37 @@ var dummy_VisualLine_sort sort.Float64Slice
 //
 // swagger:model visuallineAPI
 type VisualLineAPI struct {
+	gorm.Model
+
 	models.VisualLine
 
-	// insertion for fields declaration
+	// encoding of pointers
+	VisualLinePointersEnconding
+}
+
+// VisualLinePointersEnconding encodes pointers to Struct and
+// reverse pointers of slice of poitners to Struct
+type VisualLinePointersEnconding struct {
+	// insertion for pointer fields encoding declaration
+	// field VisualLayer is a pointer to another Struct (optional or 0..1)
+	// This field is generated into another field to enable AS ONE association
+	VisualLayerID sql.NullInt64
+
+	// all gong Struct has a Name field, this enables this data to object field
+	VisualLayerName string
+
+}
+
+// VisualLineDB describes a visualline in the database
+//
+// It incorporates the GORM ID, basic fields from the model (because they can be serialized),
+// the encoded version of pointers
+//
+// swagger:model visuallineDB
+type VisualLineDB struct {
+	gorm.Model
+
+	// insertion for basic fields declaration
 	// Declation for basic field visuallineDB.StartLat {{BasicKind}} (to be completed)
 	StartLat_Data sql.NullFloat64
 
@@ -51,13 +83,6 @@ type VisualLineAPI struct {
 	// Declation for basic field visuallineDB.DashStyleEnum {{BasicKind}} (to be completed)
 	DashStyleEnum_Data sql.NullString
 
-	// field VisualLayer is a pointer to another Struct (optional or 0..1)
-	// This field is generated into another field to enable AS ONE association
-	VisualLayerID sql.NullInt64
-
-	// all gong Struct has a Name field, this enables this data to object field
-	VisualLayerName string
-
 	// Declation for basic field visuallineDB.IsTransmitting {{BasicKind}} (to be completed)
 	IsTransmitting_Data sql.NullString
 
@@ -70,18 +95,8 @@ type VisualLineAPI struct {
 	// Declation for basic field visuallineDB.MessageBackward {{BasicKind}} (to be completed)
 	MessageBackward_Data sql.NullString
 
-	// end of insertion
-}
-
-// VisualLineDB describes a visualline in the database
-//
-// It incorporates all fields : from the model, from the generated field for the API and the GORM ID
-//
-// swagger:model visuallineDB
-type VisualLineDB struct {
-	gorm.Model
-
-	VisualLineAPI
+	// encoding of pointers
+	VisualLinePointersEnconding
 }
 
 // VisualLineDBs arrays visuallineDBs
@@ -105,6 +120,17 @@ type BackRepoVisualLineStruct struct {
 	Map_VisualLineDBID_VisualLinePtr *map[uint]*models.VisualLine
 
 	db *gorm.DB
+}
+
+func (backRepoVisualLine *BackRepoVisualLineStruct) GetDB() *gorm.DB {
+	return backRepoVisualLine.db
+}
+
+// GetVisualLineDBFromVisualLinePtr is a handy function to access the back repo instance from the stage instance
+func (backRepoVisualLine *BackRepoVisualLineStruct) GetVisualLineDBFromVisualLinePtr(visualline *models.VisualLine) (visuallineDB *VisualLineDB) {
+	id := (*backRepoVisualLine.Map_VisualLinePtr_VisualLineDBID)[visualline]
+	visuallineDB = (*backRepoVisualLine.Map_VisualLineDBID_VisualLineDB)[id]
+	return
 }
 
 // BackRepoVisualLine.Init set up the BackRepo of the VisualLine
@@ -188,7 +214,7 @@ func (backRepoVisualLine *BackRepoVisualLineStruct) CommitPhaseOneInstance(visua
 
 	// initiate visualline
 	var visuallineDB VisualLineDB
-	visuallineDB.VisualLine = *visualline
+	visuallineDB.CopyBasicFieldsFromVisualLine(visualline)
 
 	query := backRepoVisualLine.db.Create(&visuallineDB)
 	if query.Error != nil {
@@ -221,52 +247,17 @@ func (backRepoVisualLine *BackRepoVisualLineStruct) CommitPhaseTwoInstance(backR
 	// fetch matching visuallineDB
 	if visuallineDB, ok := (*backRepoVisualLine.Map_VisualLineDBID_VisualLineDB)[idx]; ok {
 
-		{
-			{
-				// insertion point for fields commit
-				visuallineDB.StartLat_Data.Float64 = visualline.StartLat
-				visuallineDB.StartLat_Data.Valid = true
+		visuallineDB.CopyBasicFieldsFromVisualLine(visualline)
 
-				visuallineDB.StartLng_Data.Float64 = visualline.StartLng
-				visuallineDB.StartLng_Data.Valid = true
-
-				visuallineDB.EndLat_Data.Float64 = visualline.EndLat
-				visuallineDB.EndLat_Data.Valid = true
-
-				visuallineDB.EndLng_Data.Float64 = visualline.EndLng
-				visuallineDB.EndLng_Data.Valid = true
-
-				visuallineDB.Name_Data.String = visualline.Name
-				visuallineDB.Name_Data.Valid = true
-
-				visuallineDB.VisualColorEnum_Data.String = string(visualline.VisualColorEnum)
-				visuallineDB.VisualColorEnum_Data.Valid = true
-
-				visuallineDB.DashStyleEnum_Data.String = string(visualline.DashStyleEnum)
-				visuallineDB.DashStyleEnum_Data.Valid = true
-
-				// commit pointer value visualline.VisualLayer translates to updating the visualline.VisualLayerID
-				visuallineDB.VisualLayerID.Valid = true // allow for a 0 value (nil association)
-				if visualline.VisualLayer != nil {
-					if VisualLayerId, ok := (*backRepo.BackRepoVisualLayer.Map_VisualLayerPtr_VisualLayerDBID)[visualline.VisualLayer]; ok {
-						visuallineDB.VisualLayerID.Int64 = int64(VisualLayerId)
-					}
-				}
-
-				visuallineDB.IsTransmitting_Data.String = string(visualline.IsTransmitting)
-				visuallineDB.IsTransmitting_Data.Valid = true
-
-				visuallineDB.Message_Data.String = visualline.Message
-				visuallineDB.Message_Data.Valid = true
-
-				visuallineDB.IsTransmittingBackward_Data.String = string(visualline.IsTransmittingBackward)
-				visuallineDB.IsTransmittingBackward_Data.Valid = true
-
-				visuallineDB.MessageBackward_Data.String = visualline.MessageBackward
-				visuallineDB.MessageBackward_Data.Valid = true
-
+		// insertion point for translating pointers encodings into actual pointers
+		// commit pointer value visualline.VisualLayer translates to updating the visualline.VisualLayerID
+		visuallineDB.VisualLayerID.Valid = true // allow for a 0 value (nil association)
+		if visualline.VisualLayer != nil {
+			if VisualLayerId, ok := (*backRepo.BackRepoVisualLayer.Map_VisualLayerPtr_VisualLayerDBID)[visualline.VisualLayer]; ok {
+				visuallineDB.VisualLayerID.Int64 = int64(VisualLayerId)
 			}
 		}
+
 		query := backRepoVisualLine.db.Save(&visuallineDB)
 		if query.Error != nil {
 			return query.Error
@@ -307,18 +298,23 @@ func (backRepoVisualLine *BackRepoVisualLineStruct) CheckoutPhaseOne() (Error er
 // models version of the visuallineDB
 func (backRepoVisualLine *BackRepoVisualLineStruct) CheckoutPhaseOneInstance(visuallineDB *VisualLineDB) (Error error) {
 
-	// if absent, create entries in the backRepoVisualLine maps.
-	visuallineWithNewFieldValues := visuallineDB.VisualLine
-	if _, ok := (*backRepoVisualLine.Map_VisualLineDBID_VisualLinePtr)[visuallineDB.ID]; !ok {
+	visualline, ok := (*backRepoVisualLine.Map_VisualLineDBID_VisualLinePtr)[visuallineDB.ID]
+	if !ok {
+		visualline = new(models.VisualLine)
 
-		(*backRepoVisualLine.Map_VisualLineDBID_VisualLinePtr)[visuallineDB.ID] = &visuallineWithNewFieldValues
-		(*backRepoVisualLine.Map_VisualLinePtr_VisualLineDBID)[&visuallineWithNewFieldValues] = visuallineDB.ID
+		(*backRepoVisualLine.Map_VisualLineDBID_VisualLinePtr)[visuallineDB.ID] = visualline
+		(*backRepoVisualLine.Map_VisualLinePtr_VisualLineDBID)[visualline] = visuallineDB.ID
 
 		// append model store with the new element
-		visuallineWithNewFieldValues.Stage()
+		visualline.Stage()
 	}
-	visuallineDBWithNewFieldValues := *visuallineDB
-	(*backRepoVisualLine.Map_VisualLineDBID_VisualLineDB)[visuallineDB.ID] = &visuallineDBWithNewFieldValues
+	visuallineDB.CopyBasicFieldsToVisualLine(visualline)
+
+	// preserve pointer to aclassDB. Otherwise, pointer will is recycled and the map of pointers
+	// Map_VisualLineDBID_VisualLineDB)[visuallineDB hold variable pointers
+	visuallineDB_Data := *visuallineDB
+	preservedPtrToVisualLine := &visuallineDB_Data
+	(*backRepoVisualLine.Map_VisualLineDBID_VisualLineDB)[visuallineDB.ID] = preservedPtrToVisualLine
 
 	return
 }
@@ -340,38 +336,11 @@ func (backRepoVisualLine *BackRepoVisualLineStruct) CheckoutPhaseTwoInstance(bac
 
 	visualline := (*backRepoVisualLine.Map_VisualLineDBID_VisualLinePtr)[visuallineDB.ID]
 	_ = visualline // sometimes, there is no code generated. This lines voids the "unused variable" compilation error
-	{
-		{
-			// insertion point for checkout, i.e. update of fields of stage instance from fields of back repo instances
-			//
-			visualline.StartLat = visuallineDB.StartLat_Data.Float64
 
-			visualline.StartLng = visuallineDB.StartLng_Data.Float64
-
-			visualline.EndLat = visuallineDB.EndLat_Data.Float64
-
-			visualline.EndLng = visuallineDB.EndLng_Data.Float64
-
-			visualline.Name = visuallineDB.Name_Data.String
-
-			visualline.VisualColorEnum = models.VisualColorEnum(visuallineDB.VisualColorEnum_Data.String)
-
-			visualline.DashStyleEnum = models.DashStyleEnum(visuallineDB.DashStyleEnum_Data.String)
-
-			// VisualLayer field
-			if visuallineDB.VisualLayerID.Int64 != 0 {
-				visualline.VisualLayer = (*backRepo.BackRepoVisualLayer.Map_VisualLayerDBID_VisualLayerPtr)[uint(visuallineDB.VisualLayerID.Int64)]
-			}
-
-			visualline.IsTransmitting = models.TransmittingEnum(visuallineDB.IsTransmitting_Data.String)
-
-			visualline.Message = visuallineDB.Message_Data.String
-
-			visualline.IsTransmittingBackward = models.TransmittingEnum(visuallineDB.IsTransmittingBackward_Data.String)
-
-			visualline.MessageBackward = visuallineDB.MessageBackward_Data.String
-
-		}
+	// insertion point for checkout of pointer encoding
+	// VisualLayer field
+	if visuallineDB.VisualLayerID.Int64 != 0 {
+		visualline.VisualLayer = (*backRepo.BackRepoVisualLayer.Map_VisualLayerDBID_VisualLayerPtr)[uint(visuallineDB.VisualLayerID.Int64)]
 	}
 	return
 }
@@ -399,5 +368,124 @@ func (backRepo *BackRepoStruct) CheckoutVisualLine(visualline *models.VisualLine
 			backRepo.BackRepoVisualLine.CheckoutPhaseOneInstance(&visuallineDB)
 			backRepo.BackRepoVisualLine.CheckoutPhaseTwoInstance(backRepo, &visuallineDB)
 		}
+	}
+}
+
+// CopyBasicFieldsToVisualLineDB is used to copy basic fields between the Stage or the CRUD to the back repo
+func (visuallineDB *VisualLineDB) CopyBasicFieldsFromVisualLine(visualline *models.VisualLine) {
+	// insertion point for fields commit
+	visuallineDB.StartLat_Data.Float64 = visualline.StartLat
+	visuallineDB.StartLat_Data.Valid = true
+
+	visuallineDB.StartLng_Data.Float64 = visualline.StartLng
+	visuallineDB.StartLng_Data.Valid = true
+
+	visuallineDB.EndLat_Data.Float64 = visualline.EndLat
+	visuallineDB.EndLat_Data.Valid = true
+
+	visuallineDB.EndLng_Data.Float64 = visualline.EndLng
+	visuallineDB.EndLng_Data.Valid = true
+
+	visuallineDB.Name_Data.String = visualline.Name
+	visuallineDB.Name_Data.Valid = true
+
+	visuallineDB.VisualColorEnum_Data.String = string(visualline.VisualColorEnum)
+	visuallineDB.VisualColorEnum_Data.Valid = true
+
+	visuallineDB.DashStyleEnum_Data.String = string(visualline.DashStyleEnum)
+	visuallineDB.DashStyleEnum_Data.Valid = true
+
+	visuallineDB.IsTransmitting_Data.String = string(visualline.IsTransmitting)
+	visuallineDB.IsTransmitting_Data.Valid = true
+
+	visuallineDB.Message_Data.String = visualline.Message
+	visuallineDB.Message_Data.Valid = true
+
+	visuallineDB.IsTransmittingBackward_Data.String = string(visualline.IsTransmittingBackward)
+	visuallineDB.IsTransmittingBackward_Data.Valid = true
+
+	visuallineDB.MessageBackward_Data.String = visualline.MessageBackward
+	visuallineDB.MessageBackward_Data.Valid = true
+
+}
+
+// CopyBasicFieldsToVisualLineDB is used to copy basic fields between the Stage or the CRUD to the back repo
+func (visuallineDB *VisualLineDB) CopyBasicFieldsToVisualLine(visualline *models.VisualLine) {
+
+	// insertion point for checkout of basic fields (back repo to stage)
+	visualline.StartLat = visuallineDB.StartLat_Data.Float64
+	visualline.StartLng = visuallineDB.StartLng_Data.Float64
+	visualline.EndLat = visuallineDB.EndLat_Data.Float64
+	visualline.EndLng = visuallineDB.EndLng_Data.Float64
+	visualline.Name = visuallineDB.Name_Data.String
+	visualline.VisualColorEnum = models.VisualColorEnum(visuallineDB.VisualColorEnum_Data.String)
+	visualline.DashStyleEnum = models.DashStyleEnum(visuallineDB.DashStyleEnum_Data.String)
+	visualline.IsTransmitting = models.TransmittingEnum(visuallineDB.IsTransmitting_Data.String)
+	visualline.Message = visuallineDB.Message_Data.String
+	visualline.IsTransmittingBackward = models.TransmittingEnum(visuallineDB.IsTransmittingBackward_Data.String)
+	visualline.MessageBackward = visuallineDB.MessageBackward_Data.String
+}
+
+// Backup generates a json file from a slice of all VisualLineDB instances in the backrepo
+func (backRepoVisualLine *BackRepoVisualLineStruct) Backup(dirPath string) {
+
+	filename := filepath.Join(dirPath, "VisualLineDB.json")
+
+	// organize the map into an array with increasing IDs, in order to have repoductible
+	// backup file
+	var forBackup []*VisualLineDB
+	for _, visuallineDB := range *backRepoVisualLine.Map_VisualLineDBID_VisualLineDB {
+		forBackup = append(forBackup, visuallineDB)
+	}
+
+	sort.Slice(forBackup[:], func(i, j int) bool {
+		return forBackup[i].ID < forBackup[j].ID
+	})
+
+	file, err := json.MarshalIndent(forBackup, "", " ")
+
+	if err != nil {
+		log.Panic("Cannot json VisualLine ", filename, " ", err.Error())
+	}
+
+	err = ioutil.WriteFile(filename, file, 0644)
+	if err != nil {
+		log.Panic("Cannot write the json VisualLine file", err.Error())
+	}
+}
+
+func (backRepoVisualLine *BackRepoVisualLineStruct) Restore(dirPath string) {
+
+	filename := filepath.Join(dirPath, "VisualLineDB.json")
+	jsonFile, err := os.Open(filename)
+	// if we os.Open returns an error then handle it
+	if err != nil {
+		log.Panic("Cannot restore/open the json VisualLine file", filename, " ", err.Error())
+	}
+
+	// read our opened jsonFile as a byte array.
+	byteValue, _ := ioutil.ReadAll(jsonFile)
+
+	var forRestore []*VisualLineDB
+
+	err = json.Unmarshal(byteValue, &forRestore)
+
+	// fill up Map_VisualLineDBID_VisualLineDB
+	for _, visuallineDB := range forRestore {
+
+		visuallineDB_ID := visuallineDB.ID
+		visuallineDB.ID = 0
+		query := backRepoVisualLine.db.Create(visuallineDB)
+		if query.Error != nil {
+			log.Panic(query.Error)
+		}
+		if visuallineDB_ID != visuallineDB.ID {
+			log.Panicf("ID of VisualLine restore ID %d, name %s, has wrong ID %d in DB after create",
+				visuallineDB_ID, visuallineDB.Name_Data.String, visuallineDB.ID)
+		}
+	}
+
+	if err != nil {
+		log.Panic("Cannot restore/unmarshall json VisualLine file", err.Error())
 	}
 }

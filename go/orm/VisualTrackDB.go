@@ -3,9 +3,13 @@ package orm
 
 import (
 	"database/sql"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"log"
+	"os"
+	"path/filepath"
 	"sort"
 	"time"
 
@@ -27,9 +31,44 @@ var dummy_VisualTrack_sort sort.Float64Slice
 //
 // swagger:model visualtrackAPI
 type VisualTrackAPI struct {
+	gorm.Model
+
 	models.VisualTrack
 
-	// insertion for fields declaration
+	// encoding of pointers
+	VisualTrackPointersEnconding
+}
+
+// VisualTrackPointersEnconding encodes pointers to Struct and
+// reverse pointers of slice of poitners to Struct
+type VisualTrackPointersEnconding struct {
+	// insertion for pointer fields encoding declaration
+	// field VisualLayer is a pointer to another Struct (optional or 0..1)
+	// This field is generated into another field to enable AS ONE association
+	VisualLayerID sql.NullInt64
+
+	// all gong Struct has a Name field, this enables this data to object field
+	VisualLayerName string
+
+	// field VisualIcon is a pointer to another Struct (optional or 0..1)
+	// This field is generated into another field to enable AS ONE association
+	VisualIconID sql.NullInt64
+
+	// all gong Struct has a Name field, this enables this data to object field
+	VisualIconName string
+
+}
+
+// VisualTrackDB describes a visualtrack in the database
+//
+// It incorporates the GORM ID, basic fields from the model (because they can be serialized),
+// the encoded version of pointers
+//
+// swagger:model visualtrackDB
+type VisualTrackDB struct {
+	gorm.Model
+
+	// insertion for basic fields declaration
 	// Declation for basic field visualtrackDB.Lat {{BasicKind}} (to be completed)
 	Lat_Data sql.NullFloat64
 
@@ -54,20 +93,6 @@ type VisualTrackAPI struct {
 	// Declation for basic field visualtrackDB.VisualColorEnum {{BasicKind}} (to be completed)
 	VisualColorEnum_Data sql.NullString
 
-	// field VisualLayer is a pointer to another Struct (optional or 0..1)
-	// This field is generated into another field to enable AS ONE association
-	VisualLayerID sql.NullInt64
-
-	// all gong Struct has a Name field, this enables this data to object field
-	VisualLayerName string
-
-	// field VisualIcon is a pointer to another Struct (optional or 0..1)
-	// This field is generated into another field to enable AS ONE association
-	VisualIconID sql.NullInt64
-
-	// all gong Struct has a Name field, this enables this data to object field
-	VisualIconName string
-
 	// Declation for basic field visualtrackDB.Display bool (to be completed)
 	// provide the sql storage for the boolan
 	Display_Data sql.NullBool
@@ -80,18 +105,8 @@ type VisualTrackAPI struct {
 	// provide the sql storage for the boolan
 	DisplayLevelAndSpeed_Data sql.NullBool
 
-	// end of insertion
-}
-
-// VisualTrackDB describes a visualtrack in the database
-//
-// It incorporates all fields : from the model, from the generated field for the API and the GORM ID
-//
-// swagger:model visualtrackDB
-type VisualTrackDB struct {
-	gorm.Model
-
-	VisualTrackAPI
+	// encoding of pointers
+	VisualTrackPointersEnconding
 }
 
 // VisualTrackDBs arrays visualtrackDBs
@@ -115,6 +130,17 @@ type BackRepoVisualTrackStruct struct {
 	Map_VisualTrackDBID_VisualTrackPtr *map[uint]*models.VisualTrack
 
 	db *gorm.DB
+}
+
+func (backRepoVisualTrack *BackRepoVisualTrackStruct) GetDB() *gorm.DB {
+	return backRepoVisualTrack.db
+}
+
+// GetVisualTrackDBFromVisualTrackPtr is a handy function to access the back repo instance from the stage instance
+func (backRepoVisualTrack *BackRepoVisualTrackStruct) GetVisualTrackDBFromVisualTrackPtr(visualtrack *models.VisualTrack) (visualtrackDB *VisualTrackDB) {
+	id := (*backRepoVisualTrack.Map_VisualTrackPtr_VisualTrackDBID)[visualtrack]
+	visualtrackDB = (*backRepoVisualTrack.Map_VisualTrackDBID_VisualTrackDB)[id]
+	return
 }
 
 // BackRepoVisualTrack.Init set up the BackRepo of the VisualTrack
@@ -198,7 +224,7 @@ func (backRepoVisualTrack *BackRepoVisualTrackStruct) CommitPhaseOneInstance(vis
 
 	// initiate visualtrack
 	var visualtrackDB VisualTrackDB
-	visualtrackDB.VisualTrack = *visualtrack
+	visualtrackDB.CopyBasicFieldsFromVisualTrack(visualtrack)
 
 	query := backRepoVisualTrack.db.Create(&visualtrackDB)
 	if query.Error != nil {
@@ -231,60 +257,25 @@ func (backRepoVisualTrack *BackRepoVisualTrackStruct) CommitPhaseTwoInstance(bac
 	// fetch matching visualtrackDB
 	if visualtrackDB, ok := (*backRepoVisualTrack.Map_VisualTrackDBID_VisualTrackDB)[idx]; ok {
 
-		{
-			{
-				// insertion point for fields commit
-				visualtrackDB.Lat_Data.Float64 = visualtrack.Lat
-				visualtrackDB.Lat_Data.Valid = true
+		visualtrackDB.CopyBasicFieldsFromVisualTrack(visualtrack)
 
-				visualtrackDB.Lng_Data.Float64 = visualtrack.Lng
-				visualtrackDB.Lng_Data.Valid = true
-
-				visualtrackDB.Heading_Data.Float64 = visualtrack.Heading
-				visualtrackDB.Heading_Data.Valid = true
-
-				visualtrackDB.Level_Data.Float64 = visualtrack.Level
-				visualtrackDB.Level_Data.Valid = true
-
-				visualtrackDB.Speed_Data.Float64 = visualtrack.Speed
-				visualtrackDB.Speed_Data.Valid = true
-
-				visualtrackDB.VerticalSpeed_Data.Float64 = visualtrack.VerticalSpeed
-				visualtrackDB.VerticalSpeed_Data.Valid = true
-
-				visualtrackDB.Name_Data.String = visualtrack.Name
-				visualtrackDB.Name_Data.Valid = true
-
-				visualtrackDB.VisualColorEnum_Data.String = string(visualtrack.VisualColorEnum)
-				visualtrackDB.VisualColorEnum_Data.Valid = true
-
-				// commit pointer value visualtrack.VisualLayer translates to updating the visualtrack.VisualLayerID
-				visualtrackDB.VisualLayerID.Valid = true // allow for a 0 value (nil association)
-				if visualtrack.VisualLayer != nil {
-					if VisualLayerId, ok := (*backRepo.BackRepoVisualLayer.Map_VisualLayerPtr_VisualLayerDBID)[visualtrack.VisualLayer]; ok {
-						visualtrackDB.VisualLayerID.Int64 = int64(VisualLayerId)
-					}
-				}
-
-				// commit pointer value visualtrack.VisualIcon translates to updating the visualtrack.VisualIconID
-				visualtrackDB.VisualIconID.Valid = true // allow for a 0 value (nil association)
-				if visualtrack.VisualIcon != nil {
-					if VisualIconId, ok := (*backRepo.BackRepoVisualIcon.Map_VisualIconPtr_VisualIconDBID)[visualtrack.VisualIcon]; ok {
-						visualtrackDB.VisualIconID.Int64 = int64(VisualIconId)
-					}
-				}
-
-				visualtrackDB.Display_Data.Bool = visualtrack.Display
-				visualtrackDB.Display_Data.Valid = true
-
-				visualtrackDB.DisplayTrackHistory_Data.Bool = visualtrack.DisplayTrackHistory
-				visualtrackDB.DisplayTrackHistory_Data.Valid = true
-
-				visualtrackDB.DisplayLevelAndSpeed_Data.Bool = visualtrack.DisplayLevelAndSpeed
-				visualtrackDB.DisplayLevelAndSpeed_Data.Valid = true
-
+		// insertion point for translating pointers encodings into actual pointers
+		// commit pointer value visualtrack.VisualLayer translates to updating the visualtrack.VisualLayerID
+		visualtrackDB.VisualLayerID.Valid = true // allow for a 0 value (nil association)
+		if visualtrack.VisualLayer != nil {
+			if VisualLayerId, ok := (*backRepo.BackRepoVisualLayer.Map_VisualLayerPtr_VisualLayerDBID)[visualtrack.VisualLayer]; ok {
+				visualtrackDB.VisualLayerID.Int64 = int64(VisualLayerId)
 			}
 		}
+
+		// commit pointer value visualtrack.VisualIcon translates to updating the visualtrack.VisualIconID
+		visualtrackDB.VisualIconID.Valid = true // allow for a 0 value (nil association)
+		if visualtrack.VisualIcon != nil {
+			if VisualIconId, ok := (*backRepo.BackRepoVisualIcon.Map_VisualIconPtr_VisualIconDBID)[visualtrack.VisualIcon]; ok {
+				visualtrackDB.VisualIconID.Int64 = int64(VisualIconId)
+			}
+		}
+
 		query := backRepoVisualTrack.db.Save(&visualtrackDB)
 		if query.Error != nil {
 			return query.Error
@@ -325,18 +316,23 @@ func (backRepoVisualTrack *BackRepoVisualTrackStruct) CheckoutPhaseOne() (Error 
 // models version of the visualtrackDB
 func (backRepoVisualTrack *BackRepoVisualTrackStruct) CheckoutPhaseOneInstance(visualtrackDB *VisualTrackDB) (Error error) {
 
-	// if absent, create entries in the backRepoVisualTrack maps.
-	visualtrackWithNewFieldValues := visualtrackDB.VisualTrack
-	if _, ok := (*backRepoVisualTrack.Map_VisualTrackDBID_VisualTrackPtr)[visualtrackDB.ID]; !ok {
+	visualtrack, ok := (*backRepoVisualTrack.Map_VisualTrackDBID_VisualTrackPtr)[visualtrackDB.ID]
+	if !ok {
+		visualtrack = new(models.VisualTrack)
 
-		(*backRepoVisualTrack.Map_VisualTrackDBID_VisualTrackPtr)[visualtrackDB.ID] = &visualtrackWithNewFieldValues
-		(*backRepoVisualTrack.Map_VisualTrackPtr_VisualTrackDBID)[&visualtrackWithNewFieldValues] = visualtrackDB.ID
+		(*backRepoVisualTrack.Map_VisualTrackDBID_VisualTrackPtr)[visualtrackDB.ID] = visualtrack
+		(*backRepoVisualTrack.Map_VisualTrackPtr_VisualTrackDBID)[visualtrack] = visualtrackDB.ID
 
 		// append model store with the new element
-		visualtrackWithNewFieldValues.Stage()
+		visualtrack.Stage()
 	}
-	visualtrackDBWithNewFieldValues := *visualtrackDB
-	(*backRepoVisualTrack.Map_VisualTrackDBID_VisualTrackDB)[visualtrackDB.ID] = &visualtrackDBWithNewFieldValues
+	visualtrackDB.CopyBasicFieldsToVisualTrack(visualtrack)
+
+	// preserve pointer to aclassDB. Otherwise, pointer will is recycled and the map of pointers
+	// Map_VisualTrackDBID_VisualTrackDB)[visualtrackDB hold variable pointers
+	visualtrackDB_Data := *visualtrackDB
+	preservedPtrToVisualTrack := &visualtrackDB_Data
+	(*backRepoVisualTrack.Map_VisualTrackDBID_VisualTrackDB)[visualtrackDB.ID] = preservedPtrToVisualTrack
 
 	return
 }
@@ -358,40 +354,15 @@ func (backRepoVisualTrack *BackRepoVisualTrackStruct) CheckoutPhaseTwoInstance(b
 
 	visualtrack := (*backRepoVisualTrack.Map_VisualTrackDBID_VisualTrackPtr)[visualtrackDB.ID]
 	_ = visualtrack // sometimes, there is no code generated. This lines voids the "unused variable" compilation error
-	{
-		{
-			// insertion point for checkout, i.e. update of fields of stage instance from fields of back repo instances
-			//
-			visualtrack.Lat = visualtrackDB.Lat_Data.Float64
 
-			visualtrack.Lng = visualtrackDB.Lng_Data.Float64
-
-			visualtrack.Heading = visualtrackDB.Heading_Data.Float64
-
-			visualtrack.Level = visualtrackDB.Level_Data.Float64
-
-			visualtrack.Speed = visualtrackDB.Speed_Data.Float64
-
-			visualtrack.VerticalSpeed = visualtrackDB.VerticalSpeed_Data.Float64
-
-			visualtrack.Name = visualtrackDB.Name_Data.String
-
-			visualtrack.VisualColorEnum = models.VisualColorEnum(visualtrackDB.VisualColorEnum_Data.String)
-
-			// VisualLayer field
-			if visualtrackDB.VisualLayerID.Int64 != 0 {
-				visualtrack.VisualLayer = (*backRepo.BackRepoVisualLayer.Map_VisualLayerDBID_VisualLayerPtr)[uint(visualtrackDB.VisualLayerID.Int64)]
-			}
-
-			// VisualIcon field
-			if visualtrackDB.VisualIconID.Int64 != 0 {
-				visualtrack.VisualIcon = (*backRepo.BackRepoVisualIcon.Map_VisualIconDBID_VisualIconPtr)[uint(visualtrackDB.VisualIconID.Int64)]
-			}
-
-			visualtrack.Display = visualtrackDB.Display_Data.Bool
-			visualtrack.DisplayTrackHistory = visualtrackDB.DisplayTrackHistory_Data.Bool
-			visualtrack.DisplayLevelAndSpeed = visualtrackDB.DisplayLevelAndSpeed_Data.Bool
-		}
+	// insertion point for checkout of pointer encoding
+	// VisualLayer field
+	if visualtrackDB.VisualLayerID.Int64 != 0 {
+		visualtrack.VisualLayer = (*backRepo.BackRepoVisualLayer.Map_VisualLayerDBID_VisualLayerPtr)[uint(visualtrackDB.VisualLayerID.Int64)]
+	}
+	// VisualIcon field
+	if visualtrackDB.VisualIconID.Int64 != 0 {
+		visualtrack.VisualIcon = (*backRepo.BackRepoVisualIcon.Map_VisualIconDBID_VisualIconPtr)[uint(visualtrackDB.VisualIconID.Int64)]
 	}
 	return
 }
@@ -419,5 +390,124 @@ func (backRepo *BackRepoStruct) CheckoutVisualTrack(visualtrack *models.VisualTr
 			backRepo.BackRepoVisualTrack.CheckoutPhaseOneInstance(&visualtrackDB)
 			backRepo.BackRepoVisualTrack.CheckoutPhaseTwoInstance(backRepo, &visualtrackDB)
 		}
+	}
+}
+
+// CopyBasicFieldsToVisualTrackDB is used to copy basic fields between the Stage or the CRUD to the back repo
+func (visualtrackDB *VisualTrackDB) CopyBasicFieldsFromVisualTrack(visualtrack *models.VisualTrack) {
+	// insertion point for fields commit
+	visualtrackDB.Lat_Data.Float64 = visualtrack.Lat
+	visualtrackDB.Lat_Data.Valid = true
+
+	visualtrackDB.Lng_Data.Float64 = visualtrack.Lng
+	visualtrackDB.Lng_Data.Valid = true
+
+	visualtrackDB.Heading_Data.Float64 = visualtrack.Heading
+	visualtrackDB.Heading_Data.Valid = true
+
+	visualtrackDB.Level_Data.Float64 = visualtrack.Level
+	visualtrackDB.Level_Data.Valid = true
+
+	visualtrackDB.Speed_Data.Float64 = visualtrack.Speed
+	visualtrackDB.Speed_Data.Valid = true
+
+	visualtrackDB.VerticalSpeed_Data.Float64 = visualtrack.VerticalSpeed
+	visualtrackDB.VerticalSpeed_Data.Valid = true
+
+	visualtrackDB.Name_Data.String = visualtrack.Name
+	visualtrackDB.Name_Data.Valid = true
+
+	visualtrackDB.VisualColorEnum_Data.String = string(visualtrack.VisualColorEnum)
+	visualtrackDB.VisualColorEnum_Data.Valid = true
+
+	visualtrackDB.Display_Data.Bool = visualtrack.Display
+	visualtrackDB.Display_Data.Valid = true
+
+	visualtrackDB.DisplayTrackHistory_Data.Bool = visualtrack.DisplayTrackHistory
+	visualtrackDB.DisplayTrackHistory_Data.Valid = true
+
+	visualtrackDB.DisplayLevelAndSpeed_Data.Bool = visualtrack.DisplayLevelAndSpeed
+	visualtrackDB.DisplayLevelAndSpeed_Data.Valid = true
+
+}
+
+// CopyBasicFieldsToVisualTrackDB is used to copy basic fields between the Stage or the CRUD to the back repo
+func (visualtrackDB *VisualTrackDB) CopyBasicFieldsToVisualTrack(visualtrack *models.VisualTrack) {
+
+	// insertion point for checkout of basic fields (back repo to stage)
+	visualtrack.Lat = visualtrackDB.Lat_Data.Float64
+	visualtrack.Lng = visualtrackDB.Lng_Data.Float64
+	visualtrack.Heading = visualtrackDB.Heading_Data.Float64
+	visualtrack.Level = visualtrackDB.Level_Data.Float64
+	visualtrack.Speed = visualtrackDB.Speed_Data.Float64
+	visualtrack.VerticalSpeed = visualtrackDB.VerticalSpeed_Data.Float64
+	visualtrack.Name = visualtrackDB.Name_Data.String
+	visualtrack.VisualColorEnum = models.VisualColorEnum(visualtrackDB.VisualColorEnum_Data.String)
+	visualtrack.Display = visualtrackDB.Display_Data.Bool
+	visualtrack.DisplayTrackHistory = visualtrackDB.DisplayTrackHistory_Data.Bool
+	visualtrack.DisplayLevelAndSpeed = visualtrackDB.DisplayLevelAndSpeed_Data.Bool
+}
+
+// Backup generates a json file from a slice of all VisualTrackDB instances in the backrepo
+func (backRepoVisualTrack *BackRepoVisualTrackStruct) Backup(dirPath string) {
+
+	filename := filepath.Join(dirPath, "VisualTrackDB.json")
+
+	// organize the map into an array with increasing IDs, in order to have repoductible
+	// backup file
+	var forBackup []*VisualTrackDB
+	for _, visualtrackDB := range *backRepoVisualTrack.Map_VisualTrackDBID_VisualTrackDB {
+		forBackup = append(forBackup, visualtrackDB)
+	}
+
+	sort.Slice(forBackup[:], func(i, j int) bool {
+		return forBackup[i].ID < forBackup[j].ID
+	})
+
+	file, err := json.MarshalIndent(forBackup, "", " ")
+
+	if err != nil {
+		log.Panic("Cannot json VisualTrack ", filename, " ", err.Error())
+	}
+
+	err = ioutil.WriteFile(filename, file, 0644)
+	if err != nil {
+		log.Panic("Cannot write the json VisualTrack file", err.Error())
+	}
+}
+
+func (backRepoVisualTrack *BackRepoVisualTrackStruct) Restore(dirPath string) {
+
+	filename := filepath.Join(dirPath, "VisualTrackDB.json")
+	jsonFile, err := os.Open(filename)
+	// if we os.Open returns an error then handle it
+	if err != nil {
+		log.Panic("Cannot restore/open the json VisualTrack file", filename, " ", err.Error())
+	}
+
+	// read our opened jsonFile as a byte array.
+	byteValue, _ := ioutil.ReadAll(jsonFile)
+
+	var forRestore []*VisualTrackDB
+
+	err = json.Unmarshal(byteValue, &forRestore)
+
+	// fill up Map_VisualTrackDBID_VisualTrackDB
+	for _, visualtrackDB := range forRestore {
+
+		visualtrackDB_ID := visualtrackDB.ID
+		visualtrackDB.ID = 0
+		query := backRepoVisualTrack.db.Create(visualtrackDB)
+		if query.Error != nil {
+			log.Panic(query.Error)
+		}
+		if visualtrackDB_ID != visualtrackDB.ID {
+			log.Panicf("ID of VisualTrack restore ID %d, name %s, has wrong ID %d in DB after create",
+				visualtrackDB_ID, visualtrackDB.Name_Data.String, visualtrackDB.ID)
+		}
+	}
+
+	if err != nil {
+		log.Panic("Cannot restore/unmarshall json VisualTrack file", err.Error())
 	}
 }

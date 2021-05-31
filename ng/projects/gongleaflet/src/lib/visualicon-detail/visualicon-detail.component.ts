@@ -63,8 +63,6 @@ export class VisualIconDetailComponent implements OnInit {
 		this.frontRepoService.pull().subscribe(
 			frontRepo => {
 				this.frontRepo = frontRepo
-				console.log("front repo VisualIconPull returned")
-
 				if (id != 0 && association == undefined) {
 					this.visualicon = frontRepo.VisualIcons.get(id)
 				} else {
@@ -97,8 +95,6 @@ export class VisualIconDetailComponent implements OnInit {
 			this.visualiconService.updateVisualIcon(this.visualicon)
 				.subscribe(visualicon => {
 					this.visualiconService.VisualIconServiceChanged.next("update")
-
-					console.log("visualicon saved")
 				});
 		} else {
 			switch (association) {
@@ -109,7 +105,6 @@ export class VisualIconDetailComponent implements OnInit {
 				this.visualiconService.VisualIconServiceChanged.next("post")
 
 				this.visualicon = {} // reset fields
-				console.log("visualicon added")
 			});
 		}
 	}
@@ -138,7 +133,6 @@ export class VisualIconDetailComponent implements OnInit {
 		);
 
 		dialogRef.afterClosed().subscribe(result => {
-			console.log('The dialog was closed');
 		});
 	}
 
@@ -161,7 +155,6 @@ export class VisualIconDetailComponent implements OnInit {
 		);
 
 		dialogRef.afterClosed().subscribe(result => {
-			console.log('The dialog was closed');
 		});
 	}
 }
