@@ -157,4 +157,10 @@ export class VisualIconDetailComponent implements OnInit {
 		dialogRef.afterClosed().subscribe(result => {
 		});
 	}
+
+	fillUpNameIfEmpty(event) {
+		if (this.visualicon.Name == undefined) {
+			this.visualicon.Name = event.value.Name		
+		}
+	}
 }

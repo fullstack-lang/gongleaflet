@@ -124,14 +124,33 @@ func (backRepo *BackRepoStruct) Restore(stage *models.StageStruct, dirPath strin
 	models.Stage.Commit()
 	models.Stage.Reset()
 	models.Stage.Checkout()
+
+	//
+	// restauration first phase (create DB instance with new IDs)
+	//
+
 	// insertion point for per struct backup
-	backRepo.BackRepoVisualCenter.Restore(dirPath)
-	backRepo.BackRepoVisualCircle.Restore(dirPath)
-	backRepo.BackRepoVisualIcon.Restore(dirPath)
-	backRepo.BackRepoVisualLayer.Restore(dirPath)
-	backRepo.BackRepoVisualLine.Restore(dirPath)
-	backRepo.BackRepoVisualMap.Restore(dirPath)
-	backRepo.BackRepoVisualTrack.Restore(dirPath)
+	backRepo.BackRepoVisualCenter.RestorePhaseOne(dirPath)
+	backRepo.BackRepoVisualCircle.RestorePhaseOne(dirPath)
+	backRepo.BackRepoVisualIcon.RestorePhaseOne(dirPath)
+	backRepo.BackRepoVisualLayer.RestorePhaseOne(dirPath)
+	backRepo.BackRepoVisualLine.RestorePhaseOne(dirPath)
+	backRepo.BackRepoVisualMap.RestorePhaseOne(dirPath)
+	backRepo.BackRepoVisualTrack.RestorePhaseOne(dirPath)
+
+	//
+	// restauration second phase (reindex pointers with the new ID)
+	//
+	
+	// insertion point for per struct backup
+	backRepo.BackRepoVisualCenter.RestorePhaseTwo()
+	backRepo.BackRepoVisualCircle.RestorePhaseTwo()
+	backRepo.BackRepoVisualIcon.RestorePhaseTwo()
+	backRepo.BackRepoVisualLayer.RestorePhaseTwo()
+	backRepo.BackRepoVisualLine.RestorePhaseTwo()
+	backRepo.BackRepoVisualMap.RestorePhaseTwo()
+	backRepo.BackRepoVisualTrack.RestorePhaseTwo()
+
 	models.Stage.Checkout()
 }
 

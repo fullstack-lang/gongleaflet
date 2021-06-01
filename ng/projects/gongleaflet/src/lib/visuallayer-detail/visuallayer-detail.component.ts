@@ -157,4 +157,10 @@ export class VisualLayerDetailComponent implements OnInit {
 		dialogRef.afterClosed().subscribe(result => {
 		});
 	}
+
+	fillUpNameIfEmpty(event) {
+		if (this.visuallayer.Name == undefined) {
+			this.visuallayer.Name = event.value.Name		
+		}
+	}
 }

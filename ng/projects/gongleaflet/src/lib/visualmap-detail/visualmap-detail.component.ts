@@ -166,4 +166,10 @@ export class VisualMapDetailComponent implements OnInit {
 		dialogRef.afterClosed().subscribe(result => {
 		});
 	}
+
+	fillUpNameIfEmpty(event) {
+		if (this.visualmap.Name == undefined) {
+			this.visualmap.Name = event.value.Name		
+		}
+	}
 }

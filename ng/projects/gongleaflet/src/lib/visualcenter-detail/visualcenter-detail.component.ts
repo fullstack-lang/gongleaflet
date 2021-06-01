@@ -184,4 +184,10 @@ export class VisualCenterDetailComponent implements OnInit {
 		dialogRef.afterClosed().subscribe(result => {
 		});
 	}
+
+	fillUpNameIfEmpty(event) {
+		if (this.visualcenter.Name == undefined) {
+			this.visualcenter.Name = event.value.Name		
+		}
+	}
 }

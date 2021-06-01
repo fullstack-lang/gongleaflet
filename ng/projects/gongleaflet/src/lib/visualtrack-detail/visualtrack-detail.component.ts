@@ -193,4 +193,10 @@ export class VisualTrackDetailComponent implements OnInit {
 		dialogRef.afterClosed().subscribe(result => {
 		});
 	}
+
+	fillUpNameIfEmpty(event) {
+		if (this.visualtrack.Name == undefined) {
+			this.visualtrack.Name = event.value.Name		
+		}
+	}
 }

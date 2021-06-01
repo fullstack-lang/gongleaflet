@@ -310,7 +310,7 @@ func (backRepoVisualLine *BackRepoVisualLineStruct) CheckoutPhaseOneInstance(vis
 	}
 	visuallineDB.CopyBasicFieldsToVisualLine(visualline)
 
-	// preserve pointer to aclassDB. Otherwise, pointer will is recycled and the map of pointers
+	// preserve pointer to visuallineDB. Otherwise, pointer will is recycled and the map of pointers
 	// Map_VisualLineDBID_VisualLineDB)[visuallineDB hold variable pointers
 	visuallineDB_Data := *visuallineDB
 	preservedPtrToVisualLine := &visuallineDB_Data
@@ -433,7 +433,7 @@ func (backRepoVisualLine *BackRepoVisualLineStruct) Backup(dirPath string) {
 
 	// organize the map into an array with increasing IDs, in order to have repoductible
 	// backup file
-	var forBackup []*VisualLineDB
+	forBackup := make([]*VisualLineDB, 0)
 	for _, visuallineDB := range *backRepoVisualLine.Map_VisualLineDBID_VisualLineDB {
 		forBackup = append(forBackup, visuallineDB)
 	}
@@ -454,7 +454,13 @@ func (backRepoVisualLine *BackRepoVisualLineStruct) Backup(dirPath string) {
 	}
 }
 
-func (backRepoVisualLine *BackRepoVisualLineStruct) Restore(dirPath string) {
+// RestorePhaseOne read the file "VisualLineDB.json" in dirPath that stores an array
+// of VisualLineDB and stores it in the database
+// the map BackRepoVisualLineid_atBckpTime_newID is updated accordingly
+func (backRepoVisualLine *BackRepoVisualLineStruct) RestorePhaseOne(dirPath string) {
+
+	// resets the map
+	BackRepoVisualLineid_atBckpTime_newID = make(map[uint]uint)
 
 	filename := filepath.Join(dirPath, "VisualLineDB.json")
 	jsonFile, err := os.Open(filename)
@@ -473,19 +479,45 @@ func (backRepoVisualLine *BackRepoVisualLineStruct) Restore(dirPath string) {
 	// fill up Map_VisualLineDBID_VisualLineDB
 	for _, visuallineDB := range forRestore {
 
-		visuallineDB_ID := visuallineDB.ID
+		visuallineDB_ID_atBackupTime := visuallineDB.ID
 		visuallineDB.ID = 0
 		query := backRepoVisualLine.db.Create(visuallineDB)
 		if query.Error != nil {
 			log.Panic(query.Error)
 		}
-		if visuallineDB_ID != visuallineDB.ID {
-			log.Panicf("ID of VisualLine restore ID %d, name %s, has wrong ID %d in DB after create",
-				visuallineDB_ID, visuallineDB.Name_Data.String, visuallineDB.ID)
-		}
+		(*backRepoVisualLine.Map_VisualLineDBID_VisualLineDB)[visuallineDB.ID] = visuallineDB
+		BackRepoVisualLineid_atBckpTime_newID[visuallineDB_ID_atBackupTime] = visuallineDB.ID
 	}
 
 	if err != nil {
 		log.Panic("Cannot restore/unmarshall json VisualLine file", err.Error())
 	}
 }
+
+// RestorePhaseTwo uses all map BackRepo<VisualLine>id_atBckpTime_newID
+// to compute new index
+func (backRepoVisualLine *BackRepoVisualLineStruct) RestorePhaseTwo() {
+
+	for _, visuallineDB := range (*backRepoVisualLine.Map_VisualLineDBID_VisualLineDB) {
+
+		// next line of code is to avert unused variable compilation error
+		_ = visuallineDB
+
+		// insertion point for reindexing pointers encoding
+		// reindexing VisualLayer field
+		if visuallineDB.VisualLayerID.Int64 != 0 {
+			visuallineDB.VisualLayerID.Int64 = int64(BackRepoVisualLayerid_atBckpTime_newID[uint(visuallineDB.VisualLayerID.Int64)])
+		}
+
+		// update databse with new index encoding
+		query := backRepoVisualLine.db.Model(visuallineDB).Updates(*visuallineDB)
+		if query.Error != nil {
+			log.Panic(query.Error)
+		}
+	}
+
+}
+
+// this field is used during the restauration process.
+// it stores the ID at the backup time and is used for renumbering
+var BackRepoVisualLineid_atBckpTime_newID map[uint]uint

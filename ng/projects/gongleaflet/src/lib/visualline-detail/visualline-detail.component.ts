@@ -178,4 +178,10 @@ export class VisualLineDetailComponent implements OnInit {
 		dialogRef.afterClosed().subscribe(result => {
 		});
 	}
+
+	fillUpNameIfEmpty(event) {
+		if (this.visualline.Name == undefined) {
+			this.visualline.Name = event.value.Name		
+		}
+	}
 }

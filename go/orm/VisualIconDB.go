@@ -268,7 +268,7 @@ func (backRepoVisualIcon *BackRepoVisualIconStruct) CheckoutPhaseOneInstance(vis
 	}
 	visualiconDB.CopyBasicFieldsToVisualIcon(visualicon)
 
-	// preserve pointer to aclassDB. Otherwise, pointer will is recycled and the map of pointers
+	// preserve pointer to visualiconDB. Otherwise, pointer will is recycled and the map of pointers
 	// Map_VisualIconDBID_VisualIconDB)[visualiconDB hold variable pointers
 	visualiconDB_Data := *visualiconDB
 	preservedPtrToVisualIcon := &visualiconDB_Data
@@ -351,7 +351,7 @@ func (backRepoVisualIcon *BackRepoVisualIconStruct) Backup(dirPath string) {
 
 	// organize the map into an array with increasing IDs, in order to have repoductible
 	// backup file
-	var forBackup []*VisualIconDB
+	forBackup := make([]*VisualIconDB, 0)
 	for _, visualiconDB := range *backRepoVisualIcon.Map_VisualIconDBID_VisualIconDB {
 		forBackup = append(forBackup, visualiconDB)
 	}
@@ -372,7 +372,13 @@ func (backRepoVisualIcon *BackRepoVisualIconStruct) Backup(dirPath string) {
 	}
 }
 
-func (backRepoVisualIcon *BackRepoVisualIconStruct) Restore(dirPath string) {
+// RestorePhaseOne read the file "VisualIconDB.json" in dirPath that stores an array
+// of VisualIconDB and stores it in the database
+// the map BackRepoVisualIconid_atBckpTime_newID is updated accordingly
+func (backRepoVisualIcon *BackRepoVisualIconStruct) RestorePhaseOne(dirPath string) {
+
+	// resets the map
+	BackRepoVisualIconid_atBckpTime_newID = make(map[uint]uint)
 
 	filename := filepath.Join(dirPath, "VisualIconDB.json")
 	jsonFile, err := os.Open(filename)
@@ -391,19 +397,40 @@ func (backRepoVisualIcon *BackRepoVisualIconStruct) Restore(dirPath string) {
 	// fill up Map_VisualIconDBID_VisualIconDB
 	for _, visualiconDB := range forRestore {
 
-		visualiconDB_ID := visualiconDB.ID
+		visualiconDB_ID_atBackupTime := visualiconDB.ID
 		visualiconDB.ID = 0
 		query := backRepoVisualIcon.db.Create(visualiconDB)
 		if query.Error != nil {
 			log.Panic(query.Error)
 		}
-		if visualiconDB_ID != visualiconDB.ID {
-			log.Panicf("ID of VisualIcon restore ID %d, name %s, has wrong ID %d in DB after create",
-				visualiconDB_ID, visualiconDB.Name_Data.String, visualiconDB.ID)
-		}
+		(*backRepoVisualIcon.Map_VisualIconDBID_VisualIconDB)[visualiconDB.ID] = visualiconDB
+		BackRepoVisualIconid_atBckpTime_newID[visualiconDB_ID_atBackupTime] = visualiconDB.ID
 	}
 
 	if err != nil {
 		log.Panic("Cannot restore/unmarshall json VisualIcon file", err.Error())
 	}
 }
+
+// RestorePhaseTwo uses all map BackRepo<VisualIcon>id_atBckpTime_newID
+// to compute new index
+func (backRepoVisualIcon *BackRepoVisualIconStruct) RestorePhaseTwo() {
+
+	for _, visualiconDB := range (*backRepoVisualIcon.Map_VisualIconDBID_VisualIconDB) {
+
+		// next line of code is to avert unused variable compilation error
+		_ = visualiconDB
+
+		// insertion point for reindexing pointers encoding
+		// update databse with new index encoding
+		query := backRepoVisualIcon.db.Model(visualiconDB).Updates(*visualiconDB)
+		if query.Error != nil {
+			log.Panic(query.Error)
+		}
+	}
+
+}
+
+// this field is used during the restauration process.
+// it stores the ID at the backup time and is used for renumbering
+var BackRepoVisualIconid_atBckpTime_newID map[uint]uint

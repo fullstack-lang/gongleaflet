@@ -62,7 +62,7 @@
     <div class="details__item">
         <mat-form-field>
             <mat-label>VisualLayer</mat-label>
-            <mat-select [(ngModel)]="visualcircle.VisualLayer">
+            <mat-select [(ngModel)]="visualcircle.VisualLayer" (selectionChange)="fillUpNameIfEmpty($event)">
                 <mat-option>None</mat-option>
                 <mat-option *ngFor="let visuallayer of frontRepo.VisualLayers_array" [value]="visuallayer">
                     {{visuallayer.Name}}

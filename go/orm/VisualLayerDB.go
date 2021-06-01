@@ -268,7 +268,7 @@ func (backRepoVisualLayer *BackRepoVisualLayerStruct) CheckoutPhaseOneInstance(v
 	}
 	visuallayerDB.CopyBasicFieldsToVisualLayer(visuallayer)
 
-	// preserve pointer to aclassDB. Otherwise, pointer will is recycled and the map of pointers
+	// preserve pointer to visuallayerDB. Otherwise, pointer will is recycled and the map of pointers
 	// Map_VisualLayerDBID_VisualLayerDB)[visuallayerDB hold variable pointers
 	visuallayerDB_Data := *visuallayerDB
 	preservedPtrToVisualLayer := &visuallayerDB_Data
@@ -351,7 +351,7 @@ func (backRepoVisualLayer *BackRepoVisualLayerStruct) Backup(dirPath string) {
 
 	// organize the map into an array with increasing IDs, in order to have repoductible
 	// backup file
-	var forBackup []*VisualLayerDB
+	forBackup := make([]*VisualLayerDB, 0)
 	for _, visuallayerDB := range *backRepoVisualLayer.Map_VisualLayerDBID_VisualLayerDB {
 		forBackup = append(forBackup, visuallayerDB)
 	}
@@ -372,7 +372,13 @@ func (backRepoVisualLayer *BackRepoVisualLayerStruct) Backup(dirPath string) {
 	}
 }
 
-func (backRepoVisualLayer *BackRepoVisualLayerStruct) Restore(dirPath string) {
+// RestorePhaseOne read the file "VisualLayerDB.json" in dirPath that stores an array
+// of VisualLayerDB and stores it in the database
+// the map BackRepoVisualLayerid_atBckpTime_newID is updated accordingly
+func (backRepoVisualLayer *BackRepoVisualLayerStruct) RestorePhaseOne(dirPath string) {
+
+	// resets the map
+	BackRepoVisualLayerid_atBckpTime_newID = make(map[uint]uint)
 
 	filename := filepath.Join(dirPath, "VisualLayerDB.json")
 	jsonFile, err := os.Open(filename)
@@ -391,19 +397,40 @@ func (backRepoVisualLayer *BackRepoVisualLayerStruct) Restore(dirPath string) {
 	// fill up Map_VisualLayerDBID_VisualLayerDB
 	for _, visuallayerDB := range forRestore {
 
-		visuallayerDB_ID := visuallayerDB.ID
+		visuallayerDB_ID_atBackupTime := visuallayerDB.ID
 		visuallayerDB.ID = 0
 		query := backRepoVisualLayer.db.Create(visuallayerDB)
 		if query.Error != nil {
 			log.Panic(query.Error)
 		}
-		if visuallayerDB_ID != visuallayerDB.ID {
-			log.Panicf("ID of VisualLayer restore ID %d, name %s, has wrong ID %d in DB after create",
-				visuallayerDB_ID, visuallayerDB.Name_Data.String, visuallayerDB.ID)
-		}
+		(*backRepoVisualLayer.Map_VisualLayerDBID_VisualLayerDB)[visuallayerDB.ID] = visuallayerDB
+		BackRepoVisualLayerid_atBckpTime_newID[visuallayerDB_ID_atBackupTime] = visuallayerDB.ID
 	}
 
 	if err != nil {
 		log.Panic("Cannot restore/unmarshall json VisualLayer file", err.Error())
 	}
 }
+
+// RestorePhaseTwo uses all map BackRepo<VisualLayer>id_atBckpTime_newID
+// to compute new index
+func (backRepoVisualLayer *BackRepoVisualLayerStruct) RestorePhaseTwo() {
+
+	for _, visuallayerDB := range (*backRepoVisualLayer.Map_VisualLayerDBID_VisualLayerDB) {
+
+		// next line of code is to avert unused variable compilation error
+		_ = visuallayerDB
+
+		// insertion point for reindexing pointers encoding
+		// update databse with new index encoding
+		query := backRepoVisualLayer.db.Model(visuallayerDB).Updates(*visuallayerDB)
+		if query.Error != nil {
+			log.Panic(query.Error)
+		}
+	}
+
+}
+
+// this field is used during the restauration process.
+// it stores the ID at the backup time and is used for renumbering
+var BackRepoVisualLayerid_atBckpTime_newID map[uint]uint

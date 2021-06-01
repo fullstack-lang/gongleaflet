@@ -328,7 +328,7 @@ func (backRepoVisualTrack *BackRepoVisualTrackStruct) CheckoutPhaseOneInstance(v
 	}
 	visualtrackDB.CopyBasicFieldsToVisualTrack(visualtrack)
 
-	// preserve pointer to aclassDB. Otherwise, pointer will is recycled and the map of pointers
+	// preserve pointer to visualtrackDB. Otherwise, pointer will is recycled and the map of pointers
 	// Map_VisualTrackDBID_VisualTrackDB)[visualtrackDB hold variable pointers
 	visualtrackDB_Data := *visualtrackDB
 	preservedPtrToVisualTrack := &visualtrackDB_Data
@@ -455,7 +455,7 @@ func (backRepoVisualTrack *BackRepoVisualTrackStruct) Backup(dirPath string) {
 
 	// organize the map into an array with increasing IDs, in order to have repoductible
 	// backup file
-	var forBackup []*VisualTrackDB
+	forBackup := make([]*VisualTrackDB, 0)
 	for _, visualtrackDB := range *backRepoVisualTrack.Map_VisualTrackDBID_VisualTrackDB {
 		forBackup = append(forBackup, visualtrackDB)
 	}
@@ -476,7 +476,13 @@ func (backRepoVisualTrack *BackRepoVisualTrackStruct) Backup(dirPath string) {
 	}
 }
 
-func (backRepoVisualTrack *BackRepoVisualTrackStruct) Restore(dirPath string) {
+// RestorePhaseOne read the file "VisualTrackDB.json" in dirPath that stores an array
+// of VisualTrackDB and stores it in the database
+// the map BackRepoVisualTrackid_atBckpTime_newID is updated accordingly
+func (backRepoVisualTrack *BackRepoVisualTrackStruct) RestorePhaseOne(dirPath string) {
+
+	// resets the map
+	BackRepoVisualTrackid_atBckpTime_newID = make(map[uint]uint)
 
 	filename := filepath.Join(dirPath, "VisualTrackDB.json")
 	jsonFile, err := os.Open(filename)
@@ -495,19 +501,50 @@ func (backRepoVisualTrack *BackRepoVisualTrackStruct) Restore(dirPath string) {
 	// fill up Map_VisualTrackDBID_VisualTrackDB
 	for _, visualtrackDB := range forRestore {
 
-		visualtrackDB_ID := visualtrackDB.ID
+		visualtrackDB_ID_atBackupTime := visualtrackDB.ID
 		visualtrackDB.ID = 0
 		query := backRepoVisualTrack.db.Create(visualtrackDB)
 		if query.Error != nil {
 			log.Panic(query.Error)
 		}
-		if visualtrackDB_ID != visualtrackDB.ID {
-			log.Panicf("ID of VisualTrack restore ID %d, name %s, has wrong ID %d in DB after create",
-				visualtrackDB_ID, visualtrackDB.Name_Data.String, visualtrackDB.ID)
-		}
+		(*backRepoVisualTrack.Map_VisualTrackDBID_VisualTrackDB)[visualtrackDB.ID] = visualtrackDB
+		BackRepoVisualTrackid_atBckpTime_newID[visualtrackDB_ID_atBackupTime] = visualtrackDB.ID
 	}
 
 	if err != nil {
 		log.Panic("Cannot restore/unmarshall json VisualTrack file", err.Error())
 	}
 }
+
+// RestorePhaseTwo uses all map BackRepo<VisualTrack>id_atBckpTime_newID
+// to compute new index
+func (backRepoVisualTrack *BackRepoVisualTrackStruct) RestorePhaseTwo() {
+
+	for _, visualtrackDB := range (*backRepoVisualTrack.Map_VisualTrackDBID_VisualTrackDB) {
+
+		// next line of code is to avert unused variable compilation error
+		_ = visualtrackDB
+
+		// insertion point for reindexing pointers encoding
+		// reindexing VisualLayer field
+		if visualtrackDB.VisualLayerID.Int64 != 0 {
+			visualtrackDB.VisualLayerID.Int64 = int64(BackRepoVisualLayerid_atBckpTime_newID[uint(visualtrackDB.VisualLayerID.Int64)])
+		}
+
+		// reindexing VisualIcon field
+		if visualtrackDB.VisualIconID.Int64 != 0 {
+			visualtrackDB.VisualIconID.Int64 = int64(BackRepoVisualIconid_atBckpTime_newID[uint(visualtrackDB.VisualIconID.Int64)])
+		}
+
+		// update databse with new index encoding
+		query := backRepoVisualTrack.db.Model(visualtrackDB).Updates(*visualtrackDB)
+		if query.Error != nil {
+			log.Panic(query.Error)
+		}
+	}
+
+}
+
+// this field is used during the restauration process.
+// it stores the ID at the backup time and is used for renumbering
+var BackRepoVisualTrackid_atBckpTime_newID map[uint]uint

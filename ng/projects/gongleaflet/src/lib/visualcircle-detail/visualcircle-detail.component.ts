@@ -175,4 +175,10 @@ export class VisualCircleDetailComponent implements OnInit {
 		dialogRef.afterClosed().subscribe(result => {
 		});
 	}
+
+	fillUpNameIfEmpty(event) {
+		if (this.visualcircle.Name == undefined) {
+			this.visualcircle.Name = event.value.Name		
+		}
+	}
 }

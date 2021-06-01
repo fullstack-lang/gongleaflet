@@ -42,7 +42,7 @@
     <div class="details__item">
         <mat-form-field>
             <mat-label>VisualLayer</mat-label>
-            <mat-select [(ngModel)]="visualcenter.VisualLayer">
+            <mat-select [(ngModel)]="visualcenter.VisualLayer" (selectionChange)="fillUpNameIfEmpty($event)">
                 <mat-option>None</mat-option>
                 <mat-option *ngFor="let visuallayer of frontRepo.VisualLayers_array" [value]="visuallayer">
                     {{visuallayer.Name}}
@@ -53,7 +53,7 @@
     <div class="details__item">
         <mat-form-field>
             <mat-label>VisualIcon</mat-label>
-            <mat-select [(ngModel)]="visualcenter.VisualIcon">
+            <mat-select [(ngModel)]="visualcenter.VisualIcon" (selectionChange)="fillUpNameIfEmpty($event)">
                 <mat-option>None</mat-option>
                 <mat-option *ngFor="let visualicon of frontRepo.VisualIcons_array" [value]="visualicon">
                     {{visualicon.Name}}

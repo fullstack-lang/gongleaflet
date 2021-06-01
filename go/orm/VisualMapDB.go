@@ -295,7 +295,7 @@ func (backRepoVisualMap *BackRepoVisualMapStruct) CheckoutPhaseOneInstance(visua
 	}
 	visualmapDB.CopyBasicFieldsToVisualMap(visualmap)
 
-	// preserve pointer to aclassDB. Otherwise, pointer will is recycled and the map of pointers
+	// preserve pointer to visualmapDB. Otherwise, pointer will is recycled and the map of pointers
 	// Map_VisualMapDBID_VisualMapDB)[visualmapDB hold variable pointers
 	visualmapDB_Data := *visualmapDB
 	preservedPtrToVisualMap := &visualmapDB_Data
@@ -410,7 +410,7 @@ func (backRepoVisualMap *BackRepoVisualMapStruct) Backup(dirPath string) {
 
 	// organize the map into an array with increasing IDs, in order to have repoductible
 	// backup file
-	var forBackup []*VisualMapDB
+	forBackup := make([]*VisualMapDB, 0)
 	for _, visualmapDB := range *backRepoVisualMap.Map_VisualMapDBID_VisualMapDB {
 		forBackup = append(forBackup, visualmapDB)
 	}
@@ -431,7 +431,13 @@ func (backRepoVisualMap *BackRepoVisualMapStruct) Backup(dirPath string) {
 	}
 }
 
-func (backRepoVisualMap *BackRepoVisualMapStruct) Restore(dirPath string) {
+// RestorePhaseOne read the file "VisualMapDB.json" in dirPath that stores an array
+// of VisualMapDB and stores it in the database
+// the map BackRepoVisualMapid_atBckpTime_newID is updated accordingly
+func (backRepoVisualMap *BackRepoVisualMapStruct) RestorePhaseOne(dirPath string) {
+
+	// resets the map
+	BackRepoVisualMapid_atBckpTime_newID = make(map[uint]uint)
 
 	filename := filepath.Join(dirPath, "VisualMapDB.json")
 	jsonFile, err := os.Open(filename)
@@ -450,19 +456,40 @@ func (backRepoVisualMap *BackRepoVisualMapStruct) Restore(dirPath string) {
 	// fill up Map_VisualMapDBID_VisualMapDB
 	for _, visualmapDB := range forRestore {
 
-		visualmapDB_ID := visualmapDB.ID
+		visualmapDB_ID_atBackupTime := visualmapDB.ID
 		visualmapDB.ID = 0
 		query := backRepoVisualMap.db.Create(visualmapDB)
 		if query.Error != nil {
 			log.Panic(query.Error)
 		}
-		if visualmapDB_ID != visualmapDB.ID {
-			log.Panicf("ID of VisualMap restore ID %d, name %s, has wrong ID %d in DB after create",
-				visualmapDB_ID, visualmapDB.Name_Data.String, visualmapDB.ID)
-		}
+		(*backRepoVisualMap.Map_VisualMapDBID_VisualMapDB)[visualmapDB.ID] = visualmapDB
+		BackRepoVisualMapid_atBckpTime_newID[visualmapDB_ID_atBackupTime] = visualmapDB.ID
 	}
 
 	if err != nil {
 		log.Panic("Cannot restore/unmarshall json VisualMap file", err.Error())
 	}
 }
+
+// RestorePhaseTwo uses all map BackRepo<VisualMap>id_atBckpTime_newID
+// to compute new index
+func (backRepoVisualMap *BackRepoVisualMapStruct) RestorePhaseTwo() {
+
+	for _, visualmapDB := range (*backRepoVisualMap.Map_VisualMapDBID_VisualMapDB) {
+
+		// next line of code is to avert unused variable compilation error
+		_ = visualmapDB
+
+		// insertion point for reindexing pointers encoding
+		// update databse with new index encoding
+		query := backRepoVisualMap.db.Model(visualmapDB).Updates(*visualmapDB)
+		if query.Error != nil {
+			log.Panic(query.Error)
+		}
+	}
+
+}
+
+// this field is used during the restauration process.
+// it stores the ID at the backup time and is used for renumbering
+var BackRepoVisualMapid_atBckpTime_newID map[uint]uint

@@ -304,7 +304,7 @@ func (backRepoVisualCenter *BackRepoVisualCenterStruct) CheckoutPhaseOneInstance
 	}
 	visualcenterDB.CopyBasicFieldsToVisualCenter(visualcenter)
 
-	// preserve pointer to aclassDB. Otherwise, pointer will is recycled and the map of pointers
+	// preserve pointer to visualcenterDB. Otherwise, pointer will is recycled and the map of pointers
 	// Map_VisualCenterDBID_VisualCenterDB)[visualcenterDB hold variable pointers
 	visualcenterDB_Data := *visualcenterDB
 	preservedPtrToVisualCenter := &visualcenterDB_Data
@@ -403,7 +403,7 @@ func (backRepoVisualCenter *BackRepoVisualCenterStruct) Backup(dirPath string) {
 
 	// organize the map into an array with increasing IDs, in order to have repoductible
 	// backup file
-	var forBackup []*VisualCenterDB
+	forBackup := make([]*VisualCenterDB, 0)
 	for _, visualcenterDB := range *backRepoVisualCenter.Map_VisualCenterDBID_VisualCenterDB {
 		forBackup = append(forBackup, visualcenterDB)
 	}
@@ -424,7 +424,13 @@ func (backRepoVisualCenter *BackRepoVisualCenterStruct) Backup(dirPath string) {
 	}
 }
 
-func (backRepoVisualCenter *BackRepoVisualCenterStruct) Restore(dirPath string) {
+// RestorePhaseOne read the file "VisualCenterDB.json" in dirPath that stores an array
+// of VisualCenterDB and stores it in the database
+// the map BackRepoVisualCenterid_atBckpTime_newID is updated accordingly
+func (backRepoVisualCenter *BackRepoVisualCenterStruct) RestorePhaseOne(dirPath string) {
+
+	// resets the map
+	BackRepoVisualCenterid_atBckpTime_newID = make(map[uint]uint)
 
 	filename := filepath.Join(dirPath, "VisualCenterDB.json")
 	jsonFile, err := os.Open(filename)
@@ -443,19 +449,50 @@ func (backRepoVisualCenter *BackRepoVisualCenterStruct) Restore(dirPath string) 
 	// fill up Map_VisualCenterDBID_VisualCenterDB
 	for _, visualcenterDB := range forRestore {
 
-		visualcenterDB_ID := visualcenterDB.ID
+		visualcenterDB_ID_atBackupTime := visualcenterDB.ID
 		visualcenterDB.ID = 0
 		query := backRepoVisualCenter.db.Create(visualcenterDB)
 		if query.Error != nil {
 			log.Panic(query.Error)
 		}
-		if visualcenterDB_ID != visualcenterDB.ID {
-			log.Panicf("ID of VisualCenter restore ID %d, name %s, has wrong ID %d in DB after create",
-				visualcenterDB_ID, visualcenterDB.Name_Data.String, visualcenterDB.ID)
-		}
+		(*backRepoVisualCenter.Map_VisualCenterDBID_VisualCenterDB)[visualcenterDB.ID] = visualcenterDB
+		BackRepoVisualCenterid_atBckpTime_newID[visualcenterDB_ID_atBackupTime] = visualcenterDB.ID
 	}
 
 	if err != nil {
 		log.Panic("Cannot restore/unmarshall json VisualCenter file", err.Error())
 	}
 }
+
+// RestorePhaseTwo uses all map BackRepo<VisualCenter>id_atBckpTime_newID
+// to compute new index
+func (backRepoVisualCenter *BackRepoVisualCenterStruct) RestorePhaseTwo() {
+
+	for _, visualcenterDB := range (*backRepoVisualCenter.Map_VisualCenterDBID_VisualCenterDB) {
+
+		// next line of code is to avert unused variable compilation error
+		_ = visualcenterDB
+
+		// insertion point for reindexing pointers encoding
+		// reindexing VisualLayer field
+		if visualcenterDB.VisualLayerID.Int64 != 0 {
+			visualcenterDB.VisualLayerID.Int64 = int64(BackRepoVisualLayerid_atBckpTime_newID[uint(visualcenterDB.VisualLayerID.Int64)])
+		}
+
+		// reindexing VisualIcon field
+		if visualcenterDB.VisualIconID.Int64 != 0 {
+			visualcenterDB.VisualIconID.Int64 = int64(BackRepoVisualIconid_atBckpTime_newID[uint(visualcenterDB.VisualIconID.Int64)])
+		}
+
+		// update databse with new index encoding
+		query := backRepoVisualCenter.db.Model(visualcenterDB).Updates(*visualcenterDB)
+		if query.Error != nil {
+			log.Panic(query.Error)
+		}
+	}
+
+}
+
+// this field is used during the restauration process.
+// it stores the ID at the backup time and is used for renumbering
+var BackRepoVisualCenterid_atBckpTime_newID map[uint]uint

@@ -295,7 +295,7 @@ func (backRepoVisualCircle *BackRepoVisualCircleStruct) CheckoutPhaseOneInstance
 	}
 	visualcircleDB.CopyBasicFieldsToVisualCircle(visualcircle)
 
-	// preserve pointer to aclassDB. Otherwise, pointer will is recycled and the map of pointers
+	// preserve pointer to visualcircleDB. Otherwise, pointer will is recycled and the map of pointers
 	// Map_VisualCircleDBID_VisualCircleDB)[visualcircleDB hold variable pointers
 	visualcircleDB_Data := *visualcircleDB
 	preservedPtrToVisualCircle := &visualcircleDB_Data
@@ -398,7 +398,7 @@ func (backRepoVisualCircle *BackRepoVisualCircleStruct) Backup(dirPath string) {
 
 	// organize the map into an array with increasing IDs, in order to have repoductible
 	// backup file
-	var forBackup []*VisualCircleDB
+	forBackup := make([]*VisualCircleDB, 0)
 	for _, visualcircleDB := range *backRepoVisualCircle.Map_VisualCircleDBID_VisualCircleDB {
 		forBackup = append(forBackup, visualcircleDB)
 	}
@@ -419,7 +419,13 @@ func (backRepoVisualCircle *BackRepoVisualCircleStruct) Backup(dirPath string) {
 	}
 }
 
-func (backRepoVisualCircle *BackRepoVisualCircleStruct) Restore(dirPath string) {
+// RestorePhaseOne read the file "VisualCircleDB.json" in dirPath that stores an array
+// of VisualCircleDB and stores it in the database
+// the map BackRepoVisualCircleid_atBckpTime_newID is updated accordingly
+func (backRepoVisualCircle *BackRepoVisualCircleStruct) RestorePhaseOne(dirPath string) {
+
+	// resets the map
+	BackRepoVisualCircleid_atBckpTime_newID = make(map[uint]uint)
 
 	filename := filepath.Join(dirPath, "VisualCircleDB.json")
 	jsonFile, err := os.Open(filename)
@@ -438,19 +444,45 @@ func (backRepoVisualCircle *BackRepoVisualCircleStruct) Restore(dirPath string) 
 	// fill up Map_VisualCircleDBID_VisualCircleDB
 	for _, visualcircleDB := range forRestore {
 
-		visualcircleDB_ID := visualcircleDB.ID
+		visualcircleDB_ID_atBackupTime := visualcircleDB.ID
 		visualcircleDB.ID = 0
 		query := backRepoVisualCircle.db.Create(visualcircleDB)
 		if query.Error != nil {
 			log.Panic(query.Error)
 		}
-		if visualcircleDB_ID != visualcircleDB.ID {
-			log.Panicf("ID of VisualCircle restore ID %d, name %s, has wrong ID %d in DB after create",
-				visualcircleDB_ID, visualcircleDB.Name_Data.String, visualcircleDB.ID)
-		}
+		(*backRepoVisualCircle.Map_VisualCircleDBID_VisualCircleDB)[visualcircleDB.ID] = visualcircleDB
+		BackRepoVisualCircleid_atBckpTime_newID[visualcircleDB_ID_atBackupTime] = visualcircleDB.ID
 	}
 
 	if err != nil {
 		log.Panic("Cannot restore/unmarshall json VisualCircle file", err.Error())
 	}
 }
+
+// RestorePhaseTwo uses all map BackRepo<VisualCircle>id_atBckpTime_newID
+// to compute new index
+func (backRepoVisualCircle *BackRepoVisualCircleStruct) RestorePhaseTwo() {
+
+	for _, visualcircleDB := range (*backRepoVisualCircle.Map_VisualCircleDBID_VisualCircleDB) {
+
+		// next line of code is to avert unused variable compilation error
+		_ = visualcircleDB
+
+		// insertion point for reindexing pointers encoding
+		// reindexing VisualLayer field
+		if visualcircleDB.VisualLayerID.Int64 != 0 {
+			visualcircleDB.VisualLayerID.Int64 = int64(BackRepoVisualLayerid_atBckpTime_newID[uint(visualcircleDB.VisualLayerID.Int64)])
+		}
+
+		// update databse with new index encoding
+		query := backRepoVisualCircle.db.Model(visualcircleDB).Updates(*visualcircleDB)
+		if query.Error != nil {
+			log.Panic(query.Error)
+		}
+	}
+
+}
+
+// this field is used during the restauration process.
+// it stores the ID at the backup time and is used for renumbering
+var BackRepoVisualCircleid_atBckpTime_newID map[uint]uint
