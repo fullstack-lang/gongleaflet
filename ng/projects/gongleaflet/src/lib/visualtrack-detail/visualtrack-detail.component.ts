@@ -99,11 +99,9 @@ export class VisualTrackDetailComponent implements OnInit {
 		if (this.visualtrack.VisualLayer != undefined) {
 			this.visualtrack.VisualLayerID.Int64 = this.visualtrack.VisualLayer.ID
 			this.visualtrack.VisualLayerID.Valid = true
-			this.visualtrack.VisualLayerName = this.visualtrack.VisualLayer.Name
 		} else {
 			this.visualtrack.VisualLayerID.Int64 = 0
 			this.visualtrack.VisualLayerID.Valid = true
-			this.visualtrack.VisualLayerName = ""
 		}
 		if (this.visualtrack.VisualIconID == undefined) {
 			this.visualtrack.VisualIconID = new NullInt64
@@ -111,11 +109,9 @@ export class VisualTrackDetailComponent implements OnInit {
 		if (this.visualtrack.VisualIcon != undefined) {
 			this.visualtrack.VisualIconID.Int64 = this.visualtrack.VisualIcon.ID
 			this.visualtrack.VisualIconID.Valid = true
-			this.visualtrack.VisualIconName = this.visualtrack.VisualIcon.Name
 		} else {
 			this.visualtrack.VisualIconID.Int64 = 0
 			this.visualtrack.VisualIconID.Valid = true
-			this.visualtrack.VisualIconName = ""
 		}
 		this.visualtrack.Display = this.DisplayFormControl.value
 		this.visualtrack.DisplayTrackHistory = this.DisplayTrackHistoryFormControl.value

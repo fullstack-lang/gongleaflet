@@ -20,7 +20,7 @@ import { FrontRepoService, FrontRepo } from '../front-repo.service'
 
 // generated table component
 @Component({
-  selector: 'app-visualtracks-table',
+  selector: 'app-visualtrackstable',
   templateUrl: './visualtracks-table.component.html',
   styleUrls: ['./visualtracks-table.component.css'],
 })
@@ -47,6 +47,49 @@ export class VisualTracksTableComponent implements OnInit {
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
   ngAfterViewInit() {
+
+	// enable sorting on all fields (including pointers and reverse pointer)
+	this.matTableDataSource.sortingDataAccessor = (visualtrackDB: VisualTrackDB, property: string) => {
+		switch (property) {
+				// insertion point for specific sorting accessor
+  			case 'VisualLayer':
+				return (visualtrackDB.VisualLayer ? visualtrackDB.VisualLayer.Name : '');
+
+  			case 'VisualIcon':
+				return (visualtrackDB.VisualIcon ? visualtrackDB.VisualIcon.Name : '');
+
+				default:
+					return VisualTrackDB[property];
+		}
+	}; 
+
+	// enable filtering on all fields (including pointers and reverse pointer, which is not done by default)
+	this.matTableDataSource.filterPredicate = (visualtrackDB: VisualTrackDB, filter: string) => {
+
+		// filtering is based on finding a lower case filter into a concatenated string
+		// the visualtrackDB properties
+		let mergedContent = ""
+
+		// insertion point for merging of fields
+		mergedContent += visualtrackDB.Lat.toString()
+		mergedContent += visualtrackDB.Lng.toString()
+		mergedContent += visualtrackDB.Heading.toString()
+		mergedContent += visualtrackDB.Level.toString()
+		mergedContent += visualtrackDB.Speed.toString()
+		mergedContent += visualtrackDB.VerticalSpeed.toString()
+		mergedContent += visualtrackDB.Name.toLowerCase()
+		mergedContent += visualtrackDB.VisualColorEnum.toLowerCase()
+		if (visualtrackDB.VisualLayer) {
+    		mergedContent += visualtrackDB.VisualLayer.Name.toLowerCase()
+		}
+		if (visualtrackDB.VisualIcon) {
+    		mergedContent += visualtrackDB.VisualIcon.Name.toLowerCase()
+		}
+
+		let isSelected = mergedContent.includes(filter.toLowerCase())
+		return isSelected
+	};
+
     this.matTableDataSource.sort = this.sort;
     this.matTableDataSource.paginator = this.paginator;
   }
@@ -167,14 +210,14 @@ export class VisualTracksTableComponent implements OnInit {
 
   // display visualtrack in router
   displayVisualTrackInRouter(visualtrackID: number) {
-    this.router.navigate(["visualtrack-display", visualtrackID])
+    this.router.navigate(["github_com_fullstack_lang_gongleaflet_go-" + "visualtrack-display", visualtrackID])
   }
 
   // set editor outlet
   setEditorRouterOutlet(visualtrackID: number) {
     this.router.navigate([{
       outlets: {
-        editor: ["visualtrack-detail", visualtrackID]
+        github_com_fullstack_lang_gongleaflet_go_editor: ["github_com_fullstack_lang_gongleaflet_go-" + "visualtrack-detail", visualtrackID]
       }
     }]);
   }
@@ -183,7 +226,7 @@ export class VisualTracksTableComponent implements OnInit {
   setPresentationRouterOutlet(visualtrackID: number) {
     this.router.navigate([{
       outlets: {
-        presentation: ["visualtrack-presentation", visualtrackID]
+        github_com_fullstack_lang_gongleaflet_go_presentation: ["github_com_fullstack_lang_gongleaflet_go-" + "visualtrack-presentation", visualtrackID]
       }
     }]);
   }

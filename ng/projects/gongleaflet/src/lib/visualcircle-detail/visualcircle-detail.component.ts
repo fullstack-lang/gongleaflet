@@ -96,11 +96,9 @@ export class VisualCircleDetailComponent implements OnInit {
 		if (this.visualcircle.VisualLayer != undefined) {
 			this.visualcircle.VisualLayerID.Int64 = this.visualcircle.VisualLayer.ID
 			this.visualcircle.VisualLayerID.Valid = true
-			this.visualcircle.VisualLayerName = this.visualcircle.VisualLayer.Name
 		} else {
 			this.visualcircle.VisualLayerID.Int64 = 0
 			this.visualcircle.VisualLayerID.Valid = true
-			this.visualcircle.VisualLayerName = ""
 		}
 		
 		// save from the front pointer space to the non pointer space for serialization

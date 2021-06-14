@@ -12,7 +12,6 @@ func TestGongLeaflet(t *testing.T) {
 
 	// setup GORM
 	db := orm.SetupModels(true, ":memory:")
-	db.DB().SetMaxOpenConns(1)
 	orm.BackRepo.Init(db)
 
 	display := true

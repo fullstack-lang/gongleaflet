@@ -93,11 +93,9 @@ export class VisualCenterDetailComponent implements OnInit {
 		if (this.visualcenter.VisualLayer != undefined) {
 			this.visualcenter.VisualLayerID.Int64 = this.visualcenter.VisualLayer.ID
 			this.visualcenter.VisualLayerID.Valid = true
-			this.visualcenter.VisualLayerName = this.visualcenter.VisualLayer.Name
 		} else {
 			this.visualcenter.VisualLayerID.Int64 = 0
 			this.visualcenter.VisualLayerID.Valid = true
-			this.visualcenter.VisualLayerName = ""
 		}
 		if (this.visualcenter.VisualIconID == undefined) {
 			this.visualcenter.VisualIconID = new NullInt64
@@ -105,11 +103,9 @@ export class VisualCenterDetailComponent implements OnInit {
 		if (this.visualcenter.VisualIcon != undefined) {
 			this.visualcenter.VisualIconID.Int64 = this.visualcenter.VisualIcon.ID
 			this.visualcenter.VisualIconID.Valid = true
-			this.visualcenter.VisualIconName = this.visualcenter.VisualIcon.Name
 		} else {
 			this.visualcenter.VisualIconID.Int64 = 0
 			this.visualcenter.VisualIconID.Valid = true
-			this.visualcenter.VisualIconName = ""
 		}
 		
 		// save from the front pointer space to the non pointer space for serialization

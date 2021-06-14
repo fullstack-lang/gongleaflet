@@ -20,7 +20,7 @@ import { FrontRepoService, FrontRepo } from '../front-repo.service'
 
 // generated table component
 @Component({
-  selector: 'app-visualicons-table',
+  selector: 'app-visualiconstable',
   templateUrl: './visualicons-table.component.html',
   styleUrls: ['./visualicons-table.component.css'],
 })
@@ -47,6 +47,31 @@ export class VisualIconsTableComponent implements OnInit {
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
   ngAfterViewInit() {
+
+	// enable sorting on all fields (including pointers and reverse pointer)
+	this.matTableDataSource.sortingDataAccessor = (visualiconDB: VisualIconDB, property: string) => {
+		switch (property) {
+				// insertion point for specific sorting accessor
+				default:
+					return VisualIconDB[property];
+		}
+	}; 
+
+	// enable filtering on all fields (including pointers and reverse pointer, which is not done by default)
+	this.matTableDataSource.filterPredicate = (visualiconDB: VisualIconDB, filter: string) => {
+
+		// filtering is based on finding a lower case filter into a concatenated string
+		// the visualiconDB properties
+		let mergedContent = ""
+
+		// insertion point for merging of fields
+		mergedContent += visualiconDB.Name.toLowerCase()
+		mergedContent += visualiconDB.SVG.toLowerCase()
+
+		let isSelected = mergedContent.includes(filter.toLowerCase())
+		return isSelected
+	};
+
     this.matTableDataSource.sort = this.sort;
     this.matTableDataSource.paginator = this.paginator;
   }
@@ -145,14 +170,14 @@ export class VisualIconsTableComponent implements OnInit {
 
   // display visualicon in router
   displayVisualIconInRouter(visualiconID: number) {
-    this.router.navigate(["visualicon-display", visualiconID])
+    this.router.navigate(["github_com_fullstack_lang_gongleaflet_go-" + "visualicon-display", visualiconID])
   }
 
   // set editor outlet
   setEditorRouterOutlet(visualiconID: number) {
     this.router.navigate([{
       outlets: {
-        editor: ["visualicon-detail", visualiconID]
+        github_com_fullstack_lang_gongleaflet_go_editor: ["github_com_fullstack_lang_gongleaflet_go-" + "visualicon-detail", visualiconID]
       }
     }]);
   }
@@ -161,7 +186,7 @@ export class VisualIconsTableComponent implements OnInit {
   setPresentationRouterOutlet(visualiconID: number) {
     this.router.navigate([{
       outlets: {
-        presentation: ["visualicon-presentation", visualiconID]
+        github_com_fullstack_lang_gongleaflet_go_presentation: ["github_com_fullstack_lang_gongleaflet_go-" + "visualicon-presentation", visualiconID]
       }
     }]);
   }

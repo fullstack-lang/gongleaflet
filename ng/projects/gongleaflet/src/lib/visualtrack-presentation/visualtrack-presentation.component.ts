@@ -1,8 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup} from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 
 import { VisualTrackDB } from '../visualtrack-db'
 import { VisualTrackService } from '../visualtrack.service'
+
+import { FrontRepoService, FrontRepo } from '../front-repo.service'
 
 import { Router, RouterState, ActivatedRoute } from '@angular/router';
 
@@ -25,9 +27,13 @@ export class VisualTrackPresentationComponent implements OnInit {
 	dataSource = ELEMENT_DATA;
 
 	visualtrack: VisualTrackDB;
+
+	// front repo
+	frontRepo: FrontRepo
  
 	constructor(
 		private visualtrackService: VisualTrackService,
+		private frontRepoService: FrontRepoService,
 		private route: ActivatedRoute,
 		private router: Router,
 	) {
@@ -51,22 +57,22 @@ export class VisualTrackPresentationComponent implements OnInit {
 
 	getVisualTrack(): void {
 		const id = +this.route.snapshot.paramMap.get('id');
-		this.visualtrackService.getVisualTrack(id)
-			.subscribe(
-				visualtrack => {
-					this.visualtrack = visualtrack
+		this.frontRepoService.pull().subscribe(
+			frontRepo => {
+				this.frontRepo = frontRepo
 
-					// insertion point for recovery of durations
+				this.visualtrack = this.frontRepo.VisualTracks.get(id)
 
-				}
-			);
+				// insertion point for recovery of durations
+			}
+		);
 	}
 
 	// set presentation outlet
 	setPresentationRouterOutlet(structName: string, ID: number) {
 		this.router.navigate([{
 			outlets: {
-				presentation: [structName + "-presentation", ID]
+				github_com_fullstack_lang_gongleaflet_go_presentation: ["github_com_fullstack_lang_gongleaflet_go-" + structName + "-presentation", ID]
 			}
 		}]);
 	}
@@ -75,7 +81,7 @@ export class VisualTrackPresentationComponent implements OnInit {
 	setEditorRouterOutlet(ID: number) {
 		this.router.navigate([{
 			outlets: {
-				editor: ["visualtrack-detail", ID]
+				github_com_fullstack_lang_gongleaflet_go_editor: ["github_com_fullstack_lang_gongleaflet_go-" + "visualtrack-detail", ID]
 			}
 		}]);
 	}

@@ -20,7 +20,7 @@ import { FrontRepoService, FrontRepo } from '../front-repo.service'
 
 // generated table component
 @Component({
-  selector: 'app-visuallayers-table',
+  selector: 'app-visuallayerstable',
   templateUrl: './visuallayers-table.component.html',
   styleUrls: ['./visuallayers-table.component.css'],
 })
@@ -47,6 +47,31 @@ export class VisualLayersTableComponent implements OnInit {
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
   ngAfterViewInit() {
+
+	// enable sorting on all fields (including pointers and reverse pointer)
+	this.matTableDataSource.sortingDataAccessor = (visuallayerDB: VisualLayerDB, property: string) => {
+		switch (property) {
+				// insertion point for specific sorting accessor
+				default:
+					return VisualLayerDB[property];
+		}
+	}; 
+
+	// enable filtering on all fields (including pointers and reverse pointer, which is not done by default)
+	this.matTableDataSource.filterPredicate = (visuallayerDB: VisualLayerDB, filter: string) => {
+
+		// filtering is based on finding a lower case filter into a concatenated string
+		// the visuallayerDB properties
+		let mergedContent = ""
+
+		// insertion point for merging of fields
+		mergedContent += visuallayerDB.Name.toLowerCase()
+		mergedContent += visuallayerDB.DisplayName.toLowerCase()
+
+		let isSelected = mergedContent.includes(filter.toLowerCase())
+		return isSelected
+	};
+
     this.matTableDataSource.sort = this.sort;
     this.matTableDataSource.paginator = this.paginator;
   }
@@ -145,14 +170,14 @@ export class VisualLayersTableComponent implements OnInit {
 
   // display visuallayer in router
   displayVisualLayerInRouter(visuallayerID: number) {
-    this.router.navigate(["visuallayer-display", visuallayerID])
+    this.router.navigate(["github_com_fullstack_lang_gongleaflet_go-" + "visuallayer-display", visuallayerID])
   }
 
   // set editor outlet
   setEditorRouterOutlet(visuallayerID: number) {
     this.router.navigate([{
       outlets: {
-        editor: ["visuallayer-detail", visuallayerID]
+        github_com_fullstack_lang_gongleaflet_go_editor: ["github_com_fullstack_lang_gongleaflet_go-" + "visuallayer-detail", visuallayerID]
       }
     }]);
   }
@@ -161,7 +186,7 @@ export class VisualLayersTableComponent implements OnInit {
   setPresentationRouterOutlet(visuallayerID: number) {
     this.router.navigate([{
       outlets: {
-        presentation: ["visuallayer-presentation", visuallayerID]
+        github_com_fullstack_lang_gongleaflet_go_presentation: ["github_com_fullstack_lang_gongleaflet_go-" + "visuallayer-presentation", visuallayerID]
       }
     }]);
   }

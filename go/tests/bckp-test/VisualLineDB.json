@@ -1,0 +1,57 @@
+[
+ {
+  "ID": 4,
+  "CreatedAt": "2021-06-01T04:05:00.709385+02:00",
+  "UpdatedAt": "2021-06-01T04:06:28.434248+02:00",
+  "DeletedAt": null,
+  "StartLat_Data": {
+   "Float64": 45,
+   "Valid": true
+  },
+  "StartLng_Data": {
+   "Float64": 0,
+   "Valid": true
+  },
+  "EndLat_Data": {
+   "Float64": 45,
+   "Valid": true
+  },
+  "EndLng_Data": {
+   "Float64": 4,
+   "Valid": true
+  },
+  "Name_Data": {
+   "String": "Red West to East",
+   "Valid": true
+  },
+  "VisualColorEnum_Data": {
+   "String": "RED",
+   "Valid": true
+  },
+  "DashStyleEnum_Data": {
+   "String": "",
+   "Valid": true
+  },
+  "IsTransmitting_Data": {
+   "String": "",
+   "Valid": true
+  },
+  "Message_Data": {
+   "String": "",
+   "Valid": true
+  },
+  "IsTransmittingBackward_Data": {
+   "String": "",
+   "Valid": true
+  },
+  "MessageBackward_Data": {
+   "String": "",
+   "Valid": true
+  },
+  "VisualLayerID": {
+   "Int64": 0,
+   "Valid": true
+  },
+  "VisualLayerName": "Default"
+ }
+]

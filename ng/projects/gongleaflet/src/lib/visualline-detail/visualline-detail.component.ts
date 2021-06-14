@@ -99,11 +99,9 @@ export class VisualLineDetailComponent implements OnInit {
 		if (this.visualline.VisualLayer != undefined) {
 			this.visualline.VisualLayerID.Int64 = this.visualline.VisualLayer.ID
 			this.visualline.VisualLayerID.Valid = true
-			this.visualline.VisualLayerName = this.visualline.VisualLayer.Name
 		} else {
 			this.visualline.VisualLayerID.Int64 = 0
 			this.visualline.VisualLayerID.Valid = true
-			this.visualline.VisualLayerName = ""
 		}
 		
 		// save from the front pointer space to the non pointer space for serialization

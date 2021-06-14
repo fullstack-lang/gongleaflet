@@ -13,7 +13,9 @@ import (
 	"sort"
 	"time"
 
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
+
+	"github.com/tealeg/xlsx/v3"
 
 	"github.com/fullstack-lang/gongleaflet/go/models"
 )
@@ -46,9 +48,6 @@ type VisualLinePointersEnconding struct {
 	// field VisualLayer is a pointer to another Struct (optional or 0..1)
 	// This field is generated into another field to enable AS ONE association
 	VisualLayerID sql.NullInt64
-
-	// all gong Struct has a Name field, this enables this data to object field
-	VisualLayerName string
 
 }
 
@@ -108,6 +107,54 @@ type VisualLineDBs []VisualLineDB
 type VisualLineDBResponse struct {
 	VisualLineDB
 }
+
+// VisualLineWOP is a VisualLine without pointers
+// it holds the same basic fields but pointers are encoded into uint
+type VisualLineWOP struct {
+	ID int
+
+	// insertion for WOP basic fields
+
+	StartLat float64
+
+	StartLng float64
+
+	EndLat float64
+
+	EndLng float64
+
+	Name string
+
+	VisualColorEnum models.VisualColorEnum
+
+	DashStyleEnum models.DashStyleEnum
+
+	IsTransmitting models.TransmittingEnum
+
+	Message string
+
+	IsTransmittingBackward models.TransmittingEnum
+
+	MessageBackward string
+	// insertion for WOP pointer fields
+}
+
+var VisualLine_Fields = []string{
+	// insertion for WOP basic fields
+	"ID",
+	"StartLat",
+	"StartLng",
+	"EndLat",
+	"EndLng",
+	"Name",
+	"VisualColorEnum",
+	"DashStyleEnum",
+	"IsTransmitting",
+	"Message",
+	"IsTransmittingBackward",
+	"MessageBackward",
+}
+
 
 type BackRepoVisualLineStruct struct {
 	// stores VisualLineDB according to their gorm ID
@@ -306,6 +353,7 @@ func (backRepoVisualLine *BackRepoVisualLineStruct) CheckoutPhaseOneInstance(vis
 		(*backRepoVisualLine.Map_VisualLinePtr_VisualLineDBID)[visualline] = visuallineDB.ID
 
 		// append model store with the new element
+		visualline.Name = visuallineDB.Name_Data.String
 		visualline.Stage()
 	}
 	visuallineDB.CopyBasicFieldsToVisualLine(visualline)
@@ -371,7 +419,7 @@ func (backRepo *BackRepoStruct) CheckoutVisualLine(visualline *models.VisualLine
 	}
 }
 
-// CopyBasicFieldsToVisualLineDB is used to copy basic fields between the Stage or the CRUD to the back repo
+// CopyBasicFieldsFromVisualLine
 func (visuallineDB *VisualLineDB) CopyBasicFieldsFromVisualLine(visualline *models.VisualLine) {
 	// insertion point for fields commit
 	visuallineDB.StartLat_Data.Float64 = visualline.StartLat
@@ -409,9 +457,63 @@ func (visuallineDB *VisualLineDB) CopyBasicFieldsFromVisualLine(visualline *mode
 
 }
 
-// CopyBasicFieldsToVisualLineDB is used to copy basic fields between the Stage or the CRUD to the back repo
-func (visuallineDB *VisualLineDB) CopyBasicFieldsToVisualLine(visualline *models.VisualLine) {
+// CopyBasicFieldsFromVisualLineWOP
+func (visuallineDB *VisualLineDB) CopyBasicFieldsFromVisualLineWOP(visualline *VisualLineWOP) {
+	// insertion point for fields commit
+	visuallineDB.StartLat_Data.Float64 = visualline.StartLat
+	visuallineDB.StartLat_Data.Valid = true
 
+	visuallineDB.StartLng_Data.Float64 = visualline.StartLng
+	visuallineDB.StartLng_Data.Valid = true
+
+	visuallineDB.EndLat_Data.Float64 = visualline.EndLat
+	visuallineDB.EndLat_Data.Valid = true
+
+	visuallineDB.EndLng_Data.Float64 = visualline.EndLng
+	visuallineDB.EndLng_Data.Valid = true
+
+	visuallineDB.Name_Data.String = visualline.Name
+	visuallineDB.Name_Data.Valid = true
+
+	visuallineDB.VisualColorEnum_Data.String = string(visualline.VisualColorEnum)
+	visuallineDB.VisualColorEnum_Data.Valid = true
+
+	visuallineDB.DashStyleEnum_Data.String = string(visualline.DashStyleEnum)
+	visuallineDB.DashStyleEnum_Data.Valid = true
+
+	visuallineDB.IsTransmitting_Data.String = string(visualline.IsTransmitting)
+	visuallineDB.IsTransmitting_Data.Valid = true
+
+	visuallineDB.Message_Data.String = visualline.Message
+	visuallineDB.Message_Data.Valid = true
+
+	visuallineDB.IsTransmittingBackward_Data.String = string(visualline.IsTransmittingBackward)
+	visuallineDB.IsTransmittingBackward_Data.Valid = true
+
+	visuallineDB.MessageBackward_Data.String = visualline.MessageBackward
+	visuallineDB.MessageBackward_Data.Valid = true
+
+}
+
+// CopyBasicFieldsToVisualLine
+func (visuallineDB *VisualLineDB) CopyBasicFieldsToVisualLine(visualline *models.VisualLine) {
+	// insertion point for checkout of basic fields (back repo to stage)
+	visualline.StartLat = visuallineDB.StartLat_Data.Float64
+	visualline.StartLng = visuallineDB.StartLng_Data.Float64
+	visualline.EndLat = visuallineDB.EndLat_Data.Float64
+	visualline.EndLng = visuallineDB.EndLng_Data.Float64
+	visualline.Name = visuallineDB.Name_Data.String
+	visualline.VisualColorEnum = models.VisualColorEnum(visuallineDB.VisualColorEnum_Data.String)
+	visualline.DashStyleEnum = models.DashStyleEnum(visuallineDB.DashStyleEnum_Data.String)
+	visualline.IsTransmitting = models.TransmittingEnum(visuallineDB.IsTransmitting_Data.String)
+	visualline.Message = visuallineDB.Message_Data.String
+	visualline.IsTransmittingBackward = models.TransmittingEnum(visuallineDB.IsTransmittingBackward_Data.String)
+	visualline.MessageBackward = visuallineDB.MessageBackward_Data.String
+}
+
+// CopyBasicFieldsToVisualLineWOP
+func (visuallineDB *VisualLineDB) CopyBasicFieldsToVisualLineWOP(visualline *VisualLineWOP) {
+	visualline.ID = int(visuallineDB.ID)
 	// insertion point for checkout of basic fields (back repo to stage)
 	visualline.StartLat = visuallineDB.StartLat_Data.Float64
 	visualline.StartLng = visuallineDB.StartLng_Data.Float64
@@ -451,6 +553,38 @@ func (backRepoVisualLine *BackRepoVisualLineStruct) Backup(dirPath string) {
 	err = ioutil.WriteFile(filename, file, 0644)
 	if err != nil {
 		log.Panic("Cannot write the json VisualLine file", err.Error())
+	}
+}
+
+// Backup generates a json file from a slice of all VisualLineDB instances in the backrepo
+func (backRepoVisualLine *BackRepoVisualLineStruct) BackupXL(file *xlsx.File) {
+
+	// organize the map into an array with increasing IDs, in order to have repoductible
+	// backup file
+	forBackup := make([]*VisualLineDB, 0)
+	for _, visuallineDB := range *backRepoVisualLine.Map_VisualLineDBID_VisualLineDB {
+		forBackup = append(forBackup, visuallineDB)
+	}
+
+	sort.Slice(forBackup[:], func(i, j int) bool {
+		return forBackup[i].ID < forBackup[j].ID
+	})
+
+	sh, err := file.AddSheet("VisualLine")
+	if err != nil {
+		log.Panic("Cannot add XL file", err.Error())
+	}
+	_ = sh
+
+	row := sh.AddRow()
+	row.WriteSlice(&VisualLine_Fields, -1)
+	for _, visuallineDB := range forBackup {
+
+		var visuallineWOP VisualLineWOP
+		visuallineDB.CopyBasicFieldsToVisualLineWOP(&visuallineWOP)
+
+		row := sh.AddRow()
+		row.WriteStruct(&visuallineWOP, -1)
 	}
 }
 

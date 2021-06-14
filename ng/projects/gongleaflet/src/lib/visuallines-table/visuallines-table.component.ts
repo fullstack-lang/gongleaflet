@@ -20,7 +20,7 @@ import { FrontRepoService, FrontRepo } from '../front-repo.service'
 
 // generated table component
 @Component({
-  selector: 'app-visuallines-table',
+  selector: 'app-visuallinestable',
   templateUrl: './visuallines-table.component.html',
   styleUrls: ['./visuallines-table.component.css'],
 })
@@ -47,6 +47,46 @@ export class VisualLinesTableComponent implements OnInit {
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
   ngAfterViewInit() {
+
+	// enable sorting on all fields (including pointers and reverse pointer)
+	this.matTableDataSource.sortingDataAccessor = (visuallineDB: VisualLineDB, property: string) => {
+		switch (property) {
+				// insertion point for specific sorting accessor
+  			case 'VisualLayer':
+				return (visuallineDB.VisualLayer ? visuallineDB.VisualLayer.Name : '');
+
+				default:
+					return VisualLineDB[property];
+		}
+	}; 
+
+	// enable filtering on all fields (including pointers and reverse pointer, which is not done by default)
+	this.matTableDataSource.filterPredicate = (visuallineDB: VisualLineDB, filter: string) => {
+
+		// filtering is based on finding a lower case filter into a concatenated string
+		// the visuallineDB properties
+		let mergedContent = ""
+
+		// insertion point for merging of fields
+		mergedContent += visuallineDB.StartLat.toString()
+		mergedContent += visuallineDB.StartLng.toString()
+		mergedContent += visuallineDB.EndLat.toString()
+		mergedContent += visuallineDB.EndLng.toString()
+		mergedContent += visuallineDB.Name.toLowerCase()
+		mergedContent += visuallineDB.VisualColorEnum.toLowerCase()
+		mergedContent += visuallineDB.DashStyleEnum.toLowerCase()
+		if (visuallineDB.VisualLayer) {
+    		mergedContent += visuallineDB.VisualLayer.Name.toLowerCase()
+		}
+		mergedContent += visuallineDB.IsTransmitting.toLowerCase()
+		mergedContent += visuallineDB.Message.toLowerCase()
+		mergedContent += visuallineDB.IsTransmittingBackward.toLowerCase()
+		mergedContent += visuallineDB.MessageBackward.toLowerCase()
+
+		let isSelected = mergedContent.includes(filter.toLowerCase())
+		return isSelected
+	};
+
     this.matTableDataSource.sort = this.sort;
     this.matTableDataSource.paginator = this.paginator;
   }
@@ -165,14 +205,14 @@ export class VisualLinesTableComponent implements OnInit {
 
   // display visualline in router
   displayVisualLineInRouter(visuallineID: number) {
-    this.router.navigate(["visualline-display", visuallineID])
+    this.router.navigate(["github_com_fullstack_lang_gongleaflet_go-" + "visualline-display", visuallineID])
   }
 
   // set editor outlet
   setEditorRouterOutlet(visuallineID: number) {
     this.router.navigate([{
       outlets: {
-        editor: ["visualline-detail", visuallineID]
+        github_com_fullstack_lang_gongleaflet_go_editor: ["github_com_fullstack_lang_gongleaflet_go-" + "visualline-detail", visuallineID]
       }
     }]);
   }
@@ -181,7 +221,7 @@ export class VisualLinesTableComponent implements OnInit {
   setPresentationRouterOutlet(visuallineID: number) {
     this.router.navigate([{
       outlets: {
-        presentation: ["visualline-presentation", visuallineID]
+        github_com_fullstack_lang_gongleaflet_go_presentation: ["github_com_fullstack_lang_gongleaflet_go-" + "visualline-presentation", visuallineID]
       }
     }]);
   }

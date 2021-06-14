@@ -13,7 +13,9 @@ import (
 	"sort"
 	"time"
 
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
+
+	"github.com/tealeg/xlsx/v3"
 
 	"github.com/fullstack-lang/gongleaflet/go/models"
 )
@@ -47,15 +49,9 @@ type VisualCenterPointersEnconding struct {
 	// This field is generated into another field to enable AS ONE association
 	VisualLayerID sql.NullInt64
 
-	// all gong Struct has a Name field, this enables this data to object field
-	VisualLayerName string
-
 	// field VisualIcon is a pointer to another Struct (optional or 0..1)
 	// This field is generated into another field to enable AS ONE association
 	VisualIconID sql.NullInt64
-
-	// all gong Struct has a Name field, this enables this data to object field
-	VisualIconName string
 
 }
 
@@ -94,6 +90,33 @@ type VisualCenterDBs []VisualCenterDB
 type VisualCenterDBResponse struct {
 	VisualCenterDB
 }
+
+// VisualCenterWOP is a VisualCenter without pointers
+// it holds the same basic fields but pointers are encoded into uint
+type VisualCenterWOP struct {
+	ID int
+
+	// insertion for WOP basic fields
+
+	Lat float64
+
+	Lng float64
+
+	Name string
+
+	VisualColorEnum models.VisualColorEnum
+	// insertion for WOP pointer fields
+}
+
+var VisualCenter_Fields = []string{
+	// insertion for WOP basic fields
+	"ID",
+	"Lat",
+	"Lng",
+	"Name",
+	"VisualColorEnum",
+}
+
 
 type BackRepoVisualCenterStruct struct {
 	// stores VisualCenterDB according to their gorm ID
@@ -300,6 +323,7 @@ func (backRepoVisualCenter *BackRepoVisualCenterStruct) CheckoutPhaseOneInstance
 		(*backRepoVisualCenter.Map_VisualCenterPtr_VisualCenterDBID)[visualcenter] = visualcenterDB.ID
 
 		// append model store with the new element
+		visualcenter.Name = visualcenterDB.Name_Data.String
 		visualcenter.Stage()
 	}
 	visualcenterDB.CopyBasicFieldsToVisualCenter(visualcenter)
@@ -369,7 +393,7 @@ func (backRepo *BackRepoStruct) CheckoutVisualCenter(visualcenter *models.Visual
 	}
 }
 
-// CopyBasicFieldsToVisualCenterDB is used to copy basic fields between the Stage or the CRUD to the back repo
+// CopyBasicFieldsFromVisualCenter
 func (visualcenterDB *VisualCenterDB) CopyBasicFieldsFromVisualCenter(visualcenter *models.VisualCenter) {
 	// insertion point for fields commit
 	visualcenterDB.Lat_Data.Float64 = visualcenter.Lat
@@ -386,9 +410,35 @@ func (visualcenterDB *VisualCenterDB) CopyBasicFieldsFromVisualCenter(visualcent
 
 }
 
-// CopyBasicFieldsToVisualCenterDB is used to copy basic fields between the Stage or the CRUD to the back repo
-func (visualcenterDB *VisualCenterDB) CopyBasicFieldsToVisualCenter(visualcenter *models.VisualCenter) {
+// CopyBasicFieldsFromVisualCenterWOP
+func (visualcenterDB *VisualCenterDB) CopyBasicFieldsFromVisualCenterWOP(visualcenter *VisualCenterWOP) {
+	// insertion point for fields commit
+	visualcenterDB.Lat_Data.Float64 = visualcenter.Lat
+	visualcenterDB.Lat_Data.Valid = true
 
+	visualcenterDB.Lng_Data.Float64 = visualcenter.Lng
+	visualcenterDB.Lng_Data.Valid = true
+
+	visualcenterDB.Name_Data.String = visualcenter.Name
+	visualcenterDB.Name_Data.Valid = true
+
+	visualcenterDB.VisualColorEnum_Data.String = string(visualcenter.VisualColorEnum)
+	visualcenterDB.VisualColorEnum_Data.Valid = true
+
+}
+
+// CopyBasicFieldsToVisualCenter
+func (visualcenterDB *VisualCenterDB) CopyBasicFieldsToVisualCenter(visualcenter *models.VisualCenter) {
+	// insertion point for checkout of basic fields (back repo to stage)
+	visualcenter.Lat = visualcenterDB.Lat_Data.Float64
+	visualcenter.Lng = visualcenterDB.Lng_Data.Float64
+	visualcenter.Name = visualcenterDB.Name_Data.String
+	visualcenter.VisualColorEnum = models.VisualColorEnum(visualcenterDB.VisualColorEnum_Data.String)
+}
+
+// CopyBasicFieldsToVisualCenterWOP
+func (visualcenterDB *VisualCenterDB) CopyBasicFieldsToVisualCenterWOP(visualcenter *VisualCenterWOP) {
+	visualcenter.ID = int(visualcenterDB.ID)
 	// insertion point for checkout of basic fields (back repo to stage)
 	visualcenter.Lat = visualcenterDB.Lat_Data.Float64
 	visualcenter.Lng = visualcenterDB.Lng_Data.Float64
@@ -421,6 +471,38 @@ func (backRepoVisualCenter *BackRepoVisualCenterStruct) Backup(dirPath string) {
 	err = ioutil.WriteFile(filename, file, 0644)
 	if err != nil {
 		log.Panic("Cannot write the json VisualCenter file", err.Error())
+	}
+}
+
+// Backup generates a json file from a slice of all VisualCenterDB instances in the backrepo
+func (backRepoVisualCenter *BackRepoVisualCenterStruct) BackupXL(file *xlsx.File) {
+
+	// organize the map into an array with increasing IDs, in order to have repoductible
+	// backup file
+	forBackup := make([]*VisualCenterDB, 0)
+	for _, visualcenterDB := range *backRepoVisualCenter.Map_VisualCenterDBID_VisualCenterDB {
+		forBackup = append(forBackup, visualcenterDB)
+	}
+
+	sort.Slice(forBackup[:], func(i, j int) bool {
+		return forBackup[i].ID < forBackup[j].ID
+	})
+
+	sh, err := file.AddSheet("VisualCenter")
+	if err != nil {
+		log.Panic("Cannot add XL file", err.Error())
+	}
+	_ = sh
+
+	row := sh.AddRow()
+	row.WriteSlice(&VisualCenter_Fields, -1)
+	for _, visualcenterDB := range forBackup {
+
+		var visualcenterWOP VisualCenterWOP
+		visualcenterDB.CopyBasicFieldsToVisualCenterWOP(&visualcenterWOP)
+
+		row := sh.AddRow()
+		row.WriteStruct(&visualcenterWOP, -1)
 	}
 }
 

@@ -25,6 +25,5 @@ export class VisualLineDB {
 	// insertion point for other declarations
 	VisualLayer?: VisualLayerDB
 	VisualLayerID?: NullInt64
-	VisualLayerName?: string
 
 }

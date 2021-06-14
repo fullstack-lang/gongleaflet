@@ -20,7 +20,7 @@ import { FrontRepoService, FrontRepo } from '../front-repo.service'
 
 // generated table component
 @Component({
-  selector: 'app-visualcircles-table',
+  selector: 'app-visualcirclestable',
   templateUrl: './visualcircles-table.component.html',
   styleUrls: ['./visualcircles-table.component.css'],
 })
@@ -47,6 +47,41 @@ export class VisualCirclesTableComponent implements OnInit {
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
   ngAfterViewInit() {
+
+	// enable sorting on all fields (including pointers and reverse pointer)
+	this.matTableDataSource.sortingDataAccessor = (visualcircleDB: VisualCircleDB, property: string) => {
+		switch (property) {
+				// insertion point for specific sorting accessor
+  			case 'VisualLayer':
+				return (visualcircleDB.VisualLayer ? visualcircleDB.VisualLayer.Name : '');
+
+				default:
+					return VisualCircleDB[property];
+		}
+	}; 
+
+	// enable filtering on all fields (including pointers and reverse pointer, which is not done by default)
+	this.matTableDataSource.filterPredicate = (visualcircleDB: VisualCircleDB, filter: string) => {
+
+		// filtering is based on finding a lower case filter into a concatenated string
+		// the visualcircleDB properties
+		let mergedContent = ""
+
+		// insertion point for merging of fields
+		mergedContent += visualcircleDB.Lat.toString()
+		mergedContent += visualcircleDB.Lng.toString()
+		mergedContent += visualcircleDB.Name.toLowerCase()
+		mergedContent += visualcircleDB.Radius.toString()
+		mergedContent += visualcircleDB.VisualColorEnum.toLowerCase()
+		mergedContent += visualcircleDB.DashStyleEnum.toLowerCase()
+		if (visualcircleDB.VisualLayer) {
+    		mergedContent += visualcircleDB.VisualLayer.Name.toLowerCase()
+		}
+
+		let isSelected = mergedContent.includes(filter.toLowerCase())
+		return isSelected
+	};
+
     this.matTableDataSource.sort = this.sort;
     this.matTableDataSource.paginator = this.paginator;
   }
@@ -155,14 +190,14 @@ export class VisualCirclesTableComponent implements OnInit {
 
   // display visualcircle in router
   displayVisualCircleInRouter(visualcircleID: number) {
-    this.router.navigate(["visualcircle-display", visualcircleID])
+    this.router.navigate(["github_com_fullstack_lang_gongleaflet_go-" + "visualcircle-display", visualcircleID])
   }
 
   // set editor outlet
   setEditorRouterOutlet(visualcircleID: number) {
     this.router.navigate([{
       outlets: {
-        editor: ["visualcircle-detail", visualcircleID]
+        github_com_fullstack_lang_gongleaflet_go_editor: ["github_com_fullstack_lang_gongleaflet_go-" + "visualcircle-detail", visualcircleID]
       }
     }]);
   }
@@ -171,7 +206,7 @@ export class VisualCirclesTableComponent implements OnInit {
   setPresentationRouterOutlet(visualcircleID: number) {
     this.router.navigate([{
       outlets: {
-        presentation: ["visualcircle-presentation", visualcircleID]
+        github_com_fullstack_lang_gongleaflet_go_presentation: ["github_com_fullstack_lang_gongleaflet_go-" + "visualcircle-presentation", visualcircleID]
       }
     }]);
   }

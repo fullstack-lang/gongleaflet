@@ -20,7 +20,7 @@ import { FrontRepoService, FrontRepo } from '../front-repo.service'
 
 // generated table component
 @Component({
-  selector: 'app-visualcenters-table',
+  selector: 'app-visualcenterstable',
   templateUrl: './visualcenters-table.component.html',
   styleUrls: ['./visualcenters-table.component.css'],
 })
@@ -47,6 +47,45 @@ export class VisualCentersTableComponent implements OnInit {
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
   ngAfterViewInit() {
+
+	// enable sorting on all fields (including pointers and reverse pointer)
+	this.matTableDataSource.sortingDataAccessor = (visualcenterDB: VisualCenterDB, property: string) => {
+		switch (property) {
+				// insertion point for specific sorting accessor
+  			case 'VisualLayer':
+				return (visualcenterDB.VisualLayer ? visualcenterDB.VisualLayer.Name : '');
+
+  			case 'VisualIcon':
+				return (visualcenterDB.VisualIcon ? visualcenterDB.VisualIcon.Name : '');
+
+				default:
+					return VisualCenterDB[property];
+		}
+	}; 
+
+	// enable filtering on all fields (including pointers and reverse pointer, which is not done by default)
+	this.matTableDataSource.filterPredicate = (visualcenterDB: VisualCenterDB, filter: string) => {
+
+		// filtering is based on finding a lower case filter into a concatenated string
+		// the visualcenterDB properties
+		let mergedContent = ""
+
+		// insertion point for merging of fields
+		mergedContent += visualcenterDB.Lat.toString()
+		mergedContent += visualcenterDB.Lng.toString()
+		mergedContent += visualcenterDB.Name.toLowerCase()
+		mergedContent += visualcenterDB.VisualColorEnum.toLowerCase()
+		if (visualcenterDB.VisualLayer) {
+    		mergedContent += visualcenterDB.VisualLayer.Name.toLowerCase()
+		}
+		if (visualcenterDB.VisualIcon) {
+    		mergedContent += visualcenterDB.VisualIcon.Name.toLowerCase()
+		}
+
+		let isSelected = mergedContent.includes(filter.toLowerCase())
+		return isSelected
+	};
+
     this.matTableDataSource.sort = this.sort;
     this.matTableDataSource.paginator = this.paginator;
   }
@@ -153,14 +192,14 @@ export class VisualCentersTableComponent implements OnInit {
 
   // display visualcenter in router
   displayVisualCenterInRouter(visualcenterID: number) {
-    this.router.navigate(["visualcenter-display", visualcenterID])
+    this.router.navigate(["github_com_fullstack_lang_gongleaflet_go-" + "visualcenter-display", visualcenterID])
   }
 
   // set editor outlet
   setEditorRouterOutlet(visualcenterID: number) {
     this.router.navigate([{
       outlets: {
-        editor: ["visualcenter-detail", visualcenterID]
+        github_com_fullstack_lang_gongleaflet_go_editor: ["github_com_fullstack_lang_gongleaflet_go-" + "visualcenter-detail", visualcenterID]
       }
     }]);
   }
@@ -169,7 +208,7 @@ export class VisualCentersTableComponent implements OnInit {
   setPresentationRouterOutlet(visualcenterID: number) {
     this.router.navigate([{
       outlets: {
-        presentation: ["visualcenter-presentation", visualcenterID]
+        github_com_fullstack_lang_gongleaflet_go_presentation: ["github_com_fullstack_lang_gongleaflet_go-" + "visualcenter-presentation", visualcenterID]
       }
     }]);
   }

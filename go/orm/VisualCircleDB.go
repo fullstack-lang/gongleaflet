@@ -13,7 +13,9 @@ import (
 	"sort"
 	"time"
 
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
+
+	"github.com/tealeg/xlsx/v3"
 
 	"github.com/fullstack-lang/gongleaflet/go/models"
 )
@@ -46,9 +48,6 @@ type VisualCirclePointersEnconding struct {
 	// field VisualLayer is a pointer to another Struct (optional or 0..1)
 	// This field is generated into another field to enable AS ONE association
 	VisualLayerID sql.NullInt64
-
-	// all gong Struct has a Name field, this enables this data to object field
-	VisualLayerName string
 
 }
 
@@ -93,6 +92,39 @@ type VisualCircleDBs []VisualCircleDB
 type VisualCircleDBResponse struct {
 	VisualCircleDB
 }
+
+// VisualCircleWOP is a VisualCircle without pointers
+// it holds the same basic fields but pointers are encoded into uint
+type VisualCircleWOP struct {
+	ID int
+
+	// insertion for WOP basic fields
+
+	Lat float64
+
+	Lng float64
+
+	Name string
+
+	Radius float64
+
+	VisualColorEnum models.VisualColorEnum
+
+	DashStyleEnum models.DashStyleEnum
+	// insertion for WOP pointer fields
+}
+
+var VisualCircle_Fields = []string{
+	// insertion for WOP basic fields
+	"ID",
+	"Lat",
+	"Lng",
+	"Name",
+	"Radius",
+	"VisualColorEnum",
+	"DashStyleEnum",
+}
+
 
 type BackRepoVisualCircleStruct struct {
 	// stores VisualCircleDB according to their gorm ID
@@ -291,6 +323,7 @@ func (backRepoVisualCircle *BackRepoVisualCircleStruct) CheckoutPhaseOneInstance
 		(*backRepoVisualCircle.Map_VisualCirclePtr_VisualCircleDBID)[visualcircle] = visualcircleDB.ID
 
 		// append model store with the new element
+		visualcircle.Name = visualcircleDB.Name_Data.String
 		visualcircle.Stage()
 	}
 	visualcircleDB.CopyBasicFieldsToVisualCircle(visualcircle)
@@ -356,7 +389,7 @@ func (backRepo *BackRepoStruct) CheckoutVisualCircle(visualcircle *models.Visual
 	}
 }
 
-// CopyBasicFieldsToVisualCircleDB is used to copy basic fields between the Stage or the CRUD to the back repo
+// CopyBasicFieldsFromVisualCircle
 func (visualcircleDB *VisualCircleDB) CopyBasicFieldsFromVisualCircle(visualcircle *models.VisualCircle) {
 	// insertion point for fields commit
 	visualcircleDB.Lat_Data.Float64 = visualcircle.Lat
@@ -379,9 +412,43 @@ func (visualcircleDB *VisualCircleDB) CopyBasicFieldsFromVisualCircle(visualcirc
 
 }
 
-// CopyBasicFieldsToVisualCircleDB is used to copy basic fields between the Stage or the CRUD to the back repo
-func (visualcircleDB *VisualCircleDB) CopyBasicFieldsToVisualCircle(visualcircle *models.VisualCircle) {
+// CopyBasicFieldsFromVisualCircleWOP
+func (visualcircleDB *VisualCircleDB) CopyBasicFieldsFromVisualCircleWOP(visualcircle *VisualCircleWOP) {
+	// insertion point for fields commit
+	visualcircleDB.Lat_Data.Float64 = visualcircle.Lat
+	visualcircleDB.Lat_Data.Valid = true
 
+	visualcircleDB.Lng_Data.Float64 = visualcircle.Lng
+	visualcircleDB.Lng_Data.Valid = true
+
+	visualcircleDB.Name_Data.String = visualcircle.Name
+	visualcircleDB.Name_Data.Valid = true
+
+	visualcircleDB.Radius_Data.Float64 = visualcircle.Radius
+	visualcircleDB.Radius_Data.Valid = true
+
+	visualcircleDB.VisualColorEnum_Data.String = string(visualcircle.VisualColorEnum)
+	visualcircleDB.VisualColorEnum_Data.Valid = true
+
+	visualcircleDB.DashStyleEnum_Data.String = string(visualcircle.DashStyleEnum)
+	visualcircleDB.DashStyleEnum_Data.Valid = true
+
+}
+
+// CopyBasicFieldsToVisualCircle
+func (visualcircleDB *VisualCircleDB) CopyBasicFieldsToVisualCircle(visualcircle *models.VisualCircle) {
+	// insertion point for checkout of basic fields (back repo to stage)
+	visualcircle.Lat = visualcircleDB.Lat_Data.Float64
+	visualcircle.Lng = visualcircleDB.Lng_Data.Float64
+	visualcircle.Name = visualcircleDB.Name_Data.String
+	visualcircle.Radius = visualcircleDB.Radius_Data.Float64
+	visualcircle.VisualColorEnum = models.VisualColorEnum(visualcircleDB.VisualColorEnum_Data.String)
+	visualcircle.DashStyleEnum = models.DashStyleEnum(visualcircleDB.DashStyleEnum_Data.String)
+}
+
+// CopyBasicFieldsToVisualCircleWOP
+func (visualcircleDB *VisualCircleDB) CopyBasicFieldsToVisualCircleWOP(visualcircle *VisualCircleWOP) {
+	visualcircle.ID = int(visualcircleDB.ID)
 	// insertion point for checkout of basic fields (back repo to stage)
 	visualcircle.Lat = visualcircleDB.Lat_Data.Float64
 	visualcircle.Lng = visualcircleDB.Lng_Data.Float64
@@ -416,6 +483,38 @@ func (backRepoVisualCircle *BackRepoVisualCircleStruct) Backup(dirPath string) {
 	err = ioutil.WriteFile(filename, file, 0644)
 	if err != nil {
 		log.Panic("Cannot write the json VisualCircle file", err.Error())
+	}
+}
+
+// Backup generates a json file from a slice of all VisualCircleDB instances in the backrepo
+func (backRepoVisualCircle *BackRepoVisualCircleStruct) BackupXL(file *xlsx.File) {
+
+	// organize the map into an array with increasing IDs, in order to have repoductible
+	// backup file
+	forBackup := make([]*VisualCircleDB, 0)
+	for _, visualcircleDB := range *backRepoVisualCircle.Map_VisualCircleDBID_VisualCircleDB {
+		forBackup = append(forBackup, visualcircleDB)
+	}
+
+	sort.Slice(forBackup[:], func(i, j int) bool {
+		return forBackup[i].ID < forBackup[j].ID
+	})
+
+	sh, err := file.AddSheet("VisualCircle")
+	if err != nil {
+		log.Panic("Cannot add XL file", err.Error())
+	}
+	_ = sh
+
+	row := sh.AddRow()
+	row.WriteSlice(&VisualCircle_Fields, -1)
+	for _, visualcircleDB := range forBackup {
+
+		var visualcircleWOP VisualCircleWOP
+		visualcircleDB.CopyBasicFieldsToVisualCircleWOP(&visualcircleWOP)
+
+		row := sh.AddRow()
+		row.WriteStruct(&visualcircleWOP, -1)
 	}
 }
 

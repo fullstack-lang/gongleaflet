@@ -13,7 +13,9 @@ import (
 	"sort"
 	"time"
 
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
+
+	"github.com/tealeg/xlsx/v3"
 
 	"github.com/fullstack-lang/gongleaflet/go/models"
 )
@@ -47,15 +49,9 @@ type VisualTrackPointersEnconding struct {
 	// This field is generated into another field to enable AS ONE association
 	VisualLayerID sql.NullInt64
 
-	// all gong Struct has a Name field, this enables this data to object field
-	VisualLayerName string
-
 	// field VisualIcon is a pointer to another Struct (optional or 0..1)
 	// This field is generated into another field to enable AS ONE association
 	VisualIconID sql.NullInt64
-
-	// all gong Struct has a Name field, this enables this data to object field
-	VisualIconName string
 
 }
 
@@ -118,6 +114,54 @@ type VisualTrackDBs []VisualTrackDB
 type VisualTrackDBResponse struct {
 	VisualTrackDB
 }
+
+// VisualTrackWOP is a VisualTrack without pointers
+// it holds the same basic fields but pointers are encoded into uint
+type VisualTrackWOP struct {
+	ID int
+
+	// insertion for WOP basic fields
+
+	Lat float64
+
+	Lng float64
+
+	Heading float64
+
+	Level float64
+
+	Speed float64
+
+	VerticalSpeed float64
+
+	Name string
+
+	VisualColorEnum models.VisualColorEnum
+
+	Display bool
+
+	DisplayTrackHistory bool
+
+	DisplayLevelAndSpeed bool
+	// insertion for WOP pointer fields
+}
+
+var VisualTrack_Fields = []string{
+	// insertion for WOP basic fields
+	"ID",
+	"Lat",
+	"Lng",
+	"Heading",
+	"Level",
+	"Speed",
+	"VerticalSpeed",
+	"Name",
+	"VisualColorEnum",
+	"Display",
+	"DisplayTrackHistory",
+	"DisplayLevelAndSpeed",
+}
+
 
 type BackRepoVisualTrackStruct struct {
 	// stores VisualTrackDB according to their gorm ID
@@ -324,6 +368,7 @@ func (backRepoVisualTrack *BackRepoVisualTrackStruct) CheckoutPhaseOneInstance(v
 		(*backRepoVisualTrack.Map_VisualTrackPtr_VisualTrackDBID)[visualtrack] = visualtrackDB.ID
 
 		// append model store with the new element
+		visualtrack.Name = visualtrackDB.Name_Data.String
 		visualtrack.Stage()
 	}
 	visualtrackDB.CopyBasicFieldsToVisualTrack(visualtrack)
@@ -393,7 +438,7 @@ func (backRepo *BackRepoStruct) CheckoutVisualTrack(visualtrack *models.VisualTr
 	}
 }
 
-// CopyBasicFieldsToVisualTrackDB is used to copy basic fields between the Stage or the CRUD to the back repo
+// CopyBasicFieldsFromVisualTrack
 func (visualtrackDB *VisualTrackDB) CopyBasicFieldsFromVisualTrack(visualtrack *models.VisualTrack) {
 	// insertion point for fields commit
 	visualtrackDB.Lat_Data.Float64 = visualtrack.Lat
@@ -431,9 +476,63 @@ func (visualtrackDB *VisualTrackDB) CopyBasicFieldsFromVisualTrack(visualtrack *
 
 }
 
-// CopyBasicFieldsToVisualTrackDB is used to copy basic fields between the Stage or the CRUD to the back repo
-func (visualtrackDB *VisualTrackDB) CopyBasicFieldsToVisualTrack(visualtrack *models.VisualTrack) {
+// CopyBasicFieldsFromVisualTrackWOP
+func (visualtrackDB *VisualTrackDB) CopyBasicFieldsFromVisualTrackWOP(visualtrack *VisualTrackWOP) {
+	// insertion point for fields commit
+	visualtrackDB.Lat_Data.Float64 = visualtrack.Lat
+	visualtrackDB.Lat_Data.Valid = true
 
+	visualtrackDB.Lng_Data.Float64 = visualtrack.Lng
+	visualtrackDB.Lng_Data.Valid = true
+
+	visualtrackDB.Heading_Data.Float64 = visualtrack.Heading
+	visualtrackDB.Heading_Data.Valid = true
+
+	visualtrackDB.Level_Data.Float64 = visualtrack.Level
+	visualtrackDB.Level_Data.Valid = true
+
+	visualtrackDB.Speed_Data.Float64 = visualtrack.Speed
+	visualtrackDB.Speed_Data.Valid = true
+
+	visualtrackDB.VerticalSpeed_Data.Float64 = visualtrack.VerticalSpeed
+	visualtrackDB.VerticalSpeed_Data.Valid = true
+
+	visualtrackDB.Name_Data.String = visualtrack.Name
+	visualtrackDB.Name_Data.Valid = true
+
+	visualtrackDB.VisualColorEnum_Data.String = string(visualtrack.VisualColorEnum)
+	visualtrackDB.VisualColorEnum_Data.Valid = true
+
+	visualtrackDB.Display_Data.Bool = visualtrack.Display
+	visualtrackDB.Display_Data.Valid = true
+
+	visualtrackDB.DisplayTrackHistory_Data.Bool = visualtrack.DisplayTrackHistory
+	visualtrackDB.DisplayTrackHistory_Data.Valid = true
+
+	visualtrackDB.DisplayLevelAndSpeed_Data.Bool = visualtrack.DisplayLevelAndSpeed
+	visualtrackDB.DisplayLevelAndSpeed_Data.Valid = true
+
+}
+
+// CopyBasicFieldsToVisualTrack
+func (visualtrackDB *VisualTrackDB) CopyBasicFieldsToVisualTrack(visualtrack *models.VisualTrack) {
+	// insertion point for checkout of basic fields (back repo to stage)
+	visualtrack.Lat = visualtrackDB.Lat_Data.Float64
+	visualtrack.Lng = visualtrackDB.Lng_Data.Float64
+	visualtrack.Heading = visualtrackDB.Heading_Data.Float64
+	visualtrack.Level = visualtrackDB.Level_Data.Float64
+	visualtrack.Speed = visualtrackDB.Speed_Data.Float64
+	visualtrack.VerticalSpeed = visualtrackDB.VerticalSpeed_Data.Float64
+	visualtrack.Name = visualtrackDB.Name_Data.String
+	visualtrack.VisualColorEnum = models.VisualColorEnum(visualtrackDB.VisualColorEnum_Data.String)
+	visualtrack.Display = visualtrackDB.Display_Data.Bool
+	visualtrack.DisplayTrackHistory = visualtrackDB.DisplayTrackHistory_Data.Bool
+	visualtrack.DisplayLevelAndSpeed = visualtrackDB.DisplayLevelAndSpeed_Data.Bool
+}
+
+// CopyBasicFieldsToVisualTrackWOP
+func (visualtrackDB *VisualTrackDB) CopyBasicFieldsToVisualTrackWOP(visualtrack *VisualTrackWOP) {
+	visualtrack.ID = int(visualtrackDB.ID)
 	// insertion point for checkout of basic fields (back repo to stage)
 	visualtrack.Lat = visualtrackDB.Lat_Data.Float64
 	visualtrack.Lng = visualtrackDB.Lng_Data.Float64
@@ -473,6 +572,38 @@ func (backRepoVisualTrack *BackRepoVisualTrackStruct) Backup(dirPath string) {
 	err = ioutil.WriteFile(filename, file, 0644)
 	if err != nil {
 		log.Panic("Cannot write the json VisualTrack file", err.Error())
+	}
+}
+
+// Backup generates a json file from a slice of all VisualTrackDB instances in the backrepo
+func (backRepoVisualTrack *BackRepoVisualTrackStruct) BackupXL(file *xlsx.File) {
+
+	// organize the map into an array with increasing IDs, in order to have repoductible
+	// backup file
+	forBackup := make([]*VisualTrackDB, 0)
+	for _, visualtrackDB := range *backRepoVisualTrack.Map_VisualTrackDBID_VisualTrackDB {
+		forBackup = append(forBackup, visualtrackDB)
+	}
+
+	sort.Slice(forBackup[:], func(i, j int) bool {
+		return forBackup[i].ID < forBackup[j].ID
+	})
+
+	sh, err := file.AddSheet("VisualTrack")
+	if err != nil {
+		log.Panic("Cannot add XL file", err.Error())
+	}
+	_ = sh
+
+	row := sh.AddRow()
+	row.WriteSlice(&VisualTrack_Fields, -1)
+	for _, visualtrackDB := range forBackup {
+
+		var visualtrackWOP VisualTrackWOP
+		visualtrackDB.CopyBasicFieldsToVisualTrackWOP(&visualtrackWOP)
+
+		row := sh.AddRow()
+		row.WriteStruct(&visualtrackWOP, -1)
 	}
 }
 

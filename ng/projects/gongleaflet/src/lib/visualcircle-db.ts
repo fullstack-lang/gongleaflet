@@ -20,6 +20,5 @@ export class VisualCircleDB {
 	// insertion point for other declarations
 	VisualLayer?: VisualLayerDB
 	VisualLayerID?: NullInt64
-	VisualLayerName?: string
 
 }

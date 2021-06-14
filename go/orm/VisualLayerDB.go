@@ -13,7 +13,9 @@ import (
 	"sort"
 	"time"
 
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
+
+	"github.com/tealeg/xlsx/v3"
 
 	"github.com/fullstack-lang/gongleaflet/go/models"
 )
@@ -74,6 +76,27 @@ type VisualLayerDBs []VisualLayerDB
 type VisualLayerDBResponse struct {
 	VisualLayerDB
 }
+
+// VisualLayerWOP is a VisualLayer without pointers
+// it holds the same basic fields but pointers are encoded into uint
+type VisualLayerWOP struct {
+	ID int
+
+	// insertion for WOP basic fields
+
+	Name string
+
+	DisplayName string
+	// insertion for WOP pointer fields
+}
+
+var VisualLayer_Fields = []string{
+	// insertion for WOP basic fields
+	"ID",
+	"Name",
+	"DisplayName",
+}
+
 
 type BackRepoVisualLayerStruct struct {
 	// stores VisualLayerDB according to their gorm ID
@@ -264,6 +287,7 @@ func (backRepoVisualLayer *BackRepoVisualLayerStruct) CheckoutPhaseOneInstance(v
 		(*backRepoVisualLayer.Map_VisualLayerPtr_VisualLayerDBID)[visuallayer] = visuallayerDB.ID
 
 		// append model store with the new element
+		visuallayer.Name = visuallayerDB.Name_Data.String
 		visuallayer.Stage()
 	}
 	visuallayerDB.CopyBasicFieldsToVisualLayer(visuallayer)
@@ -325,7 +349,7 @@ func (backRepo *BackRepoStruct) CheckoutVisualLayer(visuallayer *models.VisualLa
 	}
 }
 
-// CopyBasicFieldsToVisualLayerDB is used to copy basic fields between the Stage or the CRUD to the back repo
+// CopyBasicFieldsFromVisualLayer
 func (visuallayerDB *VisualLayerDB) CopyBasicFieldsFromVisualLayer(visuallayer *models.VisualLayer) {
 	// insertion point for fields commit
 	visuallayerDB.Name_Data.String = visuallayer.Name
@@ -336,9 +360,27 @@ func (visuallayerDB *VisualLayerDB) CopyBasicFieldsFromVisualLayer(visuallayer *
 
 }
 
-// CopyBasicFieldsToVisualLayerDB is used to copy basic fields between the Stage or the CRUD to the back repo
-func (visuallayerDB *VisualLayerDB) CopyBasicFieldsToVisualLayer(visuallayer *models.VisualLayer) {
+// CopyBasicFieldsFromVisualLayerWOP
+func (visuallayerDB *VisualLayerDB) CopyBasicFieldsFromVisualLayerWOP(visuallayer *VisualLayerWOP) {
+	// insertion point for fields commit
+	visuallayerDB.Name_Data.String = visuallayer.Name
+	visuallayerDB.Name_Data.Valid = true
 
+	visuallayerDB.DisplayName_Data.String = visuallayer.DisplayName
+	visuallayerDB.DisplayName_Data.Valid = true
+
+}
+
+// CopyBasicFieldsToVisualLayer
+func (visuallayerDB *VisualLayerDB) CopyBasicFieldsToVisualLayer(visuallayer *models.VisualLayer) {
+	// insertion point for checkout of basic fields (back repo to stage)
+	visuallayer.Name = visuallayerDB.Name_Data.String
+	visuallayer.DisplayName = visuallayerDB.DisplayName_Data.String
+}
+
+// CopyBasicFieldsToVisualLayerWOP
+func (visuallayerDB *VisualLayerDB) CopyBasicFieldsToVisualLayerWOP(visuallayer *VisualLayerWOP) {
+	visuallayer.ID = int(visuallayerDB.ID)
 	// insertion point for checkout of basic fields (back repo to stage)
 	visuallayer.Name = visuallayerDB.Name_Data.String
 	visuallayer.DisplayName = visuallayerDB.DisplayName_Data.String
@@ -369,6 +411,38 @@ func (backRepoVisualLayer *BackRepoVisualLayerStruct) Backup(dirPath string) {
 	err = ioutil.WriteFile(filename, file, 0644)
 	if err != nil {
 		log.Panic("Cannot write the json VisualLayer file", err.Error())
+	}
+}
+
+// Backup generates a json file from a slice of all VisualLayerDB instances in the backrepo
+func (backRepoVisualLayer *BackRepoVisualLayerStruct) BackupXL(file *xlsx.File) {
+
+	// organize the map into an array with increasing IDs, in order to have repoductible
+	// backup file
+	forBackup := make([]*VisualLayerDB, 0)
+	for _, visuallayerDB := range *backRepoVisualLayer.Map_VisualLayerDBID_VisualLayerDB {
+		forBackup = append(forBackup, visuallayerDB)
+	}
+
+	sort.Slice(forBackup[:], func(i, j int) bool {
+		return forBackup[i].ID < forBackup[j].ID
+	})
+
+	sh, err := file.AddSheet("VisualLayer")
+	if err != nil {
+		log.Panic("Cannot add XL file", err.Error())
+	}
+	_ = sh
+
+	row := sh.AddRow()
+	row.WriteSlice(&VisualLayer_Fields, -1)
+	for _, visuallayerDB := range forBackup {
+
+		var visuallayerWOP VisualLayerWOP
+		visuallayerDB.CopyBasicFieldsToVisualLayerWOP(&visuallayerWOP)
+
+		row := sh.AddRow()
+		row.WriteStruct(&visuallayerWOP, -1)
 	}
 }
 

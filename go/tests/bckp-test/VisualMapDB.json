@@ -1,0 +1,48 @@
+[
+ {
+  "ID": 2,
+  "CreatedAt": "2021-05-31T06:57:57.856703+02:00",
+  "UpdatedAt": "2021-06-01T04:03:59.090293+02:00",
+  "DeletedAt": null,
+  "Lat_Data": {
+   "Float64": 45,
+   "Valid": true
+  },
+  "Lng_Data": {
+   "Float64": 4,
+   "Valid": true
+  },
+  "Name_Data": {
+   "String": "Reference",
+   "Valid": true
+  },
+  "ZoomLevel_Data": {
+   "Float64": 8,
+   "Valid": true
+  },
+  "UrlTemplate_Data": {
+   "String": "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",
+   "Valid": true
+  },
+  "Attribution_Data": {
+   "String": "osm",
+   "Valid": true
+  },
+  "MaxZoom_Data": {
+   "Int64": 18,
+   "Valid": true
+  },
+  "ZoomControl_Data": {
+   "Bool": false,
+   "Valid": true
+  },
+  "AttributionControl_Data": {
+   "Bool": false,
+   "Valid": true
+  },
+  "ZoomSnap_Data": {
+   "Bool": false,
+   "Valid": true
+  }
+ }
+]

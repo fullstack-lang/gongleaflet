@@ -13,7 +13,9 @@ import (
 	"sort"
 	"time"
 
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
+
+	"github.com/tealeg/xlsx/v3"
 
 	"github.com/fullstack-lang/gongleaflet/go/models"
 )
@@ -74,6 +76,27 @@ type VisualIconDBs []VisualIconDB
 type VisualIconDBResponse struct {
 	VisualIconDB
 }
+
+// VisualIconWOP is a VisualIcon without pointers
+// it holds the same basic fields but pointers are encoded into uint
+type VisualIconWOP struct {
+	ID int
+
+	// insertion for WOP basic fields
+
+	Name string
+
+	SVG string
+	// insertion for WOP pointer fields
+}
+
+var VisualIcon_Fields = []string{
+	// insertion for WOP basic fields
+	"ID",
+	"Name",
+	"SVG",
+}
+
 
 type BackRepoVisualIconStruct struct {
 	// stores VisualIconDB according to their gorm ID
@@ -264,6 +287,7 @@ func (backRepoVisualIcon *BackRepoVisualIconStruct) CheckoutPhaseOneInstance(vis
 		(*backRepoVisualIcon.Map_VisualIconPtr_VisualIconDBID)[visualicon] = visualiconDB.ID
 
 		// append model store with the new element
+		visualicon.Name = visualiconDB.Name_Data.String
 		visualicon.Stage()
 	}
 	visualiconDB.CopyBasicFieldsToVisualIcon(visualicon)
@@ -325,7 +349,7 @@ func (backRepo *BackRepoStruct) CheckoutVisualIcon(visualicon *models.VisualIcon
 	}
 }
 
-// CopyBasicFieldsToVisualIconDB is used to copy basic fields between the Stage or the CRUD to the back repo
+// CopyBasicFieldsFromVisualIcon
 func (visualiconDB *VisualIconDB) CopyBasicFieldsFromVisualIcon(visualicon *models.VisualIcon) {
 	// insertion point for fields commit
 	visualiconDB.Name_Data.String = visualicon.Name
@@ -336,9 +360,27 @@ func (visualiconDB *VisualIconDB) CopyBasicFieldsFromVisualIcon(visualicon *mode
 
 }
 
-// CopyBasicFieldsToVisualIconDB is used to copy basic fields between the Stage or the CRUD to the back repo
-func (visualiconDB *VisualIconDB) CopyBasicFieldsToVisualIcon(visualicon *models.VisualIcon) {
+// CopyBasicFieldsFromVisualIconWOP
+func (visualiconDB *VisualIconDB) CopyBasicFieldsFromVisualIconWOP(visualicon *VisualIconWOP) {
+	// insertion point for fields commit
+	visualiconDB.Name_Data.String = visualicon.Name
+	visualiconDB.Name_Data.Valid = true
 
+	visualiconDB.SVG_Data.String = visualicon.SVG
+	visualiconDB.SVG_Data.Valid = true
+
+}
+
+// CopyBasicFieldsToVisualIcon
+func (visualiconDB *VisualIconDB) CopyBasicFieldsToVisualIcon(visualicon *models.VisualIcon) {
+	// insertion point for checkout of basic fields (back repo to stage)
+	visualicon.Name = visualiconDB.Name_Data.String
+	visualicon.SVG = visualiconDB.SVG_Data.String
+}
+
+// CopyBasicFieldsToVisualIconWOP
+func (visualiconDB *VisualIconDB) CopyBasicFieldsToVisualIconWOP(visualicon *VisualIconWOP) {
+	visualicon.ID = int(visualiconDB.ID)
 	// insertion point for checkout of basic fields (back repo to stage)
 	visualicon.Name = visualiconDB.Name_Data.String
 	visualicon.SVG = visualiconDB.SVG_Data.String
@@ -369,6 +411,38 @@ func (backRepoVisualIcon *BackRepoVisualIconStruct) Backup(dirPath string) {
 	err = ioutil.WriteFile(filename, file, 0644)
 	if err != nil {
 		log.Panic("Cannot write the json VisualIcon file", err.Error())
+	}
+}
+
+// Backup generates a json file from a slice of all VisualIconDB instances in the backrepo
+func (backRepoVisualIcon *BackRepoVisualIconStruct) BackupXL(file *xlsx.File) {
+
+	// organize the map into an array with increasing IDs, in order to have repoductible
+	// backup file
+	forBackup := make([]*VisualIconDB, 0)
+	for _, visualiconDB := range *backRepoVisualIcon.Map_VisualIconDBID_VisualIconDB {
+		forBackup = append(forBackup, visualiconDB)
+	}
+
+	sort.Slice(forBackup[:], func(i, j int) bool {
+		return forBackup[i].ID < forBackup[j].ID
+	})
+
+	sh, err := file.AddSheet("VisualIcon")
+	if err != nil {
+		log.Panic("Cannot add XL file", err.Error())
+	}
+	_ = sh
+
+	row := sh.AddRow()
+	row.WriteSlice(&VisualIcon_Fields, -1)
+	for _, visualiconDB := range forBackup {
+
+		var visualiconWOP VisualIconWOP
+		visualiconDB.CopyBasicFieldsToVisualIconWOP(&visualiconWOP)
+
+		row := sh.AddRow()
+		row.WriteStruct(&visualiconWOP, -1)
 	}
 }
 

@@ -13,7 +13,9 @@ import (
 	"sort"
 	"time"
 
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
+
+	"github.com/tealeg/xlsx/v3"
 
 	"github.com/fullstack-lang/gongleaflet/go/models"
 )
@@ -101,6 +103,51 @@ type VisualMapDBs []VisualMapDB
 type VisualMapDBResponse struct {
 	VisualMapDB
 }
+
+// VisualMapWOP is a VisualMap without pointers
+// it holds the same basic fields but pointers are encoded into uint
+type VisualMapWOP struct {
+	ID int
+
+	// insertion for WOP basic fields
+
+	Lat float64
+
+	Lng float64
+
+	Name string
+
+	ZoomLevel float64
+
+	UrlTemplate string
+
+	Attribution string
+
+	MaxZoom int
+
+	ZoomControl bool
+
+	AttributionControl bool
+
+	ZoomSnap bool
+	// insertion for WOP pointer fields
+}
+
+var VisualMap_Fields = []string{
+	// insertion for WOP basic fields
+	"ID",
+	"Lat",
+	"Lng",
+	"Name",
+	"ZoomLevel",
+	"UrlTemplate",
+	"Attribution",
+	"MaxZoom",
+	"ZoomControl",
+	"AttributionControl",
+	"ZoomSnap",
+}
+
 
 type BackRepoVisualMapStruct struct {
 	// stores VisualMapDB according to their gorm ID
@@ -291,6 +338,7 @@ func (backRepoVisualMap *BackRepoVisualMapStruct) CheckoutPhaseOneInstance(visua
 		(*backRepoVisualMap.Map_VisualMapPtr_VisualMapDBID)[visualmap] = visualmapDB.ID
 
 		// append model store with the new element
+		visualmap.Name = visualmapDB.Name_Data.String
 		visualmap.Stage()
 	}
 	visualmapDB.CopyBasicFieldsToVisualMap(visualmap)
@@ -352,7 +400,7 @@ func (backRepo *BackRepoStruct) CheckoutVisualMap(visualmap *models.VisualMap) {
 	}
 }
 
-// CopyBasicFieldsToVisualMapDB is used to copy basic fields between the Stage or the CRUD to the back repo
+// CopyBasicFieldsFromVisualMap
 func (visualmapDB *VisualMapDB) CopyBasicFieldsFromVisualMap(visualmap *models.VisualMap) {
 	// insertion point for fields commit
 	visualmapDB.Lat_Data.Float64 = visualmap.Lat
@@ -387,9 +435,59 @@ func (visualmapDB *VisualMapDB) CopyBasicFieldsFromVisualMap(visualmap *models.V
 
 }
 
-// CopyBasicFieldsToVisualMapDB is used to copy basic fields between the Stage or the CRUD to the back repo
-func (visualmapDB *VisualMapDB) CopyBasicFieldsToVisualMap(visualmap *models.VisualMap) {
+// CopyBasicFieldsFromVisualMapWOP
+func (visualmapDB *VisualMapDB) CopyBasicFieldsFromVisualMapWOP(visualmap *VisualMapWOP) {
+	// insertion point for fields commit
+	visualmapDB.Lat_Data.Float64 = visualmap.Lat
+	visualmapDB.Lat_Data.Valid = true
 
+	visualmapDB.Lng_Data.Float64 = visualmap.Lng
+	visualmapDB.Lng_Data.Valid = true
+
+	visualmapDB.Name_Data.String = visualmap.Name
+	visualmapDB.Name_Data.Valid = true
+
+	visualmapDB.ZoomLevel_Data.Float64 = visualmap.ZoomLevel
+	visualmapDB.ZoomLevel_Data.Valid = true
+
+	visualmapDB.UrlTemplate_Data.String = visualmap.UrlTemplate
+	visualmapDB.UrlTemplate_Data.Valid = true
+
+	visualmapDB.Attribution_Data.String = visualmap.Attribution
+	visualmapDB.Attribution_Data.Valid = true
+
+	visualmapDB.MaxZoom_Data.Int64 = int64(visualmap.MaxZoom)
+	visualmapDB.MaxZoom_Data.Valid = true
+
+	visualmapDB.ZoomControl_Data.Bool = visualmap.ZoomControl
+	visualmapDB.ZoomControl_Data.Valid = true
+
+	visualmapDB.AttributionControl_Data.Bool = visualmap.AttributionControl
+	visualmapDB.AttributionControl_Data.Valid = true
+
+	visualmapDB.ZoomSnap_Data.Bool = visualmap.ZoomSnap
+	visualmapDB.ZoomSnap_Data.Valid = true
+
+}
+
+// CopyBasicFieldsToVisualMap
+func (visualmapDB *VisualMapDB) CopyBasicFieldsToVisualMap(visualmap *models.VisualMap) {
+	// insertion point for checkout of basic fields (back repo to stage)
+	visualmap.Lat = visualmapDB.Lat_Data.Float64
+	visualmap.Lng = visualmapDB.Lng_Data.Float64
+	visualmap.Name = visualmapDB.Name_Data.String
+	visualmap.ZoomLevel = visualmapDB.ZoomLevel_Data.Float64
+	visualmap.UrlTemplate = visualmapDB.UrlTemplate_Data.String
+	visualmap.Attribution = visualmapDB.Attribution_Data.String
+	visualmap.MaxZoom = int(visualmapDB.MaxZoom_Data.Int64)
+	visualmap.ZoomControl = visualmapDB.ZoomControl_Data.Bool
+	visualmap.AttributionControl = visualmapDB.AttributionControl_Data.Bool
+	visualmap.ZoomSnap = visualmapDB.ZoomSnap_Data.Bool
+}
+
+// CopyBasicFieldsToVisualMapWOP
+func (visualmapDB *VisualMapDB) CopyBasicFieldsToVisualMapWOP(visualmap *VisualMapWOP) {
+	visualmap.ID = int(visualmapDB.ID)
 	// insertion point for checkout of basic fields (back repo to stage)
 	visualmap.Lat = visualmapDB.Lat_Data.Float64
 	visualmap.Lng = visualmapDB.Lng_Data.Float64
@@ -428,6 +526,38 @@ func (backRepoVisualMap *BackRepoVisualMapStruct) Backup(dirPath string) {
 	err = ioutil.WriteFile(filename, file, 0644)
 	if err != nil {
 		log.Panic("Cannot write the json VisualMap file", err.Error())
+	}
+}
+
+// Backup generates a json file from a slice of all VisualMapDB instances in the backrepo
+func (backRepoVisualMap *BackRepoVisualMapStruct) BackupXL(file *xlsx.File) {
+
+	// organize the map into an array with increasing IDs, in order to have repoductible
+	// backup file
+	forBackup := make([]*VisualMapDB, 0)
+	for _, visualmapDB := range *backRepoVisualMap.Map_VisualMapDBID_VisualMapDB {
+		forBackup = append(forBackup, visualmapDB)
+	}
+
+	sort.Slice(forBackup[:], func(i, j int) bool {
+		return forBackup[i].ID < forBackup[j].ID
+	})
+
+	sh, err := file.AddSheet("VisualMap")
+	if err != nil {
+		log.Panic("Cannot add XL file", err.Error())
+	}
+	_ = sh
+
+	row := sh.AddRow()
+	row.WriteSlice(&VisualMap_Fields, -1)
+	for _, visualmapDB := range forBackup {
+
+		var visualmapWOP VisualMapWOP
+		visualmapDB.CopyBasicFieldsToVisualMapWOP(&visualmapWOP)
+
+		row := sh.AddRow()
+		row.WriteStruct(&visualmapWOP, -1)
 	}
 }
 

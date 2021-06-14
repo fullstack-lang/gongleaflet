@@ -1,8 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup} from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 
 import { VisualLayerDB } from '../visuallayer-db'
 import { VisualLayerService } from '../visuallayer.service'
+
+import { FrontRepoService, FrontRepo } from '../front-repo.service'
 
 import { Router, RouterState, ActivatedRoute } from '@angular/router';
 
@@ -25,9 +27,13 @@ export class VisualLayerPresentationComponent implements OnInit {
 	dataSource = ELEMENT_DATA;
 
 	visuallayer: VisualLayerDB;
+
+	// front repo
+	frontRepo: FrontRepo
  
 	constructor(
 		private visuallayerService: VisualLayerService,
+		private frontRepoService: FrontRepoService,
 		private route: ActivatedRoute,
 		private router: Router,
 	) {
@@ -51,22 +57,22 @@ export class VisualLayerPresentationComponent implements OnInit {
 
 	getVisualLayer(): void {
 		const id = +this.route.snapshot.paramMap.get('id');
-		this.visuallayerService.getVisualLayer(id)
-			.subscribe(
-				visuallayer => {
-					this.visuallayer = visuallayer
+		this.frontRepoService.pull().subscribe(
+			frontRepo => {
+				this.frontRepo = frontRepo
 
-					// insertion point for recovery of durations
+				this.visuallayer = this.frontRepo.VisualLayers.get(id)
 
-				}
-			);
+				// insertion point for recovery of durations
+			}
+		);
 	}
 
 	// set presentation outlet
 	setPresentationRouterOutlet(structName: string, ID: number) {
 		this.router.navigate([{
 			outlets: {
-				presentation: [structName + "-presentation", ID]
+				github_com_fullstack_lang_gongleaflet_go_presentation: ["github_com_fullstack_lang_gongleaflet_go-" + structName + "-presentation", ID]
 			}
 		}]);
 	}
@@ -75,7 +81,7 @@ export class VisualLayerPresentationComponent implements OnInit {
 	setEditorRouterOutlet(ID: number) {
 		this.router.navigate([{
 			outlets: {
-				editor: ["visuallayer-detail", ID]
+				github_com_fullstack_lang_gongleaflet_go_editor: ["github_com_fullstack_lang_gongleaflet_go-" + "visuallayer-detail", ID]
 			}
 		}]);
 	}

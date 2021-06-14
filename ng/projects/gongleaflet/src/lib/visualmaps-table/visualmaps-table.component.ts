@@ -20,7 +20,7 @@ import { FrontRepoService, FrontRepo } from '../front-repo.service'
 
 // generated table component
 @Component({
-  selector: 'app-visualmaps-table',
+  selector: 'app-visualmapstable',
   templateUrl: './visualmaps-table.component.html',
   styleUrls: ['./visualmaps-table.component.css'],
 })
@@ -47,6 +47,36 @@ export class VisualMapsTableComponent implements OnInit {
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
   ngAfterViewInit() {
+
+	// enable sorting on all fields (including pointers and reverse pointer)
+	this.matTableDataSource.sortingDataAccessor = (visualmapDB: VisualMapDB, property: string) => {
+		switch (property) {
+				// insertion point for specific sorting accessor
+				default:
+					return VisualMapDB[property];
+		}
+	}; 
+
+	// enable filtering on all fields (including pointers and reverse pointer, which is not done by default)
+	this.matTableDataSource.filterPredicate = (visualmapDB: VisualMapDB, filter: string) => {
+
+		// filtering is based on finding a lower case filter into a concatenated string
+		// the visualmapDB properties
+		let mergedContent = ""
+
+		// insertion point for merging of fields
+		mergedContent += visualmapDB.Lat.toString()
+		mergedContent += visualmapDB.Lng.toString()
+		mergedContent += visualmapDB.Name.toLowerCase()
+		mergedContent += visualmapDB.ZoomLevel.toString()
+		mergedContent += visualmapDB.UrlTemplate.toLowerCase()
+		mergedContent += visualmapDB.Attribution.toLowerCase()
+		mergedContent += visualmapDB.MaxZoom.toString()
+
+		let isSelected = mergedContent.includes(filter.toLowerCase())
+		return isSelected
+	};
+
     this.matTableDataSource.sort = this.sort;
     this.matTableDataSource.paginator = this.paginator;
   }
@@ -161,14 +191,14 @@ export class VisualMapsTableComponent implements OnInit {
 
   // display visualmap in router
   displayVisualMapInRouter(visualmapID: number) {
-    this.router.navigate(["visualmap-display", visualmapID])
+    this.router.navigate(["github_com_fullstack_lang_gongleaflet_go-" + "visualmap-display", visualmapID])
   }
 
   // set editor outlet
   setEditorRouterOutlet(visualmapID: number) {
     this.router.navigate([{
       outlets: {
-        editor: ["visualmap-detail", visualmapID]
+        github_com_fullstack_lang_gongleaflet_go_editor: ["github_com_fullstack_lang_gongleaflet_go-" + "visualmap-detail", visualmapID]
       }
     }]);
   }
@@ -177,7 +207,7 @@ export class VisualMapsTableComponent implements OnInit {
   setPresentationRouterOutlet(visualmapID: number) {
     this.router.navigate([{
       outlets: {
-        presentation: ["visualmap-presentation", visualmapID]
+        github_com_fullstack_lang_gongleaflet_go_presentation: ["github_com_fullstack_lang_gongleaflet_go-" + "visualmap-presentation", visualmapID]
       }
     }]);
   }

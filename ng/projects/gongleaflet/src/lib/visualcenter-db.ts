@@ -19,10 +19,8 @@ export class VisualCenterDB {
 	// insertion point for other declarations
 	VisualLayer?: VisualLayerDB
 	VisualLayerID?: NullInt64
-	VisualLayerName?: string
 
 	VisualIcon?: VisualIconDB
 	VisualIconID?: NullInt64
-	VisualIconName?: string
 
 }
