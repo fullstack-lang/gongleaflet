@@ -104,7 +104,7 @@ type VisualMapDBResponse struct {
 	VisualMapDB
 }
 
-// VisualMapWOP is a VisualMap without pointers
+// VisualMapWOP is a VisualMap without pointers (WOP is an acronym for "Without Pointers")
 // it holds the same basic fields but pointers are encoded into uint
 type VisualMapWOP struct {
 	ID int
@@ -147,7 +147,6 @@ var VisualMap_Fields = []string{
 	"AttributionControl",
 	"ZoomSnap",
 }
-
 
 type BackRepoVisualMapStruct struct {
 	// stores VisualMapDB according to their gorm ID
@@ -306,9 +305,8 @@ func (backRepoVisualMap *BackRepoVisualMapStruct) CommitPhaseTwoInstance(backRep
 
 // BackRepoVisualMap.CheckoutPhaseOne Checkouts all BackRepo instances to the Stage
 //
-// Phase One is the creation of instance in the stage
-//
-// NOTE: the is supposed to have been reset before
+// Phase One will result in having instances on the stage aligned with the back repo
+// pointers are not initialized yet (this is for pahse two)
 //
 func (backRepoVisualMap *BackRepoVisualMapStruct) CheckoutPhaseOne() (Error error) {
 
@@ -318,9 +316,34 @@ func (backRepoVisualMap *BackRepoVisualMapStruct) CheckoutPhaseOne() (Error erro
 		return query.Error
 	}
 
+	// list of instances to be removed
+	// start from the initial map on the stage and remove instances that have been checked out
+	visualmapInstancesToBeRemovedFromTheStage := make(map[*models.VisualMap]struct{})
+	for key, value := range models.Stage.VisualMaps {
+		visualmapInstancesToBeRemovedFromTheStage[key] = value
+	}
+
 	// copy orm objects to the the map
 	for _, visualmapDB := range visualmapDBArray {
 		backRepoVisualMap.CheckoutPhaseOneInstance(&visualmapDB)
+
+		// do not remove this instance from the stage, therefore
+		// remove instance from the list of instances to be be removed from the stage
+		visualmap, ok := (*backRepoVisualMap.Map_VisualMapDBID_VisualMapPtr)[visualmapDB.ID]
+		if ok {
+			delete(visualmapInstancesToBeRemovedFromTheStage, visualmap)
+		}
+	}
+
+	// remove from stage and back repo's 3 maps all visualmaps that are not in the checkout
+	for visualmap := range visualmapInstancesToBeRemovedFromTheStage {
+		visualmap.Unstage()
+
+		// remove instance from the back repo 3 maps
+		visualmapID := (*backRepoVisualMap.Map_VisualMapPtr_VisualMapDBID)[visualmap]
+		delete((*backRepoVisualMap.Map_VisualMapPtr_VisualMapDBID), visualmap)
+		delete((*backRepoVisualMap.Map_VisualMapDBID_VisualMapDB), visualmapID)
+		delete((*backRepoVisualMap.Map_VisualMapDBID_VisualMapPtr), visualmapID)
 	}
 
 	return
@@ -605,7 +628,7 @@ func (backRepoVisualMap *BackRepoVisualMapStruct) RestorePhaseOne(dirPath string
 // to compute new index
 func (backRepoVisualMap *BackRepoVisualMapStruct) RestorePhaseTwo() {
 
-	for _, visualmapDB := range (*backRepoVisualMap.Map_VisualMapDBID_VisualMapDB) {
+	for _, visualmapDB := range *backRepoVisualMap.Map_VisualMapDBID_VisualMapDB {
 
 		// next line of code is to avert unused variable compilation error
 		_ = visualmapDB

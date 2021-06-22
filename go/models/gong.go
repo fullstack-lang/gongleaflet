@@ -12,25 +12,25 @@ var __member __void
 // StageStruct enables storage of staged instances
 // swagger:ignore
 type StageStruct struct { // insertion point for definition of arrays registering instances
-	VisualCenters map[*VisualCenter]struct{}
+	VisualCenters           map[*VisualCenter]struct{}
 	VisualCenters_mapString map[string]*VisualCenter
 
-	VisualCircles map[*VisualCircle]struct{}
+	VisualCircles           map[*VisualCircle]struct{}
 	VisualCircles_mapString map[string]*VisualCircle
 
-	VisualIcons map[*VisualIcon]struct{}
+	VisualIcons           map[*VisualIcon]struct{}
 	VisualIcons_mapString map[string]*VisualIcon
 
-	VisualLayers map[*VisualLayer]struct{}
+	VisualLayers           map[*VisualLayer]struct{}
 	VisualLayers_mapString map[string]*VisualLayer
 
-	VisualLines map[*VisualLine]struct{}
+	VisualLines           map[*VisualLine]struct{}
 	VisualLines_mapString map[string]*VisualLine
 
-	VisualMaps map[*VisualMap]struct{}
+	VisualMaps           map[*VisualMap]struct{}
 	VisualMaps_mapString map[string]*VisualMap
 
-	VisualTracks map[*VisualTrack]struct{}
+	VisualTracks           map[*VisualTrack]struct{}
 	VisualTracks_mapString map[string]*VisualTrack
 
 	AllModelsStructCreateCallback AllModelsStructCreateInterface
@@ -70,29 +70,30 @@ type BackRepoInterface interface {
 	CommitVisualTrack(visualtrack *VisualTrack)
 	CheckoutVisualTrack(visualtrack *VisualTrack)
 	GetLastCommitNb() uint
+	GetLastPushFromFrontNb() uint
 }
 
 // swagger:ignore instructs the gong compiler (gongc) to avoid this particular struct
 var Stage StageStruct = StageStruct{ // insertion point for array initiatialisation
-	VisualCenters: make(map[*VisualCenter]struct{}, 0),
+	VisualCenters:           make(map[*VisualCenter]struct{}, 0),
 	VisualCenters_mapString: make(map[string]*VisualCenter, 0),
 
-	VisualCircles: make(map[*VisualCircle]struct{}, 0),
+	VisualCircles:           make(map[*VisualCircle]struct{}, 0),
 	VisualCircles_mapString: make(map[string]*VisualCircle, 0),
 
-	VisualIcons: make(map[*VisualIcon]struct{}, 0),
+	VisualIcons:           make(map[*VisualIcon]struct{}, 0),
 	VisualIcons_mapString: make(map[string]*VisualIcon, 0),
 
-	VisualLayers: make(map[*VisualLayer]struct{}, 0),
+	VisualLayers:           make(map[*VisualLayer]struct{}, 0),
 	VisualLayers_mapString: make(map[string]*VisualLayer, 0),
 
-	VisualLines: make(map[*VisualLine]struct{}, 0),
+	VisualLines:           make(map[*VisualLine]struct{}, 0),
 	VisualLines_mapString: make(map[string]*VisualLine, 0),
 
-	VisualMaps: make(map[*VisualMap]struct{}, 0),
+	VisualMaps:           make(map[*VisualMap]struct{}, 0),
 	VisualMaps_mapString: make(map[string]*VisualMap, 0),
 
-	VisualTracks: make(map[*VisualTrack]struct{}, 0),
+	VisualTracks:           make(map[*VisualTrack]struct{}, 0),
 	VisualTracks_mapString: make(map[string]*VisualTrack, 0),
 
 	// end of insertion point
@@ -155,7 +156,7 @@ func (stage *StageStruct) getVisualCenterOrderedStructWithNameField() []*VisualC
 func (visualcenter *VisualCenter) Stage() *VisualCenter {
 	Stage.VisualCenters[visualcenter] = __member
 	Stage.VisualCenters_mapString[visualcenter.Name] = visualcenter
-	
+
 	return visualcenter
 }
 
@@ -257,7 +258,7 @@ func (stage *StageStruct) getVisualCircleOrderedStructWithNameField() []*VisualC
 func (visualcircle *VisualCircle) Stage() *VisualCircle {
 	Stage.VisualCircles[visualcircle] = __member
 	Stage.VisualCircles_mapString[visualcircle.Name] = visualcircle
-	
+
 	return visualcircle
 }
 
@@ -359,7 +360,7 @@ func (stage *StageStruct) getVisualIconOrderedStructWithNameField() []*VisualIco
 func (visualicon *VisualIcon) Stage() *VisualIcon {
 	Stage.VisualIcons[visualicon] = __member
 	Stage.VisualIcons_mapString[visualicon.Name] = visualicon
-	
+
 	return visualicon
 }
 
@@ -461,7 +462,7 @@ func (stage *StageStruct) getVisualLayerOrderedStructWithNameField() []*VisualLa
 func (visuallayer *VisualLayer) Stage() *VisualLayer {
 	Stage.VisualLayers[visuallayer] = __member
 	Stage.VisualLayers_mapString[visuallayer.Name] = visuallayer
-	
+
 	return visuallayer
 }
 
@@ -563,7 +564,7 @@ func (stage *StageStruct) getVisualLineOrderedStructWithNameField() []*VisualLin
 func (visualline *VisualLine) Stage() *VisualLine {
 	Stage.VisualLines[visualline] = __member
 	Stage.VisualLines_mapString[visualline.Name] = visualline
-	
+
 	return visualline
 }
 
@@ -665,7 +666,7 @@ func (stage *StageStruct) getVisualMapOrderedStructWithNameField() []*VisualMap 
 func (visualmap *VisualMap) Stage() *VisualMap {
 	Stage.VisualMaps[visualmap] = __member
 	Stage.VisualMaps_mapString[visualmap.Name] = visualmap
-	
+
 	return visualmap
 }
 
@@ -767,7 +768,7 @@ func (stage *StageStruct) getVisualTrackOrderedStructWithNameField() []*VisualTr
 func (visualtrack *VisualTrack) Stage() *VisualTrack {
 	Stage.VisualTracks[visualtrack] = __member
 	Stage.VisualTracks_mapString[visualtrack.Name] = visualtrack
-	
+
 	return visualtrack
 }
 

@@ -52,11 +52,44 @@ export class VisualTracksTableComponent implements OnInit {
 	this.matTableDataSource.sortingDataAccessor = (visualtrackDB: VisualTrackDB, property: string) => {
 		switch (property) {
 				// insertion point for specific sorting accessor
-  			case 'VisualLayer':
+			case 'Lat':
+				return visualtrackDB.Lat;
+
+			case 'Lng':
+				return visualtrackDB.Lng;
+
+			case 'Heading':
+				return visualtrackDB.Heading;
+
+			case 'Level':
+				return visualtrackDB.Level;
+
+			case 'Speed':
+				return visualtrackDB.Speed;
+
+			case 'VerticalSpeed':
+				return visualtrackDB.VerticalSpeed;
+
+			case 'Name':
+				return visualtrackDB.Name;
+
+			case 'VisualColorEnum':
+				return visualtrackDB.VisualColorEnum;
+
+			case 'VisualLayer':
 				return (visualtrackDB.VisualLayer ? visualtrackDB.VisualLayer.Name : '');
 
-  			case 'VisualIcon':
+			case 'VisualIcon':
 				return (visualtrackDB.VisualIcon ? visualtrackDB.VisualIcon.Name : '');
+
+			case 'Display':
+				return visualtrackDB.Display;
+
+			case 'DisplayTrackHistory':
+				return visualtrackDB.DisplayTrackHistory;
+
+			case 'DisplayLevelAndSpeed':
+				return visualtrackDB.DisplayLevelAndSpeed;
 
 				default:
 					return VisualTrackDB[property];

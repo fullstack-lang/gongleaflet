@@ -93,7 +93,7 @@ type VisualCircleDBResponse struct {
 	VisualCircleDB
 }
 
-// VisualCircleWOP is a VisualCircle without pointers
+// VisualCircleWOP is a VisualCircle without pointers (WOP is an acronym for "Without Pointers")
 // it holds the same basic fields but pointers are encoded into uint
 type VisualCircleWOP struct {
 	ID int
@@ -124,7 +124,6 @@ var VisualCircle_Fields = []string{
 	"VisualColorEnum",
 	"DashStyleEnum",
 }
-
 
 type BackRepoVisualCircleStruct struct {
 	// stores VisualCircleDB according to their gorm ID
@@ -291,9 +290,8 @@ func (backRepoVisualCircle *BackRepoVisualCircleStruct) CommitPhaseTwoInstance(b
 
 // BackRepoVisualCircle.CheckoutPhaseOne Checkouts all BackRepo instances to the Stage
 //
-// Phase One is the creation of instance in the stage
-//
-// NOTE: the is supposed to have been reset before
+// Phase One will result in having instances on the stage aligned with the back repo
+// pointers are not initialized yet (this is for pahse two)
 //
 func (backRepoVisualCircle *BackRepoVisualCircleStruct) CheckoutPhaseOne() (Error error) {
 
@@ -303,9 +301,34 @@ func (backRepoVisualCircle *BackRepoVisualCircleStruct) CheckoutPhaseOne() (Erro
 		return query.Error
 	}
 
+	// list of instances to be removed
+	// start from the initial map on the stage and remove instances that have been checked out
+	visualcircleInstancesToBeRemovedFromTheStage := make(map[*models.VisualCircle]struct{})
+	for key, value := range models.Stage.VisualCircles {
+		visualcircleInstancesToBeRemovedFromTheStage[key] = value
+	}
+
 	// copy orm objects to the the map
 	for _, visualcircleDB := range visualcircleDBArray {
 		backRepoVisualCircle.CheckoutPhaseOneInstance(&visualcircleDB)
+
+		// do not remove this instance from the stage, therefore
+		// remove instance from the list of instances to be be removed from the stage
+		visualcircle, ok := (*backRepoVisualCircle.Map_VisualCircleDBID_VisualCirclePtr)[visualcircleDB.ID]
+		if ok {
+			delete(visualcircleInstancesToBeRemovedFromTheStage, visualcircle)
+		}
+	}
+
+	// remove from stage and back repo's 3 maps all visualcircles that are not in the checkout
+	for visualcircle := range visualcircleInstancesToBeRemovedFromTheStage {
+		visualcircle.Unstage()
+
+		// remove instance from the back repo 3 maps
+		visualcircleID := (*backRepoVisualCircle.Map_VisualCirclePtr_VisualCircleDBID)[visualcircle]
+		delete((*backRepoVisualCircle.Map_VisualCirclePtr_VisualCircleDBID), visualcircle)
+		delete((*backRepoVisualCircle.Map_VisualCircleDBID_VisualCircleDB), visualcircleID)
+		delete((*backRepoVisualCircle.Map_VisualCircleDBID_VisualCirclePtr), visualcircleID)
 	}
 
 	return
@@ -562,7 +585,7 @@ func (backRepoVisualCircle *BackRepoVisualCircleStruct) RestorePhaseOne(dirPath 
 // to compute new index
 func (backRepoVisualCircle *BackRepoVisualCircleStruct) RestorePhaseTwo() {
 
-	for _, visualcircleDB := range (*backRepoVisualCircle.Map_VisualCircleDBID_VisualCircleDB) {
+	for _, visualcircleDB := range *backRepoVisualCircle.Map_VisualCircleDBID_VisualCircleDB {
 
 		// next line of code is to avert unused variable compilation error
 		_ = visualcircleDB

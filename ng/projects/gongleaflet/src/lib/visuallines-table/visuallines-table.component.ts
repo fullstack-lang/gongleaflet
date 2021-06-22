@@ -52,8 +52,41 @@ export class VisualLinesTableComponent implements OnInit {
 	this.matTableDataSource.sortingDataAccessor = (visuallineDB: VisualLineDB, property: string) => {
 		switch (property) {
 				// insertion point for specific sorting accessor
-  			case 'VisualLayer':
+			case 'StartLat':
+				return visuallineDB.StartLat;
+
+			case 'StartLng':
+				return visuallineDB.StartLng;
+
+			case 'EndLat':
+				return visuallineDB.EndLat;
+
+			case 'EndLng':
+				return visuallineDB.EndLng;
+
+			case 'Name':
+				return visuallineDB.Name;
+
+			case 'VisualColorEnum':
+				return visuallineDB.VisualColorEnum;
+
+			case 'DashStyleEnum':
+				return visuallineDB.DashStyleEnum;
+
+			case 'VisualLayer':
 				return (visuallineDB.VisualLayer ? visuallineDB.VisualLayer.Name : '');
+
+			case 'IsTransmitting':
+				return visuallineDB.IsTransmitting;
+
+			case 'Message':
+				return visuallineDB.Message;
+
+			case 'IsTransmittingBackward':
+				return visuallineDB.IsTransmittingBackward;
+
+			case 'MessageBackward':
+				return visuallineDB.MessageBackward;
 
 				default:
 					return VisualLineDB[property];

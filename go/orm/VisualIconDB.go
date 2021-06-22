@@ -77,7 +77,7 @@ type VisualIconDBResponse struct {
 	VisualIconDB
 }
 
-// VisualIconWOP is a VisualIcon without pointers
+// VisualIconWOP is a VisualIcon without pointers (WOP is an acronym for "Without Pointers")
 // it holds the same basic fields but pointers are encoded into uint
 type VisualIconWOP struct {
 	ID int
@@ -96,7 +96,6 @@ var VisualIcon_Fields = []string{
 	"Name",
 	"SVG",
 }
-
 
 type BackRepoVisualIconStruct struct {
 	// stores VisualIconDB according to their gorm ID
@@ -255,9 +254,8 @@ func (backRepoVisualIcon *BackRepoVisualIconStruct) CommitPhaseTwoInstance(backR
 
 // BackRepoVisualIcon.CheckoutPhaseOne Checkouts all BackRepo instances to the Stage
 //
-// Phase One is the creation of instance in the stage
-//
-// NOTE: the is supposed to have been reset before
+// Phase One will result in having instances on the stage aligned with the back repo
+// pointers are not initialized yet (this is for pahse two)
 //
 func (backRepoVisualIcon *BackRepoVisualIconStruct) CheckoutPhaseOne() (Error error) {
 
@@ -267,9 +265,34 @@ func (backRepoVisualIcon *BackRepoVisualIconStruct) CheckoutPhaseOne() (Error er
 		return query.Error
 	}
 
+	// list of instances to be removed
+	// start from the initial map on the stage and remove instances that have been checked out
+	visualiconInstancesToBeRemovedFromTheStage := make(map[*models.VisualIcon]struct{})
+	for key, value := range models.Stage.VisualIcons {
+		visualiconInstancesToBeRemovedFromTheStage[key] = value
+	}
+
 	// copy orm objects to the the map
 	for _, visualiconDB := range visualiconDBArray {
 		backRepoVisualIcon.CheckoutPhaseOneInstance(&visualiconDB)
+
+		// do not remove this instance from the stage, therefore
+		// remove instance from the list of instances to be be removed from the stage
+		visualicon, ok := (*backRepoVisualIcon.Map_VisualIconDBID_VisualIconPtr)[visualiconDB.ID]
+		if ok {
+			delete(visualiconInstancesToBeRemovedFromTheStage, visualicon)
+		}
+	}
+
+	// remove from stage and back repo's 3 maps all visualicons that are not in the checkout
+	for visualicon := range visualiconInstancesToBeRemovedFromTheStage {
+		visualicon.Unstage()
+
+		// remove instance from the back repo 3 maps
+		visualiconID := (*backRepoVisualIcon.Map_VisualIconPtr_VisualIconDBID)[visualicon]
+		delete((*backRepoVisualIcon.Map_VisualIconPtr_VisualIconDBID), visualicon)
+		delete((*backRepoVisualIcon.Map_VisualIconDBID_VisualIconDB), visualiconID)
+		delete((*backRepoVisualIcon.Map_VisualIconDBID_VisualIconPtr), visualiconID)
 	}
 
 	return
@@ -490,7 +513,7 @@ func (backRepoVisualIcon *BackRepoVisualIconStruct) RestorePhaseOne(dirPath stri
 // to compute new index
 func (backRepoVisualIcon *BackRepoVisualIconStruct) RestorePhaseTwo() {
 
-	for _, visualiconDB := range (*backRepoVisualIcon.Map_VisualIconDBID_VisualIconDB) {
+	for _, visualiconDB := range *backRepoVisualIcon.Map_VisualIconDBID_VisualIconDB {
 
 		// next line of code is to avert unused variable compilation error
 		_ = visualiconDB

@@ -52,6 +52,12 @@ export class VisualIconsTableComponent implements OnInit {
 	this.matTableDataSource.sortingDataAccessor = (visualiconDB: VisualIconDB, property: string) => {
 		switch (property) {
 				// insertion point for specific sorting accessor
+			case 'Name':
+				return visualiconDB.Name;
+
+			case 'SVG':
+				return visualiconDB.SVG;
+
 				default:
 					return VisualIconDB[property];
 		}

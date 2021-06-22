@@ -52,10 +52,22 @@ export class VisualCentersTableComponent implements OnInit {
 	this.matTableDataSource.sortingDataAccessor = (visualcenterDB: VisualCenterDB, property: string) => {
 		switch (property) {
 				// insertion point for specific sorting accessor
-  			case 'VisualLayer':
+			case 'Lat':
+				return visualcenterDB.Lat;
+
+			case 'Lng':
+				return visualcenterDB.Lng;
+
+			case 'Name':
+				return visualcenterDB.Name;
+
+			case 'VisualColorEnum':
+				return visualcenterDB.VisualColorEnum;
+
+			case 'VisualLayer':
 				return (visualcenterDB.VisualLayer ? visualcenterDB.VisualLayer.Name : '');
 
-  			case 'VisualIcon':
+			case 'VisualIcon':
 				return (visualcenterDB.VisualIcon ? visualcenterDB.VisualIcon.Name : '');
 
 				default:

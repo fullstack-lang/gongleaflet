@@ -52,7 +52,25 @@ export class VisualCirclesTableComponent implements OnInit {
 	this.matTableDataSource.sortingDataAccessor = (visualcircleDB: VisualCircleDB, property: string) => {
 		switch (property) {
 				// insertion point for specific sorting accessor
-  			case 'VisualLayer':
+			case 'Lat':
+				return visualcircleDB.Lat;
+
+			case 'Lng':
+				return visualcircleDB.Lng;
+
+			case 'Name':
+				return visualcircleDB.Name;
+
+			case 'Radius':
+				return visualcircleDB.Radius;
+
+			case 'VisualColorEnum':
+				return visualcircleDB.VisualColorEnum;
+
+			case 'DashStyleEnum':
+				return visualcircleDB.DashStyleEnum;
+
+			case 'VisualLayer':
 				return (visualcircleDB.VisualLayer ? visualcircleDB.VisualLayer.Name : '');
 
 				default:

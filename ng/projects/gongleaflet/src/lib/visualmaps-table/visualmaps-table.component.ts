@@ -52,6 +52,36 @@ export class VisualMapsTableComponent implements OnInit {
 	this.matTableDataSource.sortingDataAccessor = (visualmapDB: VisualMapDB, property: string) => {
 		switch (property) {
 				// insertion point for specific sorting accessor
+			case 'Lat':
+				return visualmapDB.Lat;
+
+			case 'Lng':
+				return visualmapDB.Lng;
+
+			case 'Name':
+				return visualmapDB.Name;
+
+			case 'ZoomLevel':
+				return visualmapDB.ZoomLevel;
+
+			case 'UrlTemplate':
+				return visualmapDB.UrlTemplate;
+
+			case 'Attribution':
+				return visualmapDB.Attribution;
+
+			case 'MaxZoom':
+				return visualmapDB.MaxZoom;
+
+			case 'ZoomControl':
+				return visualmapDB.ZoomControl;
+
+			case 'AttributionControl':
+				return visualmapDB.AttributionControl;
+
+			case 'ZoomSnap':
+				return visualmapDB.ZoomSnap;
+
 				default:
 					return VisualMapDB[property];
 		}

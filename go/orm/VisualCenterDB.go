@@ -91,7 +91,7 @@ type VisualCenterDBResponse struct {
 	VisualCenterDB
 }
 
-// VisualCenterWOP is a VisualCenter without pointers
+// VisualCenterWOP is a VisualCenter without pointers (WOP is an acronym for "Without Pointers")
 // it holds the same basic fields but pointers are encoded into uint
 type VisualCenterWOP struct {
 	ID int
@@ -116,7 +116,6 @@ var VisualCenter_Fields = []string{
 	"Name",
 	"VisualColorEnum",
 }
-
 
 type BackRepoVisualCenterStruct struct {
 	// stores VisualCenterDB according to their gorm ID
@@ -291,9 +290,8 @@ func (backRepoVisualCenter *BackRepoVisualCenterStruct) CommitPhaseTwoInstance(b
 
 // BackRepoVisualCenter.CheckoutPhaseOne Checkouts all BackRepo instances to the Stage
 //
-// Phase One is the creation of instance in the stage
-//
-// NOTE: the is supposed to have been reset before
+// Phase One will result in having instances on the stage aligned with the back repo
+// pointers are not initialized yet (this is for pahse two)
 //
 func (backRepoVisualCenter *BackRepoVisualCenterStruct) CheckoutPhaseOne() (Error error) {
 
@@ -303,9 +301,34 @@ func (backRepoVisualCenter *BackRepoVisualCenterStruct) CheckoutPhaseOne() (Erro
 		return query.Error
 	}
 
+	// list of instances to be removed
+	// start from the initial map on the stage and remove instances that have been checked out
+	visualcenterInstancesToBeRemovedFromTheStage := make(map[*models.VisualCenter]struct{})
+	for key, value := range models.Stage.VisualCenters {
+		visualcenterInstancesToBeRemovedFromTheStage[key] = value
+	}
+
 	// copy orm objects to the the map
 	for _, visualcenterDB := range visualcenterDBArray {
 		backRepoVisualCenter.CheckoutPhaseOneInstance(&visualcenterDB)
+
+		// do not remove this instance from the stage, therefore
+		// remove instance from the list of instances to be be removed from the stage
+		visualcenter, ok := (*backRepoVisualCenter.Map_VisualCenterDBID_VisualCenterPtr)[visualcenterDB.ID]
+		if ok {
+			delete(visualcenterInstancesToBeRemovedFromTheStage, visualcenter)
+		}
+	}
+
+	// remove from stage and back repo's 3 maps all visualcenters that are not in the checkout
+	for visualcenter := range visualcenterInstancesToBeRemovedFromTheStage {
+		visualcenter.Unstage()
+
+		// remove instance from the back repo 3 maps
+		visualcenterID := (*backRepoVisualCenter.Map_VisualCenterPtr_VisualCenterDBID)[visualcenter]
+		delete((*backRepoVisualCenter.Map_VisualCenterPtr_VisualCenterDBID), visualcenter)
+		delete((*backRepoVisualCenter.Map_VisualCenterDBID_VisualCenterDB), visualcenterID)
+		delete((*backRepoVisualCenter.Map_VisualCenterDBID_VisualCenterPtr), visualcenterID)
 	}
 
 	return
@@ -550,7 +573,7 @@ func (backRepoVisualCenter *BackRepoVisualCenterStruct) RestorePhaseOne(dirPath 
 // to compute new index
 func (backRepoVisualCenter *BackRepoVisualCenterStruct) RestorePhaseTwo() {
 
-	for _, visualcenterDB := range (*backRepoVisualCenter.Map_VisualCenterDBID_VisualCenterDB) {
+	for _, visualcenterDB := range *backRepoVisualCenter.Map_VisualCenterDBID_VisualCenterDB {
 
 		// next line of code is to avert unused variable compilation error
 		_ = visualcenterDB

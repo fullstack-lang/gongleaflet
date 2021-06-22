@@ -115,7 +115,7 @@ type VisualTrackDBResponse struct {
 	VisualTrackDB
 }
 
-// VisualTrackWOP is a VisualTrack without pointers
+// VisualTrackWOP is a VisualTrack without pointers (WOP is an acronym for "Without Pointers")
 // it holds the same basic fields but pointers are encoded into uint
 type VisualTrackWOP struct {
 	ID int
@@ -161,7 +161,6 @@ var VisualTrack_Fields = []string{
 	"DisplayTrackHistory",
 	"DisplayLevelAndSpeed",
 }
-
 
 type BackRepoVisualTrackStruct struct {
 	// stores VisualTrackDB according to their gorm ID
@@ -336,9 +335,8 @@ func (backRepoVisualTrack *BackRepoVisualTrackStruct) CommitPhaseTwoInstance(bac
 
 // BackRepoVisualTrack.CheckoutPhaseOne Checkouts all BackRepo instances to the Stage
 //
-// Phase One is the creation of instance in the stage
-//
-// NOTE: the is supposed to have been reset before
+// Phase One will result in having instances on the stage aligned with the back repo
+// pointers are not initialized yet (this is for pahse two)
 //
 func (backRepoVisualTrack *BackRepoVisualTrackStruct) CheckoutPhaseOne() (Error error) {
 
@@ -348,9 +346,34 @@ func (backRepoVisualTrack *BackRepoVisualTrackStruct) CheckoutPhaseOne() (Error 
 		return query.Error
 	}
 
+	// list of instances to be removed
+	// start from the initial map on the stage and remove instances that have been checked out
+	visualtrackInstancesToBeRemovedFromTheStage := make(map[*models.VisualTrack]struct{})
+	for key, value := range models.Stage.VisualTracks {
+		visualtrackInstancesToBeRemovedFromTheStage[key] = value
+	}
+
 	// copy orm objects to the the map
 	for _, visualtrackDB := range visualtrackDBArray {
 		backRepoVisualTrack.CheckoutPhaseOneInstance(&visualtrackDB)
+
+		// do not remove this instance from the stage, therefore
+		// remove instance from the list of instances to be be removed from the stage
+		visualtrack, ok := (*backRepoVisualTrack.Map_VisualTrackDBID_VisualTrackPtr)[visualtrackDB.ID]
+		if ok {
+			delete(visualtrackInstancesToBeRemovedFromTheStage, visualtrack)
+		}
+	}
+
+	// remove from stage and back repo's 3 maps all visualtracks that are not in the checkout
+	for visualtrack := range visualtrackInstancesToBeRemovedFromTheStage {
+		visualtrack.Unstage()
+
+		// remove instance from the back repo 3 maps
+		visualtrackID := (*backRepoVisualTrack.Map_VisualTrackPtr_VisualTrackDBID)[visualtrack]
+		delete((*backRepoVisualTrack.Map_VisualTrackPtr_VisualTrackDBID), visualtrack)
+		delete((*backRepoVisualTrack.Map_VisualTrackDBID_VisualTrackDB), visualtrackID)
+		delete((*backRepoVisualTrack.Map_VisualTrackDBID_VisualTrackPtr), visualtrackID)
 	}
 
 	return
@@ -651,7 +674,7 @@ func (backRepoVisualTrack *BackRepoVisualTrackStruct) RestorePhaseOne(dirPath st
 // to compute new index
 func (backRepoVisualTrack *BackRepoVisualTrackStruct) RestorePhaseTwo() {
 
-	for _, visualtrackDB := range (*backRepoVisualTrack.Map_VisualTrackDBID_VisualTrackDB) {
+	for _, visualtrackDB := range *backRepoVisualTrack.Map_VisualTrackDBID_VisualTrackDB {
 
 		// next line of code is to avert unused variable compilation error
 		_ = visualtrackDB

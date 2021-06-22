@@ -52,6 +52,12 @@ export class VisualLayersTableComponent implements OnInit {
 	this.matTableDataSource.sortingDataAccessor = (visuallayerDB: VisualLayerDB, property: string) => {
 		switch (property) {
 				// insertion point for specific sorting accessor
+			case 'Name':
+				return visuallayerDB.Name;
+
+			case 'DisplayName':
+				return visuallayerDB.DisplayName;
+
 				default:
 					return VisualLayerDB[property];
 		}

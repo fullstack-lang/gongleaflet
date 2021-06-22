@@ -108,7 +108,7 @@ type VisualLineDBResponse struct {
 	VisualLineDB
 }
 
-// VisualLineWOP is a VisualLine without pointers
+// VisualLineWOP is a VisualLine without pointers (WOP is an acronym for "Without Pointers")
 // it holds the same basic fields but pointers are encoded into uint
 type VisualLineWOP struct {
 	ID int
@@ -154,7 +154,6 @@ var VisualLine_Fields = []string{
 	"IsTransmittingBackward",
 	"MessageBackward",
 }
-
 
 type BackRepoVisualLineStruct struct {
 	// stores VisualLineDB according to their gorm ID
@@ -321,9 +320,8 @@ func (backRepoVisualLine *BackRepoVisualLineStruct) CommitPhaseTwoInstance(backR
 
 // BackRepoVisualLine.CheckoutPhaseOne Checkouts all BackRepo instances to the Stage
 //
-// Phase One is the creation of instance in the stage
-//
-// NOTE: the is supposed to have been reset before
+// Phase One will result in having instances on the stage aligned with the back repo
+// pointers are not initialized yet (this is for pahse two)
 //
 func (backRepoVisualLine *BackRepoVisualLineStruct) CheckoutPhaseOne() (Error error) {
 
@@ -333,9 +331,34 @@ func (backRepoVisualLine *BackRepoVisualLineStruct) CheckoutPhaseOne() (Error er
 		return query.Error
 	}
 
+	// list of instances to be removed
+	// start from the initial map on the stage and remove instances that have been checked out
+	visuallineInstancesToBeRemovedFromTheStage := make(map[*models.VisualLine]struct{})
+	for key, value := range models.Stage.VisualLines {
+		visuallineInstancesToBeRemovedFromTheStage[key] = value
+	}
+
 	// copy orm objects to the the map
 	for _, visuallineDB := range visuallineDBArray {
 		backRepoVisualLine.CheckoutPhaseOneInstance(&visuallineDB)
+
+		// do not remove this instance from the stage, therefore
+		// remove instance from the list of instances to be be removed from the stage
+		visualline, ok := (*backRepoVisualLine.Map_VisualLineDBID_VisualLinePtr)[visuallineDB.ID]
+		if ok {
+			delete(visuallineInstancesToBeRemovedFromTheStage, visualline)
+		}
+	}
+
+	// remove from stage and back repo's 3 maps all visuallines that are not in the checkout
+	for visualline := range visuallineInstancesToBeRemovedFromTheStage {
+		visualline.Unstage()
+
+		// remove instance from the back repo 3 maps
+		visuallineID := (*backRepoVisualLine.Map_VisualLinePtr_VisualLineDBID)[visualline]
+		delete((*backRepoVisualLine.Map_VisualLinePtr_VisualLineDBID), visualline)
+		delete((*backRepoVisualLine.Map_VisualLineDBID_VisualLineDB), visuallineID)
+		delete((*backRepoVisualLine.Map_VisualLineDBID_VisualLinePtr), visuallineID)
 	}
 
 	return
@@ -632,7 +655,7 @@ func (backRepoVisualLine *BackRepoVisualLineStruct) RestorePhaseOne(dirPath stri
 // to compute new index
 func (backRepoVisualLine *BackRepoVisualLineStruct) RestorePhaseTwo() {
 
-	for _, visuallineDB := range (*backRepoVisualLine.Map_VisualLineDBID_VisualLineDB) {
+	for _, visuallineDB := range *backRepoVisualLine.Map_VisualLineDBID_VisualLineDB {
 
 		// next line of code is to avert unused variable compilation error
 		_ = visuallineDB

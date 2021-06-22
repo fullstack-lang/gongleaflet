@@ -77,7 +77,7 @@ type VisualLayerDBResponse struct {
 	VisualLayerDB
 }
 
-// VisualLayerWOP is a VisualLayer without pointers
+// VisualLayerWOP is a VisualLayer without pointers (WOP is an acronym for "Without Pointers")
 // it holds the same basic fields but pointers are encoded into uint
 type VisualLayerWOP struct {
 	ID int
@@ -96,7 +96,6 @@ var VisualLayer_Fields = []string{
 	"Name",
 	"DisplayName",
 }
-
 
 type BackRepoVisualLayerStruct struct {
 	// stores VisualLayerDB according to their gorm ID
@@ -255,9 +254,8 @@ func (backRepoVisualLayer *BackRepoVisualLayerStruct) CommitPhaseTwoInstance(bac
 
 // BackRepoVisualLayer.CheckoutPhaseOne Checkouts all BackRepo instances to the Stage
 //
-// Phase One is the creation of instance in the stage
-//
-// NOTE: the is supposed to have been reset before
+// Phase One will result in having instances on the stage aligned with the back repo
+// pointers are not initialized yet (this is for pahse two)
 //
 func (backRepoVisualLayer *BackRepoVisualLayerStruct) CheckoutPhaseOne() (Error error) {
 
@@ -267,9 +265,34 @@ func (backRepoVisualLayer *BackRepoVisualLayerStruct) CheckoutPhaseOne() (Error 
 		return query.Error
 	}
 
+	// list of instances to be removed
+	// start from the initial map on the stage and remove instances that have been checked out
+	visuallayerInstancesToBeRemovedFromTheStage := make(map[*models.VisualLayer]struct{})
+	for key, value := range models.Stage.VisualLayers {
+		visuallayerInstancesToBeRemovedFromTheStage[key] = value
+	}
+
 	// copy orm objects to the the map
 	for _, visuallayerDB := range visuallayerDBArray {
 		backRepoVisualLayer.CheckoutPhaseOneInstance(&visuallayerDB)
+
+		// do not remove this instance from the stage, therefore
+		// remove instance from the list of instances to be be removed from the stage
+		visuallayer, ok := (*backRepoVisualLayer.Map_VisualLayerDBID_VisualLayerPtr)[visuallayerDB.ID]
+		if ok {
+			delete(visuallayerInstancesToBeRemovedFromTheStage, visuallayer)
+		}
+	}
+
+	// remove from stage and back repo's 3 maps all visuallayers that are not in the checkout
+	for visuallayer := range visuallayerInstancesToBeRemovedFromTheStage {
+		visuallayer.Unstage()
+
+		// remove instance from the back repo 3 maps
+		visuallayerID := (*backRepoVisualLayer.Map_VisualLayerPtr_VisualLayerDBID)[visuallayer]
+		delete((*backRepoVisualLayer.Map_VisualLayerPtr_VisualLayerDBID), visuallayer)
+		delete((*backRepoVisualLayer.Map_VisualLayerDBID_VisualLayerDB), visuallayerID)
+		delete((*backRepoVisualLayer.Map_VisualLayerDBID_VisualLayerPtr), visuallayerID)
 	}
 
 	return
@@ -490,7 +513,7 @@ func (backRepoVisualLayer *BackRepoVisualLayerStruct) RestorePhaseOne(dirPath st
 // to compute new index
 func (backRepoVisualLayer *BackRepoVisualLayerStruct) RestorePhaseTwo() {
 
-	for _, visuallayerDB := range (*backRepoVisualLayer.Map_VisualLayerDBID_VisualLayerDB) {
+	for _, visuallayerDB := range *backRepoVisualLayer.Map_VisualLayerDBID_VisualLayerDB {
 
 		// next line of code is to avert unused variable compilation error
 		_ = visuallayerDB
