@@ -1,27 +1,49 @@
-<div *ngIf="visualicon" class="details">
+<form *ngIf="visualicon" class="details">
     <h1 class="details__title">visualicon</h1>
     <!-- insertion point for fields specific code -->
-    <!-- -->
-    <div class="details__item">
-        <form>
-            <mat-form-field>
+    <mat-grid-list *ngIf='!isATextArea("Name")' cols="4" rowHeight="6:1">
+        <mat-grid-tile [colspan]="3">
+            <mat-form-field mat-form-field class="detail-full-width">
                 <mat-label>Name</mat-label>
                 <input name="" [ngModelOptions]="{standalone: true}" matInput [(ngModel)]="visualicon.Name">
             </mat-form-field>
-        </form>
-    </div>
-    <!-- -->
-    <div class="details__item">
-        <form>
-            <mat-form-field>
+        </mat-grid-tile>
+        <mat-grid-tile>
+            <button mat-raised-button (click)="toggleTextArea('Name')">
+                <mat-icon>
+                    expand_more
+                </mat-icon>
+            </button>
+        </mat-grid-tile>
+    </mat-grid-list>
+    <mat-form-field *ngIf='isATextArea("Name")' mat-form-field class="detail-full-width">
+        <mat-label>Name</mat-label>
+        <textarea name="" [ngModelOptions]="{standalone: true}" matInput [(ngModel)]="visualicon.Name"></textarea>
+    </mat-form-field>
+
+    <mat-grid-list *ngIf='!isATextArea("SVG")' cols="4" rowHeight="6:1">
+        <mat-grid-tile [colspan]="3">
+            <mat-form-field mat-form-field class="detail-full-width">
                 <mat-label>SVG</mat-label>
                 <input name="" [ngModelOptions]="{standalone: true}" matInput [(ngModel)]="visualicon.SVG">
             </mat-form-field>
-        </form>
-    </div>
+        </mat-grid-tile>
+        <mat-grid-tile>
+            <button mat-raised-button (click)="toggleTextArea('SVG')">
+                <mat-icon>
+                    expand_more
+                </mat-icon>
+            </button>
+        </mat-grid-tile>
+    </mat-grid-list>
+    <mat-form-field *ngIf='isATextArea("SVG")' mat-form-field class="detail-full-width">
+        <mat-label>SVG</mat-label>
+        <textarea name="" [ngModelOptions]="{standalone: true}" matInput [(ngModel)]="visualicon.SVG"></textarea>
+    </mat-form-field>
+
     <div class="details__save">
         <button mat-raised-button color="primary" (click)="save()">
 			Save visualicon
 		</button>
     </div>
-</div>
+</form>

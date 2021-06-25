@@ -1,90 +1,102 @@
-<div *ngIf="visualmap" class="details">
+<form *ngIf="visualmap" class="details">
     <h1 class="details__title">visualmap</h1>
     <!-- insertion point for fields specific code -->
     <!-- -->
-    <div class="details__item">
-        <form>
-            <mat-form-field>
-                <mat-label>Lat</mat-label>
-                <input type="number" [ngModelOptions]="{standalone: true}" matInput [(ngModel)]="visualmap.Lat">
-            </mat-form-field>
-        </form>
-    </div>
+    <mat-form-field class="detail-full-width">
+        <mat-label>Lat</mat-label>
+        <input type="number" [ngModelOptions]="{standalone: true}" matInput [(ngModel)]="visualmap.Lat" [ngModelOptions]="{standalone: true}">
+    </mat-form-field>
+
     <!-- -->
-    <div class="details__item">
-        <form>
-            <mat-form-field>
-                <mat-label>Lng</mat-label>
-                <input type="number" [ngModelOptions]="{standalone: true}" matInput [(ngModel)]="visualmap.Lng">
-            </mat-form-field>
-        </form>
-    </div>
-    <!-- -->
-    <div class="details__item">
-        <form>
-            <mat-form-field>
+    <mat-form-field class="detail-full-width">
+        <mat-label>Lng</mat-label>
+        <input type="number" [ngModelOptions]="{standalone: true}" matInput [(ngModel)]="visualmap.Lng" [ngModelOptions]="{standalone: true}">
+    </mat-form-field>
+
+    <mat-grid-list *ngIf='!isATextArea("Name")' cols="4" rowHeight="6:1">
+        <mat-grid-tile [colspan]="3">
+            <mat-form-field mat-form-field class="detail-full-width">
                 <mat-label>Name</mat-label>
                 <input name="" [ngModelOptions]="{standalone: true}" matInput [(ngModel)]="visualmap.Name">
             </mat-form-field>
-        </form>
-    </div>
+        </mat-grid-tile>
+        <mat-grid-tile>
+            <button mat-raised-button (click)="toggleTextArea('Name')">
+                <mat-icon>
+                    expand_more
+                </mat-icon>
+            </button>
+        </mat-grid-tile>
+    </mat-grid-list>
+    <mat-form-field *ngIf='isATextArea("Name")' mat-form-field class="detail-full-width">
+        <mat-label>Name</mat-label>
+        <textarea name="" [ngModelOptions]="{standalone: true}" matInput [(ngModel)]="visualmap.Name"></textarea>
+    </mat-form-field>
+
     <!-- -->
-    <div class="details__item">
-        <form>
-            <mat-form-field>
-                <mat-label>ZoomLevel</mat-label>
-                <input type="number" [ngModelOptions]="{standalone: true}" matInput [(ngModel)]="visualmap.ZoomLevel">
-            </mat-form-field>
-        </form>
-    </div>
-    <!-- -->
-    <div class="details__item">
-        <form>
-            <mat-form-field>
+    <mat-form-field class="detail-full-width">
+        <mat-label>ZoomLevel</mat-label>
+        <input type="number" [ngModelOptions]="{standalone: true}" matInput [(ngModel)]="visualmap.ZoomLevel" [ngModelOptions]="{standalone: true}">
+    </mat-form-field>
+
+    <mat-grid-list *ngIf='!isATextArea("UrlTemplate")' cols="4" rowHeight="6:1">
+        <mat-grid-tile [colspan]="3">
+            <mat-form-field mat-form-field class="detail-full-width">
                 <mat-label>UrlTemplate</mat-label>
                 <input name="" [ngModelOptions]="{standalone: true}" matInput [(ngModel)]="visualmap.UrlTemplate">
             </mat-form-field>
-        </form>
-    </div>
-    <!-- -->
-    <div class="details__item">
-        <form>
-            <mat-form-field>
+        </mat-grid-tile>
+        <mat-grid-tile>
+            <button mat-raised-button (click)="toggleTextArea('UrlTemplate')">
+                <mat-icon>
+                    expand_more
+                </mat-icon>
+            </button>
+        </mat-grid-tile>
+    </mat-grid-list>
+    <mat-form-field *ngIf='isATextArea("UrlTemplate")' mat-form-field class="detail-full-width">
+        <mat-label>UrlTemplate</mat-label>
+        <textarea name="" [ngModelOptions]="{standalone: true}" matInput [(ngModel)]="visualmap.UrlTemplate"></textarea>
+    </mat-form-field>
+
+    <mat-grid-list *ngIf='!isATextArea("Attribution")' cols="4" rowHeight="6:1">
+        <mat-grid-tile [colspan]="3">
+            <mat-form-field mat-form-field class="detail-full-width">
                 <mat-label>Attribution</mat-label>
                 <input name="" [ngModelOptions]="{standalone: true}" matInput [(ngModel)]="visualmap.Attribution">
             </mat-form-field>
-        </form>
-    </div>
+        </mat-grid-tile>
+        <mat-grid-tile>
+            <button mat-raised-button (click)="toggleTextArea('Attribution')">
+                <mat-icon>
+                    expand_more
+                </mat-icon>
+            </button>
+        </mat-grid-tile>
+    </mat-grid-list>
+    <mat-form-field *ngIf='isATextArea("Attribution")' mat-form-field class="detail-full-width">
+        <mat-label>Attribution</mat-label>
+        <textarea name="" [ngModelOptions]="{standalone: true}" matInput [(ngModel)]="visualmap.Attribution"></textarea>
+    </mat-form-field>
+
     <!-- -->
-    <div class="details__item">
-        <form>
-            <mat-form-field>
-                <mat-label>MaxZoom</mat-label>
-                <input type="number" [ngModelOptions]="{standalone: true}" matInput [(ngModel)]="visualmap.MaxZoom">
-            </mat-form-field>
-        </form>
-    </div>
+    <mat-form-field class="detail-full-width">
+        <mat-label>MaxZoom</mat-label>
+        <input type="number" [ngModelOptions]="{standalone: true}" matInput [(ngModel)]="visualmap.MaxZoom" [ngModelOptions]="{standalone: true}">
+    </mat-form-field>
+
     <!-- -->
-    <div class="details__item">
-        <form>
-            <mat-checkbox [formControl]="ZoomControlFormControl">ZoomControl</mat-checkbox>
-        </form>
-    </div>
+    <mat-checkbox [formControl]="ZoomControlFormControl">ZoomControl</mat-checkbox>
+
     <!-- -->
-    <div class="details__item">
-        <form>
-            <mat-checkbox [formControl]="AttributionControlFormControl">AttributionControl</mat-checkbox>
-        </form>
-    </div>
+    <mat-checkbox [formControl]="AttributionControlFormControl">AttributionControl</mat-checkbox>
+
     <!-- -->
-    <div class="details__item">
-        <form>
-            <mat-checkbox [formControl]="ZoomSnapFormControl">ZoomSnap</mat-checkbox>
-        </form>
-    </div>
+    <mat-checkbox [formControl]="ZoomSnapFormControl">ZoomSnap</mat-checkbox>
+
     <div class="details__save">
         <button mat-raised-button color="primary" (click)="save()">
 			Save visualmap
 		</button>
     </div>
-</div>
+</form>
