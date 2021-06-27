@@ -1,5 +1,5 @@
 <form *ngIf="visualmap" class="details">
-    <h1 class="details__title">visualmap</h1>
+    <h2 class="details__title">visualmap</h2>
     <!-- insertion point for fields specific code -->
     <!-- -->
     <mat-form-field class="detail-full-width">
@@ -13,8 +13,8 @@
         <input type="number" [ngModelOptions]="{standalone: true}" matInput [(ngModel)]="visualmap.Lng" [ngModelOptions]="{standalone: true}">
     </mat-form-field>
 
-    <mat-grid-list *ngIf='!isATextArea("Name")' cols="4" rowHeight="6:1">
-        <mat-grid-tile [colspan]="3">
+    <mat-grid-list *ngIf='!isATextArea("Name")' cols="5" rowHeight="2:1">
+        <mat-grid-tile [colspan]="4">
             <mat-form-field mat-form-field class="detail-full-width">
                 <mat-label>Name</mat-label>
                 <input name="" [ngModelOptions]="{standalone: true}" matInput [(ngModel)]="visualmap.Name">
@@ -39,8 +39,8 @@
         <input type="number" [ngModelOptions]="{standalone: true}" matInput [(ngModel)]="visualmap.ZoomLevel" [ngModelOptions]="{standalone: true}">
     </mat-form-field>
 
-    <mat-grid-list *ngIf='!isATextArea("UrlTemplate")' cols="4" rowHeight="6:1">
-        <mat-grid-tile [colspan]="3">
+    <mat-grid-list *ngIf='!isATextArea("UrlTemplate")' cols="5" rowHeight="2:1">
+        <mat-grid-tile [colspan]="4">
             <mat-form-field mat-form-field class="detail-full-width">
                 <mat-label>UrlTemplate</mat-label>
                 <input name="" [ngModelOptions]="{standalone: true}" matInput [(ngModel)]="visualmap.UrlTemplate">
@@ -59,8 +59,8 @@
         <textarea name="" [ngModelOptions]="{standalone: true}" matInput [(ngModel)]="visualmap.UrlTemplate"></textarea>
     </mat-form-field>
 
-    <mat-grid-list *ngIf='!isATextArea("Attribution")' cols="4" rowHeight="6:1">
-        <mat-grid-tile [colspan]="3">
+    <mat-grid-list *ngIf='!isATextArea("Attribution")' cols="5" rowHeight="2:1">
+        <mat-grid-tile [colspan]="4">
             <mat-form-field mat-form-field class="detail-full-width">
                 <mat-label>Attribution</mat-label>
                 <input name="" [ngModelOptions]="{standalone: true}" matInput [(ngModel)]="visualmap.Attribution">

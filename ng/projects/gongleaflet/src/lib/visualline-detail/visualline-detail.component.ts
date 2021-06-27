@@ -20,6 +20,14 @@ import { MatDialog, MAT_DIALOG_DATA, MatDialogRef, MatDialogConfig } from '@angu
 
 import { NullInt64 } from '../front-repo.service'
 
+// VisualLineDetailComponent is initilizaed from different routes
+// VisualLineDetailComponentState detail different cases 
+enum VisualLineDetailComponentState {
+	CREATE_INSTANCE,
+	UPDATE_INSTANCE,
+	// insertion point for declarations of enum values of state
+}
+
 @Component({
 	selector: 'app-visualline-detail',
 	templateUrl: './visualline-detail.component.html',
@@ -43,6 +51,17 @@ export class VisualLineDetailComponent implements OnInit {
 	// if true, it is inputed with a <textarea ...> </textarea>
 	mapFields_displayAsTextArea = new Map<string, boolean>()
 
+	// the state at initialization (CREATION, UPDATE or CREATE with one association set)
+	state: VisualLineDetailComponentState
+
+	// in UDPATE state, if is the id of the instance to update
+	// in CREATE state with one association set, this is the id of the associated instance
+	id: number
+
+	// in CREATE state with one association set, this is the id of the associated instance
+	originStruct: string
+	originStructFieldName: string
+
 	constructor(
 		private visuallineService: VisualLineService,
 		private frontRepoService: FrontRepoService,
@@ -53,6 +72,27 @@ export class VisualLineDetailComponent implements OnInit {
 	}
 
 	ngOnInit(): void {
+
+		// compute state
+		this.id = +this.route.snapshot.paramMap.get('id');
+		this.originStruct = this.route.snapshot.paramMap.get('originStruct');
+		this.originStructFieldName = this.route.snapshot.paramMap.get('originStructFieldName');
+
+		const association = this.route.snapshot.paramMap.get('association');
+		if (this.id == 0) {
+			this.state = VisualLineDetailComponentState.CREATE_INSTANCE
+		} else {
+			if (this.originStruct == undefined) {
+				this.state = VisualLineDetailComponentState.UPDATE_INSTANCE
+			} else {
+				switch (this.originStructFieldName) {
+					// insertion point for state computation
+					default:
+						console.log(this.originStructFieldName + " is unkown association")
+				}
+			}
+		}
+
 		this.getVisualLine()
 
 		// observable for changes in structs
@@ -71,16 +111,21 @@ export class VisualLineDetailComponent implements OnInit {
 	}
 
 	getVisualLine(): void {
-		const id = +this.route.snapshot.paramMap.get('id');
-		const association = this.route.snapshot.paramMap.get('association');
 
 		this.frontRepoService.pull().subscribe(
 			frontRepo => {
 				this.frontRepo = frontRepo
-				if (id != 0 && association == undefined) {
-					this.visualline = frontRepo.VisualLines.get(id)
-				} else {
-					this.visualline = new (VisualLineDB)
+
+				switch (this.state) {
+					case VisualLineDetailComponentState.CREATE_INSTANCE:
+						this.visualline = new (VisualLineDB)
+						break;
+					case VisualLineDetailComponentState.UPDATE_INSTANCE:
+						this.visualline = frontRepo.VisualLines.get(this.id)
+						break;
+					// insertion point for init of association field
+					default:
+						console.log(this.state + " is unkown state")
 				}
 
 				// insertion point for recovery of form controls value for bool fields
@@ -91,8 +136,6 @@ export class VisualLineDetailComponent implements OnInit {
 	}
 
 	save(): void {
-		const id = +this.route.snapshot.paramMap.get('id');
-		const association = this.route.snapshot.paramMap.get('association');
 
 		// some fields needs to be translated into serializable forms
 		// pointers fields, after the translation, are nulled in order to perform serialization
@@ -110,26 +153,21 @@ export class VisualLineDetailComponent implements OnInit {
 		}
 
 		// save from the front pointer space to the non pointer space for serialization
-		if (association == undefined) {
-			// insertion point for translation/nullation of each pointers
-		}
 
-		if (id != 0 && association == undefined) {
+		// insertion point for translation/nullation of each pointers
 
-			this.visuallineService.updateVisualLine(this.visualline)
-				.subscribe(visualline => {
-					this.visuallineService.VisualLineServiceChanged.next("update")
+		switch (this.state) {
+			case VisualLineDetailComponentState.UPDATE_INSTANCE:
+				this.visuallineService.updateVisualLine(this.visualline)
+					.subscribe(visualline => {
+						this.visuallineService.VisualLineServiceChanged.next("update")
+					});
+				break;
+			default:
+				this.visuallineService.postVisualLine(this.visualline).subscribe(visualline => {
+					this.visuallineService.VisualLineServiceChanged.next("post")
+					this.visualline = {} // reset fields
 				});
-		} else {
-			switch (association) {
-				// insertion point for saving value of ONE_MANY association reverse pointer
-			}
-			this.visuallineService.postVisualLine(this.visualline).subscribe(visualline => {
-
-				this.visuallineService.VisualLineServiceChanged.next("post")
-
-				this.visualline = {} // reset fields
-			});
 		}
 	}
 

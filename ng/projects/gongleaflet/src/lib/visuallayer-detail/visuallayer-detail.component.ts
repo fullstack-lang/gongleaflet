@@ -17,6 +17,14 @@ import { MatDialog, MAT_DIALOG_DATA, MatDialogRef, MatDialogConfig } from '@angu
 
 import { NullInt64 } from '../front-repo.service'
 
+// VisualLayerDetailComponent is initilizaed from different routes
+// VisualLayerDetailComponentState detail different cases 
+enum VisualLayerDetailComponentState {
+	CREATE_INSTANCE,
+	UPDATE_INSTANCE,
+	// insertion point for declarations of enum values of state
+}
+
 @Component({
 	selector: 'app-visuallayer-detail',
 	templateUrl: './visuallayer-detail.component.html',
@@ -37,6 +45,17 @@ export class VisualLayerDetailComponent implements OnInit {
 	// if true, it is inputed with a <textarea ...> </textarea>
 	mapFields_displayAsTextArea = new Map<string, boolean>()
 
+	// the state at initialization (CREATION, UPDATE or CREATE with one association set)
+	state: VisualLayerDetailComponentState
+
+	// in UDPATE state, if is the id of the instance to update
+	// in CREATE state with one association set, this is the id of the associated instance
+	id: number
+
+	// in CREATE state with one association set, this is the id of the associated instance
+	originStruct: string
+	originStructFieldName: string
+
 	constructor(
 		private visuallayerService: VisualLayerService,
 		private frontRepoService: FrontRepoService,
@@ -47,6 +66,27 @@ export class VisualLayerDetailComponent implements OnInit {
 	}
 
 	ngOnInit(): void {
+
+		// compute state
+		this.id = +this.route.snapshot.paramMap.get('id');
+		this.originStruct = this.route.snapshot.paramMap.get('originStruct');
+		this.originStructFieldName = this.route.snapshot.paramMap.get('originStructFieldName');
+
+		const association = this.route.snapshot.paramMap.get('association');
+		if (this.id == 0) {
+			this.state = VisualLayerDetailComponentState.CREATE_INSTANCE
+		} else {
+			if (this.originStruct == undefined) {
+				this.state = VisualLayerDetailComponentState.UPDATE_INSTANCE
+			} else {
+				switch (this.originStructFieldName) {
+					// insertion point for state computation
+					default:
+						console.log(this.originStructFieldName + " is unkown association")
+				}
+			}
+		}
+
 		this.getVisualLayer()
 
 		// observable for changes in structs
@@ -62,16 +102,21 @@ export class VisualLayerDetailComponent implements OnInit {
 	}
 
 	getVisualLayer(): void {
-		const id = +this.route.snapshot.paramMap.get('id');
-		const association = this.route.snapshot.paramMap.get('association');
 
 		this.frontRepoService.pull().subscribe(
 			frontRepo => {
 				this.frontRepo = frontRepo
-				if (id != 0 && association == undefined) {
-					this.visuallayer = frontRepo.VisualLayers.get(id)
-				} else {
-					this.visuallayer = new (VisualLayerDB)
+
+				switch (this.state) {
+					case VisualLayerDetailComponentState.CREATE_INSTANCE:
+						this.visuallayer = new (VisualLayerDB)
+						break;
+					case VisualLayerDetailComponentState.UPDATE_INSTANCE:
+						this.visuallayer = frontRepo.VisualLayers.get(this.id)
+						break;
+					// insertion point for init of association field
+					default:
+						console.log(this.state + " is unkown state")
 				}
 
 				// insertion point for recovery of form controls value for bool fields
@@ -82,8 +127,6 @@ export class VisualLayerDetailComponent implements OnInit {
 	}
 
 	save(): void {
-		const id = +this.route.snapshot.paramMap.get('id');
-		const association = this.route.snapshot.paramMap.get('association');
 
 		// some fields needs to be translated into serializable forms
 		// pointers fields, after the translation, are nulled in order to perform serialization
@@ -91,26 +134,21 @@ export class VisualLayerDetailComponent implements OnInit {
 		// insertion point for translation/nullation of each field
 
 		// save from the front pointer space to the non pointer space for serialization
-		if (association == undefined) {
-			// insertion point for translation/nullation of each pointers
-		}
 
-		if (id != 0 && association == undefined) {
+		// insertion point for translation/nullation of each pointers
 
-			this.visuallayerService.updateVisualLayer(this.visuallayer)
-				.subscribe(visuallayer => {
-					this.visuallayerService.VisualLayerServiceChanged.next("update")
+		switch (this.state) {
+			case VisualLayerDetailComponentState.UPDATE_INSTANCE:
+				this.visuallayerService.updateVisualLayer(this.visuallayer)
+					.subscribe(visuallayer => {
+						this.visuallayerService.VisualLayerServiceChanged.next("update")
+					});
+				break;
+			default:
+				this.visuallayerService.postVisualLayer(this.visuallayer).subscribe(visuallayer => {
+					this.visuallayerService.VisualLayerServiceChanged.next("post")
+					this.visuallayer = {} // reset fields
 				});
-		} else {
-			switch (association) {
-				// insertion point for saving value of ONE_MANY association reverse pointer
-			}
-			this.visuallayerService.postVisualLayer(this.visuallayer).subscribe(visuallayer => {
-
-				this.visuallayerService.VisualLayerServiceChanged.next("post")
-
-				this.visuallayer = {} // reset fields
-			});
 		}
 	}
 

@@ -19,6 +19,14 @@ import { MatDialog, MAT_DIALOG_DATA, MatDialogRef, MatDialogConfig } from '@angu
 
 import { NullInt64 } from '../front-repo.service'
 
+// VisualCircleDetailComponent is initilizaed from different routes
+// VisualCircleDetailComponentState detail different cases 
+enum VisualCircleDetailComponentState {
+	CREATE_INSTANCE,
+	UPDATE_INSTANCE,
+	// insertion point for declarations of enum values of state
+}
+
 @Component({
 	selector: 'app-visualcircle-detail',
 	templateUrl: './visualcircle-detail.component.html',
@@ -41,6 +49,17 @@ export class VisualCircleDetailComponent implements OnInit {
 	// if true, it is inputed with a <textarea ...> </textarea>
 	mapFields_displayAsTextArea = new Map<string, boolean>()
 
+	// the state at initialization (CREATION, UPDATE or CREATE with one association set)
+	state: VisualCircleDetailComponentState
+
+	// in UDPATE state, if is the id of the instance to update
+	// in CREATE state with one association set, this is the id of the associated instance
+	id: number
+
+	// in CREATE state with one association set, this is the id of the associated instance
+	originStruct: string
+	originStructFieldName: string
+
 	constructor(
 		private visualcircleService: VisualCircleService,
 		private frontRepoService: FrontRepoService,
@@ -51,6 +70,27 @@ export class VisualCircleDetailComponent implements OnInit {
 	}
 
 	ngOnInit(): void {
+
+		// compute state
+		this.id = +this.route.snapshot.paramMap.get('id');
+		this.originStruct = this.route.snapshot.paramMap.get('originStruct');
+		this.originStructFieldName = this.route.snapshot.paramMap.get('originStructFieldName');
+
+		const association = this.route.snapshot.paramMap.get('association');
+		if (this.id == 0) {
+			this.state = VisualCircleDetailComponentState.CREATE_INSTANCE
+		} else {
+			if (this.originStruct == undefined) {
+				this.state = VisualCircleDetailComponentState.UPDATE_INSTANCE
+			} else {
+				switch (this.originStructFieldName) {
+					// insertion point for state computation
+					default:
+						console.log(this.originStructFieldName + " is unkown association")
+				}
+			}
+		}
+
 		this.getVisualCircle()
 
 		// observable for changes in structs
@@ -68,16 +108,21 @@ export class VisualCircleDetailComponent implements OnInit {
 	}
 
 	getVisualCircle(): void {
-		const id = +this.route.snapshot.paramMap.get('id');
-		const association = this.route.snapshot.paramMap.get('association');
 
 		this.frontRepoService.pull().subscribe(
 			frontRepo => {
 				this.frontRepo = frontRepo
-				if (id != 0 && association == undefined) {
-					this.visualcircle = frontRepo.VisualCircles.get(id)
-				} else {
-					this.visualcircle = new (VisualCircleDB)
+
+				switch (this.state) {
+					case VisualCircleDetailComponentState.CREATE_INSTANCE:
+						this.visualcircle = new (VisualCircleDB)
+						break;
+					case VisualCircleDetailComponentState.UPDATE_INSTANCE:
+						this.visualcircle = frontRepo.VisualCircles.get(this.id)
+						break;
+					// insertion point for init of association field
+					default:
+						console.log(this.state + " is unkown state")
 				}
 
 				// insertion point for recovery of form controls value for bool fields
@@ -88,8 +133,6 @@ export class VisualCircleDetailComponent implements OnInit {
 	}
 
 	save(): void {
-		const id = +this.route.snapshot.paramMap.get('id');
-		const association = this.route.snapshot.paramMap.get('association');
 
 		// some fields needs to be translated into serializable forms
 		// pointers fields, after the translation, are nulled in order to perform serialization
@@ -107,26 +150,21 @@ export class VisualCircleDetailComponent implements OnInit {
 		}
 
 		// save from the front pointer space to the non pointer space for serialization
-		if (association == undefined) {
-			// insertion point for translation/nullation of each pointers
-		}
 
-		if (id != 0 && association == undefined) {
+		// insertion point for translation/nullation of each pointers
 
-			this.visualcircleService.updateVisualCircle(this.visualcircle)
-				.subscribe(visualcircle => {
-					this.visualcircleService.VisualCircleServiceChanged.next("update")
+		switch (this.state) {
+			case VisualCircleDetailComponentState.UPDATE_INSTANCE:
+				this.visualcircleService.updateVisualCircle(this.visualcircle)
+					.subscribe(visualcircle => {
+						this.visualcircleService.VisualCircleServiceChanged.next("update")
+					});
+				break;
+			default:
+				this.visualcircleService.postVisualCircle(this.visualcircle).subscribe(visualcircle => {
+					this.visualcircleService.VisualCircleServiceChanged.next("post")
+					this.visualcircle = {} // reset fields
 				});
-		} else {
-			switch (association) {
-				// insertion point for saving value of ONE_MANY association reverse pointer
-			}
-			this.visualcircleService.postVisualCircle(this.visualcircle).subscribe(visualcircle => {
-
-				this.visualcircleService.VisualCircleServiceChanged.next("post")
-
-				this.visualcircle = {} // reset fields
-			});
 		}
 	}
 

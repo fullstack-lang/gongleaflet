@@ -18,6 +18,14 @@ import { MatDialog, MAT_DIALOG_DATA, MatDialogRef, MatDialogConfig } from '@angu
 
 import { NullInt64 } from '../front-repo.service'
 
+// VisualCenterDetailComponent is initilizaed from different routes
+// VisualCenterDetailComponentState detail different cases 
+enum VisualCenterDetailComponentState {
+	CREATE_INSTANCE,
+	UPDATE_INSTANCE,
+	// insertion point for declarations of enum values of state
+}
+
 @Component({
 	selector: 'app-visualcenter-detail',
 	templateUrl: './visualcenter-detail.component.html',
@@ -39,6 +47,17 @@ export class VisualCenterDetailComponent implements OnInit {
 	// if true, it is inputed with a <textarea ...> </textarea>
 	mapFields_displayAsTextArea = new Map<string, boolean>()
 
+	// the state at initialization (CREATION, UPDATE or CREATE with one association set)
+	state: VisualCenterDetailComponentState
+
+	// in UDPATE state, if is the id of the instance to update
+	// in CREATE state with one association set, this is the id of the associated instance
+	id: number
+
+	// in CREATE state with one association set, this is the id of the associated instance
+	originStruct: string
+	originStructFieldName: string
+
 	constructor(
 		private visualcenterService: VisualCenterService,
 		private frontRepoService: FrontRepoService,
@@ -49,6 +68,27 @@ export class VisualCenterDetailComponent implements OnInit {
 	}
 
 	ngOnInit(): void {
+
+		// compute state
+		this.id = +this.route.snapshot.paramMap.get('id');
+		this.originStruct = this.route.snapshot.paramMap.get('originStruct');
+		this.originStructFieldName = this.route.snapshot.paramMap.get('originStructFieldName');
+
+		const association = this.route.snapshot.paramMap.get('association');
+		if (this.id == 0) {
+			this.state = VisualCenterDetailComponentState.CREATE_INSTANCE
+		} else {
+			if (this.originStruct == undefined) {
+				this.state = VisualCenterDetailComponentState.UPDATE_INSTANCE
+			} else {
+				switch (this.originStructFieldName) {
+					// insertion point for state computation
+					default:
+						console.log(this.originStructFieldName + " is unkown association")
+				}
+			}
+		}
+
 		this.getVisualCenter()
 
 		// observable for changes in structs
@@ -65,16 +105,21 @@ export class VisualCenterDetailComponent implements OnInit {
 	}
 
 	getVisualCenter(): void {
-		const id = +this.route.snapshot.paramMap.get('id');
-		const association = this.route.snapshot.paramMap.get('association');
 
 		this.frontRepoService.pull().subscribe(
 			frontRepo => {
 				this.frontRepo = frontRepo
-				if (id != 0 && association == undefined) {
-					this.visualcenter = frontRepo.VisualCenters.get(id)
-				} else {
-					this.visualcenter = new (VisualCenterDB)
+
+				switch (this.state) {
+					case VisualCenterDetailComponentState.CREATE_INSTANCE:
+						this.visualcenter = new (VisualCenterDB)
+						break;
+					case VisualCenterDetailComponentState.UPDATE_INSTANCE:
+						this.visualcenter = frontRepo.VisualCenters.get(this.id)
+						break;
+					// insertion point for init of association field
+					default:
+						console.log(this.state + " is unkown state")
 				}
 
 				// insertion point for recovery of form controls value for bool fields
@@ -85,8 +130,6 @@ export class VisualCenterDetailComponent implements OnInit {
 	}
 
 	save(): void {
-		const id = +this.route.snapshot.paramMap.get('id');
-		const association = this.route.snapshot.paramMap.get('association');
 
 		// some fields needs to be translated into serializable forms
 		// pointers fields, after the translation, are nulled in order to perform serialization
@@ -114,26 +157,21 @@ export class VisualCenterDetailComponent implements OnInit {
 		}
 
 		// save from the front pointer space to the non pointer space for serialization
-		if (association == undefined) {
-			// insertion point for translation/nullation of each pointers
-		}
 
-		if (id != 0 && association == undefined) {
+		// insertion point for translation/nullation of each pointers
 
-			this.visualcenterService.updateVisualCenter(this.visualcenter)
-				.subscribe(visualcenter => {
-					this.visualcenterService.VisualCenterServiceChanged.next("update")
+		switch (this.state) {
+			case VisualCenterDetailComponentState.UPDATE_INSTANCE:
+				this.visualcenterService.updateVisualCenter(this.visualcenter)
+					.subscribe(visualcenter => {
+						this.visualcenterService.VisualCenterServiceChanged.next("update")
+					});
+				break;
+			default:
+				this.visualcenterService.postVisualCenter(this.visualcenter).subscribe(visualcenter => {
+					this.visualcenterService.VisualCenterServiceChanged.next("post")
+					this.visualcenter = {} // reset fields
 				});
-		} else {
-			switch (association) {
-				// insertion point for saving value of ONE_MANY association reverse pointer
-			}
-			this.visualcenterService.postVisualCenter(this.visualcenter).subscribe(visualcenter => {
-
-				this.visualcenterService.VisualCenterServiceChanged.next("post")
-
-				this.visualcenter = {} // reset fields
-			});
 		}
 	}
 

@@ -41,6 +41,7 @@ interface GongNode {
   children?: GongNode[];
   type: GongNodeType;
   structName: string;
+  associationField: string;
   associatedStructName: string;
   id: number;
   uniqueIdPerStack: number;
@@ -56,6 +57,7 @@ interface GongFlatNode {
   level: number;
   type: GongNodeType;
   structName: string;
+  associationField: string;
   associatedStructName: string;
   id: number;
   uniqueIdPerStack: number;
@@ -90,6 +92,7 @@ export class SidebarComponent implements OnInit {
       level: level,
       type: node.type,
       structName: node.structName,
+      associationField: node.associationField,
       associatedStructName: node.associatedStructName,
       id: node.id,
       uniqueIdPerStack: node.uniqueIdPerStack,
@@ -257,6 +260,7 @@ export class SidebarComponent implements OnInit {
         id: 0,
         uniqueIdPerStack: 13 * nonInstanceNodeId,
         structName: "VisualCenter",
+        associationField: "",
         associatedStructName: "",
         children: new Array<GongNode>()
       }
@@ -281,6 +285,7 @@ export class SidebarComponent implements OnInit {
             id: visualcenterDB.ID,
             uniqueIdPerStack: getVisualCenterUniqueID(visualcenterDB.ID),
             structName: "VisualCenter",
+            associationField: "",
             associatedStructName: "",
             children: new Array<GongNode>()
           }
@@ -296,7 +301,8 @@ export class SidebarComponent implements OnInit {
             id: visualcenterDB.ID,
             uniqueIdPerStack: 17 * nonInstanceNodeId,
             structName: "VisualCenter",
-            associatedStructName: "",
+            associationField: "VisualLayer",
+            associatedStructName: "VisualLayer",
             children: new Array<GongNode>()
           }
           nonInstanceNodeId = nonInstanceNodeId + 1
@@ -314,6 +320,7 @@ export class SidebarComponent implements OnInit {
                 3 * getVisualCenterUniqueID(visualcenterDB.ID)
                 + 5 * getVisualLayerUniqueID(visualcenterDB.VisualLayer.ID),
               structName: "VisualLayer",
+              associationField: "",
               associatedStructName: "",
               children: new Array<GongNode>()
             }
@@ -329,7 +336,8 @@ export class SidebarComponent implements OnInit {
             id: visualcenterDB.ID,
             uniqueIdPerStack: 17 * nonInstanceNodeId,
             structName: "VisualCenter",
-            associatedStructName: "",
+            associationField: "VisualIcon",
+            associatedStructName: "VisualIcon",
             children: new Array<GongNode>()
           }
           nonInstanceNodeId = nonInstanceNodeId + 1
@@ -347,6 +355,7 @@ export class SidebarComponent implements OnInit {
                 3 * getVisualCenterUniqueID(visualcenterDB.ID)
                 + 5 * getVisualIconUniqueID(visualcenterDB.VisualIcon.ID),
               structName: "VisualIcon",
+              associationField: "",
               associatedStructName: "",
               children: new Array<GongNode>()
             }
@@ -365,6 +374,7 @@ export class SidebarComponent implements OnInit {
         id: 0,
         uniqueIdPerStack: 13 * nonInstanceNodeId,
         structName: "VisualCircle",
+        associationField: "",
         associatedStructName: "",
         children: new Array<GongNode>()
       }
@@ -389,6 +399,7 @@ export class SidebarComponent implements OnInit {
             id: visualcircleDB.ID,
             uniqueIdPerStack: getVisualCircleUniqueID(visualcircleDB.ID),
             structName: "VisualCircle",
+            associationField: "",
             associatedStructName: "",
             children: new Array<GongNode>()
           }
@@ -404,7 +415,8 @@ export class SidebarComponent implements OnInit {
             id: visualcircleDB.ID,
             uniqueIdPerStack: 17 * nonInstanceNodeId,
             structName: "VisualCircle",
-            associatedStructName: "",
+            associationField: "VisualLayer",
+            associatedStructName: "VisualLayer",
             children: new Array<GongNode>()
           }
           nonInstanceNodeId = nonInstanceNodeId + 1
@@ -422,6 +434,7 @@ export class SidebarComponent implements OnInit {
                 3 * getVisualCircleUniqueID(visualcircleDB.ID)
                 + 5 * getVisualLayerUniqueID(visualcircleDB.VisualLayer.ID),
               structName: "VisualLayer",
+              associationField: "",
               associatedStructName: "",
               children: new Array<GongNode>()
             }
@@ -440,6 +453,7 @@ export class SidebarComponent implements OnInit {
         id: 0,
         uniqueIdPerStack: 13 * nonInstanceNodeId,
         structName: "VisualIcon",
+        associationField: "",
         associatedStructName: "",
         children: new Array<GongNode>()
       }
@@ -464,6 +478,7 @@ export class SidebarComponent implements OnInit {
             id: visualiconDB.ID,
             uniqueIdPerStack: getVisualIconUniqueID(visualiconDB.ID),
             structName: "VisualIcon",
+            associationField: "",
             associatedStructName: "",
             children: new Array<GongNode>()
           }
@@ -482,6 +497,7 @@ export class SidebarComponent implements OnInit {
         id: 0,
         uniqueIdPerStack: 13 * nonInstanceNodeId,
         structName: "VisualLayer",
+        associationField: "",
         associatedStructName: "",
         children: new Array<GongNode>()
       }
@@ -506,6 +522,7 @@ export class SidebarComponent implements OnInit {
             id: visuallayerDB.ID,
             uniqueIdPerStack: getVisualLayerUniqueID(visuallayerDB.ID),
             structName: "VisualLayer",
+            associationField: "",
             associatedStructName: "",
             children: new Array<GongNode>()
           }
@@ -524,6 +541,7 @@ export class SidebarComponent implements OnInit {
         id: 0,
         uniqueIdPerStack: 13 * nonInstanceNodeId,
         structName: "VisualLine",
+        associationField: "",
         associatedStructName: "",
         children: new Array<GongNode>()
       }
@@ -548,6 +566,7 @@ export class SidebarComponent implements OnInit {
             id: visuallineDB.ID,
             uniqueIdPerStack: getVisualLineUniqueID(visuallineDB.ID),
             structName: "VisualLine",
+            associationField: "",
             associatedStructName: "",
             children: new Array<GongNode>()
           }
@@ -563,7 +582,8 @@ export class SidebarComponent implements OnInit {
             id: visuallineDB.ID,
             uniqueIdPerStack: 17 * nonInstanceNodeId,
             structName: "VisualLine",
-            associatedStructName: "",
+            associationField: "VisualLayer",
+            associatedStructName: "VisualLayer",
             children: new Array<GongNode>()
           }
           nonInstanceNodeId = nonInstanceNodeId + 1
@@ -581,6 +601,7 @@ export class SidebarComponent implements OnInit {
                 3 * getVisualLineUniqueID(visuallineDB.ID)
                 + 5 * getVisualLayerUniqueID(visuallineDB.VisualLayer.ID),
               structName: "VisualLayer",
+              associationField: "",
               associatedStructName: "",
               children: new Array<GongNode>()
             }
@@ -599,6 +620,7 @@ export class SidebarComponent implements OnInit {
         id: 0,
         uniqueIdPerStack: 13 * nonInstanceNodeId,
         structName: "VisualMap",
+        associationField: "",
         associatedStructName: "",
         children: new Array<GongNode>()
       }
@@ -623,6 +645,7 @@ export class SidebarComponent implements OnInit {
             id: visualmapDB.ID,
             uniqueIdPerStack: getVisualMapUniqueID(visualmapDB.ID),
             structName: "VisualMap",
+            associationField: "",
             associatedStructName: "",
             children: new Array<GongNode>()
           }
@@ -641,6 +664,7 @@ export class SidebarComponent implements OnInit {
         id: 0,
         uniqueIdPerStack: 13 * nonInstanceNodeId,
         structName: "VisualTrack",
+        associationField: "",
         associatedStructName: "",
         children: new Array<GongNode>()
       }
@@ -665,6 +689,7 @@ export class SidebarComponent implements OnInit {
             id: visualtrackDB.ID,
             uniqueIdPerStack: getVisualTrackUniqueID(visualtrackDB.ID),
             structName: "VisualTrack",
+            associationField: "",
             associatedStructName: "",
             children: new Array<GongNode>()
           }
@@ -680,7 +705,8 @@ export class SidebarComponent implements OnInit {
             id: visualtrackDB.ID,
             uniqueIdPerStack: 17 * nonInstanceNodeId,
             structName: "VisualTrack",
-            associatedStructName: "",
+            associationField: "VisualLayer",
+            associatedStructName: "VisualLayer",
             children: new Array<GongNode>()
           }
           nonInstanceNodeId = nonInstanceNodeId + 1
@@ -698,6 +724,7 @@ export class SidebarComponent implements OnInit {
                 3 * getVisualTrackUniqueID(visualtrackDB.ID)
                 + 5 * getVisualLayerUniqueID(visualtrackDB.VisualLayer.ID),
               structName: "VisualLayer",
+              associationField: "",
               associatedStructName: "",
               children: new Array<GongNode>()
             }
@@ -713,7 +740,8 @@ export class SidebarComponent implements OnInit {
             id: visualtrackDB.ID,
             uniqueIdPerStack: 17 * nonInstanceNodeId,
             structName: "VisualTrack",
-            associatedStructName: "",
+            associationField: "VisualIcon",
+            associatedStructName: "VisualIcon",
             children: new Array<GongNode>()
           }
           nonInstanceNodeId = nonInstanceNodeId + 1
@@ -731,6 +759,7 @@ export class SidebarComponent implements OnInit {
                 3 * getVisualTrackUniqueID(visualtrackDB.ID)
                 + 5 * getVisualIconUniqueID(visualtrackDB.VisualIcon.ID),
               structName: "VisualIcon",
+              associationField: "",
               associatedStructName: "",
               children: new Array<GongNode>()
             }
@@ -811,7 +840,7 @@ export class SidebarComponent implements OnInit {
   setEditorSpecialRouterOutlet( node: GongFlatNode) {
     this.router.navigate([{
       outlets: {
-        github_com_fullstack_lang_gongleaflet_go_editor: ["github_com_fullstack_lang_gongleaflet_go-" + node.associatedStructName.toLowerCase() + "-adder", node.id, node.structName + "_" + node.name]
+        github_com_fullstack_lang_gongleaflet_go_editor: ["github_com_fullstack_lang_gongleaflet_go-" + node.associatedStructName.toLowerCase() + "-adder", node.id, node.structName, node.associationField]
       }
     }]);
   }

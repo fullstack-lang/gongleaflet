@@ -1,8 +1,8 @@
 <form *ngIf="visuallayer" class="details">
-    <h1 class="details__title">visuallayer</h1>
+    <h2 class="details__title">visuallayer</h2>
     <!-- insertion point for fields specific code -->
-    <mat-grid-list *ngIf='!isATextArea("Name")' cols="4" rowHeight="6:1">
-        <mat-grid-tile [colspan]="3">
+    <mat-grid-list *ngIf='!isATextArea("Name")' cols="5" rowHeight="2:1">
+        <mat-grid-tile [colspan]="4">
             <mat-form-field mat-form-field class="detail-full-width">
                 <mat-label>Name</mat-label>
                 <input name="" [ngModelOptions]="{standalone: true}" matInput [(ngModel)]="visuallayer.Name">
@@ -21,8 +21,8 @@
         <textarea name="" [ngModelOptions]="{standalone: true}" matInput [(ngModel)]="visuallayer.Name"></textarea>
     </mat-form-field>
 
-    <mat-grid-list *ngIf='!isATextArea("DisplayName")' cols="4" rowHeight="6:1">
-        <mat-grid-tile [colspan]="3">
+    <mat-grid-list *ngIf='!isATextArea("DisplayName")' cols="5" rowHeight="2:1">
+        <mat-grid-tile [colspan]="4">
             <mat-form-field mat-form-field class="detail-full-width">
                 <mat-label>DisplayName</mat-label>
                 <input name="" [ngModelOptions]="{standalone: true}" matInput [(ngModel)]="visuallayer.DisplayName">
