@@ -58,16 +58,45 @@ export const FrontRepoSingloton = new (FrontRepo)
 
 // define the type of nullable Int64 in order to support back pointers IDs
 export class NullInt64 {
-    Int64: number
-    Valid: boolean
+  Int64: number
+  Valid: boolean
 }
 
-// define the interface for information that is forwarded from the calling instance to 
+// the table component is called in different ways
+//
+// DISPLAY or ASSOCIATION MODE
+//
+// in ASSOCIATION MODE, it is invoked within a diaglo and a Dialog Data item is used to
+// configure the component
+// DialogData define the interface for information that is forwarded from the calling instance to 
 // the select table
-export interface DialogData {
+export class DialogData {
   ID: number; // ID of the calling instance
+
+  // the reverse pointer is the name of the generated field on the destination
+  // struct of the ONE-MANY association
   ReversePointer: string; // field of {{Structname}} that serve as reverse pointer
   OrderingMode: boolean; // if true, this is for ordering items
+
+  // there are different selection mode : ONE_MANY or MANY_MANY
+  SelectionMode: SelectionMode;
+
+  // used if SelectionMode is MANY_MANY_ASSOCIATION_MODE
+  //
+  // In Gong, a MANY-MANY association is implemented as a ONE-ZERO/ONE followed by a ONE_MANY association
+  // 
+  // in the MANY_MANY_ASSOCIATION_MODE case, we need also the Struct and the FieldName that are
+  // at the end of the ONE-MANY association
+  SourceStruct: string;  // The "Aclass"
+  SourceField: string; // the "AnarrayofbUse"
+  IntermediateStruct: string; // the "AclassBclassUse" 
+  IntermediateStructField: string; // the "Bclass" as field
+  NextAssociationStruct: string; // the "Bclass"
+}
+
+export enum SelectionMode {
+  ONE_MANY_ASSOCIATION_MODE = "ONE_MANY_ASSOCIATION_MODE",
+  MANY_MANY_ASSOCIATION_MODE = "MANY_MANY_ASSOCIATION_MODE",
 }
 
 //
@@ -92,6 +121,26 @@ export class FrontRepoService {
     private visualmapService: VisualMapService,
     private visualtrackService: VisualTrackService,
   ) { }
+
+  // postService provides a post function for each struct name
+  postService(structName: string, instanceToBePosted: any) {
+    let service = this[structName.toLowerCase() + "Service"]
+    service["post" + structName](instanceToBePosted).subscribe(
+      instance => {
+        service[structName + "ServiceChanged"].next("post")
+      }
+    );
+  }
+
+  // deleteService provides a delete function for each struct name
+  deleteService(structName: string, instanceToBeDeleted: any) {
+    let service = this[structName.toLowerCase() + "Service"]
+    service["delete" + structName](instanceToBeDeleted).subscribe(
+      instance => {
+        service[structName + "ServiceChanged"].next("delete")
+      }
+    );
+  }
 
   // typing of observable can be messy in typescript. Therefore, one force the type
   observableFrontRepo: [ // insertion point sub template 
@@ -158,14 +207,14 @@ export class FrontRepoService {
 
             // clear the map that counts VisualCenter in the GET
             FrontRepoSingloton.VisualCenters_batch.clear()
-            
+
             visualcenters.forEach(
               visualcenter => {
                 FrontRepoSingloton.VisualCenters.set(visualcenter.ID, visualcenter)
                 FrontRepoSingloton.VisualCenters_batch.set(visualcenter.ID, visualcenter)
               }
             )
-            
+
             // clear visualcenters that are absent from the batch
             FrontRepoSingloton.VisualCenters.forEach(
               visualcenter => {
@@ -174,7 +223,7 @@ export class FrontRepoService {
                 }
               }
             )
-            
+
             // sort VisualCenters_array array
             FrontRepoSingloton.VisualCenters_array.sort((t1, t2) => {
               if (t1.Name > t2.Name) {
@@ -185,20 +234,20 @@ export class FrontRepoService {
               }
               return 0;
             });
-            
+
             // init the array
             FrontRepoSingloton.VisualCircles_array = visualcircles
 
             // clear the map that counts VisualCircle in the GET
             FrontRepoSingloton.VisualCircles_batch.clear()
-            
+
             visualcircles.forEach(
               visualcircle => {
                 FrontRepoSingloton.VisualCircles.set(visualcircle.ID, visualcircle)
                 FrontRepoSingloton.VisualCircles_batch.set(visualcircle.ID, visualcircle)
               }
             )
-            
+
             // clear visualcircles that are absent from the batch
             FrontRepoSingloton.VisualCircles.forEach(
               visualcircle => {
@@ -207,7 +256,7 @@ export class FrontRepoService {
                 }
               }
             )
-            
+
             // sort VisualCircles_array array
             FrontRepoSingloton.VisualCircles_array.sort((t1, t2) => {
               if (t1.Name > t2.Name) {
@@ -218,20 +267,20 @@ export class FrontRepoService {
               }
               return 0;
             });
-            
+
             // init the array
             FrontRepoSingloton.VisualIcons_array = visualicons
 
             // clear the map that counts VisualIcon in the GET
             FrontRepoSingloton.VisualIcons_batch.clear()
-            
+
             visualicons.forEach(
               visualicon => {
                 FrontRepoSingloton.VisualIcons.set(visualicon.ID, visualicon)
                 FrontRepoSingloton.VisualIcons_batch.set(visualicon.ID, visualicon)
               }
             )
-            
+
             // clear visualicons that are absent from the batch
             FrontRepoSingloton.VisualIcons.forEach(
               visualicon => {
@@ -240,7 +289,7 @@ export class FrontRepoService {
                 }
               }
             )
-            
+
             // sort VisualIcons_array array
             FrontRepoSingloton.VisualIcons_array.sort((t1, t2) => {
               if (t1.Name > t2.Name) {
@@ -251,20 +300,20 @@ export class FrontRepoService {
               }
               return 0;
             });
-            
+
             // init the array
             FrontRepoSingloton.VisualLayers_array = visuallayers
 
             // clear the map that counts VisualLayer in the GET
             FrontRepoSingloton.VisualLayers_batch.clear()
-            
+
             visuallayers.forEach(
               visuallayer => {
                 FrontRepoSingloton.VisualLayers.set(visuallayer.ID, visuallayer)
                 FrontRepoSingloton.VisualLayers_batch.set(visuallayer.ID, visuallayer)
               }
             )
-            
+
             // clear visuallayers that are absent from the batch
             FrontRepoSingloton.VisualLayers.forEach(
               visuallayer => {
@@ -273,7 +322,7 @@ export class FrontRepoService {
                 }
               }
             )
-            
+
             // sort VisualLayers_array array
             FrontRepoSingloton.VisualLayers_array.sort((t1, t2) => {
               if (t1.Name > t2.Name) {
@@ -284,20 +333,20 @@ export class FrontRepoService {
               }
               return 0;
             });
-            
+
             // init the array
             FrontRepoSingloton.VisualLines_array = visuallines
 
             // clear the map that counts VisualLine in the GET
             FrontRepoSingloton.VisualLines_batch.clear()
-            
+
             visuallines.forEach(
               visualline => {
                 FrontRepoSingloton.VisualLines.set(visualline.ID, visualline)
                 FrontRepoSingloton.VisualLines_batch.set(visualline.ID, visualline)
               }
             )
-            
+
             // clear visuallines that are absent from the batch
             FrontRepoSingloton.VisualLines.forEach(
               visualline => {
@@ -306,7 +355,7 @@ export class FrontRepoService {
                 }
               }
             )
-            
+
             // sort VisualLines_array array
             FrontRepoSingloton.VisualLines_array.sort((t1, t2) => {
               if (t1.Name > t2.Name) {
@@ -317,20 +366,20 @@ export class FrontRepoService {
               }
               return 0;
             });
-            
+
             // init the array
             FrontRepoSingloton.VisualMaps_array = visualmaps
 
             // clear the map that counts VisualMap in the GET
             FrontRepoSingloton.VisualMaps_batch.clear()
-            
+
             visualmaps.forEach(
               visualmap => {
                 FrontRepoSingloton.VisualMaps.set(visualmap.ID, visualmap)
                 FrontRepoSingloton.VisualMaps_batch.set(visualmap.ID, visualmap)
               }
             )
-            
+
             // clear visualmaps that are absent from the batch
             FrontRepoSingloton.VisualMaps.forEach(
               visualmap => {
@@ -339,7 +388,7 @@ export class FrontRepoService {
                 }
               }
             )
-            
+
             // sort VisualMaps_array array
             FrontRepoSingloton.VisualMaps_array.sort((t1, t2) => {
               if (t1.Name > t2.Name) {
@@ -350,20 +399,20 @@ export class FrontRepoService {
               }
               return 0;
             });
-            
+
             // init the array
             FrontRepoSingloton.VisualTracks_array = visualtracks
 
             // clear the map that counts VisualTrack in the GET
             FrontRepoSingloton.VisualTracks_batch.clear()
-            
+
             visualtracks.forEach(
               visualtrack => {
                 FrontRepoSingloton.VisualTracks.set(visualtrack.ID, visualtrack)
                 FrontRepoSingloton.VisualTracks_batch.set(visualtrack.ID, visualtrack)
               }
             )
-            
+
             // clear visualtracks that are absent from the batch
             FrontRepoSingloton.VisualTracks.forEach(
               visualtrack => {
@@ -372,7 +421,7 @@ export class FrontRepoService {
                 }
               }
             )
-            
+
             // sort VisualTracks_array array
             FrontRepoSingloton.VisualTracks_array.sort((t1, t2) => {
               if (t1.Name > t2.Name) {
@@ -383,7 +432,7 @@ export class FrontRepoService {
               }
               return 0;
             });
-            
+
 
             // 
             // Second Step: redeem pointers between instances (thanks to maps in the First Step)
@@ -514,7 +563,7 @@ export class FrontRepoService {
                 FrontRepoSingloton.VisualCenters.set(visualcenter.ID, visualcenter)
                 FrontRepoSingloton.VisualCenters_batch.set(visualcenter.ID, visualcenter)
 
-                // insertion point for redeeming ONE/ZERO-ONE associations 
+                // insertion point for redeeming ONE/ZERO-ONE associations
                 // insertion point for pointer field VisualLayer redeeming
                 {
                   let _visuallayer = FrontRepoSingloton.VisualLayers.get(visualcenter.VisualLayerID.Int64)
@@ -530,7 +579,7 @@ export class FrontRepoService {
                   }
                 }
 
-                // insertion point for redeeming ONE-MANY associations 
+                // insertion point for redeeming ONE-MANY associations
               }
             )
 
@@ -579,7 +628,7 @@ export class FrontRepoService {
                 FrontRepoSingloton.VisualCircles.set(visualcircle.ID, visualcircle)
                 FrontRepoSingloton.VisualCircles_batch.set(visualcircle.ID, visualcircle)
 
-                // insertion point for redeeming ONE/ZERO-ONE associations 
+                // insertion point for redeeming ONE/ZERO-ONE associations
                 // insertion point for pointer field VisualLayer redeeming
                 {
                   let _visuallayer = FrontRepoSingloton.VisualLayers.get(visualcircle.VisualLayerID.Int64)
@@ -588,7 +637,7 @@ export class FrontRepoService {
                   }
                 }
 
-                // insertion point for redeeming ONE-MANY associations 
+                // insertion point for redeeming ONE-MANY associations
               }
             )
 
@@ -637,9 +686,9 @@ export class FrontRepoService {
                 FrontRepoSingloton.VisualIcons.set(visualicon.ID, visualicon)
                 FrontRepoSingloton.VisualIcons_batch.set(visualicon.ID, visualicon)
 
-                // insertion point for redeeming ONE/ZERO-ONE associations 
+                // insertion point for redeeming ONE/ZERO-ONE associations
 
-                // insertion point for redeeming ONE-MANY associations 
+                // insertion point for redeeming ONE-MANY associations
               }
             )
 
@@ -688,9 +737,9 @@ export class FrontRepoService {
                 FrontRepoSingloton.VisualLayers.set(visuallayer.ID, visuallayer)
                 FrontRepoSingloton.VisualLayers_batch.set(visuallayer.ID, visuallayer)
 
-                // insertion point for redeeming ONE/ZERO-ONE associations 
+                // insertion point for redeeming ONE/ZERO-ONE associations
 
-                // insertion point for redeeming ONE-MANY associations 
+                // insertion point for redeeming ONE-MANY associations
               }
             )
 
@@ -739,7 +788,7 @@ export class FrontRepoService {
                 FrontRepoSingloton.VisualLines.set(visualline.ID, visualline)
                 FrontRepoSingloton.VisualLines_batch.set(visualline.ID, visualline)
 
-                // insertion point for redeeming ONE/ZERO-ONE associations 
+                // insertion point for redeeming ONE/ZERO-ONE associations
                 // insertion point for pointer field VisualLayer redeeming
                 {
                   let _visuallayer = FrontRepoSingloton.VisualLayers.get(visualline.VisualLayerID.Int64)
@@ -748,7 +797,7 @@ export class FrontRepoService {
                   }
                 }
 
-                // insertion point for redeeming ONE-MANY associations 
+                // insertion point for redeeming ONE-MANY associations
               }
             )
 
@@ -797,9 +846,9 @@ export class FrontRepoService {
                 FrontRepoSingloton.VisualMaps.set(visualmap.ID, visualmap)
                 FrontRepoSingloton.VisualMaps_batch.set(visualmap.ID, visualmap)
 
-                // insertion point for redeeming ONE/ZERO-ONE associations 
+                // insertion point for redeeming ONE/ZERO-ONE associations
 
-                // insertion point for redeeming ONE-MANY associations 
+                // insertion point for redeeming ONE-MANY associations
               }
             )
 
@@ -848,7 +897,7 @@ export class FrontRepoService {
                 FrontRepoSingloton.VisualTracks.set(visualtrack.ID, visualtrack)
                 FrontRepoSingloton.VisualTracks_batch.set(visualtrack.ID, visualtrack)
 
-                // insertion point for redeeming ONE/ZERO-ONE associations 
+                // insertion point for redeeming ONE/ZERO-ONE associations
                 // insertion point for pointer field VisualLayer redeeming
                 {
                   let _visuallayer = FrontRepoSingloton.VisualLayers.get(visualtrack.VisualLayerID.Int64)
@@ -864,7 +913,7 @@ export class FrontRepoService {
                   }
                 }
 
-                // insertion point for redeeming ONE-MANY associations 
+                // insertion point for redeeming ONE-MANY associations
               }
             )
 

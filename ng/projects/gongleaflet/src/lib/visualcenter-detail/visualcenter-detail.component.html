@@ -14,7 +14,7 @@
     </mat-form-field>
 
     <mat-grid-list *ngIf='!isATextArea("Name")' cols="5" rowHeight="2:1">
-        <mat-grid-tile [colspan]="4">
+        <mat-grid-tile [colspan]="3">
             <mat-form-field mat-form-field class="detail-full-width">
                 <mat-label>Name</mat-label>
                 <input name="" [ngModelOptions]="{standalone: true}" matInput [(ngModel)]="visualcenter.Name">
@@ -65,7 +65,7 @@
 
     <div class="details__save">
         <button mat-raised-button color="primary" (click)="save()">
-			Save visualcenter
-		</button>
+            Save visualcenter
+        </button>
     </div>
 </form>

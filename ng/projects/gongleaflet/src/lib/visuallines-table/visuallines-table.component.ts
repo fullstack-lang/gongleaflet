@@ -7,7 +7,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import { MatButton } from '@angular/material/button'
 
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog'
-import { DialogData } from '../front-repo.service'
+import { DialogData, FrontRepoService, FrontRepo, NullInt64, SelectionMode } from '../front-repo.service'
 import { SelectionModel } from '@angular/cdk/collections';
 
 const allowMultiSelect = true;
@@ -16,7 +16,13 @@ import { Router, RouterState } from '@angular/router';
 import { VisualLineDB } from '../visualline-db'
 import { VisualLineService } from '../visualline.service'
 
-import { FrontRepoService, FrontRepo } from '../front-repo.service'
+// TableComponent is initilizaed from different routes
+// TableComponentMode detail different cases 
+enum TableComponentMode {
+  DISPLAY_MODE,
+  ONE_MANY_ASSOCIATION_MODE,
+  MANY_MANY_ASSOCIATION_MODE,
+}
 
 // generated table component
 @Component({
@@ -26,6 +32,9 @@ import { FrontRepoService, FrontRepo } from '../front-repo.service'
 })
 export class VisualLinesTableComponent implements OnInit {
 
+  // mode at invocation
+  mode: TableComponentMode
+
   // used if the component is called as a selection component of VisualLine instances
   selection: SelectionModel<VisualLineDB>;
   initialSelection = new Array<VisualLineDB>();
@@ -33,7 +42,6 @@ export class VisualLinesTableComponent implements OnInit {
   // the data source for the table
   visuallines: VisualLineDB[];
   matTableDataSource: MatTableDataSource<VisualLineDB>
-
 
   // front repo, that will be referenced by this.visuallines
   frontRepo: FrontRepo
@@ -48,77 +56,77 @@ export class VisualLinesTableComponent implements OnInit {
 
   ngAfterViewInit() {
 
-	// enable sorting on all fields (including pointers and reverse pointer)
-	this.matTableDataSource.sortingDataAccessor = (visuallineDB: VisualLineDB, property: string) => {
-		switch (property) {
-				// insertion point for specific sorting accessor
-			case 'StartLat':
-				return visuallineDB.StartLat;
+    // enable sorting on all fields (including pointers and reverse pointer)
+    this.matTableDataSource.sortingDataAccessor = (visuallineDB: VisualLineDB, property: string) => {
+      switch (property) {
+        // insertion point for specific sorting accessor
+        case 'StartLat':
+          return visuallineDB.StartLat;
 
-			case 'StartLng':
-				return visuallineDB.StartLng;
+        case 'StartLng':
+          return visuallineDB.StartLng;
 
-			case 'EndLat':
-				return visuallineDB.EndLat;
+        case 'EndLat':
+          return visuallineDB.EndLat;
 
-			case 'EndLng':
-				return visuallineDB.EndLng;
+        case 'EndLng':
+          return visuallineDB.EndLng;
 
-			case 'Name':
-				return visuallineDB.Name;
+        case 'Name':
+          return visuallineDB.Name;
 
-			case 'VisualColorEnum':
-				return visuallineDB.VisualColorEnum;
+        case 'VisualColorEnum':
+          return visuallineDB.VisualColorEnum;
 
-			case 'DashStyleEnum':
-				return visuallineDB.DashStyleEnum;
+        case 'DashStyleEnum':
+          return visuallineDB.DashStyleEnum;
 
-			case 'VisualLayer':
-				return (visuallineDB.VisualLayer ? visuallineDB.VisualLayer.Name : '');
+        case 'VisualLayer':
+          return (visuallineDB.VisualLayer ? visuallineDB.VisualLayer.Name : '');
 
-			case 'IsTransmitting':
-				return visuallineDB.IsTransmitting;
+        case 'IsTransmitting':
+          return visuallineDB.IsTransmitting;
 
-			case 'Message':
-				return visuallineDB.Message;
+        case 'Message':
+          return visuallineDB.Message;
 
-			case 'IsTransmittingBackward':
-				return visuallineDB.IsTransmittingBackward;
+        case 'IsTransmittingBackward':
+          return visuallineDB.IsTransmittingBackward;
 
-			case 'MessageBackward':
-				return visuallineDB.MessageBackward;
+        case 'MessageBackward':
+          return visuallineDB.MessageBackward;
 
-				default:
-					return VisualLineDB[property];
-		}
-	}; 
+        default:
+          return VisualLineDB[property];
+      }
+    };
 
-	// enable filtering on all fields (including pointers and reverse pointer, which is not done by default)
-	this.matTableDataSource.filterPredicate = (visuallineDB: VisualLineDB, filter: string) => {
+    // enable filtering on all fields (including pointers and reverse pointer, which is not done by default)
+    this.matTableDataSource.filterPredicate = (visuallineDB: VisualLineDB, filter: string) => {
 
-		// filtering is based on finding a lower case filter into a concatenated string
-		// the visuallineDB properties
-		let mergedContent = ""
+      // filtering is based on finding a lower case filter into a concatenated string
+      // the visuallineDB properties
+      let mergedContent = ""
 
-		// insertion point for merging of fields
-		mergedContent += visuallineDB.StartLat.toString()
-		mergedContent += visuallineDB.StartLng.toString()
-		mergedContent += visuallineDB.EndLat.toString()
-		mergedContent += visuallineDB.EndLng.toString()
-		mergedContent += visuallineDB.Name.toLowerCase()
-		mergedContent += visuallineDB.VisualColorEnum.toLowerCase()
-		mergedContent += visuallineDB.DashStyleEnum.toLowerCase()
-		if (visuallineDB.VisualLayer) {
-    		mergedContent += visuallineDB.VisualLayer.Name.toLowerCase()
-		}
-		mergedContent += visuallineDB.IsTransmitting.toLowerCase()
-		mergedContent += visuallineDB.Message.toLowerCase()
-		mergedContent += visuallineDB.IsTransmittingBackward.toLowerCase()
-		mergedContent += visuallineDB.MessageBackward.toLowerCase()
+      // insertion point for merging of fields
+      mergedContent += visuallineDB.StartLat.toString()
+      mergedContent += visuallineDB.StartLng.toString()
+      mergedContent += visuallineDB.EndLat.toString()
+      mergedContent += visuallineDB.EndLng.toString()
+      mergedContent += visuallineDB.Name.toLowerCase()
+      mergedContent += visuallineDB.VisualColorEnum.toLowerCase()
+      mergedContent += visuallineDB.DashStyleEnum.toLowerCase()
+      if (visuallineDB.VisualLayer) {
+        mergedContent += visuallineDB.VisualLayer.Name.toLowerCase()
+      }
+      mergedContent += visuallineDB.IsTransmitting.toLowerCase()
+      mergedContent += visuallineDB.Message.toLowerCase()
+      mergedContent += visuallineDB.IsTransmittingBackward.toLowerCase()
+      mergedContent += visuallineDB.MessageBackward.toLowerCase()
 
-		let isSelected = mergedContent.includes(filter.toLowerCase())
-		return isSelected
-	};
+      let isSelected = mergedContent.includes(filter.toLowerCase())
+      return isSelected
+    };
 
     this.matTableDataSource.sort = this.sort;
     this.matTableDataSource.paginator = this.paginator;
@@ -139,6 +147,22 @@ export class VisualLinesTableComponent implements OnInit {
 
     private router: Router,
   ) {
+
+    // compute mode
+    if (dialogData == undefined) {
+      this.mode = TableComponentMode.DISPLAY_MODE
+    } else {
+      switch (dialogData.SelectionMode) {
+        case SelectionMode.ONE_MANY_ASSOCIATION_MODE:
+          this.mode = TableComponentMode.ONE_MANY_ASSOCIATION_MODE
+          break
+        case SelectionMode.MANY_MANY_ASSOCIATION_MODE:
+          this.mode = TableComponentMode.MANY_MANY_ASSOCIATION_MODE
+          break
+        default:
+      }
+    }
+
     // observable for changes in structs
     this.visuallineService.VisualLineServiceChanged.subscribe(
       message => {
@@ -147,7 +171,7 @@ export class VisualLinesTableComponent implements OnInit {
         }
       }
     )
-    if (dialogData == undefined) {
+    if (this.mode == TableComponentMode.DISPLAY_MODE) {
       this.displayedColumns = ['ID', 'Edit', 'Delete', // insertion point for columns to display
         "StartLat",
         "StartLng",
@@ -197,7 +221,7 @@ export class VisualLinesTableComponent implements OnInit {
         // insertion point for variables Recoveries
 
         // in case the component is called as a selection component
-        if (this.dialogData != undefined) {
+        if (this.mode == TableComponentMode.ONE_MANY_ASSOCIATION_MODE) {
           this.visuallines.forEach(
             visualline => {
               let ID = this.dialogData.ID
@@ -207,6 +231,20 @@ export class VisualLinesTableComponent implements OnInit {
               }
             }
           )
+          this.selection = new SelectionModel<VisualLineDB>(allowMultiSelect, this.initialSelection);
+        }
+
+        if (this.mode == TableComponentMode.MANY_MANY_ASSOCIATION_MODE) {
+
+          let mapOfSourceInstances = this.frontRepo[this.dialogData.SourceStruct + "s"]
+          let sourceInstance = mapOfSourceInstances.get(this.dialogData.ID)
+
+          if (sourceInstance[this.dialogData.SourceField]) {
+            for (let associationInstance of sourceInstance[this.dialogData.SourceField]) {
+              let visualline = associationInstance[this.dialogData.IntermediateStructField]
+              this.initialSelection.push(visualline)
+            }
+          }
           this.selection = new SelectionModel<VisualLineDB>(allowMultiSelect, this.initialSelection);
         }
 
@@ -275,36 +313,106 @@ export class VisualLinesTableComponent implements OnInit {
 
   save() {
 
-    let toUpdate = new Set<VisualLineDB>()
+    if (this.mode == TableComponentMode.ONE_MANY_ASSOCIATION_MODE) {
 
-    // reset all initial selection of visualline that belong to visualline through Anarrayofb
-    this.initialSelection.forEach(
-      visualline => {
-        visualline[this.dialogData.ReversePointer].Int64 = 0
-        visualline[this.dialogData.ReversePointer].Valid = true
-        toUpdate.add(visualline)
-      }
-    )
+      let toUpdate = new Set<VisualLineDB>()
 
-    // from selection, set visualline that belong to visualline through Anarrayofb
-    this.selection.selected.forEach(
-      visualline => {
-        let ID = +this.dialogData.ID
-        visualline[this.dialogData.ReversePointer].Int64 = ID
-        visualline[this.dialogData.ReversePointer].Valid = true
-        toUpdate.add(visualline)
-      }
-    )
+      // reset all initial selection of visualline that belong to visualline
+      this.initialSelection.forEach(
+        visualline => {
+          visualline[this.dialogData.ReversePointer].Int64 = 0
+          visualline[this.dialogData.ReversePointer].Valid = true
+          toUpdate.add(visualline)
+        }
+      )
 
-    // update all visualline (only update selection & initial selection)
-    toUpdate.forEach(
-      visualline => {
-        this.visuallineService.updateVisualLine(visualline)
-          .subscribe(visualline => {
-            this.visuallineService.VisualLineServiceChanged.next("update")
-          });
+      // from selection, set visualline that belong to visualline
+      this.selection.selected.forEach(
+        visualline => {
+          let ID = +this.dialogData.ID
+          visualline[this.dialogData.ReversePointer].Int64 = ID
+          visualline[this.dialogData.ReversePointer].Valid = true
+          toUpdate.add(visualline)
+        }
+      )
+
+      // update all visualline (only update selection & initial selection)
+      toUpdate.forEach(
+        visualline => {
+          this.visuallineService.updateVisualLine(visualline)
+            .subscribe(visualline => {
+              this.visuallineService.VisualLineServiceChanged.next("update")
+            });
+        }
+      )
+    }
+
+    if (this.mode == TableComponentMode.MANY_MANY_ASSOCIATION_MODE) {
+
+      let mapOfSourceInstances = this.frontRepo[this.dialogData.SourceStruct + "s"]
+      let sourceInstance = mapOfSourceInstances.get(this.dialogData.ID)
+
+      // First, parse all instance of the association struct and remove the instance
+      // that have unselect
+      let unselectedVisualLine = new Set<number>()
+      for (let visualline of this.initialSelection) {
+        if (this.selection.selected.includes(visualline)) {
+          // console.log("visualline " + visualline.Name + " is still selected")
+        } else {
+          console.log("visualline " + visualline.Name + " has been unselected")
+          unselectedVisualLine.add(visualline.ID)
+          console.log("is unselected " + unselectedVisualLine.has(visualline.ID))
+        }
       }
-    )
+
+      // delete the association instance
+      if (sourceInstance[this.dialogData.SourceField]) {
+        for (let associationInstance of sourceInstance[this.dialogData.SourceField]) {
+          let visualline = associationInstance[this.dialogData.IntermediateStructField]
+          if (unselectedVisualLine.has(visualline.ID)) {
+
+            this.frontRepoService.deleteService( this.dialogData.IntermediateStruct, associationInstance )
+          }
+        }
+      }
+
+      // is the source array is emptyn create it
+      if (sourceInstance[this.dialogData.SourceField] == undefined) {
+        sourceInstance[this.dialogData.SourceField] = new Array<any>()
+      }
+
+      // second, parse all instance of the selected
+      if (sourceInstance[this.dialogData.SourceField]) {
+        this.selection.selected.forEach(
+          visualline => {
+            if (!this.initialSelection.includes(visualline)) {
+              // console.log("visualline " + visualline.Name + " has been added to the selection")
+
+              let associationInstance = {
+                Name: sourceInstance["Name"] + "-" + visualline.Name,
+              }
+
+              associationInstance[this.dialogData.IntermediateStructField+"ID"] = new NullInt64
+              associationInstance[this.dialogData.IntermediateStructField+"ID"].Int64 = visualline.ID
+              associationInstance[this.dialogData.IntermediateStructField+"ID"].Valid = true
+
+              associationInstance[this.dialogData.SourceStruct + "_" + this.dialogData.SourceField + "DBID"] = new NullInt64
+              associationInstance[this.dialogData.SourceStruct + "_" + this.dialogData.SourceField + "DBID"].Int64 = sourceInstance["ID"]
+              associationInstance[this.dialogData.SourceStruct + "_" + this.dialogData.SourceField + "DBID"].Valid = true
+
+              this.frontRepoService.postService( this.dialogData.IntermediateStruct, associationInstance )
+
+            } else {
+              // console.log("visualline " + visualline.Name + " is still selected")
+            }
+          }
+        )
+      }
+
+      // this.selection = new SelectionModel<VisualLineDB>(allowMultiSelect, this.initialSelection);
+    }
+
+    // why pizza ?
     this.dialogRef.close('Pizza!');
   }
 }

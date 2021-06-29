@@ -7,7 +7,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import { MatButton } from '@angular/material/button'
 
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog'
-import { DialogData } from '../front-repo.service'
+import { DialogData, FrontRepoService, FrontRepo, NullInt64, SelectionMode } from '../front-repo.service'
 import { SelectionModel } from '@angular/cdk/collections';
 
 const allowMultiSelect = true;
@@ -16,7 +16,13 @@ import { Router, RouterState } from '@angular/router';
 import { VisualMapDB } from '../visualmap-db'
 import { VisualMapService } from '../visualmap.service'
 
-import { FrontRepoService, FrontRepo } from '../front-repo.service'
+// TableComponent is initilizaed from different routes
+// TableComponentMode detail different cases 
+enum TableComponentMode {
+  DISPLAY_MODE,
+  ONE_MANY_ASSOCIATION_MODE,
+  MANY_MANY_ASSOCIATION_MODE,
+}
 
 // generated table component
 @Component({
@@ -26,6 +32,9 @@ import { FrontRepoService, FrontRepo } from '../front-repo.service'
 })
 export class VisualMapsTableComponent implements OnInit {
 
+  // mode at invocation
+  mode: TableComponentMode
+
   // used if the component is called as a selection component of VisualMap instances
   selection: SelectionModel<VisualMapDB>;
   initialSelection = new Array<VisualMapDB>();
@@ -33,7 +42,6 @@ export class VisualMapsTableComponent implements OnInit {
   // the data source for the table
   visualmaps: VisualMapDB[];
   matTableDataSource: MatTableDataSource<VisualMapDB>
-
 
   // front repo, that will be referenced by this.visualmaps
   frontRepo: FrontRepo
@@ -48,64 +56,64 @@ export class VisualMapsTableComponent implements OnInit {
 
   ngAfterViewInit() {
 
-	// enable sorting on all fields (including pointers and reverse pointer)
-	this.matTableDataSource.sortingDataAccessor = (visualmapDB: VisualMapDB, property: string) => {
-		switch (property) {
-				// insertion point for specific sorting accessor
-			case 'Lat':
-				return visualmapDB.Lat;
+    // enable sorting on all fields (including pointers and reverse pointer)
+    this.matTableDataSource.sortingDataAccessor = (visualmapDB: VisualMapDB, property: string) => {
+      switch (property) {
+        // insertion point for specific sorting accessor
+        case 'Lat':
+          return visualmapDB.Lat;
 
-			case 'Lng':
-				return visualmapDB.Lng;
+        case 'Lng':
+          return visualmapDB.Lng;
 
-			case 'Name':
-				return visualmapDB.Name;
+        case 'Name':
+          return visualmapDB.Name;
 
-			case 'ZoomLevel':
-				return visualmapDB.ZoomLevel;
+        case 'ZoomLevel':
+          return visualmapDB.ZoomLevel;
 
-			case 'UrlTemplate':
-				return visualmapDB.UrlTemplate;
+        case 'UrlTemplate':
+          return visualmapDB.UrlTemplate;
 
-			case 'Attribution':
-				return visualmapDB.Attribution;
+        case 'Attribution':
+          return visualmapDB.Attribution;
 
-			case 'MaxZoom':
-				return visualmapDB.MaxZoom;
+        case 'MaxZoom':
+          return visualmapDB.MaxZoom;
 
-			case 'ZoomControl':
-				return visualmapDB.ZoomControl;
+        case 'ZoomControl':
+          return visualmapDB.ZoomControl;
 
-			case 'AttributionControl':
-				return visualmapDB.AttributionControl;
+        case 'AttributionControl':
+          return visualmapDB.AttributionControl;
 
-			case 'ZoomSnap':
-				return visualmapDB.ZoomSnap;
+        case 'ZoomSnap':
+          return visualmapDB.ZoomSnap;
 
-				default:
-					return VisualMapDB[property];
-		}
-	}; 
+        default:
+          return VisualMapDB[property];
+      }
+    };
 
-	// enable filtering on all fields (including pointers and reverse pointer, which is not done by default)
-	this.matTableDataSource.filterPredicate = (visualmapDB: VisualMapDB, filter: string) => {
+    // enable filtering on all fields (including pointers and reverse pointer, which is not done by default)
+    this.matTableDataSource.filterPredicate = (visualmapDB: VisualMapDB, filter: string) => {
 
-		// filtering is based on finding a lower case filter into a concatenated string
-		// the visualmapDB properties
-		let mergedContent = ""
+      // filtering is based on finding a lower case filter into a concatenated string
+      // the visualmapDB properties
+      let mergedContent = ""
 
-		// insertion point for merging of fields
-		mergedContent += visualmapDB.Lat.toString()
-		mergedContent += visualmapDB.Lng.toString()
-		mergedContent += visualmapDB.Name.toLowerCase()
-		mergedContent += visualmapDB.ZoomLevel.toString()
-		mergedContent += visualmapDB.UrlTemplate.toLowerCase()
-		mergedContent += visualmapDB.Attribution.toLowerCase()
-		mergedContent += visualmapDB.MaxZoom.toString()
+      // insertion point for merging of fields
+      mergedContent += visualmapDB.Lat.toString()
+      mergedContent += visualmapDB.Lng.toString()
+      mergedContent += visualmapDB.Name.toLowerCase()
+      mergedContent += visualmapDB.ZoomLevel.toString()
+      mergedContent += visualmapDB.UrlTemplate.toLowerCase()
+      mergedContent += visualmapDB.Attribution.toLowerCase()
+      mergedContent += visualmapDB.MaxZoom.toString()
 
-		let isSelected = mergedContent.includes(filter.toLowerCase())
-		return isSelected
-	};
+      let isSelected = mergedContent.includes(filter.toLowerCase())
+      return isSelected
+    };
 
     this.matTableDataSource.sort = this.sort;
     this.matTableDataSource.paginator = this.paginator;
@@ -126,6 +134,22 @@ export class VisualMapsTableComponent implements OnInit {
 
     private router: Router,
   ) {
+
+    // compute mode
+    if (dialogData == undefined) {
+      this.mode = TableComponentMode.DISPLAY_MODE
+    } else {
+      switch (dialogData.SelectionMode) {
+        case SelectionMode.ONE_MANY_ASSOCIATION_MODE:
+          this.mode = TableComponentMode.ONE_MANY_ASSOCIATION_MODE
+          break
+        case SelectionMode.MANY_MANY_ASSOCIATION_MODE:
+          this.mode = TableComponentMode.MANY_MANY_ASSOCIATION_MODE
+          break
+        default:
+      }
+    }
+
     // observable for changes in structs
     this.visualmapService.VisualMapServiceChanged.subscribe(
       message => {
@@ -134,7 +158,7 @@ export class VisualMapsTableComponent implements OnInit {
         }
       }
     )
-    if (dialogData == undefined) {
+    if (this.mode == TableComponentMode.DISPLAY_MODE) {
       this.displayedColumns = ['ID', 'Edit', 'Delete', // insertion point for columns to display
         "Lat",
         "Lng",
@@ -180,7 +204,7 @@ export class VisualMapsTableComponent implements OnInit {
         // insertion point for variables Recoveries
 
         // in case the component is called as a selection component
-        if (this.dialogData != undefined) {
+        if (this.mode == TableComponentMode.ONE_MANY_ASSOCIATION_MODE) {
           this.visualmaps.forEach(
             visualmap => {
               let ID = this.dialogData.ID
@@ -190,6 +214,20 @@ export class VisualMapsTableComponent implements OnInit {
               }
             }
           )
+          this.selection = new SelectionModel<VisualMapDB>(allowMultiSelect, this.initialSelection);
+        }
+
+        if (this.mode == TableComponentMode.MANY_MANY_ASSOCIATION_MODE) {
+
+          let mapOfSourceInstances = this.frontRepo[this.dialogData.SourceStruct + "s"]
+          let sourceInstance = mapOfSourceInstances.get(this.dialogData.ID)
+
+          if (sourceInstance[this.dialogData.SourceField]) {
+            for (let associationInstance of sourceInstance[this.dialogData.SourceField]) {
+              let visualmap = associationInstance[this.dialogData.IntermediateStructField]
+              this.initialSelection.push(visualmap)
+            }
+          }
           this.selection = new SelectionModel<VisualMapDB>(allowMultiSelect, this.initialSelection);
         }
 
@@ -258,36 +296,106 @@ export class VisualMapsTableComponent implements OnInit {
 
   save() {
 
-    let toUpdate = new Set<VisualMapDB>()
+    if (this.mode == TableComponentMode.ONE_MANY_ASSOCIATION_MODE) {
 
-    // reset all initial selection of visualmap that belong to visualmap through Anarrayofb
-    this.initialSelection.forEach(
-      visualmap => {
-        visualmap[this.dialogData.ReversePointer].Int64 = 0
-        visualmap[this.dialogData.ReversePointer].Valid = true
-        toUpdate.add(visualmap)
-      }
-    )
+      let toUpdate = new Set<VisualMapDB>()
 
-    // from selection, set visualmap that belong to visualmap through Anarrayofb
-    this.selection.selected.forEach(
-      visualmap => {
-        let ID = +this.dialogData.ID
-        visualmap[this.dialogData.ReversePointer].Int64 = ID
-        visualmap[this.dialogData.ReversePointer].Valid = true
-        toUpdate.add(visualmap)
-      }
-    )
+      // reset all initial selection of visualmap that belong to visualmap
+      this.initialSelection.forEach(
+        visualmap => {
+          visualmap[this.dialogData.ReversePointer].Int64 = 0
+          visualmap[this.dialogData.ReversePointer].Valid = true
+          toUpdate.add(visualmap)
+        }
+      )
 
-    // update all visualmap (only update selection & initial selection)
-    toUpdate.forEach(
-      visualmap => {
-        this.visualmapService.updateVisualMap(visualmap)
-          .subscribe(visualmap => {
-            this.visualmapService.VisualMapServiceChanged.next("update")
-          });
+      // from selection, set visualmap that belong to visualmap
+      this.selection.selected.forEach(
+        visualmap => {
+          let ID = +this.dialogData.ID
+          visualmap[this.dialogData.ReversePointer].Int64 = ID
+          visualmap[this.dialogData.ReversePointer].Valid = true
+          toUpdate.add(visualmap)
+        }
+      )
+
+      // update all visualmap (only update selection & initial selection)
+      toUpdate.forEach(
+        visualmap => {
+          this.visualmapService.updateVisualMap(visualmap)
+            .subscribe(visualmap => {
+              this.visualmapService.VisualMapServiceChanged.next("update")
+            });
+        }
+      )
+    }
+
+    if (this.mode == TableComponentMode.MANY_MANY_ASSOCIATION_MODE) {
+
+      let mapOfSourceInstances = this.frontRepo[this.dialogData.SourceStruct + "s"]
+      let sourceInstance = mapOfSourceInstances.get(this.dialogData.ID)
+
+      // First, parse all instance of the association struct and remove the instance
+      // that have unselect
+      let unselectedVisualMap = new Set<number>()
+      for (let visualmap of this.initialSelection) {
+        if (this.selection.selected.includes(visualmap)) {
+          // console.log("visualmap " + visualmap.Name + " is still selected")
+        } else {
+          console.log("visualmap " + visualmap.Name + " has been unselected")
+          unselectedVisualMap.add(visualmap.ID)
+          console.log("is unselected " + unselectedVisualMap.has(visualmap.ID))
+        }
       }
-    )
+
+      // delete the association instance
+      if (sourceInstance[this.dialogData.SourceField]) {
+        for (let associationInstance of sourceInstance[this.dialogData.SourceField]) {
+          let visualmap = associationInstance[this.dialogData.IntermediateStructField]
+          if (unselectedVisualMap.has(visualmap.ID)) {
+
+            this.frontRepoService.deleteService( this.dialogData.IntermediateStruct, associationInstance )
+          }
+        }
+      }
+
+      // is the source array is emptyn create it
+      if (sourceInstance[this.dialogData.SourceField] == undefined) {
+        sourceInstance[this.dialogData.SourceField] = new Array<any>()
+      }
+
+      // second, parse all instance of the selected
+      if (sourceInstance[this.dialogData.SourceField]) {
+        this.selection.selected.forEach(
+          visualmap => {
+            if (!this.initialSelection.includes(visualmap)) {
+              // console.log("visualmap " + visualmap.Name + " has been added to the selection")
+
+              let associationInstance = {
+                Name: sourceInstance["Name"] + "-" + visualmap.Name,
+              }
+
+              associationInstance[this.dialogData.IntermediateStructField+"ID"] = new NullInt64
+              associationInstance[this.dialogData.IntermediateStructField+"ID"].Int64 = visualmap.ID
+              associationInstance[this.dialogData.IntermediateStructField+"ID"].Valid = true
+
+              associationInstance[this.dialogData.SourceStruct + "_" + this.dialogData.SourceField + "DBID"] = new NullInt64
+              associationInstance[this.dialogData.SourceStruct + "_" + this.dialogData.SourceField + "DBID"].Int64 = sourceInstance["ID"]
+              associationInstance[this.dialogData.SourceStruct + "_" + this.dialogData.SourceField + "DBID"].Valid = true
+
+              this.frontRepoService.postService( this.dialogData.IntermediateStruct, associationInstance )
+
+            } else {
+              // console.log("visualmap " + visualmap.Name + " is still selected")
+            }
+          }
+        )
+      }
+
+      // this.selection = new SelectionModel<VisualMapDB>(allowMultiSelect, this.initialSelection);
+    }
+
+    // why pizza ?
     this.dialogRef.close('Pizza!');
   }
 }
