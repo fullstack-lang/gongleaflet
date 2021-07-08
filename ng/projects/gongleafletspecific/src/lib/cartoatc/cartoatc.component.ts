@@ -45,6 +45,12 @@ export class CartoatcComponent implements OnInit {
     this.router.routeReuseStrategy.shouldReuseRoute = () => false;
   }
 
+  onMapReady(map: L.Map) {
+    setTimeout(() => {
+      map.invalidateSize();
+    }, 0);
+ }
+
   ngOnInit(): void {
     combineLatest([this.frontRepo.pull()]).subscribe(([frontRepo]) => {
       this.visualCenters = Array.from(frontRepo.VisualCenters.values());
