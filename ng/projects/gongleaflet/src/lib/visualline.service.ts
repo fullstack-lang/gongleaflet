@@ -10,7 +10,6 @@ import { BehaviorSubject } from 'rxjs';
 import { Observable, of } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
 
-import { VisualLineAPI } from './visualline-api';
 import { VisualLineDB } from './visualline-db';
 
 @Injectable({

@@ -10,7 +10,6 @@ import { BehaviorSubject } from 'rxjs';
 import { Observable, of } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
 
-import { VisualCircleAPI } from './visualcircle-api';
 import { VisualCircleDB } from './visualcircle-db';
 
 @Injectable({

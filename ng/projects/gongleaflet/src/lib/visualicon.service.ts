@@ -10,7 +10,6 @@ import { BehaviorSubject } from 'rxjs';
 import { Observable, of } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
 
-import { VisualIconAPI } from './visualicon-api';
 import { VisualIconDB } from './visualicon-db';
 
 @Injectable({

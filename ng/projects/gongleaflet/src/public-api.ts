@@ -18,7 +18,6 @@ export * from './lib/visualcenter-presentation/visualcenter-presentation.compone
 export * from './lib/visualcenter-sorting/visualcenter-sorting.component'
 export * from './lib/visualcenters-table/visualcenters-table.component'
 export * from './lib/visualcenter-db'
-export * from './lib/visualcenter-api'
 export * from './lib/visualcenter.service'
 
 export * from './lib/visualcircle-detail/visualcircle-detail.component'
@@ -26,7 +25,6 @@ export * from './lib/visualcircle-presentation/visualcircle-presentation.compone
 export * from './lib/visualcircle-sorting/visualcircle-sorting.component'
 export * from './lib/visualcircles-table/visualcircles-table.component'
 export * from './lib/visualcircle-db'
-export * from './lib/visualcircle-api'
 export * from './lib/visualcircle.service'
 
 export * from './lib/visualicon-detail/visualicon-detail.component'
@@ -34,7 +32,6 @@ export * from './lib/visualicon-presentation/visualicon-presentation.component'
 export * from './lib/visualicon-sorting/visualicon-sorting.component'
 export * from './lib/visualicons-table/visualicons-table.component'
 export * from './lib/visualicon-db'
-export * from './lib/visualicon-api'
 export * from './lib/visualicon.service'
 
 export * from './lib/visuallayer-detail/visuallayer-detail.component'
@@ -42,7 +39,6 @@ export * from './lib/visuallayer-presentation/visuallayer-presentation.component
 export * from './lib/visuallayer-sorting/visuallayer-sorting.component'
 export * from './lib/visuallayers-table/visuallayers-table.component'
 export * from './lib/visuallayer-db'
-export * from './lib/visuallayer-api'
 export * from './lib/visuallayer.service'
 
 export * from './lib/visualline-detail/visualline-detail.component'
@@ -50,7 +46,6 @@ export * from './lib/visualline-presentation/visualline-presentation.component'
 export * from './lib/visualline-sorting/visualline-sorting.component'
 export * from './lib/visuallines-table/visuallines-table.component'
 export * from './lib/visualline-db'
-export * from './lib/visualline-api'
 export * from './lib/visualline.service'
 
 export * from './lib/visualmap-detail/visualmap-detail.component'
@@ -58,7 +53,6 @@ export * from './lib/visualmap-presentation/visualmap-presentation.component'
 export * from './lib/visualmap-sorting/visualmap-sorting.component'
 export * from './lib/visualmaps-table/visualmaps-table.component'
 export * from './lib/visualmap-db'
-export * from './lib/visualmap-api'
 export * from './lib/visualmap.service'
 
 export * from './lib/visualtrack-detail/visualtrack-detail.component'
@@ -66,7 +60,6 @@ export * from './lib/visualtrack-presentation/visualtrack-presentation.component
 export * from './lib/visualtrack-sorting/visualtrack-sorting.component'
 export * from './lib/visualtracks-table/visualtracks-table.component'
 export * from './lib/visualtrack-db'
-export * from './lib/visualtrack-api'
 export * from './lib/visualtrack.service'
 
 
