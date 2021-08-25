@@ -33,7 +33,7 @@ export class CartoatcComponent implements OnInit {
   traceLayerID: number = null;
   icons = new Map<number, string>();
 
-  visualCenters: Array<gongleaflet.VisualCenterAPI> = new Array();
+  visualCenters: Array<gongleaflet.VisualCenterDB> = new Array();
 
   tracksHistory: Map<string, Array<L.LatLng>> = new Map();
 
@@ -49,7 +49,7 @@ export class CartoatcComponent implements OnInit {
     setTimeout(() => {
       map.invalidateSize();
     }, 0);
- }
+  }
 
   ngOnInit(): void {
     combineLatest([this.frontRepo.pull()]).subscribe(([frontRepo]) => {

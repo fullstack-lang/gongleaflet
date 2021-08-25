@@ -10,10 +10,7 @@ import (
 func TestBackupTest(t *testing.T) {
 
 	// setup GORM
-	db := orm.SetupModels(false, "../../test.db")
-
-	// initiate back repo a callback functions
-	orm.BackRepo.Init(db)
+	orm.SetupModels(false, "../../test.db")
 
 	models.Stage.Checkout()
 
@@ -23,10 +20,7 @@ func TestBackupTest(t *testing.T) {
 func TestRestoreTest(t *testing.T) {
 
 	// setup GORM
-	db := orm.SetupModels(false, "../../test.db")
-
-	// initiate back repo a callback functions
-	orm.BackRepo.Init(db)
+	orm.SetupModels(false, "../../test.db")
 
 	models.Stage.Restore("bckp-test")
 

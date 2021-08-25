@@ -21,8 +21,8 @@ import (
 )
 
 // dummy variable to have the import declaration wihthout compile failure (even if no code needing this import is generated)
-var dummy_VisualLayer sql.NullBool
-var __VisualLayer_time__dummyDeclaration time.Duration
+var dummy_VisualLayer_sql sql.NullBool
+var dummy_VisualLayer_time time.Duration
 var dummy_VisualLayer_sort sort.Float64Slice
 
 // VisualLayerAPI is the input in POST API

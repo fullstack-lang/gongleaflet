@@ -11,8 +11,7 @@ import (
 func TestGongLeaflet(t *testing.T) {
 
 	// setup GORM
-	db := orm.SetupModels(true, ":memory:")
-	orm.BackRepo.Init(db)
+	orm.SetupModels(true, ":memory:")
 
 	display := true
 	displayTrackHistory := true
