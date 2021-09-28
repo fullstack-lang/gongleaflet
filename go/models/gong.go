@@ -75,26 +75,26 @@ type BackRepoInterface interface {
 
 // swagger:ignore instructs the gong compiler (gongc) to avoid this particular struct
 var Stage StageStruct = StageStruct{ // insertion point for array initiatialisation
-	VisualCenters:           make(map[*VisualCenter]struct{}, 0),
-	VisualCenters_mapString: make(map[string]*VisualCenter, 0),
+	VisualCenters:           make(map[*VisualCenter]struct{}),
+	VisualCenters_mapString: make(map[string]*VisualCenter),
 
-	VisualCircles:           make(map[*VisualCircle]struct{}, 0),
-	VisualCircles_mapString: make(map[string]*VisualCircle, 0),
+	VisualCircles:           make(map[*VisualCircle]struct{}),
+	VisualCircles_mapString: make(map[string]*VisualCircle),
 
-	VisualIcons:           make(map[*VisualIcon]struct{}, 0),
-	VisualIcons_mapString: make(map[string]*VisualIcon, 0),
+	VisualIcons:           make(map[*VisualIcon]struct{}),
+	VisualIcons_mapString: make(map[string]*VisualIcon),
 
-	VisualLayers:           make(map[*VisualLayer]struct{}, 0),
-	VisualLayers_mapString: make(map[string]*VisualLayer, 0),
+	VisualLayers:           make(map[*VisualLayer]struct{}),
+	VisualLayers_mapString: make(map[string]*VisualLayer),
 
-	VisualLines:           make(map[*VisualLine]struct{}, 0),
-	VisualLines_mapString: make(map[string]*VisualLine, 0),
+	VisualLines:           make(map[*VisualLine]struct{}),
+	VisualLines_mapString: make(map[string]*VisualLine),
 
-	VisualMaps:           make(map[*VisualMap]struct{}, 0),
-	VisualMaps_mapString: make(map[string]*VisualMap, 0),
+	VisualMaps:           make(map[*VisualMap]struct{}),
+	VisualMaps_mapString: make(map[string]*VisualMap),
 
-	VisualTracks:           make(map[*VisualTrack]struct{}, 0),
-	VisualTracks_mapString: make(map[string]*VisualTrack, 0),
+	VisualTracks:           make(map[*VisualTrack]struct{}),
+	VisualTracks_mapString: make(map[string]*VisualTrack),
 
 	// end of insertion point
 }
@@ -876,26 +876,26 @@ type AllModelsStructDeleteInterface interface { // insertion point for Callbacks
 }
 
 func (stage *StageStruct) Reset() { // insertion point for array reset
-	stage.VisualCenters = make(map[*VisualCenter]struct{}, 0)
-	stage.VisualCenters_mapString = make(map[string]*VisualCenter, 0)
+	stage.VisualCenters = make(map[*VisualCenter]struct{})
+	stage.VisualCenters_mapString = make(map[string]*VisualCenter)
 
-	stage.VisualCircles = make(map[*VisualCircle]struct{}, 0)
-	stage.VisualCircles_mapString = make(map[string]*VisualCircle, 0)
+	stage.VisualCircles = make(map[*VisualCircle]struct{})
+	stage.VisualCircles_mapString = make(map[string]*VisualCircle)
 
-	stage.VisualIcons = make(map[*VisualIcon]struct{}, 0)
-	stage.VisualIcons_mapString = make(map[string]*VisualIcon, 0)
+	stage.VisualIcons = make(map[*VisualIcon]struct{})
+	stage.VisualIcons_mapString = make(map[string]*VisualIcon)
 
-	stage.VisualLayers = make(map[*VisualLayer]struct{}, 0)
-	stage.VisualLayers_mapString = make(map[string]*VisualLayer, 0)
+	stage.VisualLayers = make(map[*VisualLayer]struct{})
+	stage.VisualLayers_mapString = make(map[string]*VisualLayer)
 
-	stage.VisualLines = make(map[*VisualLine]struct{}, 0)
-	stage.VisualLines_mapString = make(map[string]*VisualLine, 0)
+	stage.VisualLines = make(map[*VisualLine]struct{})
+	stage.VisualLines_mapString = make(map[string]*VisualLine)
 
-	stage.VisualMaps = make(map[*VisualMap]struct{}, 0)
-	stage.VisualMaps_mapString = make(map[string]*VisualMap, 0)
+	stage.VisualMaps = make(map[*VisualMap]struct{})
+	stage.VisualMaps_mapString = make(map[string]*VisualMap)
 
-	stage.VisualTracks = make(map[*VisualTrack]struct{}, 0)
-	stage.VisualTracks_mapString = make(map[string]*VisualTrack, 0)
+	stage.VisualTracks = make(map[*VisualTrack]struct{})
+	stage.VisualTracks_mapString = make(map[string]*VisualTrack)
 
 }
 
