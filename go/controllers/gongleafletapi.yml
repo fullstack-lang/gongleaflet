@@ -235,8 +235,7 @@ definitions:
     x-go-name: VisualCircleDB
     x-go-package: github.com/fullstack-lang/gongleaflet/go/orm
   visualicon:
-    description: VisualIcon provides all necessary elements to the front to display
-      a track
+    description: VisualIcon provides all necessary elements to the front to display a track
     properties:
       Name:
         type: string
@@ -295,8 +294,7 @@ definitions:
     x-go-name: VisualIconDB
     x-go-package: github.com/fullstack-lang/gongleaflet/go/orm
   visuallayer:
-    description: VisualLayer provides all necessary elements to the front to display
-      a track
+    description: VisualLayer provides all necessary elements to the front to display a track
     properties:
       DisplayName:
         type: string
@@ -1295,17 +1293,14 @@ responses:
           insertion for basic fields declaration
           Declation for basic field visualcenterDB.Lat {{BasicKind}} (to be completed)
       Lng_Data:
-        description: Declation for basic field visualcenterDB.Lng {{BasicKind}} (to
-          be completed)
+        description: Declation for basic field visualcenterDB.Lng {{BasicKind}} (to be completed)
       Name_Data:
-        description: Declation for basic field visualcenterDB.Name {{BasicKind}} (to
-          be completed)
+        description: Declation for basic field visualcenterDB.Name {{BasicKind}} (to be completed)
       UpdatedAt:
         format: date-time
         type: string
       VisualColorEnum_Data:
-        description: Declation for basic field visualcenterDB.VisualColorEnum {{BasicKind}}
-          (to be completed)
+        description: Declation for basic field visualcenterDB.VisualColorEnum {{BasicKind}} (to be completed)
       VisualIconID:
         description: |-
           field VisualIcon is a pointer to another Struct (optional or 0..1)
@@ -1330,8 +1325,7 @@ responses:
         format: date-time
         type: string
       DashStyleEnum_Data:
-        description: Declation for basic field visualcircleDB.DashStyleEnum {{BasicKind}}
-          (to be completed)
+        description: Declation for basic field visualcircleDB.DashStyleEnum {{BasicKind}} (to be completed)
       DeletedAt: {}
       ID:
         format: uint64
@@ -1341,20 +1335,16 @@ responses:
           insertion for basic fields declaration
           Declation for basic field visualcircleDB.Lat {{BasicKind}} (to be completed)
       Lng_Data:
-        description: Declation for basic field visualcircleDB.Lng {{BasicKind}} (to
-          be completed)
+        description: Declation for basic field visualcircleDB.Lng {{BasicKind}} (to be completed)
       Name_Data:
-        description: Declation for basic field visualcircleDB.Name {{BasicKind}} (to
-          be completed)
+        description: Declation for basic field visualcircleDB.Name {{BasicKind}} (to be completed)
       Radius_Data:
-        description: Declation for basic field visualcircleDB.Radius {{BasicKind}}
-          (to be completed)
+        description: Declation for basic field visualcircleDB.Radius {{BasicKind}} (to be completed)
       UpdatedAt:
         format: date-time
         type: string
       VisualColorEnum_Data:
-        description: Declation for basic field visualcircleDB.VisualColorEnum {{BasicKind}}
-          (to be completed)
+        description: Declation for basic field visualcircleDB.VisualColorEnum {{BasicKind}} (to be completed)
       VisualLayerID:
         description: |-
           insertion for pointer fields encoding declaration
@@ -1383,8 +1373,7 @@ responses:
           insertion for basic fields declaration
           Declation for basic field visualiconDB.Name {{BasicKind}} (to be completed)
       SVG_Data:
-        description: Declation for basic field visualiconDB.SVG {{BasicKind}} (to
-          be completed)
+        description: Declation for basic field visualiconDB.SVG {{BasicKind}} (to be completed)
       UpdatedAt:
         format: date-time
         type: string
@@ -1404,8 +1393,7 @@ responses:
         type: string
       DeletedAt: {}
       DisplayName_Data:
-        description: Declation for basic field visuallayerDB.DisplayName {{BasicKind}}
-          (to be completed)
+        description: Declation for basic field visuallayerDB.DisplayName {{BasicKind}} (to be completed)
       ID:
         format: uint64
         type: integer
@@ -1431,46 +1419,36 @@ responses:
         format: date-time
         type: string
       DashStyleEnum_Data:
-        description: Declation for basic field visuallineDB.DashStyleEnum {{BasicKind}}
-          (to be completed)
+        description: Declation for basic field visuallineDB.DashStyleEnum {{BasicKind}} (to be completed)
       DeletedAt: {}
       EndLat_Data:
-        description: Declation for basic field visuallineDB.EndLat {{BasicKind}} (to
-          be completed)
+        description: Declation for basic field visuallineDB.EndLat {{BasicKind}} (to be completed)
       EndLng_Data:
-        description: Declation for basic field visuallineDB.EndLng {{BasicKind}} (to
-          be completed)
+        description: Declation for basic field visuallineDB.EndLng {{BasicKind}} (to be completed)
       ID:
         format: uint64
         type: integer
       IsTransmitting_Data:
-        description: Declation for basic field visuallineDB.IsTransmitting {{BasicKind}}
-          (to be completed)
+        description: Declation for basic field visuallineDB.IsTransmitting {{BasicKind}} (to be completed)
       IsTransmittingBackward_Data:
-        description: Declation for basic field visuallineDB.IsTransmittingBackward
-          {{BasicKind}} (to be completed)
+        description: Declation for basic field visuallineDB.IsTransmittingBackward {{BasicKind}} (to be completed)
       Message_Data:
-        description: Declation for basic field visuallineDB.Message {{BasicKind}}
-          (to be completed)
+        description: Declation for basic field visuallineDB.Message {{BasicKind}} (to be completed)
       MessageBackward_Data:
-        description: Declation for basic field visuallineDB.MessageBackward {{BasicKind}}
-          (to be completed)
+        description: Declation for basic field visuallineDB.MessageBackward {{BasicKind}} (to be completed)
       Name_Data:
-        description: Declation for basic field visuallineDB.Name {{BasicKind}} (to
-          be completed)
+        description: Declation for basic field visuallineDB.Name {{BasicKind}} (to be completed)
       StartLat_Data:
         description: |-
           insertion for basic fields declaration
           Declation for basic field visuallineDB.StartLat {{BasicKind}} (to be completed)
       StartLng_Data:
-        description: Declation for basic field visuallineDB.StartLng {{BasicKind}}
-          (to be completed)
+        description: Declation for basic field visuallineDB.StartLng {{BasicKind}} (to be completed)
       UpdatedAt:
         format: date-time
         type: string
       VisualColorEnum_Data:
-        description: Declation for basic field visuallineDB.VisualColorEnum {{BasicKind}}
-          (to be completed)
+        description: Declation for basic field visuallineDB.VisualColorEnum {{BasicKind}} (to be completed)
       VisualLayerID:
         description: |-
           insertion for pointer fields encoding declaration
@@ -1488,8 +1466,7 @@ responses:
     description: VisualMapDBResponse provides response
     headers:
       Attribution_Data:
-        description: Declation for basic field visualmapDB.Attribution {{BasicKind}}
-          (to be completed)
+        description: Declation for basic field visualmapDB.Attribution {{BasicKind}} (to be completed)
       AttributionControl_Data:
         description: |-
           Declation for basic field visualmapDB.AttributionControl bool (to be completed)
@@ -1506,27 +1483,22 @@ responses:
           insertion for basic fields declaration
           Declation for basic field visualmapDB.Lat {{BasicKind}} (to be completed)
       Lng_Data:
-        description: Declation for basic field visualmapDB.Lng {{BasicKind}} (to be
-          completed)
+        description: Declation for basic field visualmapDB.Lng {{BasicKind}} (to be completed)
       MaxZoom_Data:
-        description: Declation for basic field visualmapDB.MaxZoom {{BasicKind}} (to
-          be completed)
+        description: Declation for basic field visualmapDB.MaxZoom {{BasicKind}} (to be completed)
       Name_Data:
-        description: Declation for basic field visualmapDB.Name {{BasicKind}} (to
-          be completed)
+        description: Declation for basic field visualmapDB.Name {{BasicKind}} (to be completed)
       UpdatedAt:
         format: date-time
         type: string
       UrlTemplate_Data:
-        description: Declation for basic field visualmapDB.UrlTemplate {{BasicKind}}
-          (to be completed)
+        description: Declation for basic field visualmapDB.UrlTemplate {{BasicKind}} (to be completed)
       ZoomControl_Data:
         description: |-
           Declation for basic field visualmapDB.ZoomControl bool (to be completed)
           provide the sql storage for the boolan
       ZoomLevel_Data:
-        description: Declation for basic field visualmapDB.ZoomLevel {{BasicKind}}
-          (to be completed)
+        description: Declation for basic field visualmapDB.ZoomLevel {{BasicKind}} (to be completed)
       ZoomSnap_Data:
         description: |-
           Declation for basic field visualmapDB.ZoomSnap bool (to be completed)
@@ -1559,8 +1531,7 @@ responses:
           Declation for basic field visualtrackDB.DisplayTrackHistory bool (to be completed)
           provide the sql storage for the boolan
       Heading_Data:
-        description: Declation for basic field visualtrackDB.Heading {{BasicKind}}
-          (to be completed)
+        description: Declation for basic field visualtrackDB.Heading {{BasicKind}} (to be completed)
       ID:
         format: uint64
         type: integer
@@ -1569,26 +1540,20 @@ responses:
           insertion for basic fields declaration
           Declation for basic field visualtrackDB.Lat {{BasicKind}} (to be completed)
       Level_Data:
-        description: Declation for basic field visualtrackDB.Level {{BasicKind}} (to
-          be completed)
+        description: Declation for basic field visualtrackDB.Level {{BasicKind}} (to be completed)
       Lng_Data:
-        description: Declation for basic field visualtrackDB.Lng {{BasicKind}} (to
-          be completed)
+        description: Declation for basic field visualtrackDB.Lng {{BasicKind}} (to be completed)
       Name_Data:
-        description: Declation for basic field visualtrackDB.Name {{BasicKind}} (to
-          be completed)
+        description: Declation for basic field visualtrackDB.Name {{BasicKind}} (to be completed)
       Speed_Data:
-        description: Declation for basic field visualtrackDB.Speed {{BasicKind}} (to
-          be completed)
+        description: Declation for basic field visualtrackDB.Speed {{BasicKind}} (to be completed)
       UpdatedAt:
         format: date-time
         type: string
       VerticalSpeed_Data:
-        description: Declation for basic field visualtrackDB.VerticalSpeed {{BasicKind}}
-          (to be completed)
+        description: Declation for basic field visualtrackDB.VerticalSpeed {{BasicKind}} (to be completed)
       VisualColorEnum_Data:
-        description: Declation for basic field visualtrackDB.VisualColorEnum {{BasicKind}}
-          (to be completed)
+        description: Declation for basic field visualtrackDB.VisualColorEnum {{BasicKind}} (to be completed)
       VisualIconID:
         description: |-
           field VisualIcon is a pointer to another Struct (optional or 0..1)
