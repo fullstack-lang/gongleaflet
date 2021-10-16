@@ -18,7 +18,7 @@ import { Router, RouterState, ActivatedRoute } from '@angular/router';
 
 import { MatDialog, MAT_DIALOG_DATA, MatDialogRef, MatDialogConfig } from '@angular/material/dialog';
 
-import { NullInt64 } from '../front-repo.service'
+import { NullInt64 } from '../null-int64'
 
 // VisualLineDetailComponent is initilizaed from different routes
 // VisualLineDetailComponentState detail different cases 
@@ -36,15 +36,15 @@ enum VisualLineDetailComponentState {
 export class VisualLineDetailComponent implements OnInit {
 
 	// insertion point for declarations
-	VisualColorEnumList: VisualColorEnumSelect[]
-	DashStyleEnumList: DashStyleEnumSelect[]
-	TransmittingEnumList: TransmittingEnumSelect[]
+	VisualColorEnumList: VisualColorEnumSelect[] = []
+	DashStyleEnumList: DashStyleEnumSelect[] = []
+	TransmittingEnumList: TransmittingEnumSelect[] = []
 
 	// the VisualLineDB of interest
-	visualline: VisualLineDB;
+	visualline: VisualLineDB = new VisualLineDB
 
 	// front repo
-	frontRepo: FrontRepo
+	frontRepo: FrontRepo = new FrontRepo
 
 	// this stores the information related to string fields
 	// if false, the field is inputed with an <input ...> form 
@@ -52,15 +52,15 @@ export class VisualLineDetailComponent implements OnInit {
 	mapFields_displayAsTextArea = new Map<string, boolean>()
 
 	// the state at initialization (CREATION, UPDATE or CREATE with one association set)
-	state: VisualLineDetailComponentState
+	state: VisualLineDetailComponentState = VisualLineDetailComponentState.CREATE_INSTANCE
 
 	// in UDPATE state, if is the id of the instance to update
 	// in CREATE state with one association set, this is the id of the associated instance
-	id: number
+	id: number = 0
 
 	// in CREATE state with one association set, this is the id of the associated instance
-	originStruct: string
-	originStructFieldName: string
+	originStruct: string = ""
+	originStructFieldName: string = ""
 
 	constructor(
 		private visuallineService: VisualLineService,
@@ -74,9 +74,9 @@ export class VisualLineDetailComponent implements OnInit {
 	ngOnInit(): void {
 
 		// compute state
-		this.id = +this.route.snapshot.paramMap.get('id');
-		this.originStruct = this.route.snapshot.paramMap.get('originStruct');
-		this.originStructFieldName = this.route.snapshot.paramMap.get('originStructFieldName');
+		this.id = +this.route.snapshot.paramMap.get('id')!;
+		this.originStruct = this.route.snapshot.paramMap.get('originStruct')!;
+		this.originStructFieldName = this.route.snapshot.paramMap.get('originStructFieldName')!;
 
 		const association = this.route.snapshot.paramMap.get('association');
 		if (this.id == 0) {
@@ -121,7 +121,9 @@ export class VisualLineDetailComponent implements OnInit {
 						this.visualline = new (VisualLineDB)
 						break;
 					case VisualLineDetailComponentState.UPDATE_INSTANCE:
-						this.visualline = frontRepo.VisualLines.get(this.id)
+						let visualline = frontRepo.VisualLines.get(this.id)
+						console.assert(visualline != undefined, "missing visualline with id:" + this.id)
+						this.visualline = visualline!
 						break;
 					// insertion point for init of association field
 					default:
@@ -166,7 +168,7 @@ export class VisualLineDetailComponent implements OnInit {
 			default:
 				this.visuallineService.postVisualLine(this.visualline).subscribe(visualline => {
 					this.visuallineService.VisualLineServiceChanged.next("post")
-					this.visualline = {} // reset fields
+					this.visualline = new (VisualLineDB) // reset fields
 				});
 		}
 	}
@@ -175,7 +177,7 @@ export class VisualLineDetailComponent implements OnInit {
 	// ONE-MANY association
 	// It uses the MapOfComponent provided by the front repo
 	openReverseSelection(AssociatedStruct: string, reverseField: string, selectionMode: string,
-		sourceField: string, intermediateStructField: string, nextAssociatedStruct: string ) {
+		sourceField: string, intermediateStructField: string, nextAssociatedStruct: string) {
 
 		console.log("mode " + selectionMode)
 
@@ -189,7 +191,7 @@ export class VisualLineDetailComponent implements OnInit {
 		dialogConfig.height = "50%"
 		if (selectionMode == SelectionMode.ONE_MANY_ASSOCIATION_MODE) {
 
-			dialogData.ID = this.visualline.ID
+			dialogData.ID = this.visualline.ID!
 			dialogData.ReversePointer = reverseField
 			dialogData.OrderingMode = false
 			dialogData.SelectionMode = selectionMode
@@ -205,7 +207,7 @@ export class VisualLineDetailComponent implements OnInit {
 			});
 		}
 		if (selectionMode == SelectionMode.MANY_MANY_ASSOCIATION_MODE) {
-			dialogData.ID = this.visualline.ID
+			dialogData.ID = this.visualline.ID!
 			dialogData.ReversePointer = reverseField
 			dialogData.OrderingMode = false
 			dialogData.SelectionMode = selectionMode
@@ -256,7 +258,7 @@ export class VisualLineDetailComponent implements OnInit {
 		});
 	}
 
-	fillUpNameIfEmpty(event) {
+	fillUpNameIfEmpty(event: { value: { Name: string; }; }) {
 		if (this.visualline.Name == undefined) {
 			this.visualline.Name = event.value.Name
 		}
@@ -273,7 +275,7 @@ export class VisualLineDetailComponent implements OnInit {
 
 	isATextArea(fieldName: string): boolean {
 		if (this.mapFields_displayAsTextArea.has(fieldName)) {
-			return this.mapFields_displayAsTextArea.get(fieldName)
+			return this.mapFields_displayAsTextArea.get(fieldName)!
 		} else {
 			return false
 		}

@@ -13,6 +13,9 @@ import { catchError, map, tap } from 'rxjs/operators';
 
 import { VisualLineDB } from './visualline-db';
 
+// insertion point for imports
+import { VisualLayerDB } from './visuallayer-db'
+
 @Injectable({
   providedIn: 'root'
 })
@@ -35,14 +38,14 @@ export class VisualLineService {
   ) {
     // path to the service share the same origin with the path to the document
     // get the origin in the URL to the document
-	let origin = this.document.location.origin
-    
-	// if debugging with ng, replace 4200 with 8080
-	origin = origin.replace("4200", "8080")
+    let origin = this.document.location.origin
+
+    // if debugging with ng, replace 4200 with 8080
+    origin = origin.replace("4200", "8080")
 
     // compute path to the service
     this.visuallinesUrl = origin + '/api/github.com/fullstack-lang/gongleaflet/go/v1/visuallines';
-   }
+  }
 
   /** GET visuallines from the server */
   getVisualLines(): Observable<VisualLineDB[]> {
@@ -67,16 +70,16 @@ export class VisualLineService {
   /** POST: add a new visualline to the server */
   postVisualLine(visuallinedb: VisualLineDB): Observable<VisualLineDB> {
 
-		// insertion point for reset of pointers and reverse pointers (to avoid circular JSON)
-    visuallinedb.VisualLayer = {}
+    // insertion point for reset of pointers and reverse pointers (to avoid circular JSON)
+    visuallinedb.VisualLayer = new VisualLayerDB
 
-		return this.http.post<VisualLineDB>(this.visuallinesUrl, visuallinedb, this.httpOptions).pipe(
-			tap(_ => {
-				// insertion point for restoration of reverse pointers
-				this.log(`posted visuallinedb id=${visuallinedb.ID}`)
-			}),
-			catchError(this.handleError<VisualLineDB>('postVisualLine'))
-		);
+    return this.http.post<VisualLineDB>(this.visuallinesUrl, visuallinedb, this.httpOptions).pipe(
+      tap(_ => {
+        // insertion point for restoration of reverse pointers
+        this.log(`posted visuallinedb id=${visuallinedb.ID}`)
+      }),
+      catchError(this.handleError<VisualLineDB>('postVisualLine'))
+    );
   }
 
   /** DELETE: delete the visuallinedb from the server */
@@ -96,9 +99,9 @@ export class VisualLineService {
     const url = `${this.visuallinesUrl}/${id}`;
 
     // insertion point for reset of pointers and reverse pointers (to avoid circular JSON)
-    visuallinedb.VisualLayer = {}
+    visuallinedb.VisualLayer = new VisualLayerDB
 
-    return this.http.put(url, visuallinedb, this.httpOptions).pipe(
+    return this.http.put<VisualLineDB>(url, visuallinedb, this.httpOptions).pipe(
       tap(_ => {
         // insertion point for restoration of reverse pointers
         this.log(`updated visuallinedb id=${visuallinedb.ID}`)

@@ -7,7 +7,7 @@ import * as manageLeafletItems from '../manage-leaflet-items';
 
 import * as gongleaflet from 'gongleaflet';
 
-import 'src/assets/js/leaflet-movingMarker';
+import 'projects/gongleafletspecific/src/assets/leaflet-movingMarker';
 
 @Component({
   selector: 'app-cartoatc-lines',
@@ -28,11 +28,11 @@ export class CartoatcLinesComponent implements OnInit {
   messageIsTransmittingBackward: Map<number, string> = new Map<
     number,
     string
-  >();
+  >()
 
   // timer that is called regularly to refresh the map
-  obsTimer: Observable<number> = timer(1000, 500); // due time 1', period
-  currTime: number;
+  obsTimer: Observable<number> = timer(1000, 500) // due time 1', period
+  currTime: number = 0
 
   constructor(
     private visualLineService: gongleaflet.VisualLineService

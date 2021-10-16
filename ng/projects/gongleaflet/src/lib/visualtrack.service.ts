@@ -13,6 +13,10 @@ import { catchError, map, tap } from 'rxjs/operators';
 
 import { VisualTrackDB } from './visualtrack-db';
 
+// insertion point for imports
+import { VisualLayerDB } from './visuallayer-db'
+import { VisualIconDB } from './visualicon-db'
+
 @Injectable({
   providedIn: 'root'
 })
@@ -35,14 +39,14 @@ export class VisualTrackService {
   ) {
     // path to the service share the same origin with the path to the document
     // get the origin in the URL to the document
-	let origin = this.document.location.origin
-    
-	// if debugging with ng, replace 4200 with 8080
-	origin = origin.replace("4200", "8080")
+    let origin = this.document.location.origin
+
+    // if debugging with ng, replace 4200 with 8080
+    origin = origin.replace("4200", "8080")
 
     // compute path to the service
     this.visualtracksUrl = origin + '/api/github.com/fullstack-lang/gongleaflet/go/v1/visualtracks';
-   }
+  }
 
   /** GET visualtracks from the server */
   getVisualTracks(): Observable<VisualTrackDB[]> {
@@ -67,17 +71,17 @@ export class VisualTrackService {
   /** POST: add a new visualtrack to the server */
   postVisualTrack(visualtrackdb: VisualTrackDB): Observable<VisualTrackDB> {
 
-		// insertion point for reset of pointers and reverse pointers (to avoid circular JSON)
-    visualtrackdb.VisualLayer = {}
-    visualtrackdb.VisualIcon = {}
+    // insertion point for reset of pointers and reverse pointers (to avoid circular JSON)
+    visualtrackdb.VisualLayer = new VisualLayerDB
+    visualtrackdb.VisualIcon = new VisualIconDB
 
-		return this.http.post<VisualTrackDB>(this.visualtracksUrl, visualtrackdb, this.httpOptions).pipe(
-			tap(_ => {
-				// insertion point for restoration of reverse pointers
-				this.log(`posted visualtrackdb id=${visualtrackdb.ID}`)
-			}),
-			catchError(this.handleError<VisualTrackDB>('postVisualTrack'))
-		);
+    return this.http.post<VisualTrackDB>(this.visualtracksUrl, visualtrackdb, this.httpOptions).pipe(
+      tap(_ => {
+        // insertion point for restoration of reverse pointers
+        this.log(`posted visualtrackdb id=${visualtrackdb.ID}`)
+      }),
+      catchError(this.handleError<VisualTrackDB>('postVisualTrack'))
+    );
   }
 
   /** DELETE: delete the visualtrackdb from the server */
@@ -97,10 +101,10 @@ export class VisualTrackService {
     const url = `${this.visualtracksUrl}/${id}`;
 
     // insertion point for reset of pointers and reverse pointers (to avoid circular JSON)
-    visualtrackdb.VisualLayer = {}
-    visualtrackdb.VisualIcon = {}
+    visualtrackdb.VisualLayer = new VisualLayerDB
+    visualtrackdb.VisualIcon = new VisualIconDB
 
-    return this.http.put(url, visualtrackdb, this.httpOptions).pipe(
+    return this.http.put<VisualTrackDB>(url, visualtrackdb, this.httpOptions).pipe(
       tap(_ => {
         // insertion point for restoration of reverse pointers
         this.log(`updated visualtrackdb id=${visualtrackdb.ID}`)

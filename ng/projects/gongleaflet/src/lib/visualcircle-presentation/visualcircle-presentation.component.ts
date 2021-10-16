@@ -23,13 +23,13 @@ export class VisualCirclePresentationComponent implements OnInit {
 
 	// insertion point for declarations
 
-	displayedColumns: string[] = [];
-	dataSource = ELEMENT_DATA;
+	displayedColumns: string[] = []
+	dataSource = ELEMENT_DATA
 
-	visualcircle: VisualCircleDB;
+	visualcircle: VisualCircleDB = new (VisualCircleDB)
 
 	// front repo
-	frontRepo: FrontRepo
+	frontRepo: FrontRepo = new (FrontRepo)
  
 	constructor(
 		private visualcircleService: VisualCircleService,
@@ -56,12 +56,12 @@ export class VisualCirclePresentationComponent implements OnInit {
 	}
 
 	getVisualCircle(): void {
-		const id = +this.route.snapshot.paramMap.get('id');
+		const id = +this.route.snapshot.paramMap.get('id')!
 		this.frontRepoService.pull().subscribe(
 			frontRepo => {
 				this.frontRepo = frontRepo
 
-				this.visualcircle = this.frontRepo.VisualCircles.get(id)
+				this.visualcircle = this.frontRepo.VisualCircles.get(id)!
 
 				// insertion point for recovery of durations
 			}

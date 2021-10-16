@@ -23,13 +23,13 @@ export class VisualMapPresentationComponent implements OnInit {
 
 	// insertion point for declarations
 
-	displayedColumns: string[] = [];
-	dataSource = ELEMENT_DATA;
+	displayedColumns: string[] = []
+	dataSource = ELEMENT_DATA
 
-	visualmap: VisualMapDB;
+	visualmap: VisualMapDB = new (VisualMapDB)
 
 	// front repo
-	frontRepo: FrontRepo
+	frontRepo: FrontRepo = new (FrontRepo)
  
 	constructor(
 		private visualmapService: VisualMapService,
@@ -56,12 +56,12 @@ export class VisualMapPresentationComponent implements OnInit {
 	}
 
 	getVisualMap(): void {
-		const id = +this.route.snapshot.paramMap.get('id');
+		const id = +this.route.snapshot.paramMap.get('id')!
 		this.frontRepoService.pull().subscribe(
 			frontRepo => {
 				this.frontRepo = frontRepo
 
-				this.visualmap = this.frontRepo.VisualMaps.get(id)
+				this.visualmap = this.frontRepo.VisualMaps.get(id)!
 
 				// insertion point for recovery of durations
 			}

@@ -1,24 +1,24 @@
 // insertion point for imports
 
 // usefull for managing pointer ID values that can be nullable
-import { NullInt64 } from './front-repo.service'
+import { NullInt64 } from './null-int64'
 
 export class VisualMapDB {
-	CreatedAt?: string;
-	DeletedAt?: string;
-	ID?: number;
+	CreatedAt?: string
+	DeletedAt?: string
+	ID: number = 0
 
 	// insertion point for basic fields declarations
-	Lat?: number
-	Lng?: number
-	Name?: string
-	ZoomLevel?: number
-	UrlTemplate?: string
-	Attribution?: string
-	MaxZoom?: number
-	ZoomControl?: string
-	AttributionControl?: string
-	ZoomSnap?: string
+	Lat: number = 0
+	Lng: number = 0
+	Name: string = ""
+	ZoomLevel: number = 0
+	UrlTemplate: string = ""
+	Attribution: string = ""
+	MaxZoom: number = 0
+	ZoomControl: boolean = false
+	AttributionControl: boolean = false
+	ZoomSnap: boolean = false
 
 	// insertion point for other declarations
 }

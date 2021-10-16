@@ -23,13 +23,13 @@ export class VisualIconPresentationComponent implements OnInit {
 
 	// insertion point for declarations
 
-	displayedColumns: string[] = [];
-	dataSource = ELEMENT_DATA;
+	displayedColumns: string[] = []
+	dataSource = ELEMENT_DATA
 
-	visualicon: VisualIconDB;
+	visualicon: VisualIconDB = new (VisualIconDB)
 
 	// front repo
-	frontRepo: FrontRepo
+	frontRepo: FrontRepo = new (FrontRepo)
  
 	constructor(
 		private visualiconService: VisualIconService,
@@ -56,12 +56,12 @@ export class VisualIconPresentationComponent implements OnInit {
 	}
 
 	getVisualIcon(): void {
-		const id = +this.route.snapshot.paramMap.get('id');
+		const id = +this.route.snapshot.paramMap.get('id')!
 		this.frontRepoService.pull().subscribe(
 			frontRepo => {
 				this.frontRepo = frontRepo
 
-				this.visualicon = this.frontRepo.VisualIcons.get(id)
+				this.visualicon = this.frontRepo.VisualIcons.get(id)!
 
 				// insertion point for recovery of durations
 			}
