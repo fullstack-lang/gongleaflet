@@ -7,7 +7,7 @@ import * as manageLeafletItems from '../manage-leaflet-items';
 
 import * as gongleaflet from 'gongleaflet';
 
-import 'projects/gongleafletspecific/src/assets/leaflet-movingMarker';
+// import 'leaflet-movingMarker'
 
 @Component({
   selector: 'app-cartoatc-lines',
