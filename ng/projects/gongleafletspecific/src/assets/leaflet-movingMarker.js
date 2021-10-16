@@ -22,7 +22,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-import L from 'leaflet';
+import * as L from 'leaflet';
 
 L.interpolatePosition = function(p1, p2, duration, t) {
     var k = t / duration;

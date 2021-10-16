@@ -23,13 +23,13 @@ export class VisualLayerPresentationComponent implements OnInit {
 
 	// insertion point for declarations
 
-	displayedColumns: string[] = [];
-	dataSource = ELEMENT_DATA;
+	displayedColumns: string[] = []
+	dataSource = ELEMENT_DATA
 
-	visuallayer: VisualLayerDB;
+	visuallayer: VisualLayerDB = new (VisualLayerDB)
 
 	// front repo
-	frontRepo: FrontRepo
+	frontRepo: FrontRepo = new (FrontRepo)
  
 	constructor(
 		private visuallayerService: VisualLayerService,
@@ -56,12 +56,12 @@ export class VisualLayerPresentationComponent implements OnInit {
 	}
 
 	getVisualLayer(): void {
-		const id = +this.route.snapshot.paramMap.get('id');
+		const id = +this.route.snapshot.paramMap.get('id')!
 		this.frontRepoService.pull().subscribe(
 			frontRepo => {
 				this.frontRepo = frontRepo
 
-				this.visuallayer = this.frontRepo.VisualLayers.get(id)
+				this.visuallayer = this.frontRepo.VisualLayers.get(id)!
 
 				// insertion point for recovery of durations
 			}

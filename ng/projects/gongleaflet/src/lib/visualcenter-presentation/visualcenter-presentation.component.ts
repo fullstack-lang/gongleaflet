@@ -23,13 +23,13 @@ export class VisualCenterPresentationComponent implements OnInit {
 
 	// insertion point for declarations
 
-	displayedColumns: string[] = [];
-	dataSource = ELEMENT_DATA;
+	displayedColumns: string[] = []
+	dataSource = ELEMENT_DATA
 
-	visualcenter: VisualCenterDB;
+	visualcenter: VisualCenterDB = new (VisualCenterDB)
 
 	// front repo
-	frontRepo: FrontRepo
+	frontRepo: FrontRepo = new (FrontRepo)
  
 	constructor(
 		private visualcenterService: VisualCenterService,
@@ -56,12 +56,12 @@ export class VisualCenterPresentationComponent implements OnInit {
 	}
 
 	getVisualCenter(): void {
-		const id = +this.route.snapshot.paramMap.get('id');
+		const id = +this.route.snapshot.paramMap.get('id')!
 		this.frontRepoService.pull().subscribe(
 			frontRepo => {
 				this.frontRepo = frontRepo
 
-				this.visualcenter = this.frontRepo.VisualCenters.get(id)
+				this.visualcenter = this.frontRepo.VisualCenters.get(id)!
 
 				// insertion point for recovery of durations
 			}

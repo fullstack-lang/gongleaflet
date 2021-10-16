@@ -10,7 +10,7 @@ import * as gongleaflet from 'gongleaflet';
 import * as manageLeafletItems from './manage-leaflet-items';
 import { VisualTrackDB } from 'gongleaflet';
 
-import { dotBlur } from '../../assets/icons/dot_blur.js';
+import { dotBlur } from '../../assets/icons/dot_blur';
 
 export const DEFAULT_ICON_SIZE = 60
 
@@ -30,12 +30,12 @@ export class CartoatcComponent implements OnInit {
   // map of visualTrackMarker to visualTrack ID in order to delete deleted visualTrack
   mapVisualMarker_VisualTrackID = new Map<L.Marker, number>();
 
-  traceLayerID: number = null;
+  traceLayerID: number = 0
   icons = new Map<number, string>();
 
   visualCenters: Array<gongleaflet.VisualCenterDB> = new Array();
 
-  tracksHistory: Map<string, Array<L.LatLng>> = new Map();
+  tracksHistories: Map<string, Array<L.LatLng>> = new Map();
 
   constructor(
     private frontRepo: gongleaflet.FrontRepoService,
@@ -79,9 +79,7 @@ export class CartoatcComponent implements OnInit {
           // update marker from visual track
           frontRepo.VisualTracks.forEach(
             (vTrack: gongleaflet.VisualTrackDB) => {
-              let _currentMarker: L.Marker<any> = this.mapVisualTrackID_VisualMarker.get(
-                vTrack.ID
-              );
+              let _currentMarker: L.Marker<any> = this.mapVisualTrackID_VisualMarker.get(vTrack.ID)!
               if (!_currentMarker) {
                 this.manageNewVisualTrackMarker(vTrack);
               } else {
@@ -98,10 +96,10 @@ export class CartoatcComponent implements OnInit {
               );
 
               // remove marker from the visual layer
-              marker.remove();
+              marker?.remove();
 
               this.mapVisualTrackID_VisualMarker.delete(visualTrackID);
-              this.mapVisualMarker_VisualTrackID.delete(marker);
+              this.mapVisualMarker_VisualTrackID.delete(marker!);
             }
           });
         });
@@ -126,7 +124,12 @@ export class CartoatcComponent implements OnInit {
         visualTrack.Lng,
         icon
       );
-      marker.setRotationOrigin('center center');
+
+      {
+        // @ts-ignore: Unreachable code error
+        marker.setRotationOrigin('center center');
+      }
+
       manageLeafletItems.rotateIcon(
         visualTrack.ID + '-track',
         visualTrack.Heading
@@ -166,9 +169,9 @@ export class CartoatcComponent implements OnInit {
   }
 
   manageTracksHistory(trackName: string, coordinates: L.LatLng) {
-    let trackHistory = [];
+    let trackHistory: L.LatLng[] = [];
     const LIMIT_HISTORY_LENGTH = 10;
-    trackHistory = this.tracksHistory.get(trackName);
+    trackHistory = this.tracksHistories.get(trackName)!
     const pushManageLimit = (
       list: Array<L.LatLng>,
       newItem: L.LatLng
@@ -198,7 +201,7 @@ export class CartoatcComponent implements OnInit {
     } else {
       trackHistory.push(coordinates);
     }
-    this.tracksHistory.set(trackName, trackHistory);
+    this.tracksHistories.set(trackName, trackHistory);
   }
 
   get renderTracksLayer(): Array<L.Layer> {
@@ -210,7 +213,7 @@ export class CartoatcComponent implements OnInit {
       5,
       '#004E92'
     );
-    this.tracksHistory.forEach((trackHistory) => {
+    this.tracksHistories.forEach((trackHistory) => {
       trackHistory.map((coordinates: L.LatLng) => {
         render.push(
           manageLeafletItems.newMarkerWithIcon(

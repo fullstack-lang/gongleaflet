@@ -1,3 +1,4 @@
+import { Type } from '@angular/core';
 import {
   VisualCircleDB,
   VisualColorEnum,
@@ -132,12 +133,13 @@ const getColor = (visualColorEnum: string): string => {
   return color;
 };
 
+
 const getDashStyle = (dashStyleEnumValue: string): string => {
   const types = {
     FIVE_TWENTY: '5 20',
     FIVE_TEN: '5 10',
   };
-  return types[dashStyleEnumValue];
+  return types[dashStyleEnumValue as keyof typeof types];
 };
 
 const setVisibilityHTMLElement = (

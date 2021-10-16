@@ -13,12 +13,12 @@ import * as L from 'leaflet';
   styleUrls: ['./cartoatc-centers.component.scss'],
 })
 export class CartoatcCentersComponent implements OnInit {
-  @Input() visualCenters: Array<gongleaflet.VisualCenterDB>;
+  @Input() visualCenters?: Array<gongleaflet.VisualCenterDB>;
 
   // store relation between the VisualCenters & the markers
   mapVisualCenterID_LeafletMarker = new Map<number, L.Marker>();
 
-  gongleafletFrontRepo: gongleaflet.FrontRepo
+  gongleafletFrontRepo?: gongleaflet.FrontRepo
 
   centersLayer: Array<L.Layer> = [];
   map_visualIconID_visualIconSVG = new Map<number, string>();
@@ -59,7 +59,7 @@ export class CartoatcCentersComponent implements OnInit {
             var icon: L.DivIcon = manageLeafletItems.newIcon(
               visualCenter.ID,
               'layer-' + visualCenter.VisualLayerID.Int64,
-              this.map_visualIconID_visualIconSVG.get(visualCenter.VisualIconID.Int64),
+              this.map_visualIconID_visualIconSVG.get(visualCenter.VisualIconID.Int64)!,
               DEFAULT_ICON_SIZE,
               color,
               visualCenter.Name

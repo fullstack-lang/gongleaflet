@@ -16,7 +16,7 @@ import { Router, RouterState, ActivatedRoute } from '@angular/router';
 
 import { MatDialog, MAT_DIALOG_DATA, MatDialogRef, MatDialogConfig } from '@angular/material/dialog';
 
-import { NullInt64 } from '../front-repo.service'
+import { NullInt64 } from '../null-int64'
 
 // VisualCenterDetailComponent is initilizaed from different routes
 // VisualCenterDetailComponentState detail different cases 
@@ -34,13 +34,13 @@ enum VisualCenterDetailComponentState {
 export class VisualCenterDetailComponent implements OnInit {
 
 	// insertion point for declarations
-	VisualColorEnumList: VisualColorEnumSelect[]
+	VisualColorEnumList: VisualColorEnumSelect[] = []
 
 	// the VisualCenterDB of interest
-	visualcenter: VisualCenterDB;
+	visualcenter: VisualCenterDB = new VisualCenterDB
 
 	// front repo
-	frontRepo: FrontRepo
+	frontRepo: FrontRepo = new FrontRepo
 
 	// this stores the information related to string fields
 	// if false, the field is inputed with an <input ...> form 
@@ -48,15 +48,15 @@ export class VisualCenterDetailComponent implements OnInit {
 	mapFields_displayAsTextArea = new Map<string, boolean>()
 
 	// the state at initialization (CREATION, UPDATE or CREATE with one association set)
-	state: VisualCenterDetailComponentState
+	state: VisualCenterDetailComponentState = VisualCenterDetailComponentState.CREATE_INSTANCE
 
 	// in UDPATE state, if is the id of the instance to update
 	// in CREATE state with one association set, this is the id of the associated instance
-	id: number
+	id: number = 0
 
 	// in CREATE state with one association set, this is the id of the associated instance
-	originStruct: string
-	originStructFieldName: string
+	originStruct: string = ""
+	originStructFieldName: string = ""
 
 	constructor(
 		private visualcenterService: VisualCenterService,
@@ -70,9 +70,9 @@ export class VisualCenterDetailComponent implements OnInit {
 	ngOnInit(): void {
 
 		// compute state
-		this.id = +this.route.snapshot.paramMap.get('id');
-		this.originStruct = this.route.snapshot.paramMap.get('originStruct');
-		this.originStructFieldName = this.route.snapshot.paramMap.get('originStructFieldName');
+		this.id = +this.route.snapshot.paramMap.get('id')!;
+		this.originStruct = this.route.snapshot.paramMap.get('originStruct')!;
+		this.originStructFieldName = this.route.snapshot.paramMap.get('originStructFieldName')!;
 
 		const association = this.route.snapshot.paramMap.get('association');
 		if (this.id == 0) {
@@ -115,7 +115,9 @@ export class VisualCenterDetailComponent implements OnInit {
 						this.visualcenter = new (VisualCenterDB)
 						break;
 					case VisualCenterDetailComponentState.UPDATE_INSTANCE:
-						this.visualcenter = frontRepo.VisualCenters.get(this.id)
+						let visualcenter = frontRepo.VisualCenters.get(this.id)
+						console.assert(visualcenter != undefined, "missing visualcenter with id:" + this.id)
+						this.visualcenter = visualcenter!
 						break;
 					// insertion point for init of association field
 					default:
@@ -170,7 +172,7 @@ export class VisualCenterDetailComponent implements OnInit {
 			default:
 				this.visualcenterService.postVisualCenter(this.visualcenter).subscribe(visualcenter => {
 					this.visualcenterService.VisualCenterServiceChanged.next("post")
-					this.visualcenter = {} // reset fields
+					this.visualcenter = new (VisualCenterDB) // reset fields
 				});
 		}
 	}
@@ -179,7 +181,7 @@ export class VisualCenterDetailComponent implements OnInit {
 	// ONE-MANY association
 	// It uses the MapOfComponent provided by the front repo
 	openReverseSelection(AssociatedStruct: string, reverseField: string, selectionMode: string,
-		sourceField: string, intermediateStructField: string, nextAssociatedStruct: string ) {
+		sourceField: string, intermediateStructField: string, nextAssociatedStruct: string) {
 
 		console.log("mode " + selectionMode)
 
@@ -193,7 +195,7 @@ export class VisualCenterDetailComponent implements OnInit {
 		dialogConfig.height = "50%"
 		if (selectionMode == SelectionMode.ONE_MANY_ASSOCIATION_MODE) {
 
-			dialogData.ID = this.visualcenter.ID
+			dialogData.ID = this.visualcenter.ID!
 			dialogData.ReversePointer = reverseField
 			dialogData.OrderingMode = false
 			dialogData.SelectionMode = selectionMode
@@ -209,7 +211,7 @@ export class VisualCenterDetailComponent implements OnInit {
 			});
 		}
 		if (selectionMode == SelectionMode.MANY_MANY_ASSOCIATION_MODE) {
-			dialogData.ID = this.visualcenter.ID
+			dialogData.ID = this.visualcenter.ID!
 			dialogData.ReversePointer = reverseField
 			dialogData.OrderingMode = false
 			dialogData.SelectionMode = selectionMode
@@ -260,7 +262,7 @@ export class VisualCenterDetailComponent implements OnInit {
 		});
 	}
 
-	fillUpNameIfEmpty(event) {
+	fillUpNameIfEmpty(event: { value: { Name: string; }; }) {
 		if (this.visualcenter.Name == undefined) {
 			this.visualcenter.Name = event.value.Name
 		}
@@ -277,7 +279,7 @@ export class VisualCenterDetailComponent implements OnInit {
 
 	isATextArea(fieldName: string): boolean {
 		if (this.mapFields_displayAsTextArea.has(fieldName)) {
-			return this.mapFields_displayAsTextArea.get(fieldName)
+			return this.mapFields_displayAsTextArea.get(fieldName)!
 		} else {
 			return false
 		}

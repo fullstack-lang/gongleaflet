@@ -38,7 +38,7 @@ export enum GongNodeType {
  */
 interface GongNode {
   name: string; // if STRUCT, the name of the struct, if INSTANCE the name of the instance
-  children?: GongNode[];
+  children: GongNode[];
   type: GongNodeType;
   structName: string;
   associationField: string;
@@ -145,8 +145,8 @@ export class SidebarComponent implements OnInit {
   hasChild = (_: number, node: GongFlatNode) => node.expandable;
 
   // front repo
-  frontRepo: FrontRepo
-  commitNb: number
+  frontRepo: FrontRepo = new (FrontRepo)
+  commitNb: number = 0
 
   // "data" tree that is constructed during NgInit and is passed to the mat-tree component
   gongNodeTree = new Array<GongNode>();
@@ -236,20 +236,19 @@ export class SidebarComponent implements OnInit {
       let memoryOfExpandedNodes = new Map<number, boolean>()
       let nonInstanceNodeId = 1
 
-      if (this.treeControl.dataNodes != undefined) {
-        this.treeControl.dataNodes.forEach(
-          node => {
-            if (this.treeControl.isExpanded(node)) {
-              memoryOfExpandedNodes[node.uniqueIdPerStack] = true
-            } else {
-              memoryOfExpandedNodes[node.uniqueIdPerStack] = false
-            }
+      this.treeControl.dataNodes?.forEach(
+        node => {
+          if (this.treeControl.isExpanded(node)) {
+            memoryOfExpandedNodes.set(node.uniqueIdPerStack, true)
+          } else {
+            memoryOfExpandedNodes.set(node.uniqueIdPerStack, false)
           }
-        )
-      }
+        }
+      )
 
+      // reset the gong node tree
       this.gongNodeTree = new Array<GongNode>();
-
+      
       // insertion point for per struct tree construction
       /**
       * fill up the VisualCenter part of the mat tree
@@ -289,7 +288,7 @@ export class SidebarComponent implements OnInit {
             associatedStructName: "",
             children: new Array<GongNode>()
           }
-          visualcenterGongNodeStruct.children.push(visualcenterGongNodeInstance)
+          visualcenterGongNodeStruct.children!.push(visualcenterGongNodeInstance)
 
           // insertion point for per field code
           /**
@@ -306,7 +305,7 @@ export class SidebarComponent implements OnInit {
             children: new Array<GongNode>()
           }
           nonInstanceNodeId = nonInstanceNodeId + 1
-          visualcenterGongNodeInstance.children.push(VisualLayerGongNodeAssociation)
+          visualcenterGongNodeInstance.children!.push(VisualLayerGongNodeAssociation)
 
           /**
             * let append a node for the instance behind the asssociation VisualLayer
@@ -341,7 +340,7 @@ export class SidebarComponent implements OnInit {
             children: new Array<GongNode>()
           }
           nonInstanceNodeId = nonInstanceNodeId + 1
-          visualcenterGongNodeInstance.children.push(VisualIconGongNodeAssociation)
+          visualcenterGongNodeInstance.children!.push(VisualIconGongNodeAssociation)
 
           /**
             * let append a node for the instance behind the asssociation VisualIcon
@@ -403,7 +402,7 @@ export class SidebarComponent implements OnInit {
             associatedStructName: "",
             children: new Array<GongNode>()
           }
-          visualcircleGongNodeStruct.children.push(visualcircleGongNodeInstance)
+          visualcircleGongNodeStruct.children!.push(visualcircleGongNodeInstance)
 
           // insertion point for per field code
           /**
@@ -420,7 +419,7 @@ export class SidebarComponent implements OnInit {
             children: new Array<GongNode>()
           }
           nonInstanceNodeId = nonInstanceNodeId + 1
-          visualcircleGongNodeInstance.children.push(VisualLayerGongNodeAssociation)
+          visualcircleGongNodeInstance.children!.push(VisualLayerGongNodeAssociation)
 
           /**
             * let append a node for the instance behind the asssociation VisualLayer
@@ -482,7 +481,7 @@ export class SidebarComponent implements OnInit {
             associatedStructName: "",
             children: new Array<GongNode>()
           }
-          visualiconGongNodeStruct.children.push(visualiconGongNodeInstance)
+          visualiconGongNodeStruct.children!.push(visualiconGongNodeInstance)
 
           // insertion point for per field code
         }
@@ -526,7 +525,7 @@ export class SidebarComponent implements OnInit {
             associatedStructName: "",
             children: new Array<GongNode>()
           }
-          visuallayerGongNodeStruct.children.push(visuallayerGongNodeInstance)
+          visuallayerGongNodeStruct.children!.push(visuallayerGongNodeInstance)
 
           // insertion point for per field code
         }
@@ -570,7 +569,7 @@ export class SidebarComponent implements OnInit {
             associatedStructName: "",
             children: new Array<GongNode>()
           }
-          visuallineGongNodeStruct.children.push(visuallineGongNodeInstance)
+          visuallineGongNodeStruct.children!.push(visuallineGongNodeInstance)
 
           // insertion point for per field code
           /**
@@ -587,7 +586,7 @@ export class SidebarComponent implements OnInit {
             children: new Array<GongNode>()
           }
           nonInstanceNodeId = nonInstanceNodeId + 1
-          visuallineGongNodeInstance.children.push(VisualLayerGongNodeAssociation)
+          visuallineGongNodeInstance.children!.push(VisualLayerGongNodeAssociation)
 
           /**
             * let append a node for the instance behind the asssociation VisualLayer
@@ -649,7 +648,7 @@ export class SidebarComponent implements OnInit {
             associatedStructName: "",
             children: new Array<GongNode>()
           }
-          visualmapGongNodeStruct.children.push(visualmapGongNodeInstance)
+          visualmapGongNodeStruct.children!.push(visualmapGongNodeInstance)
 
           // insertion point for per field code
         }
@@ -693,7 +692,7 @@ export class SidebarComponent implements OnInit {
             associatedStructName: "",
             children: new Array<GongNode>()
           }
-          visualtrackGongNodeStruct.children.push(visualtrackGongNodeInstance)
+          visualtrackGongNodeStruct.children!.push(visualtrackGongNodeInstance)
 
           // insertion point for per field code
           /**
@@ -710,7 +709,7 @@ export class SidebarComponent implements OnInit {
             children: new Array<GongNode>()
           }
           nonInstanceNodeId = nonInstanceNodeId + 1
-          visualtrackGongNodeInstance.children.push(VisualLayerGongNodeAssociation)
+          visualtrackGongNodeInstance.children!.push(VisualLayerGongNodeAssociation)
 
           /**
             * let append a node for the instance behind the asssociation VisualLayer
@@ -745,7 +744,7 @@ export class SidebarComponent implements OnInit {
             children: new Array<GongNode>()
           }
           nonInstanceNodeId = nonInstanceNodeId + 1
-          visualtrackGongNodeInstance.children.push(VisualIconGongNodeAssociation)
+          visualtrackGongNodeInstance.children!.push(VisualIconGongNodeAssociation)
 
           /**
             * let append a node for the instance behind the asssociation VisualIcon
@@ -773,17 +772,13 @@ export class SidebarComponent implements OnInit {
       this.dataSource.data = this.gongNodeTree
 
       // expand nodes that were exapanded before
-      if (this.treeControl.dataNodes != undefined) {
-        this.treeControl.dataNodes.forEach(
-          node => {
-            if (memoryOfExpandedNodes[node.uniqueIdPerStack] != undefined) {
-              if (memoryOfExpandedNodes[node.uniqueIdPerStack]) {
-                this.treeControl.expand(node)
-              }
-            }
+      this.treeControl.dataNodes?.forEach(
+        node => {
+          if (memoryOfExpandedNodes.get(node.uniqueIdPerStack)) {
+            this.treeControl.expand(node)
           }
-        )
-      }
+        }
+      )
     });
 
     // fetch the number of commits
@@ -829,7 +824,7 @@ export class SidebarComponent implements OnInit {
     }
   }
 
-  setEditorRouterOutlet(path) {
+  setEditorRouterOutlet(path: string) {
     this.router.navigate([{
       outlets: {
         github_com_fullstack_lang_gongleaflet_go_editor: ["github_com_fullstack_lang_gongleaflet_go-" + path.toLowerCase()]
@@ -837,7 +832,7 @@ export class SidebarComponent implements OnInit {
     }]);
   }
 
-  setEditorSpecialRouterOutlet( node: GongFlatNode) {
+  setEditorSpecialRouterOutlet(node: GongFlatNode) {
     this.router.navigate([{
       outlets: {
         github_com_fullstack_lang_gongleaflet_go_editor: ["github_com_fullstack_lang_gongleaflet_go-" + node.associatedStructName.toLowerCase() + "-adder", node.id, node.structName, node.associationField]

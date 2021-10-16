@@ -23,13 +23,13 @@ export class VisualLinePresentationComponent implements OnInit {
 
 	// insertion point for declarations
 
-	displayedColumns: string[] = [];
-	dataSource = ELEMENT_DATA;
+	displayedColumns: string[] = []
+	dataSource = ELEMENT_DATA
 
-	visualline: VisualLineDB;
+	visualline: VisualLineDB = new (VisualLineDB)
 
 	// front repo
-	frontRepo: FrontRepo
+	frontRepo: FrontRepo = new (FrontRepo)
  
 	constructor(
 		private visuallineService: VisualLineService,
@@ -56,12 +56,12 @@ export class VisualLinePresentationComponent implements OnInit {
 	}
 
 	getVisualLine(): void {
-		const id = +this.route.snapshot.paramMap.get('id');
+		const id = +this.route.snapshot.paramMap.get('id')!
 		this.frontRepoService.pull().subscribe(
 			frontRepo => {
 				this.frontRepo = frontRepo
 
-				this.visualline = this.frontRepo.VisualLines.get(id)
+				this.visualline = this.frontRepo.VisualLines.get(id)!
 
 				// insertion point for recovery of durations
 			}

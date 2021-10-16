@@ -17,7 +17,7 @@ import { Router, RouterState, ActivatedRoute } from '@angular/router';
 
 import { MatDialog, MAT_DIALOG_DATA, MatDialogRef, MatDialogConfig } from '@angular/material/dialog';
 
-import { NullInt64 } from '../front-repo.service'
+import { NullInt64 } from '../null-int64'
 
 // VisualCircleDetailComponent is initilizaed from different routes
 // VisualCircleDetailComponentState detail different cases 
@@ -35,14 +35,14 @@ enum VisualCircleDetailComponentState {
 export class VisualCircleDetailComponent implements OnInit {
 
 	// insertion point for declarations
-	VisualColorEnumList: VisualColorEnumSelect[]
-	DashStyleEnumList: DashStyleEnumSelect[]
+	VisualColorEnumList: VisualColorEnumSelect[] = []
+	DashStyleEnumList: DashStyleEnumSelect[] = []
 
 	// the VisualCircleDB of interest
-	visualcircle: VisualCircleDB;
+	visualcircle: VisualCircleDB = new VisualCircleDB
 
 	// front repo
-	frontRepo: FrontRepo
+	frontRepo: FrontRepo = new FrontRepo
 
 	// this stores the information related to string fields
 	// if false, the field is inputed with an <input ...> form 
@@ -50,15 +50,15 @@ export class VisualCircleDetailComponent implements OnInit {
 	mapFields_displayAsTextArea = new Map<string, boolean>()
 
 	// the state at initialization (CREATION, UPDATE or CREATE with one association set)
-	state: VisualCircleDetailComponentState
+	state: VisualCircleDetailComponentState = VisualCircleDetailComponentState.CREATE_INSTANCE
 
 	// in UDPATE state, if is the id of the instance to update
 	// in CREATE state with one association set, this is the id of the associated instance
-	id: number
+	id: number = 0
 
 	// in CREATE state with one association set, this is the id of the associated instance
-	originStruct: string
-	originStructFieldName: string
+	originStruct: string = ""
+	originStructFieldName: string = ""
 
 	constructor(
 		private visualcircleService: VisualCircleService,
@@ -72,9 +72,9 @@ export class VisualCircleDetailComponent implements OnInit {
 	ngOnInit(): void {
 
 		// compute state
-		this.id = +this.route.snapshot.paramMap.get('id');
-		this.originStruct = this.route.snapshot.paramMap.get('originStruct');
-		this.originStructFieldName = this.route.snapshot.paramMap.get('originStructFieldName');
+		this.id = +this.route.snapshot.paramMap.get('id')!;
+		this.originStruct = this.route.snapshot.paramMap.get('originStruct')!;
+		this.originStructFieldName = this.route.snapshot.paramMap.get('originStructFieldName')!;
 
 		const association = this.route.snapshot.paramMap.get('association');
 		if (this.id == 0) {
@@ -118,7 +118,9 @@ export class VisualCircleDetailComponent implements OnInit {
 						this.visualcircle = new (VisualCircleDB)
 						break;
 					case VisualCircleDetailComponentState.UPDATE_INSTANCE:
-						this.visualcircle = frontRepo.VisualCircles.get(this.id)
+						let visualcircle = frontRepo.VisualCircles.get(this.id)
+						console.assert(visualcircle != undefined, "missing visualcircle with id:" + this.id)
+						this.visualcircle = visualcircle!
 						break;
 					// insertion point for init of association field
 					default:
@@ -163,7 +165,7 @@ export class VisualCircleDetailComponent implements OnInit {
 			default:
 				this.visualcircleService.postVisualCircle(this.visualcircle).subscribe(visualcircle => {
 					this.visualcircleService.VisualCircleServiceChanged.next("post")
-					this.visualcircle = {} // reset fields
+					this.visualcircle = new (VisualCircleDB) // reset fields
 				});
 		}
 	}
@@ -172,7 +174,7 @@ export class VisualCircleDetailComponent implements OnInit {
 	// ONE-MANY association
 	// It uses the MapOfComponent provided by the front repo
 	openReverseSelection(AssociatedStruct: string, reverseField: string, selectionMode: string,
-		sourceField: string, intermediateStructField: string, nextAssociatedStruct: string ) {
+		sourceField: string, intermediateStructField: string, nextAssociatedStruct: string) {
 
 		console.log("mode " + selectionMode)
 
@@ -186,7 +188,7 @@ export class VisualCircleDetailComponent implements OnInit {
 		dialogConfig.height = "50%"
 		if (selectionMode == SelectionMode.ONE_MANY_ASSOCIATION_MODE) {
 
-			dialogData.ID = this.visualcircle.ID
+			dialogData.ID = this.visualcircle.ID!
 			dialogData.ReversePointer = reverseField
 			dialogData.OrderingMode = false
 			dialogData.SelectionMode = selectionMode
@@ -202,7 +204,7 @@ export class VisualCircleDetailComponent implements OnInit {
 			});
 		}
 		if (selectionMode == SelectionMode.MANY_MANY_ASSOCIATION_MODE) {
-			dialogData.ID = this.visualcircle.ID
+			dialogData.ID = this.visualcircle.ID!
 			dialogData.ReversePointer = reverseField
 			dialogData.OrderingMode = false
 			dialogData.SelectionMode = selectionMode
@@ -253,7 +255,7 @@ export class VisualCircleDetailComponent implements OnInit {
 		});
 	}
 
-	fillUpNameIfEmpty(event) {
+	fillUpNameIfEmpty(event: { value: { Name: string; }; }) {
 		if (this.visualcircle.Name == undefined) {
 			this.visualcircle.Name = event.value.Name
 		}
@@ -270,7 +272,7 @@ export class VisualCircleDetailComponent implements OnInit {
 
 	isATextArea(fieldName: string): boolean {
 		if (this.mapFields_displayAsTextArea.has(fieldName)) {
-			return this.mapFields_displayAsTextArea.get(fieldName)
+			return this.mapFields_displayAsTextArea.get(fieldName)!
 		} else {
 			return false
 		}

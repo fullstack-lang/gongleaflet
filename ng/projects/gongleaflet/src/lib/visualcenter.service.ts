@@ -13,6 +13,10 @@ import { catchError, map, tap } from 'rxjs/operators';
 
 import { VisualCenterDB } from './visualcenter-db';
 
+// insertion point for imports
+import { VisualLayerDB } from './visuallayer-db'
+import { VisualIconDB } from './visualicon-db'
+
 @Injectable({
   providedIn: 'root'
 })
@@ -35,14 +39,14 @@ export class VisualCenterService {
   ) {
     // path to the service share the same origin with the path to the document
     // get the origin in the URL to the document
-	let origin = this.document.location.origin
-    
-	// if debugging with ng, replace 4200 with 8080
-	origin = origin.replace("4200", "8080")
+    let origin = this.document.location.origin
+
+    // if debugging with ng, replace 4200 with 8080
+    origin = origin.replace("4200", "8080")
 
     // compute path to the service
     this.visualcentersUrl = origin + '/api/github.com/fullstack-lang/gongleaflet/go/v1/visualcenters';
-   }
+  }
 
   /** GET visualcenters from the server */
   getVisualCenters(): Observable<VisualCenterDB[]> {
@@ -67,17 +71,17 @@ export class VisualCenterService {
   /** POST: add a new visualcenter to the server */
   postVisualCenter(visualcenterdb: VisualCenterDB): Observable<VisualCenterDB> {
 
-		// insertion point for reset of pointers and reverse pointers (to avoid circular JSON)
-    visualcenterdb.VisualLayer = {}
-    visualcenterdb.VisualIcon = {}
+    // insertion point for reset of pointers and reverse pointers (to avoid circular JSON)
+    visualcenterdb.VisualLayer = new VisualLayerDB
+    visualcenterdb.VisualIcon = new VisualIconDB
 
-		return this.http.post<VisualCenterDB>(this.visualcentersUrl, visualcenterdb, this.httpOptions).pipe(
-			tap(_ => {
-				// insertion point for restoration of reverse pointers
-				this.log(`posted visualcenterdb id=${visualcenterdb.ID}`)
-			}),
-			catchError(this.handleError<VisualCenterDB>('postVisualCenter'))
-		);
+    return this.http.post<VisualCenterDB>(this.visualcentersUrl, visualcenterdb, this.httpOptions).pipe(
+      tap(_ => {
+        // insertion point for restoration of reverse pointers
+        this.log(`posted visualcenterdb id=${visualcenterdb.ID}`)
+      }),
+      catchError(this.handleError<VisualCenterDB>('postVisualCenter'))
+    );
   }
 
   /** DELETE: delete the visualcenterdb from the server */
@@ -97,10 +101,10 @@ export class VisualCenterService {
     const url = `${this.visualcentersUrl}/${id}`;
 
     // insertion point for reset of pointers and reverse pointers (to avoid circular JSON)
-    visualcenterdb.VisualLayer = {}
-    visualcenterdb.VisualIcon = {}
+    visualcenterdb.VisualLayer = new VisualLayerDB
+    visualcenterdb.VisualIcon = new VisualIconDB
 
-    return this.http.put(url, visualcenterdb, this.httpOptions).pipe(
+    return this.http.put<VisualCenterDB>(url, visualcenterdb, this.httpOptions).pipe(
       tap(_ => {
         // insertion point for restoration of reverse pointers
         this.log(`updated visualcenterdb id=${visualcenterdb.ID}`)
