@@ -69,6 +69,15 @@
         </mat-select>
     </mat-form-field>
 
+    <mat-form-field class="detail-full-width">
+        <mat-label>(VisualMap) VisualCircles</mat-label>
+        <mat-select [compareWith]="compareObjects" [(ngModel)]="visualcircle.VisualMap_VisualCircles_reverse" [ngModelOptions]="{standalone: true}">
+            <mat-option>None</mat-option>
+            <mat-option *ngFor="let visualmap of frontRepo.VisualMaps_array" [value]="visualmap">
+                {{visualmap.Name}}
+            </mat-option>
+        </mat-select>
+    </mat-form-field>
     <div class="details__save">
         <button mat-raised-button color="primary" (click)="save()">
             Save visualcircle

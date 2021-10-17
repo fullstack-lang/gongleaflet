@@ -109,6 +109,13 @@
                 <mat-checkbox [checked]="VisualTrack.DisplayLevelAndSpeed" disabled=true></mat-checkbox>
             </td>
         </ng-container>
+        <!-- -->
+        <ng-container matColumnDef="VisualMap_VisualTracks">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> <-- (VisualMap) VisualTracks </th>
+            <td mat-cell *matCellDef="let visualtrack">
+                {{frontRepo.VisualMaps.get(visualtrack.VisualMap_VisualTracksDBID.Int64)?.Name}}
+            </td>
+        </ng-container>
 
         <ng-container matColumnDef="ID" sticky>
             <th mat-header-cell *matHeaderCellDef> ID. </th>

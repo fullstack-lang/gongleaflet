@@ -96,6 +96,15 @@
     <!-- -->
     <mat-checkbox [formControl]="DisplayLevelAndSpeedFormControl">DisplayLevelAndSpeed</mat-checkbox>
 
+    <mat-form-field class="detail-full-width">
+        <mat-label>(VisualMap) VisualTracks</mat-label>
+        <mat-select [compareWith]="compareObjects" [(ngModel)]="visualtrack.VisualMap_VisualTracks_reverse" [ngModelOptions]="{standalone: true}">
+            <mat-option>None</mat-option>
+            <mat-option *ngFor="let visualmap of frontRepo.VisualMaps_array" [value]="visualmap">
+                {{visualmap.Name}}
+            </mat-option>
+        </mat-select>
+    </mat-form-field>
     <div class="details__save">
         <button mat-raised-button color="primary" (click)="save()">
             Save visualtrack

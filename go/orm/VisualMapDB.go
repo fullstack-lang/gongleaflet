@@ -289,6 +289,82 @@ func (backRepoVisualMap *BackRepoVisualMapStruct) CommitPhaseTwoInstance(backRep
 		visualmapDB.CopyBasicFieldsFromVisualMap(visualmap)
 
 		// insertion point for translating pointers encodings into actual pointers
+		// This loop encodes the slice of pointers visualmap.VisualCenters into the back repo.
+		// Each back repo instance at the end of the association encode the ID of the association start
+		// into a dedicated field for coding the association. The back repo instance is then saved to the db
+		for idx, visualcenterAssocEnd := range visualmap.VisualCenters {
+
+			// get the back repo instance at the association end
+			visualcenterAssocEnd_DB :=
+				backRepo.BackRepoVisualCenter.GetVisualCenterDBFromVisualCenterPtr(visualcenterAssocEnd)
+
+			// encode reverse pointer in the association end back repo instance
+			visualcenterAssocEnd_DB.VisualMap_VisualCentersDBID.Int64 = int64(visualmapDB.ID)
+			visualcenterAssocEnd_DB.VisualMap_VisualCentersDBID.Valid = true
+			visualcenterAssocEnd_DB.VisualMap_VisualCentersDBID_Index.Int64 = int64(idx)
+			visualcenterAssocEnd_DB.VisualMap_VisualCentersDBID_Index.Valid = true
+			if q := backRepoVisualMap.db.Save(visualcenterAssocEnd_DB); q.Error != nil {
+				return q.Error
+			}
+		}
+
+		// This loop encodes the slice of pointers visualmap.VisualCircles into the back repo.
+		// Each back repo instance at the end of the association encode the ID of the association start
+		// into a dedicated field for coding the association. The back repo instance is then saved to the db
+		for idx, visualcircleAssocEnd := range visualmap.VisualCircles {
+
+			// get the back repo instance at the association end
+			visualcircleAssocEnd_DB :=
+				backRepo.BackRepoVisualCircle.GetVisualCircleDBFromVisualCirclePtr(visualcircleAssocEnd)
+
+			// encode reverse pointer in the association end back repo instance
+			visualcircleAssocEnd_DB.VisualMap_VisualCirclesDBID.Int64 = int64(visualmapDB.ID)
+			visualcircleAssocEnd_DB.VisualMap_VisualCirclesDBID.Valid = true
+			visualcircleAssocEnd_DB.VisualMap_VisualCirclesDBID_Index.Int64 = int64(idx)
+			visualcircleAssocEnd_DB.VisualMap_VisualCirclesDBID_Index.Valid = true
+			if q := backRepoVisualMap.db.Save(visualcircleAssocEnd_DB); q.Error != nil {
+				return q.Error
+			}
+		}
+
+		// This loop encodes the slice of pointers visualmap.VisualLines into the back repo.
+		// Each back repo instance at the end of the association encode the ID of the association start
+		// into a dedicated field for coding the association. The back repo instance is then saved to the db
+		for idx, visuallineAssocEnd := range visualmap.VisualLines {
+
+			// get the back repo instance at the association end
+			visuallineAssocEnd_DB :=
+				backRepo.BackRepoVisualLine.GetVisualLineDBFromVisualLinePtr(visuallineAssocEnd)
+
+			// encode reverse pointer in the association end back repo instance
+			visuallineAssocEnd_DB.VisualMap_VisualLinesDBID.Int64 = int64(visualmapDB.ID)
+			visuallineAssocEnd_DB.VisualMap_VisualLinesDBID.Valid = true
+			visuallineAssocEnd_DB.VisualMap_VisualLinesDBID_Index.Int64 = int64(idx)
+			visuallineAssocEnd_DB.VisualMap_VisualLinesDBID_Index.Valid = true
+			if q := backRepoVisualMap.db.Save(visuallineAssocEnd_DB); q.Error != nil {
+				return q.Error
+			}
+		}
+
+		// This loop encodes the slice of pointers visualmap.VisualTracks into the back repo.
+		// Each back repo instance at the end of the association encode the ID of the association start
+		// into a dedicated field for coding the association. The back repo instance is then saved to the db
+		for idx, visualtrackAssocEnd := range visualmap.VisualTracks {
+
+			// get the back repo instance at the association end
+			visualtrackAssocEnd_DB :=
+				backRepo.BackRepoVisualTrack.GetVisualTrackDBFromVisualTrackPtr(visualtrackAssocEnd)
+
+			// encode reverse pointer in the association end back repo instance
+			visualtrackAssocEnd_DB.VisualMap_VisualTracksDBID.Int64 = int64(visualmapDB.ID)
+			visualtrackAssocEnd_DB.VisualMap_VisualTracksDBID.Valid = true
+			visualtrackAssocEnd_DB.VisualMap_VisualTracksDBID_Index.Int64 = int64(idx)
+			visualtrackAssocEnd_DB.VisualMap_VisualTracksDBID_Index.Valid = true
+			if q := backRepoVisualMap.db.Save(visualtrackAssocEnd_DB); q.Error != nil {
+				return q.Error
+			}
+		}
+
 		query := backRepoVisualMap.db.Save(&visualmapDB)
 		if query.Error != nil {
 			return query.Error
@@ -394,6 +470,114 @@ func (backRepoVisualMap *BackRepoVisualMapStruct) CheckoutPhaseTwoInstance(backR
 	_ = visualmap // sometimes, there is no code generated. This lines voids the "unused variable" compilation error
 
 	// insertion point for checkout of pointer encoding
+	// This loop redeem visualmap.VisualCenters in the stage from the encode in the back repo
+	// It parses all VisualCenterDB in the back repo and if the reverse pointer encoding matches the back repo ID
+	// it appends the stage instance
+	// 1. reset the slice
+	visualmap.VisualCenters = visualmap.VisualCenters[:0]
+	// 2. loop all instances in the type in the association end
+	for _, visualcenterDB_AssocEnd := range *backRepo.BackRepoVisualCenter.Map_VisualCenterDBID_VisualCenterDB {
+		// 3. Does the ID encoding at the end and the ID at the start matches ?
+		if visualcenterDB_AssocEnd.VisualMap_VisualCentersDBID.Int64 == int64(visualmapDB.ID) {
+			// 4. fetch the associated instance in the stage
+			visualcenter_AssocEnd := (*backRepo.BackRepoVisualCenter.Map_VisualCenterDBID_VisualCenterPtr)[visualcenterDB_AssocEnd.ID]
+			// 5. append it the association slice
+			visualmap.VisualCenters = append(visualmap.VisualCenters, visualcenter_AssocEnd)
+		}
+	}
+
+	// sort the array according to the order
+	sort.Slice(visualmap.VisualCenters, func(i, j int) bool {
+		visualcenterDB_i_ID := (*backRepo.BackRepoVisualCenter.Map_VisualCenterPtr_VisualCenterDBID)[visualmap.VisualCenters[i]]
+		visualcenterDB_j_ID := (*backRepo.BackRepoVisualCenter.Map_VisualCenterPtr_VisualCenterDBID)[visualmap.VisualCenters[j]]
+
+		visualcenterDB_i := (*backRepo.BackRepoVisualCenter.Map_VisualCenterDBID_VisualCenterDB)[visualcenterDB_i_ID]
+		visualcenterDB_j := (*backRepo.BackRepoVisualCenter.Map_VisualCenterDBID_VisualCenterDB)[visualcenterDB_j_ID]
+
+		return visualcenterDB_i.VisualMap_VisualCentersDBID_Index.Int64 < visualcenterDB_j.VisualMap_VisualCentersDBID_Index.Int64
+	})
+
+	// This loop redeem visualmap.VisualCircles in the stage from the encode in the back repo
+	// It parses all VisualCircleDB in the back repo and if the reverse pointer encoding matches the back repo ID
+	// it appends the stage instance
+	// 1. reset the slice
+	visualmap.VisualCircles = visualmap.VisualCircles[:0]
+	// 2. loop all instances in the type in the association end
+	for _, visualcircleDB_AssocEnd := range *backRepo.BackRepoVisualCircle.Map_VisualCircleDBID_VisualCircleDB {
+		// 3. Does the ID encoding at the end and the ID at the start matches ?
+		if visualcircleDB_AssocEnd.VisualMap_VisualCirclesDBID.Int64 == int64(visualmapDB.ID) {
+			// 4. fetch the associated instance in the stage
+			visualcircle_AssocEnd := (*backRepo.BackRepoVisualCircle.Map_VisualCircleDBID_VisualCirclePtr)[visualcircleDB_AssocEnd.ID]
+			// 5. append it the association slice
+			visualmap.VisualCircles = append(visualmap.VisualCircles, visualcircle_AssocEnd)
+		}
+	}
+
+	// sort the array according to the order
+	sort.Slice(visualmap.VisualCircles, func(i, j int) bool {
+		visualcircleDB_i_ID := (*backRepo.BackRepoVisualCircle.Map_VisualCirclePtr_VisualCircleDBID)[visualmap.VisualCircles[i]]
+		visualcircleDB_j_ID := (*backRepo.BackRepoVisualCircle.Map_VisualCirclePtr_VisualCircleDBID)[visualmap.VisualCircles[j]]
+
+		visualcircleDB_i := (*backRepo.BackRepoVisualCircle.Map_VisualCircleDBID_VisualCircleDB)[visualcircleDB_i_ID]
+		visualcircleDB_j := (*backRepo.BackRepoVisualCircle.Map_VisualCircleDBID_VisualCircleDB)[visualcircleDB_j_ID]
+
+		return visualcircleDB_i.VisualMap_VisualCirclesDBID_Index.Int64 < visualcircleDB_j.VisualMap_VisualCirclesDBID_Index.Int64
+	})
+
+	// This loop redeem visualmap.VisualLines in the stage from the encode in the back repo
+	// It parses all VisualLineDB in the back repo and if the reverse pointer encoding matches the back repo ID
+	// it appends the stage instance
+	// 1. reset the slice
+	visualmap.VisualLines = visualmap.VisualLines[:0]
+	// 2. loop all instances in the type in the association end
+	for _, visuallineDB_AssocEnd := range *backRepo.BackRepoVisualLine.Map_VisualLineDBID_VisualLineDB {
+		// 3. Does the ID encoding at the end and the ID at the start matches ?
+		if visuallineDB_AssocEnd.VisualMap_VisualLinesDBID.Int64 == int64(visualmapDB.ID) {
+			// 4. fetch the associated instance in the stage
+			visualline_AssocEnd := (*backRepo.BackRepoVisualLine.Map_VisualLineDBID_VisualLinePtr)[visuallineDB_AssocEnd.ID]
+			// 5. append it the association slice
+			visualmap.VisualLines = append(visualmap.VisualLines, visualline_AssocEnd)
+		}
+	}
+
+	// sort the array according to the order
+	sort.Slice(visualmap.VisualLines, func(i, j int) bool {
+		visuallineDB_i_ID := (*backRepo.BackRepoVisualLine.Map_VisualLinePtr_VisualLineDBID)[visualmap.VisualLines[i]]
+		visuallineDB_j_ID := (*backRepo.BackRepoVisualLine.Map_VisualLinePtr_VisualLineDBID)[visualmap.VisualLines[j]]
+
+		visuallineDB_i := (*backRepo.BackRepoVisualLine.Map_VisualLineDBID_VisualLineDB)[visuallineDB_i_ID]
+		visuallineDB_j := (*backRepo.BackRepoVisualLine.Map_VisualLineDBID_VisualLineDB)[visuallineDB_j_ID]
+
+		return visuallineDB_i.VisualMap_VisualLinesDBID_Index.Int64 < visuallineDB_j.VisualMap_VisualLinesDBID_Index.Int64
+	})
+
+	// This loop redeem visualmap.VisualTracks in the stage from the encode in the back repo
+	// It parses all VisualTrackDB in the back repo and if the reverse pointer encoding matches the back repo ID
+	// it appends the stage instance
+	// 1. reset the slice
+	visualmap.VisualTracks = visualmap.VisualTracks[:0]
+	// 2. loop all instances in the type in the association end
+	for _, visualtrackDB_AssocEnd := range *backRepo.BackRepoVisualTrack.Map_VisualTrackDBID_VisualTrackDB {
+		// 3. Does the ID encoding at the end and the ID at the start matches ?
+		if visualtrackDB_AssocEnd.VisualMap_VisualTracksDBID.Int64 == int64(visualmapDB.ID) {
+			// 4. fetch the associated instance in the stage
+			visualtrack_AssocEnd := (*backRepo.BackRepoVisualTrack.Map_VisualTrackDBID_VisualTrackPtr)[visualtrackDB_AssocEnd.ID]
+			// 5. append it the association slice
+			visualmap.VisualTracks = append(visualmap.VisualTracks, visualtrack_AssocEnd)
+		}
+	}
+
+	// sort the array according to the order
+	sort.Slice(visualmap.VisualTracks, func(i, j int) bool {
+		visualtrackDB_i_ID := (*backRepo.BackRepoVisualTrack.Map_VisualTrackPtr_VisualTrackDBID)[visualmap.VisualTracks[i]]
+		visualtrackDB_j_ID := (*backRepo.BackRepoVisualTrack.Map_VisualTrackPtr_VisualTrackDBID)[visualmap.VisualTracks[j]]
+
+		visualtrackDB_i := (*backRepo.BackRepoVisualTrack.Map_VisualTrackDBID_VisualTrackDB)[visualtrackDB_i_ID]
+		visualtrackDB_j := (*backRepo.BackRepoVisualTrack.Map_VisualTrackDBID_VisualTrackDB)[visualtrackDB_j_ID]
+
+		return visualtrackDB_i.VisualMap_VisualTracksDBID_Index.Int64 < visualtrackDB_j.VisualMap_VisualTracksDBID_Index.Int64
+	})
+
 	return
 }
 

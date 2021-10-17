@@ -102,6 +102,9 @@ export class VisualTracksTableComponent implements OnInit {
         case 'DisplayLevelAndSpeed':
           return visualtrackDB.DisplayLevelAndSpeed?"true":"false";
 
+        case 'VisualMap_VisualTracks':
+          return this.frontRepo.VisualMaps.get(visualtrackDB.VisualMap_VisualTracksDBID.Int64)!.Name;
+
         default:
           console.assert(false, "Unknown field")
           return "";
@@ -130,6 +133,10 @@ export class VisualTracksTableComponent implements OnInit {
       if (visualtrackDB.VisualIcon) {
         mergedContent += visualtrackDB.VisualIcon.Name.toLowerCase()
       }
+      if (visualtrackDB.VisualMap_VisualTracksDBID.Int64 != 0) {
+        mergedContent += this.frontRepo.VisualMaps.get(visualtrackDB.VisualMap_VisualTracksDBID.Int64)!.Name.toLowerCase()
+      }
+
 
       let isSelected = mergedContent.includes(filter.toLowerCase())
       return isSelected
@@ -193,6 +200,7 @@ export class VisualTracksTableComponent implements OnInit {
         "Display",
         "DisplayTrackHistory",
         "DisplayLevelAndSpeed",
+        "VisualMap_VisualTracks",
       ]
     } else {
       this.displayedColumns = ['select', 'ID', // insertion point for columns to display
@@ -209,6 +217,7 @@ export class VisualTracksTableComponent implements OnInit {
         "Display",
         "DisplayTrackHistory",
         "DisplayLevelAndSpeed",
+        "VisualMap_VisualTracks",
       ]
       this.selection = new SelectionModel<VisualTrackDB>(allowMultiSelect, this.initialSelection);
     }

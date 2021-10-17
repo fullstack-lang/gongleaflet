@@ -12,6 +12,7 @@ import { MapOfSortingComponents } from '../map-components'
 // insertion point for imports
 import { VisualColorEnumSelect, VisualColorEnumList } from '../VisualColorEnum'
 import { DashStyleEnumSelect, DashStyleEnumList } from '../DashStyleEnum'
+import { VisualMapDB } from '../visualmap-db'
 
 import { Router, RouterState, ActivatedRoute } from '@angular/router';
 
@@ -25,6 +26,7 @@ enum VisualCircleDetailComponentState {
 	CREATE_INSTANCE,
 	UPDATE_INSTANCE,
 	// insertion point for declarations of enum values of state
+	CREATE_INSTANCE_WITH_ASSOCIATION_VisualMap_VisualCircles_SET,
 }
 
 @Component({
@@ -85,6 +87,10 @@ export class VisualCircleDetailComponent implements OnInit {
 			} else {
 				switch (this.originStructFieldName) {
 					// insertion point for state computation
+					case "VisualCircles":
+						// console.log("VisualCircle" + " is instanciated with back pointer to instance " + this.id + " VisualMap association VisualCircles")
+						this.state = VisualCircleDetailComponentState.CREATE_INSTANCE_WITH_ASSOCIATION_VisualMap_VisualCircles_SET
+						break;
 					default:
 						console.log(this.originStructFieldName + " is unkown association")
 				}
@@ -123,6 +129,10 @@ export class VisualCircleDetailComponent implements OnInit {
 						this.visualcircle = visualcircle!
 						break;
 					// insertion point for init of association field
+					case VisualCircleDetailComponentState.CREATE_INSTANCE_WITH_ASSOCIATION_VisualMap_VisualCircles_SET:
+						this.visualcircle = new (VisualCircleDB)
+						this.visualcircle.VisualMap_VisualCircles_reverse = frontRepo.VisualMaps.get(this.id)!
+						break;
 					default:
 						console.log(this.state + " is unkown state")
 				}
@@ -154,6 +164,18 @@ export class VisualCircleDetailComponent implements OnInit {
 		// save from the front pointer space to the non pointer space for serialization
 
 		// insertion point for translation/nullation of each pointers
+		if (this.visualcircle.VisualMap_VisualCircles_reverse != undefined) {
+			if (this.visualcircle.VisualMap_VisualCirclesDBID == undefined) {
+				this.visualcircle.VisualMap_VisualCirclesDBID = new NullInt64
+			}
+			this.visualcircle.VisualMap_VisualCirclesDBID.Int64 = this.visualcircle.VisualMap_VisualCircles_reverse.ID
+			this.visualcircle.VisualMap_VisualCirclesDBID.Valid = true
+			if (this.visualcircle.VisualMap_VisualCirclesDBID_Index == undefined) {
+				this.visualcircle.VisualMap_VisualCirclesDBID_Index = new NullInt64
+			}
+			this.visualcircle.VisualMap_VisualCirclesDBID_Index.Valid = true
+			this.visualcircle.VisualMap_VisualCircles_reverse = new VisualMapDB // very important, otherwise, circular JSON
+		}
 
 		switch (this.state) {
 			case VisualCircleDetailComponentState.UPDATE_INSTANCE:

@@ -102,6 +102,13 @@
                 {{VisualLine.MessageBackward}}
             </td>
         </ng-container>
+        <!-- -->
+        <ng-container matColumnDef="VisualMap_VisualLines">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> <-- (VisualMap) VisualLines </th>
+            <td mat-cell *matCellDef="let visualline">
+                {{frontRepo.VisualMaps.get(visualline.VisualMap_VisualLinesDBID.Int64)?.Name}}
+            </td>
+        </ng-container>
 
         <ng-container matColumnDef="ID" sticky>
             <th mat-header-cell *matHeaderCellDef> ID. </th>

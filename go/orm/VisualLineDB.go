@@ -49,6 +49,11 @@ type VisualLinePointersEnconding struct {
 	// This field is generated into another field to enable AS ONE association
 	VisualLayerID sql.NullInt64
 
+	// Implementation of a reverse ID for field VisualMap{}.VisualLines []*VisualLine
+	VisualMap_VisualLinesDBID sql.NullInt64
+
+	// implementation of the index of the withing the slice
+	VisualMap_VisualLinesDBID_Index sql.NullInt64
 }
 
 // VisualLineDB describes a visualline in the database
@@ -666,6 +671,12 @@ func (backRepoVisualLine *BackRepoVisualLineStruct) RestorePhaseTwo() {
 		if visuallineDB.VisualLayerID.Int64 != 0 {
 			visuallineDB.VisualLayerID.Int64 = int64(BackRepoVisualLayerid_atBckpTime_newID[uint(visuallineDB.VisualLayerID.Int64)])
 			visuallineDB.VisualLayerID.Valid = true
+		}
+
+		// This reindex visualline.VisualLines
+		if visuallineDB.VisualMap_VisualLinesDBID.Int64 != 0 {
+			visuallineDB.VisualMap_VisualLinesDBID.Int64 =
+				int64(BackRepoVisualMapid_atBckpTime_newID[uint(visuallineDB.VisualMap_VisualLinesDBID.Int64)])
 		}
 
 		// update databse with new index encoding

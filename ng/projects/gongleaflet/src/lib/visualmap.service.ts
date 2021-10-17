@@ -70,6 +70,10 @@ export class VisualMapService {
   postVisualMap(visualmapdb: VisualMapDB): Observable<VisualMapDB> {
 
     // insertion point for reset of pointers and reverse pointers (to avoid circular JSON)
+    visualmapdb.VisualCenters = []
+    visualmapdb.VisualCircles = []
+    visualmapdb.VisualLines = []
+    visualmapdb.VisualTracks = []
 
     return this.http.post<VisualMapDB>(this.visualmapsUrl, visualmapdb, this.httpOptions).pipe(
       tap(_ => {
@@ -97,6 +101,10 @@ export class VisualMapService {
     const url = `${this.visualmapsUrl}/${id}`;
 
     // insertion point for reset of pointers and reverse pointers (to avoid circular JSON)
+    visualmapdb.VisualCenters = []
+    visualmapdb.VisualCircles = []
+    visualmapdb.VisualLines = []
+    visualmapdb.VisualTracks = []
 
     return this.http.put<VisualMapDB>(url, visualmapdb, this.httpOptions).pipe(
       tap(_ => {

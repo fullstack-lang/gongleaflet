@@ -13,6 +13,7 @@ import { MapOfSortingComponents } from '../map-components'
 import { VisualColorEnumSelect, VisualColorEnumList } from '../VisualColorEnum'
 import { DashStyleEnumSelect, DashStyleEnumList } from '../DashStyleEnum'
 import { TransmittingEnumSelect, TransmittingEnumList } from '../TransmittingEnum'
+import { VisualMapDB } from '../visualmap-db'
 
 import { Router, RouterState, ActivatedRoute } from '@angular/router';
 
@@ -26,6 +27,7 @@ enum VisualLineDetailComponentState {
 	CREATE_INSTANCE,
 	UPDATE_INSTANCE,
 	// insertion point for declarations of enum values of state
+	CREATE_INSTANCE_WITH_ASSOCIATION_VisualMap_VisualLines_SET,
 }
 
 @Component({
@@ -87,6 +89,10 @@ export class VisualLineDetailComponent implements OnInit {
 			} else {
 				switch (this.originStructFieldName) {
 					// insertion point for state computation
+					case "VisualLines":
+						// console.log("VisualLine" + " is instanciated with back pointer to instance " + this.id + " VisualMap association VisualLines")
+						this.state = VisualLineDetailComponentState.CREATE_INSTANCE_WITH_ASSOCIATION_VisualMap_VisualLines_SET
+						break;
 					default:
 						console.log(this.originStructFieldName + " is unkown association")
 				}
@@ -126,6 +132,10 @@ export class VisualLineDetailComponent implements OnInit {
 						this.visualline = visualline!
 						break;
 					// insertion point for init of association field
+					case VisualLineDetailComponentState.CREATE_INSTANCE_WITH_ASSOCIATION_VisualMap_VisualLines_SET:
+						this.visualline = new (VisualLineDB)
+						this.visualline.VisualMap_VisualLines_reverse = frontRepo.VisualMaps.get(this.id)!
+						break;
 					default:
 						console.log(this.state + " is unkown state")
 				}
@@ -157,6 +167,18 @@ export class VisualLineDetailComponent implements OnInit {
 		// save from the front pointer space to the non pointer space for serialization
 
 		// insertion point for translation/nullation of each pointers
+		if (this.visualline.VisualMap_VisualLines_reverse != undefined) {
+			if (this.visualline.VisualMap_VisualLinesDBID == undefined) {
+				this.visualline.VisualMap_VisualLinesDBID = new NullInt64
+			}
+			this.visualline.VisualMap_VisualLinesDBID.Int64 = this.visualline.VisualMap_VisualLines_reverse.ID
+			this.visualline.VisualMap_VisualLinesDBID.Valid = true
+			if (this.visualline.VisualMap_VisualLinesDBID_Index == undefined) {
+				this.visualline.VisualMap_VisualLinesDBID_Index = new NullInt64
+			}
+			this.visualline.VisualMap_VisualLinesDBID_Index.Valid = true
+			this.visualline.VisualMap_VisualLines_reverse = new VisualMapDB // very important, otherwise, circular JSON
+		}
 
 		switch (this.state) {
 			case VisualLineDetailComponentState.UPDATE_INSTANCE:

@@ -76,6 +76,53 @@ definitions:
     title: NullTime represents a time.Time that may be null.
     type: object
     x-go-package: database/sql
+  visualcenter:
+    description: VisualLine provides all necessary elements to the front to display
+      a track
+    properties:
+      DashStyleEnum:
+        enum:
+        - FIVE_TEN
+        - FIVE_TWENTY
+        type: string
+      EndLat:
+        format: double
+        type: number
+        x-go-name: EndLng
+      IsTransmitting:
+        enum:
+        - IS_TRANSMITTING
+        - IS_NOT_TRANSMITTING
+        type: string
+      IsTransmittingBackward:
+        enum:
+        - IS_TRANSMITTING
+        - IS_NOT_TRANSMITTING
+        type: string
+      Message:
+        type: string
+      MessageBackward:
+        type: string
+      Name:
+        type: string
+      StartLat:
+        format: double
+        type: number
+        x-go-name: StartLng
+      VisualColorEnum:
+        enum:
+        - LIGHT_BROWN_8D6E63
+        - RED
+        - GREY
+        - GREEN
+        - BLUE
+        - NONE
+        type: string
+      VisualLayer:
+        $ref: '#/definitions/visuallayer'
+    type: object
+    x-go-name: VisualLine
+    x-go-package: github.com/fullstack-lang/gongleaflet/go/models
   visualcenterAPI:
     description: |-
       for POST, API, one needs the fields of the model as well as the fields
@@ -116,6 +163,10 @@ definitions:
         $ref: '#/definitions/visuallayer'
       VisualLayerID:
         $ref: '#/definitions/NullInt64'
+      VisualMap_VisualCentersDBID:
+        $ref: '#/definitions/NullInt64'
+      VisualMap_VisualCentersDBID_Index:
+        $ref: '#/definitions/NullInt64'
     title: VisualCenterAPI is the input in POST API
     type: object
     x-go-name: VisualCenterAPI
@@ -147,6 +198,10 @@ definitions:
       VisualIconID:
         $ref: '#/definitions/NullInt64'
       VisualLayerID:
+        $ref: '#/definitions/NullInt64'
+      VisualMap_VisualCentersDBID:
+        $ref: '#/definitions/NullInt64'
+      VisualMap_VisualCentersDBID_Index:
         $ref: '#/definitions/NullInt64'
     title: VisualCenterDB describes a visualcenter in the database
     type: object
@@ -196,6 +251,10 @@ definitions:
         $ref: '#/definitions/visuallayer'
       VisualLayerID:
         $ref: '#/definitions/NullInt64'
+      VisualMap_VisualCirclesDBID:
+        $ref: '#/definitions/NullInt64'
+      VisualMap_VisualCirclesDBID_Index:
+        $ref: '#/definitions/NullInt64'
     title: VisualCircleAPI is the input in POST API
     type: object
     x-go-name: VisualCircleAPI
@@ -229,6 +288,10 @@ definitions:
       VisualColorEnum_Data:
         $ref: '#/definitions/NullString'
       VisualLayerID:
+        $ref: '#/definitions/NullInt64'
+      VisualMap_VisualCirclesDBID:
+        $ref: '#/definitions/NullInt64'
+      VisualMap_VisualCirclesDBID_Index:
         $ref: '#/definitions/NullInt64'
     title: VisualCircleDB describes a visualcircle in the database
     type: object
@@ -413,6 +476,10 @@ definitions:
         $ref: '#/definitions/visuallayer'
       VisualLayerID:
         $ref: '#/definitions/NullInt64'
+      VisualMap_VisualLinesDBID:
+        $ref: '#/definitions/NullInt64'
+      VisualMap_VisualLinesDBID_Index:
+        $ref: '#/definitions/NullInt64'
     title: VisualLineAPI is the input in POST API
     type: object
     x-go-name: VisualLineAPI
@@ -457,6 +524,10 @@ definitions:
         $ref: '#/definitions/NullString'
       VisualLayerID:
         $ref: '#/definitions/NullInt64'
+      VisualMap_VisualLinesDBID:
+        $ref: '#/definitions/NullInt64'
+      VisualMap_VisualLinesDBID_Index:
+        $ref: '#/definitions/NullInt64'
     title: VisualLineDB describes a visualline in the database
     type: object
     x-go-name: VisualLineDB
@@ -493,6 +564,23 @@ definitions:
         type: string
       UrlTemplate:
         type: string
+      VisualCenters:
+        description: all element in the map
+        items:
+          $ref: '#/definitions/visualcenter'
+        type: array
+      VisualCircles:
+        items:
+          $ref: '#/definitions/visualcenter'
+        type: array
+      VisualLines:
+        items:
+          $ref: '#/definitions/visualcenter'
+        type: array
+      VisualTracks:
+        items:
+          $ref: '#/definitions/visualtrack'
+        type: array
       ZoomControl:
         type: boolean
       ZoomLevel:
@@ -544,6 +632,40 @@ definitions:
     type: object
     x-go-name: VisualMapDB
     x-go-package: github.com/fullstack-lang/gongleaflet/go/orm
+  visualtrack:
+    description: VisualTrack provides all necessary elements to the front to display
+      a track
+    properties:
+      Display:
+        type: boolean
+      DisplayLevelAndSpeed:
+        description: if true, display level and speed below the icon
+        type: boolean
+      DisplayTrackHistory:
+        description: if true display dots from the trajectory
+        type: boolean
+      Lat:
+        format: double
+        type: number
+        x-go-name: VerticalSpeed
+      Name:
+        type: string
+      VisualColorEnum:
+        enum:
+        - LIGHT_BROWN_8D6E63
+        - RED
+        - GREY
+        - GREEN
+        - BLUE
+        - NONE
+        type: string
+      VisualIcon:
+        $ref: '#/definitions/visualicon'
+      VisualLayer:
+        $ref: '#/definitions/visuallayer'
+    type: object
+    x-go-name: VisualTrack
+    x-go-package: github.com/fullstack-lang/gongleaflet/go/models
   visualtrackAPI:
     description: |-
       for POST, API, one needs the fields of the model as well as the fields
@@ -592,6 +714,10 @@ definitions:
         $ref: '#/definitions/visuallayer'
       VisualLayerID:
         $ref: '#/definitions/NullInt64'
+      VisualMap_VisualTracksDBID:
+        $ref: '#/definitions/NullInt64'
+      VisualMap_VisualTracksDBID_Index:
+        $ref: '#/definitions/NullInt64'
     title: VisualTrackAPI is the input in POST API
     type: object
     x-go-name: VisualTrackAPI
@@ -637,6 +763,10 @@ definitions:
       VisualIconID:
         $ref: '#/definitions/NullInt64'
       VisualLayerID:
+        $ref: '#/definitions/NullInt64'
+      VisualMap_VisualTracksDBID:
+        $ref: '#/definitions/NullInt64'
+      VisualMap_VisualTracksDBID_Index:
         $ref: '#/definitions/NullInt64'
     title: VisualTrackDB describes a visualtrack in the database
     type: object
@@ -1315,6 +1445,11 @@ responses:
           insertion for pointer fields encoding declaration
           field VisualLayer is a pointer to another Struct (optional or 0..1)
           This field is generated into another field to enable AS ONE association
+      VisualMap_VisualCentersDBID:
+        description: Implementation of a reverse ID for field VisualMap{}.VisualCenters
+          []*VisualCenter
+      VisualMap_VisualCentersDBID_Index:
+        description: implementation of the index of the withing the slice
     schema:
       $ref: '#/definitions/NullInt64'
   visualcenterDBsResponse:
@@ -1360,6 +1495,11 @@ responses:
           insertion for pointer fields encoding declaration
           field VisualLayer is a pointer to another Struct (optional or 0..1)
           This field is generated into another field to enable AS ONE association
+      VisualMap_VisualCirclesDBID:
+        description: Implementation of a reverse ID for field VisualMap{}.VisualCircles
+          []*VisualCircle
+      VisualMap_VisualCirclesDBID_Index:
+        description: implementation of the index of the withing the slice
     schema:
       $ref: '#/definitions/NullInt64'
   visualcircleDBsResponse:
@@ -1476,6 +1616,11 @@ responses:
           insertion for pointer fields encoding declaration
           field VisualLayer is a pointer to another Struct (optional or 0..1)
           This field is generated into another field to enable AS ONE association
+      VisualMap_VisualLinesDBID:
+        description: Implementation of a reverse ID for field VisualMap{}.VisualLines
+          []*VisualLine
+      VisualMap_VisualLinesDBID_Index:
+        description: implementation of the index of the withing the slice
     schema:
       $ref: '#/definitions/NullInt64'
   visuallineDBsResponse:
@@ -1598,6 +1743,11 @@ responses:
           insertion for pointer fields encoding declaration
           field VisualLayer is a pointer to another Struct (optional or 0..1)
           This field is generated into another field to enable AS ONE association
+      VisualMap_VisualTracksDBID:
+        description: Implementation of a reverse ID for field VisualMap{}.VisualTracks
+          []*VisualTrack
+      VisualMap_VisualTracksDBID_Index:
+        description: implementation of the index of the withing the slice
     schema:
       $ref: '#/definitions/NullInt64'
   visualtrackDBsResponse:

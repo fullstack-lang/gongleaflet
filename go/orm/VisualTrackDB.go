@@ -53,6 +53,11 @@ type VisualTrackPointersEnconding struct {
 	// This field is generated into another field to enable AS ONE association
 	VisualIconID sql.NullInt64
 
+	// Implementation of a reverse ID for field VisualMap{}.VisualTracks []*VisualTrack
+	VisualMap_VisualTracksDBID sql.NullInt64
+
+	// implementation of the index of the withing the slice
+	VisualMap_VisualTracksDBID_Index sql.NullInt64
 }
 
 // VisualTrackDB describes a visualtrack in the database
@@ -692,6 +697,12 @@ func (backRepoVisualTrack *BackRepoVisualTrackStruct) RestorePhaseTwo() {
 		if visualtrackDB.VisualIconID.Int64 != 0 {
 			visualtrackDB.VisualIconID.Int64 = int64(BackRepoVisualIconid_atBckpTime_newID[uint(visualtrackDB.VisualIconID.Int64)])
 			visualtrackDB.VisualIconID.Valid = true
+		}
+
+		// This reindex visualtrack.VisualTracks
+		if visualtrackDB.VisualMap_VisualTracksDBID.Int64 != 0 {
+			visualtrackDB.VisualMap_VisualTracksDBID.Int64 =
+				int64(BackRepoVisualMapid_atBckpTime_newID[uint(visualtrackDB.VisualMap_VisualTracksDBID.Int64)])
 		}
 
 		// update databse with new index encoding

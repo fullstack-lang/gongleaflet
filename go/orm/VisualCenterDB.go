@@ -53,6 +53,11 @@ type VisualCenterPointersEnconding struct {
 	// This field is generated into another field to enable AS ONE association
 	VisualIconID sql.NullInt64
 
+	// Implementation of a reverse ID for field VisualMap{}.VisualCenters []*VisualCenter
+	VisualMap_VisualCentersDBID sql.NullInt64
+
+	// implementation of the index of the withing the slice
+	VisualMap_VisualCentersDBID_Index sql.NullInt64
 }
 
 // VisualCenterDB describes a visualcenter in the database
@@ -591,6 +596,12 @@ func (backRepoVisualCenter *BackRepoVisualCenterStruct) RestorePhaseTwo() {
 		if visualcenterDB.VisualIconID.Int64 != 0 {
 			visualcenterDB.VisualIconID.Int64 = int64(BackRepoVisualIconid_atBckpTime_newID[uint(visualcenterDB.VisualIconID.Int64)])
 			visualcenterDB.VisualIconID.Valid = true
+		}
+
+		// This reindex visualcenter.VisualCenters
+		if visualcenterDB.VisualMap_VisualCentersDBID.Int64 != 0 {
+			visualcenterDB.VisualMap_VisualCentersDBID.Int64 =
+				int64(BackRepoVisualMapid_atBckpTime_newID[uint(visualcenterDB.VisualMap_VisualCentersDBID.Int64)])
 		}
 
 		// update databse with new index encoding

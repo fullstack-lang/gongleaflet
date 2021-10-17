@@ -456,6 +456,19 @@ export class FrontRepoService {
                 }
 
                 // insertion point for redeeming ONE-MANY associations
+                // insertion point for slice of pointer field VisualMap.VisualCenters redeeming
+                {
+                  let _visualmap = FrontRepoSingloton.VisualMaps.get(visualcenter.VisualMap_VisualCentersDBID.Int64)
+                  if (_visualmap) {
+                    if (_visualmap.VisualCenters == undefined) {
+                      _visualmap.VisualCenters = new Array<VisualCenterDB>()
+                    }
+                    _visualmap.VisualCenters.push(visualcenter)
+                    if (visualcenter.VisualMap_VisualCenters_reverse == undefined) {
+                      visualcenter.VisualMap_VisualCenters_reverse = _visualmap
+                    }
+                  }
+                }
               }
             )
             visualcircles.forEach(
@@ -470,6 +483,19 @@ export class FrontRepoService {
                 }
 
                 // insertion point for redeeming ONE-MANY associations
+                // insertion point for slice of pointer field VisualMap.VisualCircles redeeming
+                {
+                  let _visualmap = FrontRepoSingloton.VisualMaps.get(visualcircle.VisualMap_VisualCirclesDBID.Int64)
+                  if (_visualmap) {
+                    if (_visualmap.VisualCircles == undefined) {
+                      _visualmap.VisualCircles = new Array<VisualCircleDB>()
+                    }
+                    _visualmap.VisualCircles.push(visualcircle)
+                    if (visualcircle.VisualMap_VisualCircles_reverse == undefined) {
+                      visualcircle.VisualMap_VisualCircles_reverse = _visualmap
+                    }
+                  }
+                }
               }
             )
             visualicons.forEach(
@@ -498,6 +524,19 @@ export class FrontRepoService {
                 }
 
                 // insertion point for redeeming ONE-MANY associations
+                // insertion point for slice of pointer field VisualMap.VisualLines redeeming
+                {
+                  let _visualmap = FrontRepoSingloton.VisualMaps.get(visualline.VisualMap_VisualLinesDBID.Int64)
+                  if (_visualmap) {
+                    if (_visualmap.VisualLines == undefined) {
+                      _visualmap.VisualLines = new Array<VisualLineDB>()
+                    }
+                    _visualmap.VisualLines.push(visualline)
+                    if (visualline.VisualMap_VisualLines_reverse == undefined) {
+                      visualline.VisualMap_VisualLines_reverse = _visualmap
+                    }
+                  }
+                }
               }
             )
             visualmaps.forEach(
@@ -526,6 +565,19 @@ export class FrontRepoService {
                 }
 
                 // insertion point for redeeming ONE-MANY associations
+                // insertion point for slice of pointer field VisualMap.VisualTracks redeeming
+                {
+                  let _visualmap = FrontRepoSingloton.VisualMaps.get(visualtrack.VisualMap_VisualTracksDBID.Int64)
+                  if (_visualmap) {
+                    if (_visualmap.VisualTracks == undefined) {
+                      _visualmap.VisualTracks = new Array<VisualTrackDB>()
+                    }
+                    _visualmap.VisualTracks.push(visualtrack)
+                    if (visualtrack.VisualMap_VisualTracks_reverse == undefined) {
+                      visualtrack.VisualMap_VisualTracks_reverse = _visualmap
+                    }
+                  }
+                }
               }
             )
 
@@ -580,6 +632,19 @@ export class FrontRepoService {
                 }
 
                 // insertion point for redeeming ONE-MANY associations
+                // insertion point for slice of pointer field VisualMap.VisualCenters redeeming
+                {
+                  let _visualmap = FrontRepoSingloton.VisualMaps.get(visualcenter.VisualMap_VisualCentersDBID.Int64)
+                  if (_visualmap) {
+                    if (_visualmap.VisualCenters == undefined) {
+                      _visualmap.VisualCenters = new Array<VisualCenterDB>()
+                    }
+                    _visualmap.VisualCenters.push(visualcenter)
+                    if (visualcenter.VisualMap_VisualCenters_reverse == undefined) {
+                      visualcenter.VisualMap_VisualCenters_reverse = _visualmap
+                    }
+                  }
+                }
               }
             )
 
@@ -638,6 +703,19 @@ export class FrontRepoService {
                 }
 
                 // insertion point for redeeming ONE-MANY associations
+                // insertion point for slice of pointer field VisualMap.VisualCircles redeeming
+                {
+                  let _visualmap = FrontRepoSingloton.VisualMaps.get(visualcircle.VisualMap_VisualCirclesDBID.Int64)
+                  if (_visualmap) {
+                    if (_visualmap.VisualCircles == undefined) {
+                      _visualmap.VisualCircles = new Array<VisualCircleDB>()
+                    }
+                    _visualmap.VisualCircles.push(visualcircle)
+                    if (visualcircle.VisualMap_VisualCircles_reverse == undefined) {
+                      visualcircle.VisualMap_VisualCircles_reverse = _visualmap
+                    }
+                  }
+                }
               }
             )
 
@@ -798,6 +876,19 @@ export class FrontRepoService {
                 }
 
                 // insertion point for redeeming ONE-MANY associations
+                // insertion point for slice of pointer field VisualMap.VisualLines redeeming
+                {
+                  let _visualmap = FrontRepoSingloton.VisualMaps.get(visualline.VisualMap_VisualLinesDBID.Int64)
+                  if (_visualmap) {
+                    if (_visualmap.VisualLines == undefined) {
+                      _visualmap.VisualLines = new Array<VisualLineDB>()
+                    }
+                    _visualmap.VisualLines.push(visualline)
+                    if (visualline.VisualMap_VisualLines_reverse == undefined) {
+                      visualline.VisualMap_VisualLines_reverse = _visualmap
+                    }
+                  }
+                }
               }
             )
 
@@ -914,6 +1005,19 @@ export class FrontRepoService {
                 }
 
                 // insertion point for redeeming ONE-MANY associations
+                // insertion point for slice of pointer field VisualMap.VisualTracks redeeming
+                {
+                  let _visualmap = FrontRepoSingloton.VisualMaps.get(visualtrack.VisualMap_VisualTracksDBID.Int64)
+                  if (_visualmap) {
+                    if (_visualmap.VisualTracks == undefined) {
+                      _visualmap.VisualTracks = new Array<VisualTrackDB>()
+                    }
+                    _visualmap.VisualTracks.push(visualtrack)
+                    if (visualtrack.VisualMap_VisualTracks_reverse == undefined) {
+                      visualtrack.VisualMap_VisualTracks_reverse = _visualmap
+                    }
+                  }
+                }
               }
             )
 

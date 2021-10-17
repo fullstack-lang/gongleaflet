@@ -18,6 +18,12 @@ type VisualMap struct {
 	// swagger:ignore
 	// access to the models instance that contains the original information
 	VisualMapInterface VisualMapInterface `gorm:"-"`
+
+	// all element in the map
+	VisualCenters []*VisualCenter
+	VisualCircles []*VisualCircle
+	VisualLines   []*VisualLine
+	VisualTracks  []*VisualTrack
 }
 
 type VisualMapInterface interface {
