@@ -196,16 +196,14 @@ export class VisualCirclesTableComponent implements OnInit {
 
         // in case the component is called as a selection component
         if (this.mode == TableComponentMode.ONE_MANY_ASSOCIATION_MODE) {
-          this.visualcircles.forEach(
-            visualcircle => {
-              let ID = this.dialogData.ID
-              let revPointer = visualcircle[this.dialogData.ReversePointer as keyof VisualCircleDB] as unknown as NullInt64
-              if (revPointer.Int64 == ID) {
-                this.initialSelection.push(visualcircle)
-              }
+          for (let visualcircle of this.visualcircles) {
+            let ID = this.dialogData.ID
+            let revPointer = visualcircle[this.dialogData.ReversePointer as keyof VisualCircleDB] as unknown as NullInt64
+            if (revPointer.Int64 == ID) {
+              this.initialSelection.push(visualcircle)
             }
-          )
-          this.selection = new SelectionModel<VisualCircleDB>(allowMultiSelect, this.initialSelection);
+            this.selection = new SelectionModel<VisualCircleDB>(allowMultiSelect, this.initialSelection);
+          }
         }
 
         if (this.mode == TableComponentMode.MANY_MANY_ASSOCIATION_MODE) {
@@ -292,34 +290,31 @@ export class VisualCirclesTableComponent implements OnInit {
       let toUpdate = new Set<VisualCircleDB>()
 
       // reset all initial selection of visualcircle that belong to visualcircle
-      this.initialSelection.forEach(
-        visualcircle => {
-          let index = visualcircle[this.dialogData.ReversePointer as keyof VisualCircleDB] as unknown as NullInt64
-          index.Int64 = 0
-          index.Valid = true
-          toUpdate.add(visualcircle)
-        }
-      )
+      for (let visualcircle of this.initialSelection) {
+        let index = visualcircle[this.dialogData.ReversePointer as keyof VisualCircleDB] as unknown as NullInt64
+        index.Int64 = 0
+        index.Valid = true
+        toUpdate.add(visualcircle)
+
+      }
 
       // from selection, set visualcircle that belong to visualcircle
-      this.selection.selected.forEach(
-        visualcircle => {
-          let ID = this.dialogData.ID as number
-          let reversePointer = visualcircle[this.dialogData.ReversePointer  as keyof VisualCircleDB] as unknown as NullInt64
-          reversePointer.Int64 = ID
-          toUpdate.add(visualcircle)
-        }
-      )
+      for (let visualcircle of this.selection.selected) {
+        let ID = this.dialogData.ID as number
+        let reversePointer = visualcircle[this.dialogData.ReversePointer as keyof VisualCircleDB] as unknown as NullInt64
+        reversePointer.Int64 = ID
+        reversePointer.Valid = true
+        toUpdate.add(visualcircle)
+      }
+
 
       // update all visualcircle (only update selection & initial selection)
-      toUpdate.forEach(
-        visualcircle => {
-          this.visualcircleService.updateVisualCircle(visualcircle)
-            .subscribe(visualcircle => {
-              this.visualcircleService.VisualCircleServiceChanged.next("update")
-            });
-        }
-      )
+      for (let visualcircle of toUpdate) {
+        this.visualcircleService.updateVisualCircle(visualcircle)
+          .subscribe(visualcircle => {
+            this.visualcircleService.VisualCircleServiceChanged.next("update")
+          });
+      }
     }
 
     if (this.mode == TableComponentMode.MANY_MANY_ASSOCIATION_MODE) {
@@ -366,13 +361,15 @@ export class VisualCirclesTableComponent implements OnInit {
                 Name: sourceInstance["Name"] + "-" + visualcircle.Name,
               }
 
-              let index = associationInstance[this.dialogData.IntermediateStructField+"ID" as keyof typeof associationInstance] as unknown as NullInt64
+              let index = associationInstance[this.dialogData.IntermediateStructField + "ID" as keyof typeof associationInstance] as unknown as NullInt64
               index.Int64 = visualcircle.ID
+              index.Valid = true
 
-              let indexDB = associationInstance[this.dialogData.IntermediateStructField+"DBID" as keyof typeof associationInstance] as unknown as NullInt64
+              let indexDB = associationInstance[this.dialogData.IntermediateStructField + "DBID" as keyof typeof associationInstance] as unknown as NullInt64
               indexDB.Int64 = visualcircle.ID
+              index.Valid = true
 
-              this.frontRepoService.postService( this.dialogData.IntermediateStruct, associationInstance )
+              this.frontRepoService.postService(this.dialogData.IntermediateStruct, associationInstance)
 
             } else {
               // console.log("visualcircle " + visualcircle.Name + " is still selected")

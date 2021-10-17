@@ -192,16 +192,14 @@ export class VisualCentersTableComponent implements OnInit {
 
         // in case the component is called as a selection component
         if (this.mode == TableComponentMode.ONE_MANY_ASSOCIATION_MODE) {
-          this.visualcenters.forEach(
-            visualcenter => {
-              let ID = this.dialogData.ID
-              let revPointer = visualcenter[this.dialogData.ReversePointer as keyof VisualCenterDB] as unknown as NullInt64
-              if (revPointer.Int64 == ID) {
-                this.initialSelection.push(visualcenter)
-              }
+          for (let visualcenter of this.visualcenters) {
+            let ID = this.dialogData.ID
+            let revPointer = visualcenter[this.dialogData.ReversePointer as keyof VisualCenterDB] as unknown as NullInt64
+            if (revPointer.Int64 == ID) {
+              this.initialSelection.push(visualcenter)
             }
-          )
-          this.selection = new SelectionModel<VisualCenterDB>(allowMultiSelect, this.initialSelection);
+            this.selection = new SelectionModel<VisualCenterDB>(allowMultiSelect, this.initialSelection);
+          }
         }
 
         if (this.mode == TableComponentMode.MANY_MANY_ASSOCIATION_MODE) {
@@ -288,34 +286,31 @@ export class VisualCentersTableComponent implements OnInit {
       let toUpdate = new Set<VisualCenterDB>()
 
       // reset all initial selection of visualcenter that belong to visualcenter
-      this.initialSelection.forEach(
-        visualcenter => {
-          let index = visualcenter[this.dialogData.ReversePointer as keyof VisualCenterDB] as unknown as NullInt64
-          index.Int64 = 0
-          index.Valid = true
-          toUpdate.add(visualcenter)
-        }
-      )
+      for (let visualcenter of this.initialSelection) {
+        let index = visualcenter[this.dialogData.ReversePointer as keyof VisualCenterDB] as unknown as NullInt64
+        index.Int64 = 0
+        index.Valid = true
+        toUpdate.add(visualcenter)
+
+      }
 
       // from selection, set visualcenter that belong to visualcenter
-      this.selection.selected.forEach(
-        visualcenter => {
-          let ID = this.dialogData.ID as number
-          let reversePointer = visualcenter[this.dialogData.ReversePointer  as keyof VisualCenterDB] as unknown as NullInt64
-          reversePointer.Int64 = ID
-          toUpdate.add(visualcenter)
-        }
-      )
+      for (let visualcenter of this.selection.selected) {
+        let ID = this.dialogData.ID as number
+        let reversePointer = visualcenter[this.dialogData.ReversePointer as keyof VisualCenterDB] as unknown as NullInt64
+        reversePointer.Int64 = ID
+        reversePointer.Valid = true
+        toUpdate.add(visualcenter)
+      }
+
 
       // update all visualcenter (only update selection & initial selection)
-      toUpdate.forEach(
-        visualcenter => {
-          this.visualcenterService.updateVisualCenter(visualcenter)
-            .subscribe(visualcenter => {
-              this.visualcenterService.VisualCenterServiceChanged.next("update")
-            });
-        }
-      )
+      for (let visualcenter of toUpdate) {
+        this.visualcenterService.updateVisualCenter(visualcenter)
+          .subscribe(visualcenter => {
+            this.visualcenterService.VisualCenterServiceChanged.next("update")
+          });
+      }
     }
 
     if (this.mode == TableComponentMode.MANY_MANY_ASSOCIATION_MODE) {
@@ -362,13 +357,15 @@ export class VisualCentersTableComponent implements OnInit {
                 Name: sourceInstance["Name"] + "-" + visualcenter.Name,
               }
 
-              let index = associationInstance[this.dialogData.IntermediateStructField+"ID" as keyof typeof associationInstance] as unknown as NullInt64
+              let index = associationInstance[this.dialogData.IntermediateStructField + "ID" as keyof typeof associationInstance] as unknown as NullInt64
               index.Int64 = visualcenter.ID
+              index.Valid = true
 
-              let indexDB = associationInstance[this.dialogData.IntermediateStructField+"DBID" as keyof typeof associationInstance] as unknown as NullInt64
+              let indexDB = associationInstance[this.dialogData.IntermediateStructField + "DBID" as keyof typeof associationInstance] as unknown as NullInt64
               indexDB.Int64 = visualcenter.ID
+              index.Valid = true
 
-              this.frontRepoService.postService( this.dialogData.IntermediateStruct, associationInstance )
+              this.frontRepoService.postService(this.dialogData.IntermediateStruct, associationInstance)
 
             } else {
               // console.log("visualcenter " + visualcenter.Name + " is still selected")

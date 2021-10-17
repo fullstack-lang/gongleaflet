@@ -209,16 +209,14 @@ export class VisualMapsTableComponent implements OnInit {
 
         // in case the component is called as a selection component
         if (this.mode == TableComponentMode.ONE_MANY_ASSOCIATION_MODE) {
-          this.visualmaps.forEach(
-            visualmap => {
-              let ID = this.dialogData.ID
-              let revPointer = visualmap[this.dialogData.ReversePointer as keyof VisualMapDB] as unknown as NullInt64
-              if (revPointer.Int64 == ID) {
-                this.initialSelection.push(visualmap)
-              }
+          for (let visualmap of this.visualmaps) {
+            let ID = this.dialogData.ID
+            let revPointer = visualmap[this.dialogData.ReversePointer as keyof VisualMapDB] as unknown as NullInt64
+            if (revPointer.Int64 == ID) {
+              this.initialSelection.push(visualmap)
             }
-          )
-          this.selection = new SelectionModel<VisualMapDB>(allowMultiSelect, this.initialSelection);
+            this.selection = new SelectionModel<VisualMapDB>(allowMultiSelect, this.initialSelection);
+          }
         }
 
         if (this.mode == TableComponentMode.MANY_MANY_ASSOCIATION_MODE) {
@@ -305,34 +303,31 @@ export class VisualMapsTableComponent implements OnInit {
       let toUpdate = new Set<VisualMapDB>()
 
       // reset all initial selection of visualmap that belong to visualmap
-      this.initialSelection.forEach(
-        visualmap => {
-          let index = visualmap[this.dialogData.ReversePointer as keyof VisualMapDB] as unknown as NullInt64
-          index.Int64 = 0
-          index.Valid = true
-          toUpdate.add(visualmap)
-        }
-      )
+      for (let visualmap of this.initialSelection) {
+        let index = visualmap[this.dialogData.ReversePointer as keyof VisualMapDB] as unknown as NullInt64
+        index.Int64 = 0
+        index.Valid = true
+        toUpdate.add(visualmap)
+
+      }
 
       // from selection, set visualmap that belong to visualmap
-      this.selection.selected.forEach(
-        visualmap => {
-          let ID = this.dialogData.ID as number
-          let reversePointer = visualmap[this.dialogData.ReversePointer  as keyof VisualMapDB] as unknown as NullInt64
-          reversePointer.Int64 = ID
-          toUpdate.add(visualmap)
-        }
-      )
+      for (let visualmap of this.selection.selected) {
+        let ID = this.dialogData.ID as number
+        let reversePointer = visualmap[this.dialogData.ReversePointer as keyof VisualMapDB] as unknown as NullInt64
+        reversePointer.Int64 = ID
+        reversePointer.Valid = true
+        toUpdate.add(visualmap)
+      }
+
 
       // update all visualmap (only update selection & initial selection)
-      toUpdate.forEach(
-        visualmap => {
-          this.visualmapService.updateVisualMap(visualmap)
-            .subscribe(visualmap => {
-              this.visualmapService.VisualMapServiceChanged.next("update")
-            });
-        }
-      )
+      for (let visualmap of toUpdate) {
+        this.visualmapService.updateVisualMap(visualmap)
+          .subscribe(visualmap => {
+            this.visualmapService.VisualMapServiceChanged.next("update")
+          });
+      }
     }
 
     if (this.mode == TableComponentMode.MANY_MANY_ASSOCIATION_MODE) {
@@ -379,13 +374,15 @@ export class VisualMapsTableComponent implements OnInit {
                 Name: sourceInstance["Name"] + "-" + visualmap.Name,
               }
 
-              let index = associationInstance[this.dialogData.IntermediateStructField+"ID" as keyof typeof associationInstance] as unknown as NullInt64
+              let index = associationInstance[this.dialogData.IntermediateStructField + "ID" as keyof typeof associationInstance] as unknown as NullInt64
               index.Int64 = visualmap.ID
+              index.Valid = true
 
-              let indexDB = associationInstance[this.dialogData.IntermediateStructField+"DBID" as keyof typeof associationInstance] as unknown as NullInt64
+              let indexDB = associationInstance[this.dialogData.IntermediateStructField + "DBID" as keyof typeof associationInstance] as unknown as NullInt64
               indexDB.Int64 = visualmap.ID
+              index.Valid = true
 
-              this.frontRepoService.postService( this.dialogData.IntermediateStruct, associationInstance )
+              this.frontRepoService.postService(this.dialogData.IntermediateStruct, associationInstance)
 
             } else {
               // console.log("visualmap " + visualmap.Name + " is still selected")

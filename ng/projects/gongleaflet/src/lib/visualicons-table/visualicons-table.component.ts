@@ -164,16 +164,14 @@ export class VisualIconsTableComponent implements OnInit {
 
         // in case the component is called as a selection component
         if (this.mode == TableComponentMode.ONE_MANY_ASSOCIATION_MODE) {
-          this.visualicons.forEach(
-            visualicon => {
-              let ID = this.dialogData.ID
-              let revPointer = visualicon[this.dialogData.ReversePointer as keyof VisualIconDB] as unknown as NullInt64
-              if (revPointer.Int64 == ID) {
-                this.initialSelection.push(visualicon)
-              }
+          for (let visualicon of this.visualicons) {
+            let ID = this.dialogData.ID
+            let revPointer = visualicon[this.dialogData.ReversePointer as keyof VisualIconDB] as unknown as NullInt64
+            if (revPointer.Int64 == ID) {
+              this.initialSelection.push(visualicon)
             }
-          )
-          this.selection = new SelectionModel<VisualIconDB>(allowMultiSelect, this.initialSelection);
+            this.selection = new SelectionModel<VisualIconDB>(allowMultiSelect, this.initialSelection);
+          }
         }
 
         if (this.mode == TableComponentMode.MANY_MANY_ASSOCIATION_MODE) {
@@ -260,34 +258,31 @@ export class VisualIconsTableComponent implements OnInit {
       let toUpdate = new Set<VisualIconDB>()
 
       // reset all initial selection of visualicon that belong to visualicon
-      this.initialSelection.forEach(
-        visualicon => {
-          let index = visualicon[this.dialogData.ReversePointer as keyof VisualIconDB] as unknown as NullInt64
-          index.Int64 = 0
-          index.Valid = true
-          toUpdate.add(visualicon)
-        }
-      )
+      for (let visualicon of this.initialSelection) {
+        let index = visualicon[this.dialogData.ReversePointer as keyof VisualIconDB] as unknown as NullInt64
+        index.Int64 = 0
+        index.Valid = true
+        toUpdate.add(visualicon)
+
+      }
 
       // from selection, set visualicon that belong to visualicon
-      this.selection.selected.forEach(
-        visualicon => {
-          let ID = this.dialogData.ID as number
-          let reversePointer = visualicon[this.dialogData.ReversePointer  as keyof VisualIconDB] as unknown as NullInt64
-          reversePointer.Int64 = ID
-          toUpdate.add(visualicon)
-        }
-      )
+      for (let visualicon of this.selection.selected) {
+        let ID = this.dialogData.ID as number
+        let reversePointer = visualicon[this.dialogData.ReversePointer as keyof VisualIconDB] as unknown as NullInt64
+        reversePointer.Int64 = ID
+        reversePointer.Valid = true
+        toUpdate.add(visualicon)
+      }
+
 
       // update all visualicon (only update selection & initial selection)
-      toUpdate.forEach(
-        visualicon => {
-          this.visualiconService.updateVisualIcon(visualicon)
-            .subscribe(visualicon => {
-              this.visualiconService.VisualIconServiceChanged.next("update")
-            });
-        }
-      )
+      for (let visualicon of toUpdate) {
+        this.visualiconService.updateVisualIcon(visualicon)
+          .subscribe(visualicon => {
+            this.visualiconService.VisualIconServiceChanged.next("update")
+          });
+      }
     }
 
     if (this.mode == TableComponentMode.MANY_MANY_ASSOCIATION_MODE) {
@@ -334,13 +329,15 @@ export class VisualIconsTableComponent implements OnInit {
                 Name: sourceInstance["Name"] + "-" + visualicon.Name,
               }
 
-              let index = associationInstance[this.dialogData.IntermediateStructField+"ID" as keyof typeof associationInstance] as unknown as NullInt64
+              let index = associationInstance[this.dialogData.IntermediateStructField + "ID" as keyof typeof associationInstance] as unknown as NullInt64
               index.Int64 = visualicon.ID
+              index.Valid = true
 
-              let indexDB = associationInstance[this.dialogData.IntermediateStructField+"DBID" as keyof typeof associationInstance] as unknown as NullInt64
+              let indexDB = associationInstance[this.dialogData.IntermediateStructField + "DBID" as keyof typeof associationInstance] as unknown as NullInt64
               indexDB.Int64 = visualicon.ID
+              index.Valid = true
 
-              this.frontRepoService.postService( this.dialogData.IntermediateStruct, associationInstance )
+              this.frontRepoService.postService(this.dialogData.IntermediateStruct, associationInstance)
 
             } else {
               // console.log("visualicon " + visualicon.Name + " is still selected")

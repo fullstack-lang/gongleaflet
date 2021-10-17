@@ -263,6 +263,7 @@ func (backRepoVisualCenter *BackRepoVisualCenterStruct) CommitPhaseTwoInstance(b
 		if visualcenter.VisualLayer != nil {
 			if VisualLayerId, ok := (*backRepo.BackRepoVisualLayer.Map_VisualLayerPtr_VisualLayerDBID)[visualcenter.VisualLayer]; ok {
 				visualcenterDB.VisualLayerID.Int64 = int64(VisualLayerId)
+				visualcenterDB.VisualLayerID.Valid = true
 			}
 		}
 
@@ -271,6 +272,7 @@ func (backRepoVisualCenter *BackRepoVisualCenterStruct) CommitPhaseTwoInstance(b
 		if visualcenter.VisualIcon != nil {
 			if VisualIconId, ok := (*backRepo.BackRepoVisualIcon.Map_VisualIconPtr_VisualIconDBID)[visualcenter.VisualIcon]; ok {
 				visualcenterDB.VisualIconID.Int64 = int64(VisualIconId)
+				visualcenterDB.VisualIconID.Valid = true
 			}
 		}
 
@@ -582,11 +584,13 @@ func (backRepoVisualCenter *BackRepoVisualCenterStruct) RestorePhaseTwo() {
 		// reindexing VisualLayer field
 		if visualcenterDB.VisualLayerID.Int64 != 0 {
 			visualcenterDB.VisualLayerID.Int64 = int64(BackRepoVisualLayerid_atBckpTime_newID[uint(visualcenterDB.VisualLayerID.Int64)])
+			visualcenterDB.VisualLayerID.Valid = true
 		}
 
 		// reindexing VisualIcon field
 		if visualcenterDB.VisualIconID.Int64 != 0 {
 			visualcenterDB.VisualIconID.Int64 = int64(BackRepoVisualIconid_atBckpTime_newID[uint(visualcenterDB.VisualIconID.Int64)])
+			visualcenterDB.VisualIconID.Valid = true
 		}
 
 		// update databse with new index encoding

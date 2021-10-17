@@ -271,6 +271,7 @@ func (backRepoVisualCircle *BackRepoVisualCircleStruct) CommitPhaseTwoInstance(b
 		if visualcircle.VisualLayer != nil {
 			if VisualLayerId, ok := (*backRepo.BackRepoVisualLayer.Map_VisualLayerPtr_VisualLayerDBID)[visualcircle.VisualLayer]; ok {
 				visualcircleDB.VisualLayerID.Int64 = int64(VisualLayerId)
+				visualcircleDB.VisualLayerID.Valid = true
 			}
 		}
 
@@ -594,6 +595,7 @@ func (backRepoVisualCircle *BackRepoVisualCircleStruct) RestorePhaseTwo() {
 		// reindexing VisualLayer field
 		if visualcircleDB.VisualLayerID.Int64 != 0 {
 			visualcircleDB.VisualLayerID.Int64 = int64(BackRepoVisualLayerid_atBckpTime_newID[uint(visualcircleDB.VisualLayerID.Int64)])
+			visualcircleDB.VisualLayerID.Valid = true
 		}
 
 		// update databse with new index encoding

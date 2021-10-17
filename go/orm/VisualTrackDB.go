@@ -308,6 +308,7 @@ func (backRepoVisualTrack *BackRepoVisualTrackStruct) CommitPhaseTwoInstance(bac
 		if visualtrack.VisualLayer != nil {
 			if VisualLayerId, ok := (*backRepo.BackRepoVisualLayer.Map_VisualLayerPtr_VisualLayerDBID)[visualtrack.VisualLayer]; ok {
 				visualtrackDB.VisualLayerID.Int64 = int64(VisualLayerId)
+				visualtrackDB.VisualLayerID.Valid = true
 			}
 		}
 
@@ -316,6 +317,7 @@ func (backRepoVisualTrack *BackRepoVisualTrackStruct) CommitPhaseTwoInstance(bac
 		if visualtrack.VisualIcon != nil {
 			if VisualIconId, ok := (*backRepo.BackRepoVisualIcon.Map_VisualIconPtr_VisualIconDBID)[visualtrack.VisualIcon]; ok {
 				visualtrackDB.VisualIconID.Int64 = int64(VisualIconId)
+				visualtrackDB.VisualIconID.Valid = true
 			}
 		}
 
@@ -683,11 +685,13 @@ func (backRepoVisualTrack *BackRepoVisualTrackStruct) RestorePhaseTwo() {
 		// reindexing VisualLayer field
 		if visualtrackDB.VisualLayerID.Int64 != 0 {
 			visualtrackDB.VisualLayerID.Int64 = int64(BackRepoVisualLayerid_atBckpTime_newID[uint(visualtrackDB.VisualLayerID.Int64)])
+			visualtrackDB.VisualLayerID.Valid = true
 		}
 
 		// reindexing VisualIcon field
 		if visualtrackDB.VisualIconID.Int64 != 0 {
 			visualtrackDB.VisualIconID.Int64 = int64(BackRepoVisualIconid_atBckpTime_newID[uint(visualtrackDB.VisualIconID.Int64)])
+			visualtrackDB.VisualIconID.Valid = true
 		}
 
 		// update databse with new index encoding

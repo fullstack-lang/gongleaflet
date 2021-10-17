@@ -231,16 +231,14 @@ export class VisualTracksTableComponent implements OnInit {
 
         // in case the component is called as a selection component
         if (this.mode == TableComponentMode.ONE_MANY_ASSOCIATION_MODE) {
-          this.visualtracks.forEach(
-            visualtrack => {
-              let ID = this.dialogData.ID
-              let revPointer = visualtrack[this.dialogData.ReversePointer as keyof VisualTrackDB] as unknown as NullInt64
-              if (revPointer.Int64 == ID) {
-                this.initialSelection.push(visualtrack)
-              }
+          for (let visualtrack of this.visualtracks) {
+            let ID = this.dialogData.ID
+            let revPointer = visualtrack[this.dialogData.ReversePointer as keyof VisualTrackDB] as unknown as NullInt64
+            if (revPointer.Int64 == ID) {
+              this.initialSelection.push(visualtrack)
             }
-          )
-          this.selection = new SelectionModel<VisualTrackDB>(allowMultiSelect, this.initialSelection);
+            this.selection = new SelectionModel<VisualTrackDB>(allowMultiSelect, this.initialSelection);
+          }
         }
 
         if (this.mode == TableComponentMode.MANY_MANY_ASSOCIATION_MODE) {
@@ -327,34 +325,31 @@ export class VisualTracksTableComponent implements OnInit {
       let toUpdate = new Set<VisualTrackDB>()
 
       // reset all initial selection of visualtrack that belong to visualtrack
-      this.initialSelection.forEach(
-        visualtrack => {
-          let index = visualtrack[this.dialogData.ReversePointer as keyof VisualTrackDB] as unknown as NullInt64
-          index.Int64 = 0
-          index.Valid = true
-          toUpdate.add(visualtrack)
-        }
-      )
+      for (let visualtrack of this.initialSelection) {
+        let index = visualtrack[this.dialogData.ReversePointer as keyof VisualTrackDB] as unknown as NullInt64
+        index.Int64 = 0
+        index.Valid = true
+        toUpdate.add(visualtrack)
+
+      }
 
       // from selection, set visualtrack that belong to visualtrack
-      this.selection.selected.forEach(
-        visualtrack => {
-          let ID = this.dialogData.ID as number
-          let reversePointer = visualtrack[this.dialogData.ReversePointer  as keyof VisualTrackDB] as unknown as NullInt64
-          reversePointer.Int64 = ID
-          toUpdate.add(visualtrack)
-        }
-      )
+      for (let visualtrack of this.selection.selected) {
+        let ID = this.dialogData.ID as number
+        let reversePointer = visualtrack[this.dialogData.ReversePointer as keyof VisualTrackDB] as unknown as NullInt64
+        reversePointer.Int64 = ID
+        reversePointer.Valid = true
+        toUpdate.add(visualtrack)
+      }
+
 
       // update all visualtrack (only update selection & initial selection)
-      toUpdate.forEach(
-        visualtrack => {
-          this.visualtrackService.updateVisualTrack(visualtrack)
-            .subscribe(visualtrack => {
-              this.visualtrackService.VisualTrackServiceChanged.next("update")
-            });
-        }
-      )
+      for (let visualtrack of toUpdate) {
+        this.visualtrackService.updateVisualTrack(visualtrack)
+          .subscribe(visualtrack => {
+            this.visualtrackService.VisualTrackServiceChanged.next("update")
+          });
+      }
     }
 
     if (this.mode == TableComponentMode.MANY_MANY_ASSOCIATION_MODE) {
@@ -401,13 +396,15 @@ export class VisualTracksTableComponent implements OnInit {
                 Name: sourceInstance["Name"] + "-" + visualtrack.Name,
               }
 
-              let index = associationInstance[this.dialogData.IntermediateStructField+"ID" as keyof typeof associationInstance] as unknown as NullInt64
+              let index = associationInstance[this.dialogData.IntermediateStructField + "ID" as keyof typeof associationInstance] as unknown as NullInt64
               index.Int64 = visualtrack.ID
+              index.Valid = true
 
-              let indexDB = associationInstance[this.dialogData.IntermediateStructField+"DBID" as keyof typeof associationInstance] as unknown as NullInt64
+              let indexDB = associationInstance[this.dialogData.IntermediateStructField + "DBID" as keyof typeof associationInstance] as unknown as NullInt64
               indexDB.Int64 = visualtrack.ID
+              index.Valid = true
 
-              this.frontRepoService.postService( this.dialogData.IntermediateStruct, associationInstance )
+              this.frontRepoService.postService(this.dialogData.IntermediateStruct, associationInstance)
 
             } else {
               // console.log("visualtrack " + visualtrack.Name + " is still selected")

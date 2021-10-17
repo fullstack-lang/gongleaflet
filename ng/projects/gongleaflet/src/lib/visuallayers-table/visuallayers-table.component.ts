@@ -164,16 +164,14 @@ export class VisualLayersTableComponent implements OnInit {
 
         // in case the component is called as a selection component
         if (this.mode == TableComponentMode.ONE_MANY_ASSOCIATION_MODE) {
-          this.visuallayers.forEach(
-            visuallayer => {
-              let ID = this.dialogData.ID
-              let revPointer = visuallayer[this.dialogData.ReversePointer as keyof VisualLayerDB] as unknown as NullInt64
-              if (revPointer.Int64 == ID) {
-                this.initialSelection.push(visuallayer)
-              }
+          for (let visuallayer of this.visuallayers) {
+            let ID = this.dialogData.ID
+            let revPointer = visuallayer[this.dialogData.ReversePointer as keyof VisualLayerDB] as unknown as NullInt64
+            if (revPointer.Int64 == ID) {
+              this.initialSelection.push(visuallayer)
             }
-          )
-          this.selection = new SelectionModel<VisualLayerDB>(allowMultiSelect, this.initialSelection);
+            this.selection = new SelectionModel<VisualLayerDB>(allowMultiSelect, this.initialSelection);
+          }
         }
 
         if (this.mode == TableComponentMode.MANY_MANY_ASSOCIATION_MODE) {
@@ -260,34 +258,31 @@ export class VisualLayersTableComponent implements OnInit {
       let toUpdate = new Set<VisualLayerDB>()
 
       // reset all initial selection of visuallayer that belong to visuallayer
-      this.initialSelection.forEach(
-        visuallayer => {
-          let index = visuallayer[this.dialogData.ReversePointer as keyof VisualLayerDB] as unknown as NullInt64
-          index.Int64 = 0
-          index.Valid = true
-          toUpdate.add(visuallayer)
-        }
-      )
+      for (let visuallayer of this.initialSelection) {
+        let index = visuallayer[this.dialogData.ReversePointer as keyof VisualLayerDB] as unknown as NullInt64
+        index.Int64 = 0
+        index.Valid = true
+        toUpdate.add(visuallayer)
+
+      }
 
       // from selection, set visuallayer that belong to visuallayer
-      this.selection.selected.forEach(
-        visuallayer => {
-          let ID = this.dialogData.ID as number
-          let reversePointer = visuallayer[this.dialogData.ReversePointer  as keyof VisualLayerDB] as unknown as NullInt64
-          reversePointer.Int64 = ID
-          toUpdate.add(visuallayer)
-        }
-      )
+      for (let visuallayer of this.selection.selected) {
+        let ID = this.dialogData.ID as number
+        let reversePointer = visuallayer[this.dialogData.ReversePointer as keyof VisualLayerDB] as unknown as NullInt64
+        reversePointer.Int64 = ID
+        reversePointer.Valid = true
+        toUpdate.add(visuallayer)
+      }
+
 
       // update all visuallayer (only update selection & initial selection)
-      toUpdate.forEach(
-        visuallayer => {
-          this.visuallayerService.updateVisualLayer(visuallayer)
-            .subscribe(visuallayer => {
-              this.visuallayerService.VisualLayerServiceChanged.next("update")
-            });
-        }
-      )
+      for (let visuallayer of toUpdate) {
+        this.visuallayerService.updateVisualLayer(visuallayer)
+          .subscribe(visuallayer => {
+            this.visuallayerService.VisualLayerServiceChanged.next("update")
+          });
+      }
     }
 
     if (this.mode == TableComponentMode.MANY_MANY_ASSOCIATION_MODE) {
@@ -334,13 +329,15 @@ export class VisualLayersTableComponent implements OnInit {
                 Name: sourceInstance["Name"] + "-" + visuallayer.Name,
               }
 
-              let index = associationInstance[this.dialogData.IntermediateStructField+"ID" as keyof typeof associationInstance] as unknown as NullInt64
+              let index = associationInstance[this.dialogData.IntermediateStructField + "ID" as keyof typeof associationInstance] as unknown as NullInt64
               index.Int64 = visuallayer.ID
+              index.Valid = true
 
-              let indexDB = associationInstance[this.dialogData.IntermediateStructField+"DBID" as keyof typeof associationInstance] as unknown as NullInt64
+              let indexDB = associationInstance[this.dialogData.IntermediateStructField + "DBID" as keyof typeof associationInstance] as unknown as NullInt64
               indexDB.Int64 = visuallayer.ID
+              index.Valid = true
 
-              this.frontRepoService.postService( this.dialogData.IntermediateStruct, associationInstance )
+              this.frontRepoService.postService(this.dialogData.IntermediateStruct, associationInstance)
 
             } else {
               // console.log("visuallayer " + visuallayer.Name + " is still selected")

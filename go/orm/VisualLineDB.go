@@ -301,6 +301,7 @@ func (backRepoVisualLine *BackRepoVisualLineStruct) CommitPhaseTwoInstance(backR
 		if visualline.VisualLayer != nil {
 			if VisualLayerId, ok := (*backRepo.BackRepoVisualLayer.Map_VisualLayerPtr_VisualLayerDBID)[visualline.VisualLayer]; ok {
 				visuallineDB.VisualLayerID.Int64 = int64(VisualLayerId)
+				visuallineDB.VisualLayerID.Valid = true
 			}
 		}
 
@@ -664,6 +665,7 @@ func (backRepoVisualLine *BackRepoVisualLineStruct) RestorePhaseTwo() {
 		// reindexing VisualLayer field
 		if visuallineDB.VisualLayerID.Int64 != 0 {
 			visuallineDB.VisualLayerID.Int64 = int64(BackRepoVisualLayerid_atBckpTime_newID[uint(visuallineDB.VisualLayerID.Int64)])
+			visuallineDB.VisualLayerID.Valid = true
 		}
 
 		// update databse with new index encoding

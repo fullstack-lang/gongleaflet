@@ -226,16 +226,14 @@ export class VisualLinesTableComponent implements OnInit {
 
         // in case the component is called as a selection component
         if (this.mode == TableComponentMode.ONE_MANY_ASSOCIATION_MODE) {
-          this.visuallines.forEach(
-            visualline => {
-              let ID = this.dialogData.ID
-              let revPointer = visualline[this.dialogData.ReversePointer as keyof VisualLineDB] as unknown as NullInt64
-              if (revPointer.Int64 == ID) {
-                this.initialSelection.push(visualline)
-              }
+          for (let visualline of this.visuallines) {
+            let ID = this.dialogData.ID
+            let revPointer = visualline[this.dialogData.ReversePointer as keyof VisualLineDB] as unknown as NullInt64
+            if (revPointer.Int64 == ID) {
+              this.initialSelection.push(visualline)
             }
-          )
-          this.selection = new SelectionModel<VisualLineDB>(allowMultiSelect, this.initialSelection);
+            this.selection = new SelectionModel<VisualLineDB>(allowMultiSelect, this.initialSelection);
+          }
         }
 
         if (this.mode == TableComponentMode.MANY_MANY_ASSOCIATION_MODE) {
@@ -322,34 +320,31 @@ export class VisualLinesTableComponent implements OnInit {
       let toUpdate = new Set<VisualLineDB>()
 
       // reset all initial selection of visualline that belong to visualline
-      this.initialSelection.forEach(
-        visualline => {
-          let index = visualline[this.dialogData.ReversePointer as keyof VisualLineDB] as unknown as NullInt64
-          index.Int64 = 0
-          index.Valid = true
-          toUpdate.add(visualline)
-        }
-      )
+      for (let visualline of this.initialSelection) {
+        let index = visualline[this.dialogData.ReversePointer as keyof VisualLineDB] as unknown as NullInt64
+        index.Int64 = 0
+        index.Valid = true
+        toUpdate.add(visualline)
+
+      }
 
       // from selection, set visualline that belong to visualline
-      this.selection.selected.forEach(
-        visualline => {
-          let ID = this.dialogData.ID as number
-          let reversePointer = visualline[this.dialogData.ReversePointer  as keyof VisualLineDB] as unknown as NullInt64
-          reversePointer.Int64 = ID
-          toUpdate.add(visualline)
-        }
-      )
+      for (let visualline of this.selection.selected) {
+        let ID = this.dialogData.ID as number
+        let reversePointer = visualline[this.dialogData.ReversePointer as keyof VisualLineDB] as unknown as NullInt64
+        reversePointer.Int64 = ID
+        reversePointer.Valid = true
+        toUpdate.add(visualline)
+      }
+
 
       // update all visualline (only update selection & initial selection)
-      toUpdate.forEach(
-        visualline => {
-          this.visuallineService.updateVisualLine(visualline)
-            .subscribe(visualline => {
-              this.visuallineService.VisualLineServiceChanged.next("update")
-            });
-        }
-      )
+      for (let visualline of toUpdate) {
+        this.visuallineService.updateVisualLine(visualline)
+          .subscribe(visualline => {
+            this.visuallineService.VisualLineServiceChanged.next("update")
+          });
+      }
     }
 
     if (this.mode == TableComponentMode.MANY_MANY_ASSOCIATION_MODE) {
@@ -396,13 +391,15 @@ export class VisualLinesTableComponent implements OnInit {
                 Name: sourceInstance["Name"] + "-" + visualline.Name,
               }
 
-              let index = associationInstance[this.dialogData.IntermediateStructField+"ID" as keyof typeof associationInstance] as unknown as NullInt64
+              let index = associationInstance[this.dialogData.IntermediateStructField + "ID" as keyof typeof associationInstance] as unknown as NullInt64
               index.Int64 = visualline.ID
+              index.Valid = true
 
-              let indexDB = associationInstance[this.dialogData.IntermediateStructField+"DBID" as keyof typeof associationInstance] as unknown as NullInt64
+              let indexDB = associationInstance[this.dialogData.IntermediateStructField + "DBID" as keyof typeof associationInstance] as unknown as NullInt64
               indexDB.Int64 = visualline.ID
+              index.Valid = true
 
-              this.frontRepoService.postService( this.dialogData.IntermediateStruct, associationInstance )
+              this.frontRepoService.postService(this.dialogData.IntermediateStruct, associationInstance)
 
             } else {
               // console.log("visualline " + visualline.Name + " is still selected")
