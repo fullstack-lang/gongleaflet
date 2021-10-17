@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { combineLatest, timer, Observable } from 'rxjs';
 
@@ -20,6 +20,9 @@ export const DEFAULT_ICON_SIZE = 60
   styleUrls: ['./cartoatc.component.scss'],
 })
 export class CartoatcComponent implements OnInit {
+
+  @Input() mapName!: number
+
   mapOptions: any = null;
   visualLayers: L.Layer[] = [];
   visualTracksHistory: L.Layer[] = [];
@@ -52,6 +55,9 @@ export class CartoatcComponent implements OnInit {
   }
 
   ngOnInit(): void {
+
+    console.log("map name " + this.mapName)
+
     combineLatest([this.frontRepo.pull()]).subscribe(([frontRepo]) => {
       this.visualCenters = Array.from(frontRepo.VisualCenters.values());
       this.mapOptions = manageLeafletItems.setMapOptions(
