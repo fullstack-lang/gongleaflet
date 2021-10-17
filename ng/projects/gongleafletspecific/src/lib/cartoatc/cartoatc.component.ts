@@ -21,7 +21,7 @@ export const DEFAULT_ICON_SIZE = 60
 })
 export class CartoatcComponent implements OnInit {
 
-  @Input() mapName!: number
+  @Input() mapName!: string
 
   mapOptions: any = null;
   visualLayers: L.Layer[] = [];
