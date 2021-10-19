@@ -62,6 +62,9 @@ export class VisualLinesTableComponent implements OnInit {
     // enable sorting on all fields (including pointers and reverse pointer)
     this.matTableDataSource.sortingDataAccessor = (visuallineDB: VisualLineDB, property: string) => {
       switch (property) {
+        case 'ID':
+          return visuallineDB.ID
+
         // insertion point for specific sorting accessor
         case 'StartLat':
           return visuallineDB.StartLat;

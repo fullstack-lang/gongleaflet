@@ -62,6 +62,9 @@ export class VisualCirclesTableComponent implements OnInit {
     // enable sorting on all fields (including pointers and reverse pointer)
     this.matTableDataSource.sortingDataAccessor = (visualcircleDB: VisualCircleDB, property: string) => {
       switch (property) {
+        case 'ID':
+          return visualcircleDB.ID
+
         // insertion point for specific sorting accessor
         case 'Lat':
           return visualcircleDB.Lat;

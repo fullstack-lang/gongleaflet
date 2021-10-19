@@ -62,6 +62,9 @@ export class VisualTracksTableComponent implements OnInit {
     // enable sorting on all fields (including pointers and reverse pointer)
     this.matTableDataSource.sortingDataAccessor = (visualtrackDB: VisualTrackDB, property: string) => {
       switch (property) {
+        case 'ID':
+          return visualtrackDB.ID
+
         // insertion point for specific sorting accessor
         case 'Lat':
           return visualtrackDB.Lat;

@@ -62,6 +62,9 @@ export class VisualMapsTableComponent implements OnInit {
     // enable sorting on all fields (including pointers and reverse pointer)
     this.matTableDataSource.sortingDataAccessor = (visualmapDB: VisualMapDB, property: string) => {
       switch (property) {
+        case 'ID':
+          return visualmapDB.ID
+
         // insertion point for specific sorting accessor
         case 'Lat':
           return visualmapDB.Lat;

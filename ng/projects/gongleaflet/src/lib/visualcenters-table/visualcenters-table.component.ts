@@ -62,6 +62,9 @@ export class VisualCentersTableComponent implements OnInit {
     // enable sorting on all fields (including pointers and reverse pointer)
     this.matTableDataSource.sortingDataAccessor = (visualcenterDB: VisualCenterDB, property: string) => {
       switch (property) {
+        case 'ID':
+          return visualcenterDB.ID
+
         // insertion point for specific sorting accessor
         case 'Lat':
           return visualcenterDB.Lat;

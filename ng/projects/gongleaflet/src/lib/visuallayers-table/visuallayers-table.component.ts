@@ -62,6 +62,9 @@ export class VisualLayersTableComponent implements OnInit {
     // enable sorting on all fields (including pointers and reverse pointer)
     this.matTableDataSource.sortingDataAccessor = (visuallayerDB: VisualLayerDB, property: string) => {
       switch (property) {
+        case 'ID':
+          return visuallayerDB.ID
+
         // insertion point for specific sorting accessor
         case 'Name':
           return visuallayerDB.Name;
