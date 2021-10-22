@@ -11,7 +11,6 @@ import { MapOfSortingComponents } from '../map-components'
 
 // insertion point for imports
 import { VisualColorEnumSelect, VisualColorEnumList } from '../VisualColorEnum'
-import { VisualMapDB } from '../visualmap-db'
 
 import { Router, RouterState, ActivatedRoute } from '@angular/router';
 
@@ -25,7 +24,6 @@ enum VisualTrackDetailComponentState {
 	CREATE_INSTANCE,
 	UPDATE_INSTANCE,
 	// insertion point for declarations of enum values of state
-	CREATE_INSTANCE_WITH_ASSOCIATION_VisualMap_VisualTracks_SET,
 }
 
 @Component({
@@ -88,10 +86,6 @@ export class VisualTrackDetailComponent implements OnInit {
 			} else {
 				switch (this.originStructFieldName) {
 					// insertion point for state computation
-					case "VisualTracks":
-						// console.log("VisualTrack" + " is instanciated with back pointer to instance " + this.id + " VisualMap association VisualTracks")
-						this.state = VisualTrackDetailComponentState.CREATE_INSTANCE_WITH_ASSOCIATION_VisualMap_VisualTracks_SET
-						break;
 					default:
 						console.log(this.originStructFieldName + " is unkown association")
 				}
@@ -129,10 +123,6 @@ export class VisualTrackDetailComponent implements OnInit {
 						this.visualtrack = visualtrack!
 						break;
 					// insertion point for init of association field
-					case VisualTrackDetailComponentState.CREATE_INSTANCE_WITH_ASSOCIATION_VisualMap_VisualTracks_SET:
-						this.visualtrack = new (VisualTrackDB)
-						this.visualtrack.VisualMap_VisualTracks_reverse = frontRepo.VisualMaps.get(this.id)!
-						break;
 					default:
 						console.log(this.state + " is unkown state")
 				}
@@ -180,18 +170,6 @@ export class VisualTrackDetailComponent implements OnInit {
 		// save from the front pointer space to the non pointer space for serialization
 
 		// insertion point for translation/nullation of each pointers
-		if (this.visualtrack.VisualMap_VisualTracks_reverse != undefined) {
-			if (this.visualtrack.VisualMap_VisualTracksDBID == undefined) {
-				this.visualtrack.VisualMap_VisualTracksDBID = new NullInt64
-			}
-			this.visualtrack.VisualMap_VisualTracksDBID.Int64 = this.visualtrack.VisualMap_VisualTracks_reverse.ID
-			this.visualtrack.VisualMap_VisualTracksDBID.Valid = true
-			if (this.visualtrack.VisualMap_VisualTracksDBID_Index == undefined) {
-				this.visualtrack.VisualMap_VisualTracksDBID_Index = new NullInt64
-			}
-			this.visualtrack.VisualMap_VisualTracksDBID_Index.Valid = true
-			this.visualtrack.VisualMap_VisualTracks_reverse = new VisualMapDB // very important, otherwise, circular JSON
-		}
 
 		switch (this.state) {
 			case VisualTrackDetailComponentState.UPDATE_INSTANCE:

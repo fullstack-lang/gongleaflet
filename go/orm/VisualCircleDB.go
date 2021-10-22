@@ -49,11 +49,6 @@ type VisualCirclePointersEnconding struct {
 	// This field is generated into another field to enable AS ONE association
 	VisualLayerID sql.NullInt64
 
-	// Implementation of a reverse ID for field VisualMap{}.VisualCircles []*VisualCircle
-	VisualMap_VisualCirclesDBID sql.NullInt64
-
-	// implementation of the index of the withing the slice
-	VisualMap_VisualCirclesDBID_Index sql.NullInt64
 }
 
 // VisualCircleDB describes a visualcircle in the database
@@ -601,12 +596,6 @@ func (backRepoVisualCircle *BackRepoVisualCircleStruct) RestorePhaseTwo() {
 		if visualcircleDB.VisualLayerID.Int64 != 0 {
 			visualcircleDB.VisualLayerID.Int64 = int64(BackRepoVisualLayerid_atBckpTime_newID[uint(visualcircleDB.VisualLayerID.Int64)])
 			visualcircleDB.VisualLayerID.Valid = true
-		}
-
-		// This reindex visualcircle.VisualCircles
-		if visualcircleDB.VisualMap_VisualCirclesDBID.Int64 != 0 {
-			visualcircleDB.VisualMap_VisualCirclesDBID.Int64 =
-				int64(BackRepoVisualMapid_atBckpTime_newID[uint(visualcircleDB.VisualMap_VisualCirclesDBID.Int64)])
 		}
 
 		// update databse with new index encoding

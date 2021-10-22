@@ -1,7 +1,6 @@
 // insertion point for imports
 import { VisualLayerDB } from './visuallayer-db'
 import { VisualIconDB } from './visualicon-db'
-import { VisualMapDB } from './visualmap-db'
 
 // usefull for managing pointer ID values that can be nullable
 import { NullInt64 } from './null-int64'
@@ -23,9 +22,5 @@ export class VisualCenterDB {
 
 	VisualIcon?: VisualIconDB
 	VisualIconID: NullInt64 = new NullInt64 // if pointer is null, VisualIcon.ID = 0
-
-	VisualMap_VisualCentersDBID: NullInt64 = new NullInt64
-	VisualMap_VisualCentersDBID_Index: NullInt64  = new NullInt64 // store the index of the visualcenter instance in VisualMap.VisualCenters
-	VisualMap_VisualCenters_reverse?: VisualMapDB 
 
 }

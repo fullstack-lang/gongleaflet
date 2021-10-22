@@ -16,7 +16,6 @@ import { VisualCenterDB } from './visualcenter-db';
 // insertion point for imports
 import { VisualLayerDB } from './visuallayer-db'
 import { VisualIconDB } from './visualicon-db'
-import { VisualMapDB } from './visualmap-db'
 
 @Injectable({
   providedIn: 'root'
@@ -75,13 +74,10 @@ export class VisualCenterService {
     // insertion point for reset of pointers and reverse pointers (to avoid circular JSON)
     visualcenterdb.VisualLayer = new VisualLayerDB
     visualcenterdb.VisualIcon = new VisualIconDB
-    let _VisualMap_VisualCenters_reverse = visualcenterdb.VisualMap_VisualCenters_reverse
-    visualcenterdb.VisualMap_VisualCenters_reverse = new VisualMapDB
 
     return this.http.post<VisualCenterDB>(this.visualcentersUrl, visualcenterdb, this.httpOptions).pipe(
       tap(_ => {
         // insertion point for restoration of reverse pointers
-        visualcenterdb.VisualMap_VisualCenters_reverse = _VisualMap_VisualCenters_reverse
         this.log(`posted visualcenterdb id=${visualcenterdb.ID}`)
       }),
       catchError(this.handleError<VisualCenterDB>('postVisualCenter'))
@@ -107,13 +103,10 @@ export class VisualCenterService {
     // insertion point for reset of pointers and reverse pointers (to avoid circular JSON)
     visualcenterdb.VisualLayer = new VisualLayerDB
     visualcenterdb.VisualIcon = new VisualIconDB
-    let _VisualMap_VisualCenters_reverse = visualcenterdb.VisualMap_VisualCenters_reverse
-    visualcenterdb.VisualMap_VisualCenters_reverse = new VisualMapDB
 
     return this.http.put<VisualCenterDB>(url, visualcenterdb, this.httpOptions).pipe(
       tap(_ => {
         // insertion point for restoration of reverse pointers
-        visualcenterdb.VisualMap_VisualCenters_reverse = _VisualMap_VisualCenters_reverse
         this.log(`updated visualcenterdb id=${visualcenterdb.ID}`)
       }),
       catchError(this.handleError<VisualCenterDB>('updateVisualCenter'))

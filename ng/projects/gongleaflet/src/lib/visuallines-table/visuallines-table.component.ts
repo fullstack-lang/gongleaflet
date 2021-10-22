@@ -102,9 +102,6 @@ export class VisualLinesTableComponent implements OnInit {
         case 'MessageBackward':
           return visuallineDB.MessageBackward;
 
-        case 'VisualMap_VisualLines':
-          return this.frontRepo.VisualMaps.get(visuallineDB.VisualMap_VisualLinesDBID.Int64)!.Name;
-
         default:
           console.assert(false, "Unknown field")
           return "";
@@ -133,10 +130,6 @@ export class VisualLinesTableComponent implements OnInit {
       mergedContent += visuallineDB.Message.toLowerCase()
       mergedContent += visuallineDB.IsTransmittingBackward.toLowerCase()
       mergedContent += visuallineDB.MessageBackward.toLowerCase()
-      if (visuallineDB.VisualMap_VisualLinesDBID.Int64 != 0) {
-        mergedContent += this.frontRepo.VisualMaps.get(visuallineDB.VisualMap_VisualLinesDBID.Int64)!.Name.toLowerCase()
-      }
-
 
       let isSelected = mergedContent.includes(filter.toLowerCase())
       return isSelected
@@ -199,7 +192,6 @@ export class VisualLinesTableComponent implements OnInit {
         "Message",
         "IsTransmittingBackward",
         "MessageBackward",
-        "VisualMap_VisualLines",
       ]
     } else {
       this.displayedColumns = ['select', 'ID', // insertion point for columns to display
@@ -215,7 +207,6 @@ export class VisualLinesTableComponent implements OnInit {
         "Message",
         "IsTransmittingBackward",
         "MessageBackward",
-        "VisualMap_VisualLines",
       ]
       this.selection = new SelectionModel<VisualLineDB>(allowMultiSelect, this.initialSelection);
     }

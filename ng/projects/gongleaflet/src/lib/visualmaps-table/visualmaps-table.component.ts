@@ -94,7 +94,7 @@ export class VisualMapsTableComponent implements OnInit {
           return visualmapDB.AttributionControl?"true":"false";
 
         case 'ZoomSnap':
-          return visualmapDB.ZoomSnap?"true":"false";
+          return visualmapDB.ZoomSnap;
 
         default:
           console.assert(false, "Unknown field")
@@ -117,6 +117,7 @@ export class VisualMapsTableComponent implements OnInit {
       mergedContent += visualmapDB.UrlTemplate.toLowerCase()
       mergedContent += visualmapDB.Attribution.toLowerCase()
       mergedContent += visualmapDB.MaxZoom.toString()
+      mergedContent += visualmapDB.ZoomSnap.toString()
 
       let isSelected = mergedContent.includes(filter.toLowerCase())
       return isSelected

@@ -15,7 +15,6 @@ import { VisualCircleDB } from './visualcircle-db';
 
 // insertion point for imports
 import { VisualLayerDB } from './visuallayer-db'
-import { VisualMapDB } from './visualmap-db'
 
 @Injectable({
   providedIn: 'root'
@@ -73,13 +72,10 @@ export class VisualCircleService {
 
     // insertion point for reset of pointers and reverse pointers (to avoid circular JSON)
     visualcircledb.VisualLayer = new VisualLayerDB
-    let _VisualMap_VisualCircles_reverse = visualcircledb.VisualMap_VisualCircles_reverse
-    visualcircledb.VisualMap_VisualCircles_reverse = new VisualMapDB
 
     return this.http.post<VisualCircleDB>(this.visualcirclesUrl, visualcircledb, this.httpOptions).pipe(
       tap(_ => {
         // insertion point for restoration of reverse pointers
-        visualcircledb.VisualMap_VisualCircles_reverse = _VisualMap_VisualCircles_reverse
         this.log(`posted visualcircledb id=${visualcircledb.ID}`)
       }),
       catchError(this.handleError<VisualCircleDB>('postVisualCircle'))
@@ -104,13 +100,10 @@ export class VisualCircleService {
 
     // insertion point for reset of pointers and reverse pointers (to avoid circular JSON)
     visualcircledb.VisualLayer = new VisualLayerDB
-    let _VisualMap_VisualCircles_reverse = visualcircledb.VisualMap_VisualCircles_reverse
-    visualcircledb.VisualMap_VisualCircles_reverse = new VisualMapDB
 
     return this.http.put<VisualCircleDB>(url, visualcircledb, this.httpOptions).pipe(
       tap(_ => {
         // insertion point for restoration of reverse pointers
-        visualcircledb.VisualMap_VisualCircles_reverse = _VisualMap_VisualCircles_reverse
         this.log(`updated visualcircledb id=${visualcircledb.ID}`)
       }),
       catchError(this.handleError<VisualCircleDB>('updateVisualCircle'))

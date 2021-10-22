@@ -135,15 +135,6 @@
         <textarea name="" [ngModelOptions]="{standalone: true}" matInput [(ngModel)]="visualline.MessageBackward"></textarea>
     </mat-form-field>
 
-    <mat-form-field class="detail-full-width">
-        <mat-label>(VisualMap) VisualLines</mat-label>
-        <mat-select [compareWith]="compareObjects" [(ngModel)]="visualline.VisualMap_VisualLines_reverse" [ngModelOptions]="{standalone: true}">
-            <mat-option>None</mat-option>
-            <mat-option *ngFor="let visualmap of frontRepo.VisualMaps_array" [value]="visualmap">
-                {{visualmap.Name}}
-            </mat-option>
-        </mat-select>
-    </mat-form-field>
     <div class="details__save">
         <button mat-raised-button color="primary" (click)="save()">
             Save visualline

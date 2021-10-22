@@ -85,7 +85,7 @@
         <ng-container matColumnDef="ZoomSnap">
             <th mat-header-cell *matHeaderCellDef mat-sort-header> ZoomSnap </th>
             <td mat-cell *matCellDef="let VisualMap">
-                <mat-checkbox [checked]="VisualMap.ZoomSnap" disabled=true></mat-checkbox>
+                {{VisualMap.ZoomSnap}}
             </td>
         </ng-container>
 

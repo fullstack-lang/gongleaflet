@@ -15,7 +15,6 @@ import { VisualLineDB } from './visualline-db';
 
 // insertion point for imports
 import { VisualLayerDB } from './visuallayer-db'
-import { VisualMapDB } from './visualmap-db'
 
 @Injectable({
   providedIn: 'root'
@@ -73,13 +72,10 @@ export class VisualLineService {
 
     // insertion point for reset of pointers and reverse pointers (to avoid circular JSON)
     visuallinedb.VisualLayer = new VisualLayerDB
-    let _VisualMap_VisualLines_reverse = visuallinedb.VisualMap_VisualLines_reverse
-    visuallinedb.VisualMap_VisualLines_reverse = new VisualMapDB
 
     return this.http.post<VisualLineDB>(this.visuallinesUrl, visuallinedb, this.httpOptions).pipe(
       tap(_ => {
         // insertion point for restoration of reverse pointers
-        visuallinedb.VisualMap_VisualLines_reverse = _VisualMap_VisualLines_reverse
         this.log(`posted visuallinedb id=${visuallinedb.ID}`)
       }),
       catchError(this.handleError<VisualLineDB>('postVisualLine'))
@@ -104,13 +100,10 @@ export class VisualLineService {
 
     // insertion point for reset of pointers and reverse pointers (to avoid circular JSON)
     visuallinedb.VisualLayer = new VisualLayerDB
-    let _VisualMap_VisualLines_reverse = visuallinedb.VisualMap_VisualLines_reverse
-    visuallinedb.VisualMap_VisualLines_reverse = new VisualMapDB
 
     return this.http.put<VisualLineDB>(url, visuallinedb, this.httpOptions).pipe(
       tap(_ => {
         // insertion point for restoration of reverse pointers
-        visuallinedb.VisualMap_VisualLines_reverse = _VisualMap_VisualLines_reverse
         this.log(`updated visuallinedb id=${visuallinedb.ID}`)
       }),
       catchError(this.handleError<VisualLineDB>('updateVisualLine'))

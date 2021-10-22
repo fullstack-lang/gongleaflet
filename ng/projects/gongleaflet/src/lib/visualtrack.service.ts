@@ -16,7 +16,6 @@ import { VisualTrackDB } from './visualtrack-db';
 // insertion point for imports
 import { VisualLayerDB } from './visuallayer-db'
 import { VisualIconDB } from './visualicon-db'
-import { VisualMapDB } from './visualmap-db'
 
 @Injectable({
   providedIn: 'root'
@@ -75,13 +74,10 @@ export class VisualTrackService {
     // insertion point for reset of pointers and reverse pointers (to avoid circular JSON)
     visualtrackdb.VisualLayer = new VisualLayerDB
     visualtrackdb.VisualIcon = new VisualIconDB
-    let _VisualMap_VisualTracks_reverse = visualtrackdb.VisualMap_VisualTracks_reverse
-    visualtrackdb.VisualMap_VisualTracks_reverse = new VisualMapDB
 
     return this.http.post<VisualTrackDB>(this.visualtracksUrl, visualtrackdb, this.httpOptions).pipe(
       tap(_ => {
         // insertion point for restoration of reverse pointers
-        visualtrackdb.VisualMap_VisualTracks_reverse = _VisualMap_VisualTracks_reverse
         this.log(`posted visualtrackdb id=${visualtrackdb.ID}`)
       }),
       catchError(this.handleError<VisualTrackDB>('postVisualTrack'))
@@ -107,13 +103,10 @@ export class VisualTrackService {
     // insertion point for reset of pointers and reverse pointers (to avoid circular JSON)
     visualtrackdb.VisualLayer = new VisualLayerDB
     visualtrackdb.VisualIcon = new VisualIconDB
-    let _VisualMap_VisualTracks_reverse = visualtrackdb.VisualMap_VisualTracks_reverse
-    visualtrackdb.VisualMap_VisualTracks_reverse = new VisualMapDB
 
     return this.http.put<VisualTrackDB>(url, visualtrackdb, this.httpOptions).pipe(
       tap(_ => {
         // insertion point for restoration of reverse pointers
-        visualtrackdb.VisualMap_VisualTracks_reverse = _VisualMap_VisualTracks_reverse
         this.log(`updated visualtrackdb id=${visualtrackdb.ID}`)
       }),
       catchError(this.handleError<VisualTrackDB>('updateVisualTrack'))

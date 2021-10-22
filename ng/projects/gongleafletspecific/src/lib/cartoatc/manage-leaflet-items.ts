@@ -7,27 +7,34 @@ import {
 } from 'gongleaflet';
 
 import * as L from 'leaflet';
+import { map } from 'rxjs/operators';
 
-const setMapOptions = (vMap: VisualMapDB) => {
-  if (!vMap) {
-    return null;
-  }
-  return {
-    layers: [
-      L.tileLayer(vMap.UrlTemplate, {
-        maxZoom: vMap.MaxZoom,
-        attribution: vMap.Attribution,
-      }),
-    ],
-    zoom: vMap.ZoomLevel,
-    center: L.latLng(vMap.Lat, vMap.Lng),
-    mapOptions: {
-      zoomControl: vMap.ZoomControl,
-      attributionControl: vMap.AttributionControl,
-      zoomSnap: vMap.ZoomSnap,
-    },
-  };
+// return the mapOptions that is passed to the 
+// creation of the map
+const setMapOptions = (vMap: VisualMapDB): L.MapOptions => {
+
+  let mapOptions: L.MapOptions = {}
+
+  mapOptions.layers = [
+    L.tileLayer(vMap.UrlTemplate, {
+      maxZoom: vMap.MaxZoom,
+      attribution: vMap.Attribution,
+    }),
+  ]
+  mapOptions.zoom = vMap.ZoomLevel,
+    mapOptions.center = L.latLng(vMap.Lat, vMap.Lng)
+  mapOptions.zoomControl = vMap.ZoomControl
+  mapOptions.attributionControl = vMap.AttributionControl
+  mapOptions.zoomSnap = vMap.ZoomSnap
+
+  return mapOptions
 };
+
+// newIcon return a new leaflet DivIcon
+//
+// Represents a lightweight icon for markers that uses a simple 
+// <div> element instead of an image. 
+// Inherits from Icon but ignores the iconUrl and shadow options.
 
 const newIcon = (
   id: number | string,
@@ -38,6 +45,10 @@ const newIcon = (
   label?: string,
   opacity?: number
 ) => {
+
+  let divIconOptions: L.DivIconOptions = {}
+
+
   let content = '';
   if (!opacity) {
     opacity = 0.8;
@@ -56,14 +67,15 @@ const newIcon = (
     </div>
     ${content}
   </div>`;
-  return L.divIcon({
-    html,
-    iconSize: [size, size],
-    shadowSize: [0, 0], // size of the shadow
-    shadowAnchor: [0, 0], // the same for the shadow
-    popupAnchor: [-3, -76], // point from which the popup should open relative to the iconAnchor
-    className,
-  });
+
+  divIconOptions.html = html
+  divIconOptions.iconSize = [size, size]
+  divIconOptions.shadowSize = [0, 0] // size of the shadow
+  divIconOptions.shadowAnchor = [0, 0] // the same for the shadow
+  divIconOptions.popupAnchor = [-3, -76] // point from which the popup should open relative to the iconAnchor
+  divIconOptions.className = "" // css class
+
+  return L.divIcon(divIconOptions);
 };
 
 const rotateIcon = (targetID: string | number, orientation: number) => {

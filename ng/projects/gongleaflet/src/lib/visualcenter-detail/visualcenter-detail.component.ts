@@ -11,7 +11,6 @@ import { MapOfSortingComponents } from '../map-components'
 
 // insertion point for imports
 import { VisualColorEnumSelect, VisualColorEnumList } from '../VisualColorEnum'
-import { VisualMapDB } from '../visualmap-db'
 
 import { Router, RouterState, ActivatedRoute } from '@angular/router';
 
@@ -25,7 +24,6 @@ enum VisualCenterDetailComponentState {
 	CREATE_INSTANCE,
 	UPDATE_INSTANCE,
 	// insertion point for declarations of enum values of state
-	CREATE_INSTANCE_WITH_ASSOCIATION_VisualMap_VisualCenters_SET,
 }
 
 @Component({
@@ -85,10 +83,6 @@ export class VisualCenterDetailComponent implements OnInit {
 			} else {
 				switch (this.originStructFieldName) {
 					// insertion point for state computation
-					case "VisualCenters":
-						// console.log("VisualCenter" + " is instanciated with back pointer to instance " + this.id + " VisualMap association VisualCenters")
-						this.state = VisualCenterDetailComponentState.CREATE_INSTANCE_WITH_ASSOCIATION_VisualMap_VisualCenters_SET
-						break;
 					default:
 						console.log(this.originStructFieldName + " is unkown association")
 				}
@@ -126,10 +120,6 @@ export class VisualCenterDetailComponent implements OnInit {
 						this.visualcenter = visualcenter!
 						break;
 					// insertion point for init of association field
-					case VisualCenterDetailComponentState.CREATE_INSTANCE_WITH_ASSOCIATION_VisualMap_VisualCenters_SET:
-						this.visualcenter = new (VisualCenterDB)
-						this.visualcenter.VisualMap_VisualCenters_reverse = frontRepo.VisualMaps.get(this.id)!
-						break;
 					default:
 						console.log(this.state + " is unkown state")
 				}
@@ -171,18 +161,6 @@ export class VisualCenterDetailComponent implements OnInit {
 		// save from the front pointer space to the non pointer space for serialization
 
 		// insertion point for translation/nullation of each pointers
-		if (this.visualcenter.VisualMap_VisualCenters_reverse != undefined) {
-			if (this.visualcenter.VisualMap_VisualCentersDBID == undefined) {
-				this.visualcenter.VisualMap_VisualCentersDBID = new NullInt64
-			}
-			this.visualcenter.VisualMap_VisualCentersDBID.Int64 = this.visualcenter.VisualMap_VisualCenters_reverse.ID
-			this.visualcenter.VisualMap_VisualCentersDBID.Valid = true
-			if (this.visualcenter.VisualMap_VisualCentersDBID_Index == undefined) {
-				this.visualcenter.VisualMap_VisualCentersDBID_Index = new NullInt64
-			}
-			this.visualcenter.VisualMap_VisualCentersDBID_Index.Valid = true
-			this.visualcenter.VisualMap_VisualCenters_reverse = new VisualMapDB // very important, otherwise, circular JSON
-		}
 
 		switch (this.state) {
 			case VisualCenterDetailComponentState.UPDATE_INSTANCE:

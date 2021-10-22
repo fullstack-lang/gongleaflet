@@ -92,60 +92,11 @@
     <mat-checkbox [formControl]="AttributionControlFormControl">AttributionControl</mat-checkbox>
 
     <!-- -->
-    <mat-checkbox [formControl]="ZoomSnapFormControl">ZoomSnap</mat-checkbox>
+    <mat-form-field class="detail-full-width">
+        <mat-label>ZoomSnap</mat-label>
+        <input type="number" [ngModelOptions]="{standalone: true}" matInput [(ngModel)]="visualmap.ZoomSnap" [ngModelOptions]="{standalone: true}">
+    </mat-form-field>
 
-    <mat-grid-list cols="5" rowHeight="2:1">
-        <mat-grid-tile [colspan]="3">
-            <button mat-raised-button (click)="openReverseSelection('VisualCenter', 'VisualMap_VisualCentersDBID', 'ONE_MANY_ASSOCIATION_MODE', '', '', '')">VisualCenters</button>
-        </mat-grid-tile>
-        <!-- insertion point for the button of the MANY_MANY association-->
-        <mat-grid-tile>
-            <button mat-raised-button (click)="openDragAndDropOrdering('VisualCenter', 'VisualMap_VisualCentersDBID')">
-                <mat-icon>
-                    shuffle
-                </mat-icon>
-            </button>
-        </mat-grid-tile>
-    </mat-grid-list>
-    <mat-grid-list cols="5" rowHeight="2:1">
-        <mat-grid-tile [colspan]="3">
-            <button mat-raised-button (click)="openReverseSelection('VisualCircle', 'VisualMap_VisualCirclesDBID', 'ONE_MANY_ASSOCIATION_MODE', '', '', '')">VisualCircles</button>
-        </mat-grid-tile>
-        <!-- insertion point for the button of the MANY_MANY association-->
-        <mat-grid-tile>
-            <button mat-raised-button (click)="openDragAndDropOrdering('VisualCircle', 'VisualMap_VisualCirclesDBID')">
-                <mat-icon>
-                    shuffle
-                </mat-icon>
-            </button>
-        </mat-grid-tile>
-    </mat-grid-list>
-    <mat-grid-list cols="5" rowHeight="2:1">
-        <mat-grid-tile [colspan]="3">
-            <button mat-raised-button (click)="openReverseSelection('VisualLine', 'VisualMap_VisualLinesDBID', 'ONE_MANY_ASSOCIATION_MODE', '', '', '')">VisualLines</button>
-        </mat-grid-tile>
-        <!-- insertion point for the button of the MANY_MANY association-->
-        <mat-grid-tile>
-            <button mat-raised-button (click)="openDragAndDropOrdering('VisualLine', 'VisualMap_VisualLinesDBID')">
-                <mat-icon>
-                    shuffle
-                </mat-icon>
-            </button>
-        </mat-grid-tile>
-    </mat-grid-list>
-    <mat-grid-list cols="5" rowHeight="2:1">
-        <mat-grid-tile [colspan]="3">
-            <button mat-raised-button (click)="openReverseSelection('VisualTrack', 'VisualMap_VisualTracksDBID', 'ONE_MANY_ASSOCIATION_MODE', '', '', '')">VisualTracks</button>
-        </mat-grid-tile>
-        <!-- insertion point for the button of the MANY_MANY association-->
-        <mat-grid-tile>
-            <button mat-raised-button (click)="openDragAndDropOrdering('VisualTrack', 'VisualMap_VisualTracksDBID')">
-                <mat-icon>
-                    shuffle
-                </mat-icon>
-            </button>
-        </mat-grid-tile>
-    </mat-grid-list>
     <div class="details__save">
         <button mat-raised-button color="primary" (click)="save()">
             Save visualmap

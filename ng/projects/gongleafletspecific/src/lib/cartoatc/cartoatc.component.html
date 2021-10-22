@@ -1,7 +1,6 @@
 <div id="atcmapid">
     <ng-container *ngIf="mapOptions">
-        <div style="height:100%;width:100%;" leaflet [leafletOptions]="mapOptions">
-            <div [leafletLayers]="visualLayers"></div>
+        <div style="height:100%;width:100%;" leaflet [leafletOptions]="mapOptions" [leafletLayers]="visualLayers">
             <app-cartoatc-centers *ngIf="visualCenters.length" [visualCenters]="visualCenters"></app-cartoatc-centers>
             <app-cartoatc-circles></app-cartoatc-circles>
             <app-cartoatc-lines></app-cartoatc-lines>

@@ -8,12 +8,14 @@ import 'leaflet-rotatedmarker';
 import * as gongleaflet from 'gongleaflet';
 
 import * as manageLeafletItems from './manage-leaflet-items';
-import { VisualTrackDB } from 'gongleaflet';
 
 import { dotBlur } from '../../assets/icons/dot_blur';
 
 export const DEFAULT_ICON_SIZE = 60
 
+// CartoatcComponent is an angular component that is
+// - the component that displays tracks
+// - the root component of other components that display other elements (centers, lines, ...)
 @Component({
   selector: 'app-cartoatc',
   templateUrl: './cartoatc.component.html',
@@ -23,8 +25,13 @@ export class CartoatcComponent implements OnInit {
 
   @Input() mapName!: string
 
+  // [leafletOptions]="mapOptions" is passed to the leaflet map in the html
   mapOptions: any = null;
+
+  // [leafletLayers]="visualLayers" is passed to the leaflet map in the html
   visualLayers: L.Layer[] = [];
+
+
   visualTracksHistory: L.Layer[] = [];
 
   // map of visualTrack ID to visualTrackMarker in order to perform updates
@@ -40,8 +47,10 @@ export class CartoatcComponent implements OnInit {
 
   tracksHistories: Map<string, Array<L.LatLng>> = new Map();
 
+  frontRepo?: gongleaflet.FrontRepo
+
   constructor(
-    private frontRepo: gongleaflet.FrontRepoService,
+    private frontRepoService: gongleaflet.FrontRepoService,
     private visualTrackService: gongleaflet.VisualTrackService,
     private router: Router
   ) {
@@ -58,21 +67,25 @@ export class CartoatcComponent implements OnInit {
 
     console.log("map name " + this.mapName)
 
-    combineLatest([this.frontRepo.pull()]).subscribe(([frontRepo]) => {
-      this.visualCenters = Array.from(frontRepo.VisualCenters.values());
-      this.mapOptions = manageLeafletItems.setMapOptions(
-        Array.from(frontRepo.VisualMaps.values())[0]
-      );
-      let visualMapDB = frontRepo.VisualMaps_array[0];
-      console.log(
-        'map options ' +
-        visualMapDB.Lat +
-        ' ' +
-        visualMapDB.Lng +
-        ' ' +
-        visualMapDB.UrlTemplate
-      );
-    });
+    this.frontRepoService.pull().subscribe(
+      frontRepo => {
+        this.frontRepo = frontRepo
+
+        this.visualCenters = Array.from(frontRepo.VisualCenters.values());
+        this.mapOptions = manageLeafletItems.setMapOptions(
+          Array.from(frontRepo.VisualMaps.values())[0]
+        );
+        let visualMapDB = frontRepo.VisualMaps_array[0];
+        console.log(
+          'map options ' +
+          visualMapDB.Lat +
+          ' ' +
+          visualMapDB.Lng +
+          ' ' +
+          visualMapDB.UrlTemplate
+        );
+      }
+    )
 
     this.visualTrackService.VisualTrackServiceChanged.next('update');
 
@@ -80,37 +93,43 @@ export class CartoatcComponent implements OnInit {
     // observable for changes in structs
     this.visualTrackService.VisualTrackServiceChanged.subscribe((message) => {
       if (message == 'post' || message == 'update' || message == 'delete') {
+
         // update track position by using the front repo
-        this.frontRepo.VisualTrackPull().subscribe((frontRepo) => {
-          // update marker from visual track
-          frontRepo.VisualTracks.forEach(
-            (vTrack: gongleaflet.VisualTrackDB) => {
-              let _currentMarker: L.Marker<any> = this.mapVisualTrackID_VisualMarker.get(vTrack.ID)!
-              if (!_currentMarker) {
-                this.manageNewVisualTrackMarker(vTrack);
-              } else {
-                this.manageUpdateVisualTrackMarker(vTrack, _currentMarker);
+        this.frontRepoService.VisualTrackPull().subscribe(
+          frontRepo => {
+
+            this.frontRepo = frontRepo
+
+            // update marker from visual track
+            this.frontRepo.VisualTracks.forEach(
+              (vTrack: gongleaflet.VisualTrackDB) => {
+                let _currentMarker: L.Marker<any> = this.mapVisualTrackID_VisualMarker.get(vTrack.ID)!
+                if (!_currentMarker) {
+                  this.manageNewVisualTrackMarker(vTrack);
+                } else {
+                  this.manageUpdateVisualTrackMarker(vTrack, _currentMarker);
+                }
               }
-            }
-          );
+            );
 
-          // remove markers tat have no visual tracks
-          this.mapVisualMarker_VisualTrackID.forEach((visualTrackID) => {
-            if (frontRepo.VisualTracks.get(visualTrackID) == undefined) {
-              var marker = this.mapVisualTrackID_VisualMarker.get(
-                visualTrackID
-              );
+            // remove markers tat have no visual tracks
+            this.mapVisualMarker_VisualTrackID.forEach((visualTrackID) => {
+              if (frontRepo.VisualTracks.get(visualTrackID) == undefined) {
+                var marker = this.mapVisualTrackID_VisualMarker.get(
+                  visualTrackID
+                );
 
-              // remove marker from the visual layer
-              marker?.remove();
+                // remove marker from the visual layer
+                marker?.remove();
 
-              this.mapVisualTrackID_VisualMarker.delete(visualTrackID);
-              this.mapVisualMarker_VisualTrackID.delete(marker!);
-            }
+                this.mapVisualTrackID_VisualMarker.delete(visualTrackID);
+                this.mapVisualMarker_VisualTrackID.delete(marker!);
+              }
+            });
           });
-        });
       }
-    });
+    }
+    )
   }
 
   manageNewVisualTrackMarker(visualTrack: gongleaflet.VisualTrackDB) {
@@ -233,7 +252,7 @@ export class CartoatcComponent implements OnInit {
     return render;
   }
 
-  formatTrackLabel = (track: VisualTrackDB): string => {
+  formatTrackLabel = (track: gongleaflet.VisualTrackDB): string => {
     let label: string = track.Name;
     if (track.DisplayLevelAndSpeed) {
       label += `</br>

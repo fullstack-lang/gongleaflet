@@ -1,8 +1,4 @@
 // insertion point for imports
-import { VisualCenterDB } from './visualcenter-db'
-import { VisualCircleDB } from './visualcircle-db'
-import { VisualLineDB } from './visualline-db'
-import { VisualTrackDB } from './visualtrack-db'
 
 // usefull for managing pointer ID values that can be nullable
 import { NullInt64 } from './null-int64'
@@ -22,11 +18,7 @@ export class VisualMapDB {
 	MaxZoom: number = 0
 	ZoomControl: boolean = false
 	AttributionControl: boolean = false
-	ZoomSnap: boolean = false
+	ZoomSnap: number = 0
 
 	// insertion point for other declarations
-	VisualCenters?: Array<VisualCenterDB>
-	VisualCircles?: Array<VisualCircleDB>
-	VisualLines?: Array<VisualLineDB>
-	VisualTracks?: Array<VisualTrackDB>
 }

@@ -35,7 +35,6 @@ export class VisualMapDetailComponent implements OnInit {
 	// insertion point for declarations
 	ZoomControlFormControl = new FormControl(false);
 	AttributionControlFormControl = new FormControl(false);
-	ZoomSnapFormControl = new FormControl(false);
 
 	// the VisualMapDB of interest
 	visualmap: VisualMapDB = new VisualMapDB
@@ -127,7 +126,6 @@ export class VisualMapDetailComponent implements OnInit {
 				// insertion point for recovery of form controls value for bool fields
 				this.ZoomControlFormControl.setValue(this.visualmap.ZoomControl)
 				this.AttributionControlFormControl.setValue(this.visualmap.AttributionControl)
-				this.ZoomSnapFormControl.setValue(this.visualmap.ZoomSnap)
 			}
 		)
 
@@ -142,7 +140,6 @@ export class VisualMapDetailComponent implements OnInit {
 		// insertion point for translation/nullation of each field
 		this.visualmap.ZoomControl = this.ZoomControlFormControl.value
 		this.visualmap.AttributionControl = this.AttributionControlFormControl.value
-		this.visualmap.ZoomSnap = this.ZoomSnapFormControl.value
 
 		// save from the front pointer space to the non pointer space for serialization
 
