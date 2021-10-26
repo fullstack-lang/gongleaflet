@@ -11,7 +11,7 @@ import { map } from 'rxjs/operators';
 
 // return the mapOptions that is passed to the 
 // creation of the map
-const setMapOptions = (vMap: VisualMapDB): L.MapOptions => {
+const visualMapToLeafletMapOptions = (vMap: VisualMapDB): L.MapOptions => {
 
   let mapOptions: L.MapOptions = {}
 
@@ -174,7 +174,7 @@ const setVisibilityHTMLElement = (
 };
 
 export {
-  setMapOptions,
+  visualMapToLeafletMapOptions,
   newIcon,
   rotateIcon,
   setIconLabel,

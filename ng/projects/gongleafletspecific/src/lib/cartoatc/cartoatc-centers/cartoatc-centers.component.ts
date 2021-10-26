@@ -13,7 +13,6 @@ import * as L from 'leaflet';
   styleUrls: ['./cartoatc-centers.component.scss'],
 })
 export class CartoatcCentersComponent implements OnInit {
-  @Input() visualCenters?: Array<gongleaflet.VisualCenterDB>;
 
   // store relation between the VisualCenters & the markers
   mapVisualCenterID_LeafletMarker = new Map<number, L.Marker>();

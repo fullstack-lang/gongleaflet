@@ -23,10 +23,14 @@ export const DEFAULT_ICON_SIZE = 60
 })
 export class CartoatcComponent implements OnInit {
 
-  @Input() mapName!: string
+  // list of initial layers
+  @Input() initialLayers!: string
+
+  // name of the initial map
+  @Input() mapName: string = ""
 
   // [leafletOptions]="mapOptions" is passed to the leaflet map in the html
-  mapOptions: any = null;
+  mapOptions?: L.MapOptions // stangely, impossible to type without ?
 
   // [leafletLayers]="visualLayers" is passed to one div in the html
   visualLayers: L.Layer[] = [];
@@ -40,13 +44,13 @@ export class CartoatcComponent implements OnInit {
   // map of visualTrackMarker to visualTrack ID in order to delete deleted visualTrack
   mapVisualMarker_VisualTrackID = new Map<L.Marker, number>();
 
-  traceLayerID: number = 0
-  icons = new Map<number, string>();
+  // TO BE REMOVED. currently, the tracks are managed as an attribute in the html object
+  trackLayerID: number = 0
 
-  visualCenters: Array<gongleaflet.VisualCenterDB> = new Array();
-
+  // mapVisualTrackName_positionsHistory stores tracks histories
   mapVisualTrackName_positionsHistory: Map<string, Array<L.LatLng>> = new Map();
 
+  // the gong front repo
   frontRepo?: gongleaflet.FrontRepo
 
   constructor(
@@ -57,32 +61,35 @@ export class CartoatcComponent implements OnInit {
     this.router.routeReuseStrategy.shouldReuseRoute = () => false;
   }
 
-  onMapReady(map: L.Map) {
-    setTimeout(() => {
-      map.invalidateSize();
-    }, 0);
-  }
+  // not yet clear
+  // onMapReady(map: L.Map) {
+  //   setTimeout(() => {
+  //     map.invalidateSize();
+  //   }, 0);
+  // }
 
   ngOnInit(): void {
 
-    console.log("map name " + this.mapName)
+    console.log("layers name " + this.initialLayers)
 
     this.frontRepoService.pull().subscribe(
       frontRepo => {
         this.frontRepo = frontRepo
 
-        this.visualCenters = Array.from(frontRepo.VisualCenters.values());
-        this.mapOptions = manageLeafletItems.setMapOptions(
-          Array.from(frontRepo.VisualMaps.values())[0]
-        );
-        let visualMapDB = frontRepo.VisualMaps_array[0];
-        console.log(
-          'map options ' +
-          visualMapDB.Lat +
-          ' ' +
-          visualMapDB.Lng +
-          ' ' +
-          visualMapDB.UrlTemplate
+        let mapOptions = Array.from(this.frontRepo.VisualMaps.values())[0]
+
+        // if the map name is set, then map options might differ
+        if (this.mapName != "") {
+          for (let visualMap of this.frontRepo.VisualMaps.values()) {
+            if (visualMap.Name == this.mapName) {
+              mapOptions = visualMap
+            }
+          }
+
+        }
+
+        this.mapOptions = manageLeafletItems.visualMapToLeafletMapOptions(
+          mapOptions
         );
       }
     )
@@ -161,7 +168,7 @@ export class CartoatcComponent implements OnInit {
         visualTrack.ID + '-track',
         visualTrack.Heading
       );
-      this.traceLayerID = visualTrack.VisualLayerID.Int64;
+      this.trackLayerID = visualTrack.VisualLayerID.Int64;
 
       this.mapVisualTrackID_VisualMarker.set(visualTrack.ID, marker);
       this.mapVisualMarker_VisualTrackID.set(marker, visualTrack.ID);
@@ -227,7 +234,7 @@ export class CartoatcComponent implements OnInit {
     let render: L.Layer[] = [];
     let icon = manageLeafletItems.newIcon(
       'icon',
-      'layer-' + this.traceLayerID,
+      'layer-' + this.trackLayerID,
       dotBlur,
       5,
       '#004E92'
