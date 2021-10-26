@@ -73,7 +73,7 @@ const newIcon = (
   divIconOptions.shadowSize = [0, 0] // size of the shadow
   divIconOptions.shadowAnchor = [0, 0] // the same for the shadow
   divIconOptions.popupAnchor = [-3, -76] // point from which the popup should open relative to the iconAnchor
-  divIconOptions.className = "" // css class
+  divIconOptions.className = className // css class
 
   return L.divIcon(divIconOptions);
 };

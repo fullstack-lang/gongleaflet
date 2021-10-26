@@ -28,10 +28,10 @@ export class CartoatcComponent implements OnInit {
   // [leafletOptions]="mapOptions" is passed to the leaflet map in the html
   mapOptions: any = null;
 
-  // [leafletLayers]="visualLayers" is passed to the leaflet map in the html
+  // [leafletLayers]="visualLayers" is passed to one div in the html
   visualLayers: L.Layer[] = [];
 
-
+  // passed to the html as layers [leafletLayers]="visualTracksHistory"
   visualTracksHistory: L.Layer[] = [];
 
   // map of visualTrack ID to visualTrackMarker in order to perform updates
@@ -45,7 +45,7 @@ export class CartoatcComponent implements OnInit {
 
   visualCenters: Array<gongleaflet.VisualCenterDB> = new Array();
 
-  tracksHistories: Map<string, Array<L.LatLng>> = new Map();
+  mapVisualTrackName_positionsHistory: Map<string, Array<L.LatLng>> = new Map();
 
   frontRepo?: gongleaflet.FrontRepo
 
@@ -185,7 +185,7 @@ export class CartoatcComponent implements OnInit {
       visualTrack.Heading
     );
     if (visualTrack.DisplayTrackHistory) {
-      this.manageTracksHistory(
+      this.generateVisualTracksHistory(
         visualTrack.Name,
         L.latLng(visualTrack.Lat, visualTrack.Lng)
       );
@@ -193,21 +193,12 @@ export class CartoatcComponent implements OnInit {
     }
   }
 
-  manageTracksHistory(trackName: string, coordinates: L.LatLng) {
+  // generateVisualTracksHistory adds dots to the track
+  generateVisualTracksHistory(trackName: string, coordinates: L.LatLng) {
     let trackHistory: L.LatLng[] = [];
-    const LIMIT_HISTORY_LENGTH = 10;
-    trackHistory = this.tracksHistories.get(trackName)!
-    const pushManageLimit = (
-      list: Array<L.LatLng>,
-      newItem: L.LatLng
-    ): Array<L.LatLng> => {
-      let tmpList = list;
-      if (tmpList.length >= LIMIT_HISTORY_LENGTH) {
-        tmpList.shift();
-      }
-      tmpList.push(newItem);
-      return tmpList;
-    };
+
+    // get the track pas positions
+    trackHistory = this.mapVisualTrackName_positionsHistory.get(trackName)!
 
     if (!trackHistory) {
       trackHistory = [];
@@ -217,7 +208,7 @@ export class CartoatcComponent implements OnInit {
         trackHistory[trackHistory.length - 1].lat !== coordinates.lat &&
         trackHistory[trackHistory.length - 1].lng !== coordinates.lng
       ) {
-        trackHistory = pushManageLimit(trackHistory, coordinates);
+        trackHistory = addNewCoordToFIFO(trackHistory, coordinates);
       } else {
         if (trackHistory.length < LIMIT_HISTORY_LENGTH) {
           trackHistory.push(coordinates);
@@ -226,9 +217,10 @@ export class CartoatcComponent implements OnInit {
     } else {
       trackHistory.push(coordinates);
     }
-    this.tracksHistories.set(trackName, trackHistory);
+    this.mapVisualTrackName_positionsHistory.set(trackName, trackHistory);
   }
 
+  // renderTracksLayer computes 
   get renderTracksLayer(): Array<L.Layer> {
     let render: L.Layer[] = [];
     let icon = manageLeafletItems.newIcon(
@@ -238,7 +230,29 @@ export class CartoatcComponent implements OnInit {
       5,
       '#004E92'
     );
-    this.tracksHistories.forEach((trackHistory) => {
+
+    let trackNames = this.mapVisualTrackName_positionsHistory.values
+    for (let trackName in trackNames) {
+      let positionsHistory = this.mapVisualTrackName_positionsHistory.get(trackName)!
+
+      for (let coordinates of positionsHistory) {
+        let dotIcon = manageLeafletItems.newMarkerWithIcon(
+          coordinates.lat,
+          coordinates.lng,
+          icon
+        )
+        render.push(
+          manageLeafletItems.newMarkerWithIcon(
+            coordinates.lat,
+            coordinates.lng,
+            icon
+          )
+        )
+      }
+    }
+    // for (let latLng in trackHistory)
+
+    this.mapVisualTrackName_positionsHistory.forEach((trackHistory) => {
       trackHistory.map((coordinates: L.LatLng) => {
         render.push(
           manageLeafletItems.newMarkerWithIcon(
@@ -261,3 +275,18 @@ export class CartoatcComponent implements OnInit {
     return label;
   };
 }
+
+const LIMIT_HISTORY_LENGTH = 10;
+
+const addNewCoordToFIFO = (
+  list: Array<L.LatLng>,
+  newItem: L.LatLng
+): Array<L.LatLng> => {
+  let tmpList = list;
+  if (tmpList.length >= LIMIT_HISTORY_LENGTH) {
+    tmpList.shift();
+  }
+  tmpList.push(newItem);
+  return tmpList;
+};
+
