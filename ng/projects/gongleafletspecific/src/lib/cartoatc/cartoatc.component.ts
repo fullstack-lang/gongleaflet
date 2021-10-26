@@ -132,6 +132,8 @@ export class CartoatcComponent implements OnInit {
     )
   }
 
+  // manageNewVisualTrackMarker takes a visualTrack and 
+  // add a L.DivIcon to the 
   manageNewVisualTrackMarker(visualTrack: gongleaflet.VisualTrackDB) {
     var color = manageLeafletItems.getColor(visualTrack.VisualColorEnum);
 

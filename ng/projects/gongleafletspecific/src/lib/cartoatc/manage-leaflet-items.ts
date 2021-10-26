@@ -92,7 +92,12 @@ const setIconLabel = (targetID: string | number, newLabel: string) => {
   }
 };
 
-function newMarkerWithIcon(lat: number, lng: number, icon: any): L.Marker {
+// add a leaflet marker with an icon
+function newMarkerWithIcon(lat: number, lng: number, icon: L.DivIcon): L.Marker {
+
+  let markerOptions: L.MarkerOptions = {}
+  markerOptions.icon = icon
+
   return L.marker([lat, lng], { icon });
 };
 
