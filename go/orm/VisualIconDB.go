@@ -57,12 +57,12 @@ type VisualIconDB struct {
 	gorm.Model
 
 	// insertion for basic fields declaration
+
 	// Declation for basic field visualiconDB.Name {{BasicKind}} (to be completed)
 	Name_Data sql.NullString
 
 	// Declation for basic field visualiconDB.SVG {{BasicKind}} (to be completed)
 	SVG_Data sql.NullString
-
 	// encoding of pointers
 	VisualIconPointersEnconding
 }
@@ -80,13 +80,13 @@ type VisualIconDBResponse struct {
 // VisualIconWOP is a VisualIcon without pointers (WOP is an acronym for "Without Pointers")
 // it holds the same basic fields but pointers are encoded into uint
 type VisualIconWOP struct {
-	ID int
+	ID int `xlsx:"0"`
 
 	// insertion for WOP basic fields
 
-	Name string
+	Name string `xlsx:"1"`
 
-	SVG string
+	SVG string `xlsx:"2"`
 	// insertion for WOP pointer fields
 }
 
@@ -375,23 +375,23 @@ func (backRepo *BackRepoStruct) CheckoutVisualIcon(visualicon *models.VisualIcon
 // CopyBasicFieldsFromVisualIcon
 func (visualiconDB *VisualIconDB) CopyBasicFieldsFromVisualIcon(visualicon *models.VisualIcon) {
 	// insertion point for fields commit
+
 	visualiconDB.Name_Data.String = visualicon.Name
 	visualiconDB.Name_Data.Valid = true
 
 	visualiconDB.SVG_Data.String = visualicon.SVG
 	visualiconDB.SVG_Data.Valid = true
-
 }
 
 // CopyBasicFieldsFromVisualIconWOP
 func (visualiconDB *VisualIconDB) CopyBasicFieldsFromVisualIconWOP(visualicon *VisualIconWOP) {
 	// insertion point for fields commit
+
 	visualiconDB.Name_Data.String = visualicon.Name
 	visualiconDB.Name_Data.Valid = true
 
 	visualiconDB.SVG_Data.String = visualicon.SVG
 	visualiconDB.SVG_Data.Valid = true
-
 }
 
 // CopyBasicFieldsToVisualIcon
@@ -467,6 +467,51 @@ func (backRepoVisualIcon *BackRepoVisualIconStruct) BackupXL(file *xlsx.File) {
 		row := sh.AddRow()
 		row.WriteStruct(&visualiconWOP, -1)
 	}
+}
+
+// RestoreXL from the "VisualIcon" sheet all VisualIconDB instances
+func (backRepoVisualIcon *BackRepoVisualIconStruct) RestoreXLPhaseOne(file *xlsx.File) {
+
+	// resets the map
+	BackRepoVisualIconid_atBckpTime_newID = make(map[uint]uint)
+
+	sh, ok := file.Sheet["VisualIcon"]
+	_ = sh
+	if !ok {
+		log.Panic(errors.New("sheet not found"))
+	}
+
+	// log.Println("Max row is", sh.MaxRow)
+	err := sh.ForEachRow(backRepoVisualIcon.rowVisitorVisualIcon)
+	if err != nil {
+		log.Panic("Err=", err)
+	}
+}
+
+func (backRepoVisualIcon *BackRepoVisualIconStruct) rowVisitorVisualIcon(row *xlsx.Row) error {
+
+	log.Printf("row line %d\n", row.GetCoordinate())
+	log.Println(row)
+
+	// skip first line
+	if row.GetCoordinate() > 0 {
+		var visualiconWOP VisualIconWOP
+		row.ReadStruct(&visualiconWOP)
+
+		// add the unmarshalled struct to the stage
+		visualiconDB := new(VisualIconDB)
+		visualiconDB.CopyBasicFieldsFromVisualIconWOP(&visualiconWOP)
+
+		visualiconDB_ID_atBackupTime := visualiconDB.ID
+		visualiconDB.ID = 0
+		query := backRepoVisualIcon.db.Create(visualiconDB)
+		if query.Error != nil {
+			log.Panic(query.Error)
+		}
+		(*backRepoVisualIcon.Map_VisualIconDBID_VisualIconDB)[visualiconDB.ID] = visualiconDB
+		BackRepoVisualIconid_atBckpTime_newID[visualiconDB_ID_atBackupTime] = visualiconDB.ID
+	}
+	return nil
 }
 
 // RestorePhaseOne read the file "VisualIconDB.json" in dirPath that stores an array

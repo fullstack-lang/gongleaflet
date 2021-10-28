@@ -45,6 +45,7 @@ type VisualTrackAPI struct {
 // reverse pointers of slice of poitners to Struct
 type VisualTrackPointersEnconding struct {
 	// insertion for pointer fields encoding declaration
+
 	// field VisualLayer is a pointer to another Struct (optional or 0..1)
 	// This field is generated into another field to enable AS ONE association
 	VisualLayerID sql.NullInt64
@@ -52,7 +53,6 @@ type VisualTrackPointersEnconding struct {
 	// field VisualIcon is a pointer to another Struct (optional or 0..1)
 	// This field is generated into another field to enable AS ONE association
 	VisualIconID sql.NullInt64
-
 }
 
 // VisualTrackDB describes a visualtrack in the database
@@ -65,6 +65,7 @@ type VisualTrackDB struct {
 	gorm.Model
 
 	// insertion for basic fields declaration
+
 	// Declation for basic field visualtrackDB.Lat {{BasicKind}} (to be completed)
 	Lat_Data sql.NullFloat64
 
@@ -100,7 +101,6 @@ type VisualTrackDB struct {
 	// Declation for basic field visualtrackDB.DisplayLevelAndSpeed bool (to be completed)
 	// provide the sql storage for the boolan
 	DisplayLevelAndSpeed_Data sql.NullBool
-
 	// encoding of pointers
 	VisualTrackPointersEnconding
 }
@@ -118,31 +118,31 @@ type VisualTrackDBResponse struct {
 // VisualTrackWOP is a VisualTrack without pointers (WOP is an acronym for "Without Pointers")
 // it holds the same basic fields but pointers are encoded into uint
 type VisualTrackWOP struct {
-	ID int
+	ID int `xlsx:"0"`
 
 	// insertion for WOP basic fields
 
-	Lat float64
+	Lat float64 `xlsx:"1"`
 
-	Lng float64
+	Lng float64 `xlsx:"2"`
 
-	Heading float64
+	Heading float64 `xlsx:"3"`
 
-	Level float64
+	Level float64 `xlsx:"4"`
 
-	Speed float64
+	Speed float64 `xlsx:"5"`
 
-	VerticalSpeed float64
+	VerticalSpeed float64 `xlsx:"6"`
 
-	Name string
+	Name string `xlsx:"7"`
 
-	VisualColorEnum models.VisualColorEnum
+	VisualColorEnum models.VisualColorEnum `xlsx:"8"`
 
-	Display bool
+	Display bool `xlsx:"9"`
 
-	DisplayTrackHistory bool
+	DisplayTrackHistory bool `xlsx:"10"`
 
-	DisplayLevelAndSpeed bool
+	DisplayLevelAndSpeed bool `xlsx:"11"`
 	// insertion for WOP pointer fields
 }
 
@@ -466,6 +466,7 @@ func (backRepo *BackRepoStruct) CheckoutVisualTrack(visualtrack *models.VisualTr
 // CopyBasicFieldsFromVisualTrack
 func (visualtrackDB *VisualTrackDB) CopyBasicFieldsFromVisualTrack(visualtrack *models.VisualTrack) {
 	// insertion point for fields commit
+
 	visualtrackDB.Lat_Data.Float64 = visualtrack.Lat
 	visualtrackDB.Lat_Data.Valid = true
 
@@ -498,12 +499,12 @@ func (visualtrackDB *VisualTrackDB) CopyBasicFieldsFromVisualTrack(visualtrack *
 
 	visualtrackDB.DisplayLevelAndSpeed_Data.Bool = visualtrack.DisplayLevelAndSpeed
 	visualtrackDB.DisplayLevelAndSpeed_Data.Valid = true
-
 }
 
 // CopyBasicFieldsFromVisualTrackWOP
 func (visualtrackDB *VisualTrackDB) CopyBasicFieldsFromVisualTrackWOP(visualtrack *VisualTrackWOP) {
 	// insertion point for fields commit
+
 	visualtrackDB.Lat_Data.Float64 = visualtrack.Lat
 	visualtrackDB.Lat_Data.Valid = true
 
@@ -536,7 +537,6 @@ func (visualtrackDB *VisualTrackDB) CopyBasicFieldsFromVisualTrackWOP(visualtrac
 
 	visualtrackDB.DisplayLevelAndSpeed_Data.Bool = visualtrack.DisplayLevelAndSpeed
 	visualtrackDB.DisplayLevelAndSpeed_Data.Valid = true
-
 }
 
 // CopyBasicFieldsToVisualTrack
@@ -630,6 +630,51 @@ func (backRepoVisualTrack *BackRepoVisualTrackStruct) BackupXL(file *xlsx.File) 
 		row := sh.AddRow()
 		row.WriteStruct(&visualtrackWOP, -1)
 	}
+}
+
+// RestoreXL from the "VisualTrack" sheet all VisualTrackDB instances
+func (backRepoVisualTrack *BackRepoVisualTrackStruct) RestoreXLPhaseOne(file *xlsx.File) {
+
+	// resets the map
+	BackRepoVisualTrackid_atBckpTime_newID = make(map[uint]uint)
+
+	sh, ok := file.Sheet["VisualTrack"]
+	_ = sh
+	if !ok {
+		log.Panic(errors.New("sheet not found"))
+	}
+
+	// log.Println("Max row is", sh.MaxRow)
+	err := sh.ForEachRow(backRepoVisualTrack.rowVisitorVisualTrack)
+	if err != nil {
+		log.Panic("Err=", err)
+	}
+}
+
+func (backRepoVisualTrack *BackRepoVisualTrackStruct) rowVisitorVisualTrack(row *xlsx.Row) error {
+
+	log.Printf("row line %d\n", row.GetCoordinate())
+	log.Println(row)
+
+	// skip first line
+	if row.GetCoordinate() > 0 {
+		var visualtrackWOP VisualTrackWOP
+		row.ReadStruct(&visualtrackWOP)
+
+		// add the unmarshalled struct to the stage
+		visualtrackDB := new(VisualTrackDB)
+		visualtrackDB.CopyBasicFieldsFromVisualTrackWOP(&visualtrackWOP)
+
+		visualtrackDB_ID_atBackupTime := visualtrackDB.ID
+		visualtrackDB.ID = 0
+		query := backRepoVisualTrack.db.Create(visualtrackDB)
+		if query.Error != nil {
+			log.Panic(query.Error)
+		}
+		(*backRepoVisualTrack.Map_VisualTrackDBID_VisualTrackDB)[visualtrackDB.ID] = visualtrackDB
+		BackRepoVisualTrackid_atBckpTime_newID[visualtrackDB_ID_atBackupTime] = visualtrackDB.ID
+	}
+	return nil
 }
 
 // RestorePhaseOne read the file "VisualTrackDB.json" in dirPath that stores an array

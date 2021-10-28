@@ -57,6 +57,7 @@ type VisualMapDB struct {
 	gorm.Model
 
 	// insertion for basic fields declaration
+
 	// Declation for basic field visualmapDB.Lat {{BasicKind}} (to be completed)
 	Lat_Data sql.NullFloat64
 
@@ -88,7 +89,6 @@ type VisualMapDB struct {
 
 	// Declation for basic field visualmapDB.ZoomSnap {{BasicKind}} (to be completed)
 	ZoomSnap_Data sql.NullInt64
-
 	// encoding of pointers
 	VisualMapPointersEnconding
 }
@@ -106,29 +106,29 @@ type VisualMapDBResponse struct {
 // VisualMapWOP is a VisualMap without pointers (WOP is an acronym for "Without Pointers")
 // it holds the same basic fields but pointers are encoded into uint
 type VisualMapWOP struct {
-	ID int
+	ID int `xlsx:"0"`
 
 	// insertion for WOP basic fields
 
-	Lat float64
+	Lat float64 `xlsx:"1"`
 
-	Lng float64
+	Lng float64 `xlsx:"2"`
 
-	Name string
+	Name string `xlsx:"3"`
 
-	ZoomLevel float64
+	ZoomLevel float64 `xlsx:"4"`
 
-	UrlTemplate string
+	UrlTemplate string `xlsx:"5"`
 
-	Attribution string
+	Attribution string `xlsx:"6"`
 
-	MaxZoom int
+	MaxZoom int `xlsx:"7"`
 
-	ZoomControl bool
+	ZoomControl bool `xlsx:"8"`
 
-	AttributionControl bool
+	AttributionControl bool `xlsx:"9"`
 
-	ZoomSnap int
+	ZoomSnap int `xlsx:"10"`
 	// insertion for WOP pointer fields
 }
 
@@ -425,6 +425,7 @@ func (backRepo *BackRepoStruct) CheckoutVisualMap(visualmap *models.VisualMap) {
 // CopyBasicFieldsFromVisualMap
 func (visualmapDB *VisualMapDB) CopyBasicFieldsFromVisualMap(visualmap *models.VisualMap) {
 	// insertion point for fields commit
+
 	visualmapDB.Lat_Data.Float64 = visualmap.Lat
 	visualmapDB.Lat_Data.Valid = true
 
@@ -454,12 +455,12 @@ func (visualmapDB *VisualMapDB) CopyBasicFieldsFromVisualMap(visualmap *models.V
 
 	visualmapDB.ZoomSnap_Data.Int64 = int64(visualmap.ZoomSnap)
 	visualmapDB.ZoomSnap_Data.Valid = true
-
 }
 
 // CopyBasicFieldsFromVisualMapWOP
 func (visualmapDB *VisualMapDB) CopyBasicFieldsFromVisualMapWOP(visualmap *VisualMapWOP) {
 	// insertion point for fields commit
+
 	visualmapDB.Lat_Data.Float64 = visualmap.Lat
 	visualmapDB.Lat_Data.Valid = true
 
@@ -489,7 +490,6 @@ func (visualmapDB *VisualMapDB) CopyBasicFieldsFromVisualMapWOP(visualmap *Visua
 
 	visualmapDB.ZoomSnap_Data.Int64 = int64(visualmap.ZoomSnap)
 	visualmapDB.ZoomSnap_Data.Valid = true
-
 }
 
 // CopyBasicFieldsToVisualMap
@@ -581,6 +581,51 @@ func (backRepoVisualMap *BackRepoVisualMapStruct) BackupXL(file *xlsx.File) {
 		row := sh.AddRow()
 		row.WriteStruct(&visualmapWOP, -1)
 	}
+}
+
+// RestoreXL from the "VisualMap" sheet all VisualMapDB instances
+func (backRepoVisualMap *BackRepoVisualMapStruct) RestoreXLPhaseOne(file *xlsx.File) {
+
+	// resets the map
+	BackRepoVisualMapid_atBckpTime_newID = make(map[uint]uint)
+
+	sh, ok := file.Sheet["VisualMap"]
+	_ = sh
+	if !ok {
+		log.Panic(errors.New("sheet not found"))
+	}
+
+	// log.Println("Max row is", sh.MaxRow)
+	err := sh.ForEachRow(backRepoVisualMap.rowVisitorVisualMap)
+	if err != nil {
+		log.Panic("Err=", err)
+	}
+}
+
+func (backRepoVisualMap *BackRepoVisualMapStruct) rowVisitorVisualMap(row *xlsx.Row) error {
+
+	log.Printf("row line %d\n", row.GetCoordinate())
+	log.Println(row)
+
+	// skip first line
+	if row.GetCoordinate() > 0 {
+		var visualmapWOP VisualMapWOP
+		row.ReadStruct(&visualmapWOP)
+
+		// add the unmarshalled struct to the stage
+		visualmapDB := new(VisualMapDB)
+		visualmapDB.CopyBasicFieldsFromVisualMapWOP(&visualmapWOP)
+
+		visualmapDB_ID_atBackupTime := visualmapDB.ID
+		visualmapDB.ID = 0
+		query := backRepoVisualMap.db.Create(visualmapDB)
+		if query.Error != nil {
+			log.Panic(query.Error)
+		}
+		(*backRepoVisualMap.Map_VisualMapDBID_VisualMapDB)[visualmapDB.ID] = visualmapDB
+		BackRepoVisualMapid_atBckpTime_newID[visualmapDB_ID_atBackupTime] = visualmapDB.ID
+	}
+	return nil
 }
 
 // RestorePhaseOne read the file "VisualMapDB.json" in dirPath that stores an array

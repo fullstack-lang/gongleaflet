@@ -57,12 +57,12 @@ type VisualLayerDB struct {
 	gorm.Model
 
 	// insertion for basic fields declaration
+
 	// Declation for basic field visuallayerDB.Name {{BasicKind}} (to be completed)
 	Name_Data sql.NullString
 
 	// Declation for basic field visuallayerDB.DisplayName {{BasicKind}} (to be completed)
 	DisplayName_Data sql.NullString
-
 	// encoding of pointers
 	VisualLayerPointersEnconding
 }
@@ -80,13 +80,13 @@ type VisualLayerDBResponse struct {
 // VisualLayerWOP is a VisualLayer without pointers (WOP is an acronym for "Without Pointers")
 // it holds the same basic fields but pointers are encoded into uint
 type VisualLayerWOP struct {
-	ID int
+	ID int `xlsx:"0"`
 
 	// insertion for WOP basic fields
 
-	Name string
+	Name string `xlsx:"1"`
 
-	DisplayName string
+	DisplayName string `xlsx:"2"`
 	// insertion for WOP pointer fields
 }
 
@@ -375,23 +375,23 @@ func (backRepo *BackRepoStruct) CheckoutVisualLayer(visuallayer *models.VisualLa
 // CopyBasicFieldsFromVisualLayer
 func (visuallayerDB *VisualLayerDB) CopyBasicFieldsFromVisualLayer(visuallayer *models.VisualLayer) {
 	// insertion point for fields commit
+
 	visuallayerDB.Name_Data.String = visuallayer.Name
 	visuallayerDB.Name_Data.Valid = true
 
 	visuallayerDB.DisplayName_Data.String = visuallayer.DisplayName
 	visuallayerDB.DisplayName_Data.Valid = true
-
 }
 
 // CopyBasicFieldsFromVisualLayerWOP
 func (visuallayerDB *VisualLayerDB) CopyBasicFieldsFromVisualLayerWOP(visuallayer *VisualLayerWOP) {
 	// insertion point for fields commit
+
 	visuallayerDB.Name_Data.String = visuallayer.Name
 	visuallayerDB.Name_Data.Valid = true
 
 	visuallayerDB.DisplayName_Data.String = visuallayer.DisplayName
 	visuallayerDB.DisplayName_Data.Valid = true
-
 }
 
 // CopyBasicFieldsToVisualLayer
@@ -467,6 +467,51 @@ func (backRepoVisualLayer *BackRepoVisualLayerStruct) BackupXL(file *xlsx.File) 
 		row := sh.AddRow()
 		row.WriteStruct(&visuallayerWOP, -1)
 	}
+}
+
+// RestoreXL from the "VisualLayer" sheet all VisualLayerDB instances
+func (backRepoVisualLayer *BackRepoVisualLayerStruct) RestoreXLPhaseOne(file *xlsx.File) {
+
+	// resets the map
+	BackRepoVisualLayerid_atBckpTime_newID = make(map[uint]uint)
+
+	sh, ok := file.Sheet["VisualLayer"]
+	_ = sh
+	if !ok {
+		log.Panic(errors.New("sheet not found"))
+	}
+
+	// log.Println("Max row is", sh.MaxRow)
+	err := sh.ForEachRow(backRepoVisualLayer.rowVisitorVisualLayer)
+	if err != nil {
+		log.Panic("Err=", err)
+	}
+}
+
+func (backRepoVisualLayer *BackRepoVisualLayerStruct) rowVisitorVisualLayer(row *xlsx.Row) error {
+
+	log.Printf("row line %d\n", row.GetCoordinate())
+	log.Println(row)
+
+	// skip first line
+	if row.GetCoordinate() > 0 {
+		var visuallayerWOP VisualLayerWOP
+		row.ReadStruct(&visuallayerWOP)
+
+		// add the unmarshalled struct to the stage
+		visuallayerDB := new(VisualLayerDB)
+		visuallayerDB.CopyBasicFieldsFromVisualLayerWOP(&visuallayerWOP)
+
+		visuallayerDB_ID_atBackupTime := visuallayerDB.ID
+		visuallayerDB.ID = 0
+		query := backRepoVisualLayer.db.Create(visuallayerDB)
+		if query.Error != nil {
+			log.Panic(query.Error)
+		}
+		(*backRepoVisualLayer.Map_VisualLayerDBID_VisualLayerDB)[visuallayerDB.ID] = visuallayerDB
+		BackRepoVisualLayerid_atBckpTime_newID[visuallayerDB_ID_atBackupTime] = visuallayerDB.ID
+	}
+	return nil
 }
 
 // RestorePhaseOne read the file "VisualLayerDB.json" in dirPath that stores an array
