@@ -1,60 +1,60 @@
-[{
-    "ID": 2,
-    "CreatedAt": "2021-06-01T04:18:37.715231+02:00",
-    "UpdatedAt": "2021-06-01T04:19:28.249629+02:00",
-    "DeletedAt": null,
-    "Lat_Data": {
-        "Float64": 46,
-        "Valid": true
-    },
-    "Lng_Data": {
-        "Float64": 4,
-        "Valid": true
-    },
-    "Heading_Data": {
-        "Float64": 135,
-        "Valid": true
-    },
-    "Level_Data": {
-        "Float64": 220,
-        "Valid": true
-    },
-    "Speed_Data": {
-        "Float64": 300,
-        "Valid": true
-    },
-    "VerticalSpeed_Data": {
-        "Float64": 30,
-        "Valid": true
-    },
-    "Name_Data": {
-        "String": "Track",
-        "Valid": true
-    },
-    "VisualColorEnum_Data": {
-        "String": "GREEN",
-        "Valid": true
-    },
-    "Display_Data": {
-        "Bool": false,
-        "Valid": true
-    },
-    "DisplayTrackHistory_Data": {
-        "Bool": false,
-        "Valid": true
-    },
-    "DisplayLevelAndSpeed_Data": {
-        "Bool": false,
-        "Valid": true
-    },
-    "VisualLayerID": {
-        "Int64": 2,
-        "Valid": true
-    },
-    "VisualLayerName": "Default",
-    "DivIconID": {
-        "Int64": 5,
-        "Valid": true
-    },
-    "DivIconName": "Plane"
-}]
+[
+ {
+  "ID": 1,
+  "CreatedAt": "2021-06-01T04:18:37.715231+02:00",
+  "UpdatedAt": "2021-10-29T09:40:26.256604+02:00",
+  "DeletedAt": null,
+  "Lat_Data": {
+   "Float64": 46,
+   "Valid": true
+  },
+  "Lng_Data": {
+   "Float64": 4,
+   "Valid": true
+  },
+  "Heading_Data": {
+   "Float64": 135,
+   "Valid": true
+  },
+  "Level_Data": {
+   "Float64": 220,
+   "Valid": true
+  },
+  "Speed_Data": {
+   "Float64": 300,
+   "Valid": true
+  },
+  "VerticalSpeed_Data": {
+   "Float64": 30,
+   "Valid": true
+  },
+  "Name_Data": {
+   "String": "Track",
+   "Valid": true
+  },
+  "VisualColorEnum_Data": {
+   "String": "GREEN",
+   "Valid": true
+  },
+  "Display_Data": {
+   "Bool": false,
+   "Valid": true
+  },
+  "DisplayTrackHistory_Data": {
+   "Bool": false,
+   "Valid": true
+  },
+  "DisplayLevelAndSpeed_Data": {
+   "Bool": false,
+   "Valid": true
+  },
+  "LayerGroupID": {
+   "Int64": 3,
+   "Valid": true
+  },
+  "DivIconID": {
+   "Int64": 3,
+   "Valid": true
+  }
+ }
+]

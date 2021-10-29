@@ -10,12 +10,12 @@ import { CommitNbService } from '../commitnb.service'
 // insertion point for per struct import code
 import { DivIconService } from '../divicon.service'
 import { getDivIconUniqueID } from '../front-repo.service'
+import { LayerGroupService } from '../layergroup.service'
+import { getLayerGroupUniqueID } from '../front-repo.service'
 import { MarkerService } from '../marker.service'
 import { getMarkerUniqueID } from '../front-repo.service'
 import { VisualCircleService } from '../visualcircle.service'
 import { getVisualCircleUniqueID } from '../front-repo.service'
-import { VisualLayerService } from '../visuallayer.service'
-import { getVisualLayerUniqueID } from '../front-repo.service'
 import { VisualLineService } from '../visualline.service'
 import { getVisualLineUniqueID } from '../front-repo.service'
 import { VisualMapService } from '../visualmap.service'
@@ -158,9 +158,9 @@ export class SidebarComponent implements OnInit {
 
     // insertion point for per struct service declaration
     private diviconService: DivIconService,
+    private layergroupService: LayerGroupService,
     private markerService: MarkerService,
     private visualcircleService: VisualCircleService,
-    private visuallayerService: VisualLayerService,
     private visuallineService: VisualLineService,
     private visualmapService: VisualMapService,
     private visualtrackService: VisualTrackService,
@@ -179,6 +179,14 @@ export class SidebarComponent implements OnInit {
       }
     )
     // observable for changes in structs
+    this.layergroupService.LayerGroupServiceChanged.subscribe(
+      message => {
+        if (message == "post" || message == "update" || message == "delete") {
+          this.refresh()
+        }
+      }
+    )
+    // observable for changes in structs
     this.markerService.MarkerServiceChanged.subscribe(
       message => {
         if (message == "post" || message == "update" || message == "delete") {
@@ -188,14 +196,6 @@ export class SidebarComponent implements OnInit {
     )
     // observable for changes in structs
     this.visualcircleService.VisualCircleServiceChanged.subscribe(
-      message => {
-        if (message == "post" || message == "update" || message == "delete") {
-          this.refresh()
-        }
-      }
-    )
-    // observable for changes in structs
-    this.visuallayerService.VisualLayerServiceChanged.subscribe(
       message => {
         if (message == "post" || message == "update" || message == "delete") {
           this.refresh()
@@ -295,6 +295,50 @@ export class SidebarComponent implements OnInit {
       )
 
       /**
+      * fill up the LayerGroup part of the mat tree
+      */
+      let layergroupGongNodeStruct: GongNode = {
+        name: "LayerGroup",
+        type: GongNodeType.STRUCT,
+        id: 0,
+        uniqueIdPerStack: 13 * nonInstanceNodeId,
+        structName: "LayerGroup",
+        associationField: "",
+        associatedStructName: "",
+        children: new Array<GongNode>()
+      }
+      nonInstanceNodeId = nonInstanceNodeId + 1
+      this.gongNodeTree.push(layergroupGongNodeStruct)
+
+      this.frontRepo.LayerGroups_array.sort((t1, t2) => {
+        if (t1.Name > t2.Name) {
+          return 1;
+        }
+        if (t1.Name < t2.Name) {
+          return -1;
+        }
+        return 0;
+      });
+
+      this.frontRepo.LayerGroups_array.forEach(
+        layergroupDB => {
+          let layergroupGongNodeInstance: GongNode = {
+            name: layergroupDB.Name,
+            type: GongNodeType.INSTANCE,
+            id: layergroupDB.ID,
+            uniqueIdPerStack: getLayerGroupUniqueID(layergroupDB.ID),
+            structName: "LayerGroup",
+            associationField: "",
+            associatedStructName: "",
+            children: new Array<GongNode>()
+          }
+          layergroupGongNodeStruct.children!.push(layergroupGongNodeInstance)
+
+          // insertion point for per field code
+        }
+      )
+
+      /**
       * fill up the Marker part of the mat tree
       */
       let markerGongNodeStruct: GongNode = {
@@ -336,38 +380,38 @@ export class SidebarComponent implements OnInit {
 
           // insertion point for per field code
           /**
-          * let append a node for the association VisualLayer
+          * let append a node for the association LayerGroup
           */
-          let VisualLayerGongNodeAssociation: GongNode = {
-            name: "(VisualLayer) VisualLayer",
+          let LayerGroupGongNodeAssociation: GongNode = {
+            name: "(LayerGroup) LayerGroup",
             type: GongNodeType.ONE__ZERO_ONE_ASSOCIATION,
             id: markerDB.ID,
             uniqueIdPerStack: 17 * nonInstanceNodeId,
             structName: "Marker",
-            associationField: "VisualLayer",
-            associatedStructName: "VisualLayer",
+            associationField: "LayerGroup",
+            associatedStructName: "LayerGroup",
             children: new Array<GongNode>()
           }
           nonInstanceNodeId = nonInstanceNodeId + 1
-          markerGongNodeInstance.children!.push(VisualLayerGongNodeAssociation)
+          markerGongNodeInstance.children!.push(LayerGroupGongNodeAssociation)
 
           /**
-            * let append a node for the instance behind the asssociation VisualLayer
+            * let append a node for the instance behind the asssociation LayerGroup
             */
-          if (markerDB.VisualLayer != undefined) {
-            let markerGongNodeInstance_VisualLayer: GongNode = {
-              name: markerDB.VisualLayer.Name,
+          if (markerDB.LayerGroup != undefined) {
+            let markerGongNodeInstance_LayerGroup: GongNode = {
+              name: markerDB.LayerGroup.Name,
               type: GongNodeType.INSTANCE,
-              id: markerDB.VisualLayer.ID,
+              id: markerDB.LayerGroup.ID,
               uniqueIdPerStack: // godel numbering (thank you kurt)
                 3 * getMarkerUniqueID(markerDB.ID)
-                + 5 * getVisualLayerUniqueID(markerDB.VisualLayer.ID),
-              structName: "VisualLayer",
+                + 5 * getLayerGroupUniqueID(markerDB.LayerGroup.ID),
+              structName: "LayerGroup",
               associationField: "",
               associatedStructName: "",
               children: new Array<GongNode>()
             }
-            VisualLayerGongNodeAssociation.children.push(markerGongNodeInstance_VisualLayer)
+            LayerGroupGongNodeAssociation.children.push(markerGongNodeInstance_LayerGroup)
           }
 
           /**
@@ -450,84 +494,40 @@ export class SidebarComponent implements OnInit {
 
           // insertion point for per field code
           /**
-          * let append a node for the association VisualLayer
+          * let append a node for the association LayerGroup
           */
-          let VisualLayerGongNodeAssociation: GongNode = {
-            name: "(VisualLayer) VisualLayer",
+          let LayerGroupGongNodeAssociation: GongNode = {
+            name: "(LayerGroup) LayerGroup",
             type: GongNodeType.ONE__ZERO_ONE_ASSOCIATION,
             id: visualcircleDB.ID,
             uniqueIdPerStack: 17 * nonInstanceNodeId,
             structName: "VisualCircle",
-            associationField: "VisualLayer",
-            associatedStructName: "VisualLayer",
+            associationField: "LayerGroup",
+            associatedStructName: "LayerGroup",
             children: new Array<GongNode>()
           }
           nonInstanceNodeId = nonInstanceNodeId + 1
-          visualcircleGongNodeInstance.children!.push(VisualLayerGongNodeAssociation)
+          visualcircleGongNodeInstance.children!.push(LayerGroupGongNodeAssociation)
 
           /**
-            * let append a node for the instance behind the asssociation VisualLayer
+            * let append a node for the instance behind the asssociation LayerGroup
             */
-          if (visualcircleDB.VisualLayer != undefined) {
-            let visualcircleGongNodeInstance_VisualLayer: GongNode = {
-              name: visualcircleDB.VisualLayer.Name,
+          if (visualcircleDB.LayerGroup != undefined) {
+            let visualcircleGongNodeInstance_LayerGroup: GongNode = {
+              name: visualcircleDB.LayerGroup.Name,
               type: GongNodeType.INSTANCE,
-              id: visualcircleDB.VisualLayer.ID,
+              id: visualcircleDB.LayerGroup.ID,
               uniqueIdPerStack: // godel numbering (thank you kurt)
                 3 * getVisualCircleUniqueID(visualcircleDB.ID)
-                + 5 * getVisualLayerUniqueID(visualcircleDB.VisualLayer.ID),
-              structName: "VisualLayer",
+                + 5 * getLayerGroupUniqueID(visualcircleDB.LayerGroup.ID),
+              structName: "LayerGroup",
               associationField: "",
               associatedStructName: "",
               children: new Array<GongNode>()
             }
-            VisualLayerGongNodeAssociation.children.push(visualcircleGongNodeInstance_VisualLayer)
+            LayerGroupGongNodeAssociation.children.push(visualcircleGongNodeInstance_LayerGroup)
           }
 
-        }
-      )
-
-      /**
-      * fill up the VisualLayer part of the mat tree
-      */
-      let visuallayerGongNodeStruct: GongNode = {
-        name: "VisualLayer",
-        type: GongNodeType.STRUCT,
-        id: 0,
-        uniqueIdPerStack: 13 * nonInstanceNodeId,
-        structName: "VisualLayer",
-        associationField: "",
-        associatedStructName: "",
-        children: new Array<GongNode>()
-      }
-      nonInstanceNodeId = nonInstanceNodeId + 1
-      this.gongNodeTree.push(visuallayerGongNodeStruct)
-
-      this.frontRepo.VisualLayers_array.sort((t1, t2) => {
-        if (t1.Name > t2.Name) {
-          return 1;
-        }
-        if (t1.Name < t2.Name) {
-          return -1;
-        }
-        return 0;
-      });
-
-      this.frontRepo.VisualLayers_array.forEach(
-        visuallayerDB => {
-          let visuallayerGongNodeInstance: GongNode = {
-            name: visuallayerDB.Name,
-            type: GongNodeType.INSTANCE,
-            id: visuallayerDB.ID,
-            uniqueIdPerStack: getVisualLayerUniqueID(visuallayerDB.ID),
-            structName: "VisualLayer",
-            associationField: "",
-            associatedStructName: "",
-            children: new Array<GongNode>()
-          }
-          visuallayerGongNodeStruct.children!.push(visuallayerGongNodeInstance)
-
-          // insertion point for per field code
         }
       )
 
@@ -573,38 +573,38 @@ export class SidebarComponent implements OnInit {
 
           // insertion point for per field code
           /**
-          * let append a node for the association VisualLayer
+          * let append a node for the association LayerGroup
           */
-          let VisualLayerGongNodeAssociation: GongNode = {
-            name: "(VisualLayer) VisualLayer",
+          let LayerGroupGongNodeAssociation: GongNode = {
+            name: "(LayerGroup) LayerGroup",
             type: GongNodeType.ONE__ZERO_ONE_ASSOCIATION,
             id: visuallineDB.ID,
             uniqueIdPerStack: 17 * nonInstanceNodeId,
             structName: "VisualLine",
-            associationField: "VisualLayer",
-            associatedStructName: "VisualLayer",
+            associationField: "LayerGroup",
+            associatedStructName: "LayerGroup",
             children: new Array<GongNode>()
           }
           nonInstanceNodeId = nonInstanceNodeId + 1
-          visuallineGongNodeInstance.children!.push(VisualLayerGongNodeAssociation)
+          visuallineGongNodeInstance.children!.push(LayerGroupGongNodeAssociation)
 
           /**
-            * let append a node for the instance behind the asssociation VisualLayer
+            * let append a node for the instance behind the asssociation LayerGroup
             */
-          if (visuallineDB.VisualLayer != undefined) {
-            let visuallineGongNodeInstance_VisualLayer: GongNode = {
-              name: visuallineDB.VisualLayer.Name,
+          if (visuallineDB.LayerGroup != undefined) {
+            let visuallineGongNodeInstance_LayerGroup: GongNode = {
+              name: visuallineDB.LayerGroup.Name,
               type: GongNodeType.INSTANCE,
-              id: visuallineDB.VisualLayer.ID,
+              id: visuallineDB.LayerGroup.ID,
               uniqueIdPerStack: // godel numbering (thank you kurt)
                 3 * getVisualLineUniqueID(visuallineDB.ID)
-                + 5 * getVisualLayerUniqueID(visuallineDB.VisualLayer.ID),
-              structName: "VisualLayer",
+                + 5 * getLayerGroupUniqueID(visuallineDB.LayerGroup.ID),
+              structName: "LayerGroup",
               associationField: "",
               associatedStructName: "",
               children: new Array<GongNode>()
             }
-            VisualLayerGongNodeAssociation.children.push(visuallineGongNodeInstance_VisualLayer)
+            LayerGroupGongNodeAssociation.children.push(visuallineGongNodeInstance_LayerGroup)
           }
 
         }
@@ -696,38 +696,38 @@ export class SidebarComponent implements OnInit {
 
           // insertion point for per field code
           /**
-          * let append a node for the association VisualLayer
+          * let append a node for the association LayerGroup
           */
-          let VisualLayerGongNodeAssociation: GongNode = {
-            name: "(VisualLayer) VisualLayer",
+          let LayerGroupGongNodeAssociation: GongNode = {
+            name: "(LayerGroup) LayerGroup",
             type: GongNodeType.ONE__ZERO_ONE_ASSOCIATION,
             id: visualtrackDB.ID,
             uniqueIdPerStack: 17 * nonInstanceNodeId,
             structName: "VisualTrack",
-            associationField: "VisualLayer",
-            associatedStructName: "VisualLayer",
+            associationField: "LayerGroup",
+            associatedStructName: "LayerGroup",
             children: new Array<GongNode>()
           }
           nonInstanceNodeId = nonInstanceNodeId + 1
-          visualtrackGongNodeInstance.children!.push(VisualLayerGongNodeAssociation)
+          visualtrackGongNodeInstance.children!.push(LayerGroupGongNodeAssociation)
 
           /**
-            * let append a node for the instance behind the asssociation VisualLayer
+            * let append a node for the instance behind the asssociation LayerGroup
             */
-          if (visualtrackDB.VisualLayer != undefined) {
-            let visualtrackGongNodeInstance_VisualLayer: GongNode = {
-              name: visualtrackDB.VisualLayer.Name,
+          if (visualtrackDB.LayerGroup != undefined) {
+            let visualtrackGongNodeInstance_LayerGroup: GongNode = {
+              name: visualtrackDB.LayerGroup.Name,
               type: GongNodeType.INSTANCE,
-              id: visualtrackDB.VisualLayer.ID,
+              id: visualtrackDB.LayerGroup.ID,
               uniqueIdPerStack: // godel numbering (thank you kurt)
                 3 * getVisualTrackUniqueID(visualtrackDB.ID)
-                + 5 * getVisualLayerUniqueID(visualtrackDB.VisualLayer.ID),
-              structName: "VisualLayer",
+                + 5 * getLayerGroupUniqueID(visualtrackDB.LayerGroup.ID),
+              structName: "LayerGroup",
               associationField: "",
               associatedStructName: "",
               children: new Array<GongNode>()
             }
-            VisualLayerGongNodeAssociation.children.push(visualtrackGongNodeInstance_VisualLayer)
+            LayerGroupGongNodeAssociation.children.push(visualtrackGongNodeInstance_LayerGroup)
           }
 
           /**

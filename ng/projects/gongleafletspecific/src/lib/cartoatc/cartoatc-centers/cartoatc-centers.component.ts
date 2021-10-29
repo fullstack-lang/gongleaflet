@@ -57,7 +57,7 @@ export class CartoatcCentersComponent implements OnInit {
 
             var icon: L.DivIcon = manageLeafletItems.newIcon(
               marker.ID,
-              'layer-' + marker.VisualLayerID.Int64,
+              'layer-' + marker.LayerGroupID.Int64,
               this.map_divIconID_divIconSVG.get(marker.DivIconID.Int64)!,
               DEFAULT_ICON_SIZE,
               color,

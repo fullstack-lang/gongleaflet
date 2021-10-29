@@ -32,8 +32,8 @@ export class CartoatcComponent implements OnInit {
   // [leafletOptions]="mapOptions" is passed to the leaflet map in the html
   mapOptions?: L.MapOptions // stangely, impossible to type without ?
 
-  // [leafletLayers]="visualLayers" is passed to one div in the html
-  visualLayers: L.Layer[] = [];
+  // [leafletLayers]="layerGroups" is passed to one div in the html
+  layerGroups: L.Layer[] = [];
 
   // passed to the html as layers [leafletLayers]="visualTracksHistory"
   visualTracksHistory: L.Layer[] = [];
@@ -147,7 +147,7 @@ export class CartoatcComponent implements OnInit {
     if (visualTrack.DivIcon) {
       var icon: L.DivIcon = manageLeafletItems.newIcon(
         visualTrack.ID + '-track',
-        'layer-' + visualTrack.VisualLayerID.Int64,
+        'layer-' + visualTrack.LayerGroupID.Int64,
         visualTrack.DivIcon.SVG,
         DEFAULT_ICON_SIZE,
         color,
@@ -168,11 +168,11 @@ export class CartoatcComponent implements OnInit {
         visualTrack.ID + '-track',
         visualTrack.Heading
       );
-      this.trackLayerID = visualTrack.VisualLayerID.Int64;
+      this.trackLayerID = visualTrack.LayerGroupID.Int64;
 
       this.mapVisualTrackID_VisualMarker.set(visualTrack.ID, marker);
       this.mapVisualMarker_VisualTrackID.set(marker, visualTrack.ID);
-      this.visualLayers.push(marker);
+      this.layerGroups.push(marker);
     }
   }
 

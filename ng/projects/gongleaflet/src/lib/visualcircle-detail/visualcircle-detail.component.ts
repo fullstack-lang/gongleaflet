@@ -140,15 +140,15 @@ export class VisualCircleDetailComponent implements OnInit {
 		// pointers fields, after the translation, are nulled in order to perform serialization
 
 		// insertion point for translation/nullation of each field
-		if (this.visualcircle.VisualLayerID == undefined) {
-			this.visualcircle.VisualLayerID = new NullInt64
+		if (this.visualcircle.LayerGroupID == undefined) {
+			this.visualcircle.LayerGroupID = new NullInt64
 		}
-		if (this.visualcircle.VisualLayer != undefined) {
-			this.visualcircle.VisualLayerID.Int64 = this.visualcircle.VisualLayer.ID
-			this.visualcircle.VisualLayerID.Valid = true
+		if (this.visualcircle.LayerGroup != undefined) {
+			this.visualcircle.LayerGroupID.Int64 = this.visualcircle.LayerGroup.ID
+			this.visualcircle.LayerGroupID.Valid = true
 		} else {
-			this.visualcircle.VisualLayerID.Int64 = 0
-			this.visualcircle.VisualLayerID.Valid = true
+			this.visualcircle.LayerGroupID.Int64 = 0
+			this.visualcircle.LayerGroupID.Valid = true
 		}
 
 		// save from the front pointer space to the non pointer space for serialization

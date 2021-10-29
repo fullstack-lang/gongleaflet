@@ -50,6 +50,13 @@ func RegisterControllers(r *gin.Engine) {
 		v1.PUT("/v1/divicons/:id", UpdateDivIcon)
 		v1.DELETE("/v1/divicons/:id", DeleteDivIcon)
 
+		v1.GET("/v1/layergroups", GetLayerGroups)
+		v1.GET("/v1/layergroups/:id", GetLayerGroup)
+		v1.POST("/v1/layergroups", PostLayerGroup)
+		v1.PATCH("/v1/layergroups/:id", UpdateLayerGroup)
+		v1.PUT("/v1/layergroups/:id", UpdateLayerGroup)
+		v1.DELETE("/v1/layergroups/:id", DeleteLayerGroup)
+
 		v1.GET("/v1/markers", GetMarkers)
 		v1.GET("/v1/markers/:id", GetMarker)
 		v1.POST("/v1/markers", PostMarker)
@@ -63,13 +70,6 @@ func RegisterControllers(r *gin.Engine) {
 		v1.PATCH("/v1/visualcircles/:id", UpdateVisualCircle)
 		v1.PUT("/v1/visualcircles/:id", UpdateVisualCircle)
 		v1.DELETE("/v1/visualcircles/:id", DeleteVisualCircle)
-
-		v1.GET("/v1/visuallayers", GetVisualLayers)
-		v1.GET("/v1/visuallayers/:id", GetVisualLayer)
-		v1.POST("/v1/visuallayers", PostVisualLayer)
-		v1.PATCH("/v1/visuallayers/:id", UpdateVisualLayer)
-		v1.PUT("/v1/visuallayers/:id", UpdateVisualLayer)
-		v1.DELETE("/v1/visuallayers/:id", DeleteVisualLayer)
 
 		v1.GET("/v1/visuallines", GetVisualLines)
 		v1.GET("/v1/visuallines/:id", GetVisualLine)

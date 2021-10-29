@@ -14,7 +14,7 @@ import { catchError, map, tap } from 'rxjs/operators';
 import { VisualCircleDB } from './visualcircle-db';
 
 // insertion point for imports
-import { VisualLayerDB } from './visuallayer-db'
+import { LayerGroupDB } from './layergroup-db'
 
 @Injectable({
   providedIn: 'root'
@@ -71,7 +71,7 @@ export class VisualCircleService {
   postVisualCircle(visualcircledb: VisualCircleDB): Observable<VisualCircleDB> {
 
     // insertion point for reset of pointers and reverse pointers (to avoid circular JSON)
-    visualcircledb.VisualLayer = new VisualLayerDB
+    visualcircledb.LayerGroup = new LayerGroupDB
 
     return this.http.post<VisualCircleDB>(this.visualcirclesUrl, visualcircledb, this.httpOptions).pipe(
       tap(_ => {
@@ -99,7 +99,7 @@ export class VisualCircleService {
     const url = `${this.visualcirclesUrl}/${id}`;
 
     // insertion point for reset of pointers and reverse pointers (to avoid circular JSON)
-    visualcircledb.VisualLayer = new VisualLayerDB
+    visualcircledb.LayerGroup = new LayerGroupDB
 
     return this.http.put<VisualCircleDB>(url, visualcircledb, this.httpOptions).pipe(
       tap(_ => {

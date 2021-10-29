@@ -43,6 +43,11 @@ import { DivIconSortingComponent } from './divicon-sorting/divicon-sorting.compo
 import { DivIconDetailComponent } from './divicon-detail/divicon-detail.component'
 import { DivIconPresentationComponent } from './divicon-presentation/divicon-presentation.component'
 
+import { LayerGroupsTableComponent } from './layergroups-table/layergroups-table.component'
+import { LayerGroupSortingComponent } from './layergroup-sorting/layergroup-sorting.component'
+import { LayerGroupDetailComponent } from './layergroup-detail/layergroup-detail.component'
+import { LayerGroupPresentationComponent } from './layergroup-presentation/layergroup-presentation.component'
+
 import { MarkersTableComponent } from './markers-table/markers-table.component'
 import { MarkerSortingComponent } from './marker-sorting/marker-sorting.component'
 import { MarkerDetailComponent } from './marker-detail/marker-detail.component'
@@ -52,11 +57,6 @@ import { VisualCirclesTableComponent } from './visualcircles-table/visualcircles
 import { VisualCircleSortingComponent } from './visualcircle-sorting/visualcircle-sorting.component'
 import { VisualCircleDetailComponent } from './visualcircle-detail/visualcircle-detail.component'
 import { VisualCirclePresentationComponent } from './visualcircle-presentation/visualcircle-presentation.component'
-
-import { VisualLayersTableComponent } from './visuallayers-table/visuallayers-table.component'
-import { VisualLayerSortingComponent } from './visuallayer-sorting/visuallayer-sorting.component'
-import { VisualLayerDetailComponent } from './visuallayer-detail/visuallayer-detail.component'
-import { VisualLayerPresentationComponent } from './visuallayer-presentation/visuallayer-presentation.component'
 
 import { VisualLinesTableComponent } from './visuallines-table/visuallines-table.component'
 import { VisualLineSortingComponent } from './visualline-sorting/visualline-sorting.component'
@@ -82,6 +82,11 @@ import { VisualTrackPresentationComponent } from './visualtrack-presentation/vis
 		DivIconDetailComponent,
 		DivIconPresentationComponent,
 
+		LayerGroupsTableComponent,
+		LayerGroupSortingComponent,
+		LayerGroupDetailComponent,
+		LayerGroupPresentationComponent,
+
 		MarkersTableComponent,
 		MarkerSortingComponent,
 		MarkerDetailComponent,
@@ -91,11 +96,6 @@ import { VisualTrackPresentationComponent } from './visualtrack-presentation/vis
 		VisualCircleSortingComponent,
 		VisualCircleDetailComponent,
 		VisualCirclePresentationComponent,
-
-		VisualLayersTableComponent,
-		VisualLayerSortingComponent,
-		VisualLayerDetailComponent,
-		VisualLayerPresentationComponent,
 
 		VisualLinesTableComponent,
 		VisualLineSortingComponent,
@@ -156,6 +156,11 @@ import { VisualTrackPresentationComponent } from './visualtrack-presentation/vis
 		DivIconDetailComponent,
 		DivIconPresentationComponent,
 
+		LayerGroupsTableComponent,
+		LayerGroupSortingComponent,
+		LayerGroupDetailComponent,
+		LayerGroupPresentationComponent,
+
 		MarkersTableComponent,
 		MarkerSortingComponent,
 		MarkerDetailComponent,
@@ -165,11 +170,6 @@ import { VisualTrackPresentationComponent } from './visualtrack-presentation/vis
 		VisualCircleSortingComponent,
 		VisualCircleDetailComponent,
 		VisualCirclePresentationComponent,
-
-		VisualLayersTableComponent,
-		VisualLayerSortingComponent,
-		VisualLayerDetailComponent,
-		VisualLayerPresentationComponent,
 
 		VisualLinesTableComponent,
 		VisualLineSortingComponent,

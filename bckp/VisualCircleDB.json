@@ -1,8 +1,8 @@
 [
  {
-  "ID": 2,
+  "ID": 1,
   "CreatedAt": "2021-06-01T04:15:56.839229+02:00",
-  "UpdatedAt": "2021-06-01T04:17:17.197035+02:00",
+  "UpdatedAt": "2021-10-29T09:37:52.652201+02:00",
   "DeletedAt": null,
   "Lat_Data": {
    "Float64": 46,
@@ -28,10 +28,9 @@
    "String": "FIVE_TWENTY",
    "Valid": true
   },
-  "VisualLayerID": {
+  "LayerGroupID": {
    "Int64": 2,
    "Valid": true
-  },
-  "VisualLayerName": "Default"
+  }
  }
 ]

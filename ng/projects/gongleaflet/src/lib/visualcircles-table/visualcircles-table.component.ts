@@ -84,8 +84,8 @@ export class VisualCirclesTableComponent implements OnInit {
         case 'DashStyleEnum':
           return visualcircleDB.DashStyleEnum;
 
-        case 'VisualLayer':
-          return (visualcircleDB.VisualLayer ? visualcircleDB.VisualLayer.Name : '');
+        case 'LayerGroup':
+          return (visualcircleDB.LayerGroup ? visualcircleDB.LayerGroup.Name : '');
 
         default:
           console.assert(false, "Unknown field")
@@ -107,8 +107,8 @@ export class VisualCirclesTableComponent implements OnInit {
       mergedContent += visualcircleDB.Radius.toString()
       mergedContent += visualcircleDB.VisualColorEnum.toLowerCase()
       mergedContent += visualcircleDB.DashStyleEnum.toLowerCase()
-      if (visualcircleDB.VisualLayer) {
-        mergedContent += visualcircleDB.VisualLayer.Name.toLowerCase()
+      if (visualcircleDB.LayerGroup) {
+        mergedContent += visualcircleDB.LayerGroup.Name.toLowerCase()
       }
 
       let isSelected = mergedContent.includes(filter.toLowerCase())
@@ -166,7 +166,7 @@ export class VisualCirclesTableComponent implements OnInit {
         "Radius",
         "VisualColorEnum",
         "DashStyleEnum",
-        "VisualLayer",
+        "LayerGroup",
       ]
     } else {
       this.displayedColumns = ['select', 'ID', // insertion point for columns to display
@@ -176,7 +176,7 @@ export class VisualCirclesTableComponent implements OnInit {
         "Radius",
         "VisualColorEnum",
         "DashStyleEnum",
-        "VisualLayer",
+        "LayerGroup",
       ]
       this.selection = new SelectionModel<VisualCircleDB>(allowMultiSelect, this.initialSelection);
     }

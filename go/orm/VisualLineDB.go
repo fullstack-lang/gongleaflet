@@ -46,9 +46,9 @@ type VisualLineAPI struct {
 type VisualLinePointersEnconding struct {
 	// insertion for pointer fields encoding declaration
 
-	// field VisualLayer is a pointer to another Struct (optional or 0..1)
+	// field LayerGroup is a pointer to another Struct (optional or 0..1)
 	// This field is generated into another field to enable AS ONE association
-	VisualLayerID sql.NullInt64
+	LayerGroupID sql.NullInt64
 }
 
 // VisualLineDB describes a visualline in the database
@@ -296,12 +296,12 @@ func (backRepoVisualLine *BackRepoVisualLineStruct) CommitPhaseTwoInstance(backR
 		visuallineDB.CopyBasicFieldsFromVisualLine(visualline)
 
 		// insertion point for translating pointers encodings into actual pointers
-		// commit pointer value visualline.VisualLayer translates to updating the visualline.VisualLayerID
-		visuallineDB.VisualLayerID.Valid = true // allow for a 0 value (nil association)
-		if visualline.VisualLayer != nil {
-			if VisualLayerId, ok := (*backRepo.BackRepoVisualLayer.Map_VisualLayerPtr_VisualLayerDBID)[visualline.VisualLayer]; ok {
-				visuallineDB.VisualLayerID.Int64 = int64(VisualLayerId)
-				visuallineDB.VisualLayerID.Valid = true
+		// commit pointer value visualline.LayerGroup translates to updating the visualline.LayerGroupID
+		visuallineDB.LayerGroupID.Valid = true // allow for a 0 value (nil association)
+		if visualline.LayerGroup != nil {
+			if LayerGroupId, ok := (*backRepo.BackRepoLayerGroup.Map_LayerGroupPtr_LayerGroupDBID)[visualline.LayerGroup]; ok {
+				visuallineDB.LayerGroupID.Int64 = int64(LayerGroupId)
+				visuallineDB.LayerGroupID.Valid = true
 			}
 		}
 
@@ -410,9 +410,9 @@ func (backRepoVisualLine *BackRepoVisualLineStruct) CheckoutPhaseTwoInstance(bac
 	_ = visualline // sometimes, there is no code generated. This lines voids the "unused variable" compilation error
 
 	// insertion point for checkout of pointer encoding
-	// VisualLayer field
-	if visuallineDB.VisualLayerID.Int64 != 0 {
-		visualline.VisualLayer = (*backRepo.BackRepoVisualLayer.Map_VisualLayerDBID_VisualLayerPtr)[uint(visuallineDB.VisualLayerID.Int64)]
+	// LayerGroup field
+	if visuallineDB.LayerGroupID.Int64 != 0 {
+		visualline.LayerGroup = (*backRepo.BackRepoLayerGroup.Map_LayerGroupDBID_LayerGroupPtr)[uint(visuallineDB.LayerGroupID.Int64)]
 	}
 	return
 }
@@ -707,10 +707,10 @@ func (backRepoVisualLine *BackRepoVisualLineStruct) RestorePhaseTwo() {
 		_ = visuallineDB
 
 		// insertion point for reindexing pointers encoding
-		// reindexing VisualLayer field
-		if visuallineDB.VisualLayerID.Int64 != 0 {
-			visuallineDB.VisualLayerID.Int64 = int64(BackRepoVisualLayerid_atBckpTime_newID[uint(visuallineDB.VisualLayerID.Int64)])
-			visuallineDB.VisualLayerID.Valid = true
+		// reindexing LayerGroup field
+		if visuallineDB.LayerGroupID.Int64 != 0 {
+			visuallineDB.LayerGroupID.Int64 = int64(BackRepoLayerGroupid_atBckpTime_newID[uint(visuallineDB.LayerGroupID.Int64)])
+			visuallineDB.LayerGroupID.Valid = true
 		}
 
 		// update databse with new index encoding

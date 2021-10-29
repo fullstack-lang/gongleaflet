@@ -12,8 +12,8 @@ type VisualCircle struct {
 	VisualColorEnum VisualColorEnum
 	DashStyleEnum   DashStyleEnum
 
-	// VisualLayer the object belongs to
-	VisualLayer *VisualLayer
+	// LayerGroup the object belongs to
+	LayerGroup *LayerGroup
 
 	// swagger:ignore
 	// access to the models instance that contains the original information
@@ -37,6 +37,6 @@ func (VisualCircle *VisualCircle) UpdateCircle() {
 
 		VisualCircle.Radius = VisualCircle.Circle.GetRadius()
 
-		VisualCircle.VisualLayer = DefaultVisualLayer
+		VisualCircle.LayerGroup = DefaultLayerGroup
 	}
 }

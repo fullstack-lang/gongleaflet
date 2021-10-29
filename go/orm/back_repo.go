@@ -21,11 +21,11 @@ type BackRepoStruct struct {
 	// insertion point for per struct back repo declarations
 	BackRepoDivIcon BackRepoDivIconStruct
 
+	BackRepoLayerGroup BackRepoLayerGroupStruct
+
 	BackRepoMarker BackRepoMarkerStruct
 
 	BackRepoVisualCircle BackRepoVisualCircleStruct
-
-	BackRepoVisualLayer BackRepoVisualLayerStruct
 
 	BackRepoVisualLine BackRepoVisualLineStruct
 
@@ -63,9 +63,9 @@ func (backRepo *BackRepoStruct) IncrementPushFromFrontNb() uint {
 func (backRepo *BackRepoStruct) init(db *gorm.DB) {
 	// insertion point for per struct back repo declarations
 	backRepo.BackRepoDivIcon.Init(db)
+	backRepo.BackRepoLayerGroup.Init(db)
 	backRepo.BackRepoMarker.Init(db)
 	backRepo.BackRepoVisualCircle.Init(db)
-	backRepo.BackRepoVisualLayer.Init(db)
 	backRepo.BackRepoVisualLine.Init(db)
 	backRepo.BackRepoVisualMap.Init(db)
 	backRepo.BackRepoVisualTrack.Init(db)
@@ -77,18 +77,18 @@ func (backRepo *BackRepoStruct) init(db *gorm.DB) {
 func (backRepo *BackRepoStruct) Commit(stage *models.StageStruct) {
 	// insertion point for per struct back repo phase one commit
 	backRepo.BackRepoDivIcon.CommitPhaseOne(stage)
+	backRepo.BackRepoLayerGroup.CommitPhaseOne(stage)
 	backRepo.BackRepoMarker.CommitPhaseOne(stage)
 	backRepo.BackRepoVisualCircle.CommitPhaseOne(stage)
-	backRepo.BackRepoVisualLayer.CommitPhaseOne(stage)
 	backRepo.BackRepoVisualLine.CommitPhaseOne(stage)
 	backRepo.BackRepoVisualMap.CommitPhaseOne(stage)
 	backRepo.BackRepoVisualTrack.CommitPhaseOne(stage)
 
 	// insertion point for per struct back repo phase two commit
 	backRepo.BackRepoDivIcon.CommitPhaseTwo(backRepo)
+	backRepo.BackRepoLayerGroup.CommitPhaseTwo(backRepo)
 	backRepo.BackRepoMarker.CommitPhaseTwo(backRepo)
 	backRepo.BackRepoVisualCircle.CommitPhaseTwo(backRepo)
-	backRepo.BackRepoVisualLayer.CommitPhaseTwo(backRepo)
 	backRepo.BackRepoVisualLine.CommitPhaseTwo(backRepo)
 	backRepo.BackRepoVisualMap.CommitPhaseTwo(backRepo)
 	backRepo.BackRepoVisualTrack.CommitPhaseTwo(backRepo)
@@ -100,18 +100,18 @@ func (backRepo *BackRepoStruct) Commit(stage *models.StageStruct) {
 func (backRepo *BackRepoStruct) Checkout(stage *models.StageStruct) {
 	// insertion point for per struct back repo phase one commit
 	backRepo.BackRepoDivIcon.CheckoutPhaseOne()
+	backRepo.BackRepoLayerGroup.CheckoutPhaseOne()
 	backRepo.BackRepoMarker.CheckoutPhaseOne()
 	backRepo.BackRepoVisualCircle.CheckoutPhaseOne()
-	backRepo.BackRepoVisualLayer.CheckoutPhaseOne()
 	backRepo.BackRepoVisualLine.CheckoutPhaseOne()
 	backRepo.BackRepoVisualMap.CheckoutPhaseOne()
 	backRepo.BackRepoVisualTrack.CheckoutPhaseOne()
 
 	// insertion point for per struct back repo phase two commit
 	backRepo.BackRepoDivIcon.CheckoutPhaseTwo(backRepo)
+	backRepo.BackRepoLayerGroup.CheckoutPhaseTwo(backRepo)
 	backRepo.BackRepoMarker.CheckoutPhaseTwo(backRepo)
 	backRepo.BackRepoVisualCircle.CheckoutPhaseTwo(backRepo)
-	backRepo.BackRepoVisualLayer.CheckoutPhaseTwo(backRepo)
 	backRepo.BackRepoVisualLine.CheckoutPhaseTwo(backRepo)
 	backRepo.BackRepoVisualMap.CheckoutPhaseTwo(backRepo)
 	backRepo.BackRepoVisualTrack.CheckoutPhaseTwo(backRepo)
@@ -133,9 +133,9 @@ func (backRepo *BackRepoStruct) Backup(stage *models.StageStruct, dirPath string
 
 	// insertion point for per struct backup
 	backRepo.BackRepoDivIcon.Backup(dirPath)
+	backRepo.BackRepoLayerGroup.Backup(dirPath)
 	backRepo.BackRepoMarker.Backup(dirPath)
 	backRepo.BackRepoVisualCircle.Backup(dirPath)
-	backRepo.BackRepoVisualLayer.Backup(dirPath)
 	backRepo.BackRepoVisualLine.Backup(dirPath)
 	backRepo.BackRepoVisualMap.Backup(dirPath)
 	backRepo.BackRepoVisualTrack.Backup(dirPath)
@@ -150,9 +150,9 @@ func (backRepo *BackRepoStruct) BackupXL(stage *models.StageStruct, dirPath stri
 
 	// insertion point for per struct backup
 	backRepo.BackRepoDivIcon.BackupXL(file)
+	backRepo.BackRepoLayerGroup.BackupXL(file)
 	backRepo.BackRepoMarker.BackupXL(file)
 	backRepo.BackRepoVisualCircle.BackupXL(file)
-	backRepo.BackRepoVisualLayer.BackupXL(file)
 	backRepo.BackRepoVisualLine.BackupXL(file)
 	backRepo.BackRepoVisualMap.BackupXL(file)
 	backRepo.BackRepoVisualTrack.BackupXL(file)
@@ -181,9 +181,9 @@ func (backRepo *BackRepoStruct) Restore(stage *models.StageStruct, dirPath strin
 
 	// insertion point for per struct backup
 	backRepo.BackRepoDivIcon.RestorePhaseOne(dirPath)
+	backRepo.BackRepoLayerGroup.RestorePhaseOne(dirPath)
 	backRepo.BackRepoMarker.RestorePhaseOne(dirPath)
 	backRepo.BackRepoVisualCircle.RestorePhaseOne(dirPath)
-	backRepo.BackRepoVisualLayer.RestorePhaseOne(dirPath)
 	backRepo.BackRepoVisualLine.RestorePhaseOne(dirPath)
 	backRepo.BackRepoVisualMap.RestorePhaseOne(dirPath)
 	backRepo.BackRepoVisualTrack.RestorePhaseOne(dirPath)
@@ -194,9 +194,9 @@ func (backRepo *BackRepoStruct) Restore(stage *models.StageStruct, dirPath strin
 
 	// insertion point for per struct backup
 	backRepo.BackRepoDivIcon.RestorePhaseTwo()
+	backRepo.BackRepoLayerGroup.RestorePhaseTwo()
 	backRepo.BackRepoMarker.RestorePhaseTwo()
 	backRepo.BackRepoVisualCircle.RestorePhaseTwo()
-	backRepo.BackRepoVisualLayer.RestorePhaseTwo()
 	backRepo.BackRepoVisualLine.RestorePhaseTwo()
 	backRepo.BackRepoVisualMap.RestorePhaseTwo()
 	backRepo.BackRepoVisualTrack.RestorePhaseTwo()
@@ -227,9 +227,9 @@ func (backRepo *BackRepoStruct) RestoreXL(stage *models.StageStruct, dirPath str
 
 	// insertion point for per struct backup
 	backRepo.BackRepoDivIcon.RestoreXLPhaseOne(file)
+	backRepo.BackRepoLayerGroup.RestoreXLPhaseOne(file)
 	backRepo.BackRepoMarker.RestoreXLPhaseOne(file)
 	backRepo.BackRepoVisualCircle.RestoreXLPhaseOne(file)
-	backRepo.BackRepoVisualLayer.RestoreXLPhaseOne(file)
 	backRepo.BackRepoVisualLine.RestoreXLPhaseOne(file)
 	backRepo.BackRepoVisualMap.RestoreXLPhaseOne(file)
 	backRepo.BackRepoVisualTrack.RestoreXLPhaseOne(file)

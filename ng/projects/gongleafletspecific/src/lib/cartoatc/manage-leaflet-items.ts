@@ -103,7 +103,7 @@ function newMarkerWithIcon(lat: number, lng: number, icon: L.DivIcon): L.Marker 
 
 const newCircle = (visualCircle: VisualCircleDB): L.Circle => {
   return L.circle([visualCircle.Lat, visualCircle.Lng], {
-    className: 'layer-' + visualCircle.VisualLayerID.Int64,
+    className: 'layer-' + visualCircle.LayerGroupID.Int64,
     radius: visualCircle.Radius * 1000,
     color: getColor(visualCircle.VisualColorEnum),
     opacity: 0.2,
@@ -120,7 +120,7 @@ const setLine = (newVisualLineData: VisualLineDB): L.Polyline => {
       L.latLng(newVisualLineData.EndLat, newVisualLineData.EndLng),
     ])
     .setStyle({
-      className: 'layer-' + newVisualLineData.VisualLayerID.Int64,
+      className: 'layer-' + newVisualLineData.LayerGroupID.Int64,
       weight: 2,
       dashArray: getDashStyle(newVisualLineData.DashStyleEnum),
       opacity: 0.5,

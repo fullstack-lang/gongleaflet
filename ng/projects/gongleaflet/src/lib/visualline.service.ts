@@ -14,7 +14,7 @@ import { catchError, map, tap } from 'rxjs/operators';
 import { VisualLineDB } from './visualline-db';
 
 // insertion point for imports
-import { VisualLayerDB } from './visuallayer-db'
+import { LayerGroupDB } from './layergroup-db'
 
 @Injectable({
   providedIn: 'root'
@@ -71,7 +71,7 @@ export class VisualLineService {
   postVisualLine(visuallinedb: VisualLineDB): Observable<VisualLineDB> {
 
     // insertion point for reset of pointers and reverse pointers (to avoid circular JSON)
-    visuallinedb.VisualLayer = new VisualLayerDB
+    visuallinedb.LayerGroup = new LayerGroupDB
 
     return this.http.post<VisualLineDB>(this.visuallinesUrl, visuallinedb, this.httpOptions).pipe(
       tap(_ => {
@@ -99,7 +99,7 @@ export class VisualLineService {
     const url = `${this.visuallinesUrl}/${id}`;
 
     // insertion point for reset of pointers and reverse pointers (to avoid circular JSON)
-    visuallinedb.VisualLayer = new VisualLayerDB
+    visuallinedb.LayerGroup = new LayerGroupDB
 
     return this.http.put<VisualLineDB>(url, visuallinedb, this.httpOptions).pipe(
       tap(_ => {

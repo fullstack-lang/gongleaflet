@@ -143,15 +143,15 @@ export class VisualTrackDetailComponent implements OnInit {
 		// pointers fields, after the translation, are nulled in order to perform serialization
 
 		// insertion point for translation/nullation of each field
-		if (this.visualtrack.VisualLayerID == undefined) {
-			this.visualtrack.VisualLayerID = new NullInt64
+		if (this.visualtrack.LayerGroupID == undefined) {
+			this.visualtrack.LayerGroupID = new NullInt64
 		}
-		if (this.visualtrack.VisualLayer != undefined) {
-			this.visualtrack.VisualLayerID.Int64 = this.visualtrack.VisualLayer.ID
-			this.visualtrack.VisualLayerID.Valid = true
+		if (this.visualtrack.LayerGroup != undefined) {
+			this.visualtrack.LayerGroupID.Int64 = this.visualtrack.LayerGroup.ID
+			this.visualtrack.LayerGroupID.Valid = true
 		} else {
-			this.visualtrack.VisualLayerID.Int64 = 0
-			this.visualtrack.VisualLayerID.Valid = true
+			this.visualtrack.LayerGroupID.Int64 = 0
+			this.visualtrack.LayerGroupID.Valid = true
 		}
 		if (this.visualtrack.DivIconID == undefined) {
 			this.visualtrack.DivIconID = new NullInt64

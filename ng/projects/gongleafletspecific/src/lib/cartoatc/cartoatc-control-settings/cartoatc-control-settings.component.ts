@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { MatSlideToggleChange } from '@angular/material/slide-toggle';
-import { VisualLayerService } from 'gongleaflet';
+import { LayerGroupService } from 'gongleaflet';
 import { setVisibilityHTMLElement } from '../manage-leaflet-items';
 
 // https://stackoverflow.com/questions/54734329/ngx-leaflet-how-to-add-a-custom-control
@@ -13,15 +13,15 @@ export class CartoatcControlSettingsComponent implements OnInit {
   list: Array<any> = [];
   open: boolean = false;
 
-  constructor(private visualLayerService: VisualLayerService) {}
+  constructor(private layerGroupService: LayerGroupService) { }
 
   ngOnInit(): void {
-    this.visualLayerService.getVisualLayers().subscribe((visualLayers) => {
-      visualLayers.forEach((visualLayer) => {
+    this.layerGroupService.getLayerGroups().subscribe((layerGroups) => {
+      layerGroups.forEach((layerGroup) => {
         this.list.push({
-          id: visualLayer.ID,
-          name: visualLayer.Name,
-          display: visualLayer.DisplayName || visualLayer.Name,
+          id: layerGroup.ID,
+          name: layerGroup.Name,
+          display: layerGroup.DisplayName || layerGroup.Name,
           status: true,
         });
       });

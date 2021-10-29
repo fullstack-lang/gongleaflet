@@ -46,9 +46,9 @@ type VisualCircleAPI struct {
 type VisualCirclePointersEnconding struct {
 	// insertion for pointer fields encoding declaration
 
-	// field VisualLayer is a pointer to another Struct (optional or 0..1)
+	// field LayerGroup is a pointer to another Struct (optional or 0..1)
 	// This field is generated into another field to enable AS ONE association
-	VisualLayerID sql.NullInt64
+	LayerGroupID sql.NullInt64
 }
 
 // VisualCircleDB describes a visualcircle in the database
@@ -266,12 +266,12 @@ func (backRepoVisualCircle *BackRepoVisualCircleStruct) CommitPhaseTwoInstance(b
 		visualcircleDB.CopyBasicFieldsFromVisualCircle(visualcircle)
 
 		// insertion point for translating pointers encodings into actual pointers
-		// commit pointer value visualcircle.VisualLayer translates to updating the visualcircle.VisualLayerID
-		visualcircleDB.VisualLayerID.Valid = true // allow for a 0 value (nil association)
-		if visualcircle.VisualLayer != nil {
-			if VisualLayerId, ok := (*backRepo.BackRepoVisualLayer.Map_VisualLayerPtr_VisualLayerDBID)[visualcircle.VisualLayer]; ok {
-				visualcircleDB.VisualLayerID.Int64 = int64(VisualLayerId)
-				visualcircleDB.VisualLayerID.Valid = true
+		// commit pointer value visualcircle.LayerGroup translates to updating the visualcircle.LayerGroupID
+		visualcircleDB.LayerGroupID.Valid = true // allow for a 0 value (nil association)
+		if visualcircle.LayerGroup != nil {
+			if LayerGroupId, ok := (*backRepo.BackRepoLayerGroup.Map_LayerGroupPtr_LayerGroupDBID)[visualcircle.LayerGroup]; ok {
+				visualcircleDB.LayerGroupID.Int64 = int64(LayerGroupId)
+				visualcircleDB.LayerGroupID.Valid = true
 			}
 		}
 
@@ -380,9 +380,9 @@ func (backRepoVisualCircle *BackRepoVisualCircleStruct) CheckoutPhaseTwoInstance
 	_ = visualcircle // sometimes, there is no code generated. This lines voids the "unused variable" compilation error
 
 	// insertion point for checkout of pointer encoding
-	// VisualLayer field
-	if visualcircleDB.VisualLayerID.Int64 != 0 {
-		visualcircle.VisualLayer = (*backRepo.BackRepoVisualLayer.Map_VisualLayerDBID_VisualLayerPtr)[uint(visualcircleDB.VisualLayerID.Int64)]
+	// LayerGroup field
+	if visualcircleDB.LayerGroupID.Int64 != 0 {
+		visualcircle.LayerGroup = (*backRepo.BackRepoLayerGroup.Map_LayerGroupDBID_LayerGroupPtr)[uint(visualcircleDB.LayerGroupID.Int64)]
 	}
 	return
 }
@@ -637,10 +637,10 @@ func (backRepoVisualCircle *BackRepoVisualCircleStruct) RestorePhaseTwo() {
 		_ = visualcircleDB
 
 		// insertion point for reindexing pointers encoding
-		// reindexing VisualLayer field
-		if visualcircleDB.VisualLayerID.Int64 != 0 {
-			visualcircleDB.VisualLayerID.Int64 = int64(BackRepoVisualLayerid_atBckpTime_newID[uint(visualcircleDB.VisualLayerID.Int64)])
-			visualcircleDB.VisualLayerID.Valid = true
+		// reindexing LayerGroup field
+		if visualcircleDB.LayerGroupID.Int64 != 0 {
+			visualcircleDB.LayerGroupID.Int64 = int64(BackRepoLayerGroupid_atBckpTime_newID[uint(visualcircleDB.LayerGroupID.Int64)])
+			visualcircleDB.LayerGroupID.Valid = true
 		}
 
 		// update databse with new index encoding

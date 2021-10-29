@@ -15,14 +15,14 @@ type StageStruct struct { // insertion point for definition of arrays registerin
 	DivIcons           map[*DivIcon]struct{}
 	DivIcons_mapString map[string]*DivIcon
 
+	LayerGroups           map[*LayerGroup]struct{}
+	LayerGroups_mapString map[string]*LayerGroup
+
 	Markers           map[*Marker]struct{}
 	Markers_mapString map[string]*Marker
 
 	VisualCircles           map[*VisualCircle]struct{}
 	VisualCircles_mapString map[string]*VisualCircle
-
-	VisualLayers           map[*VisualLayer]struct{}
-	VisualLayers_mapString map[string]*VisualLayer
 
 	VisualLines           map[*VisualLine]struct{}
 	VisualLines_mapString map[string]*VisualLine
@@ -57,12 +57,12 @@ type BackRepoInterface interface {
 	// insertion point for Commit and Checkout signatures
 	CommitDivIcon(divicon *DivIcon)
 	CheckoutDivIcon(divicon *DivIcon)
+	CommitLayerGroup(layergroup *LayerGroup)
+	CheckoutLayerGroup(layergroup *LayerGroup)
 	CommitMarker(marker *Marker)
 	CheckoutMarker(marker *Marker)
 	CommitVisualCircle(visualcircle *VisualCircle)
 	CheckoutVisualCircle(visualcircle *VisualCircle)
-	CommitVisualLayer(visuallayer *VisualLayer)
-	CheckoutVisualLayer(visuallayer *VisualLayer)
 	CommitVisualLine(visualline *VisualLine)
 	CheckoutVisualLine(visualline *VisualLine)
 	CommitVisualMap(visualmap *VisualMap)
@@ -78,14 +78,14 @@ var Stage StageStruct = StageStruct{ // insertion point for array initiatialisat
 	DivIcons:           make(map[*DivIcon]struct{}),
 	DivIcons_mapString: make(map[string]*DivIcon),
 
+	LayerGroups:           make(map[*LayerGroup]struct{}),
+	LayerGroups_mapString: make(map[string]*LayerGroup),
+
 	Markers:           make(map[*Marker]struct{}),
 	Markers_mapString: make(map[string]*Marker),
 
 	VisualCircles:           make(map[*VisualCircle]struct{}),
 	VisualCircles_mapString: make(map[string]*VisualCircle),
-
-	VisualLayers:           make(map[*VisualLayer]struct{}),
-	VisualLayers_mapString: make(map[string]*VisualLayer),
 
 	VisualLines:           make(map[*VisualLine]struct{}),
 	VisualLines_mapString: make(map[string]*VisualLine),
@@ -239,6 +239,108 @@ func DeleteORMDivIcon(divicon *DivIcon) {
 	divicon.Unstage()
 	if Stage.AllModelsStructDeleteCallback != nil {
 		Stage.AllModelsStructDeleteCallback.DeleteORMDivIcon(divicon)
+	}
+}
+
+func (stage *StageStruct) getLayerGroupOrderedStructWithNameField() []*LayerGroup {
+	// have alphabetical order generation
+	layergroupOrdered := []*LayerGroup{}
+	for layergroup := range stage.LayerGroups {
+		layergroupOrdered = append(layergroupOrdered, layergroup)
+	}
+	sort.Slice(layergroupOrdered[:], func(i, j int) bool {
+		return layergroupOrdered[i].Name < layergroupOrdered[j].Name
+	})
+	return layergroupOrdered
+}
+
+// Stage puts layergroup to the model stage
+func (layergroup *LayerGroup) Stage() *LayerGroup {
+	Stage.LayerGroups[layergroup] = __member
+	Stage.LayerGroups_mapString[layergroup.Name] = layergroup
+
+	return layergroup
+}
+
+// Unstage removes layergroup off the model stage
+func (layergroup *LayerGroup) Unstage() *LayerGroup {
+	delete(Stage.LayerGroups, layergroup)
+	delete(Stage.LayerGroups_mapString, layergroup.Name)
+	return layergroup
+}
+
+// commit layergroup to the back repo (if it is already staged)
+func (layergroup *LayerGroup) Commit() *LayerGroup {
+	if _, ok := Stage.LayerGroups[layergroup]; ok {
+		if Stage.BackRepo != nil {
+			Stage.BackRepo.CommitLayerGroup(layergroup)
+		}
+	}
+	return layergroup
+}
+
+// Checkout layergroup to the back repo (if it is already staged)
+func (layergroup *LayerGroup) Checkout() *LayerGroup {
+	if _, ok := Stage.LayerGroups[layergroup]; ok {
+		if Stage.BackRepo != nil {
+			Stage.BackRepo.CheckoutLayerGroup(layergroup)
+		}
+	}
+	return layergroup
+}
+
+//
+// Legacy, to be deleted
+//
+
+// StageCopy appends a copy of layergroup to the model stage
+func (layergroup *LayerGroup) StageCopy() *LayerGroup {
+	_layergroup := new(LayerGroup)
+	*_layergroup = *layergroup
+	_layergroup.Stage()
+	return _layergroup
+}
+
+// StageAndCommit appends layergroup to the model stage and commit to the orm repo
+func (layergroup *LayerGroup) StageAndCommit() *LayerGroup {
+	layergroup.Stage()
+	if Stage.AllModelsStructCreateCallback != nil {
+		Stage.AllModelsStructCreateCallback.CreateORMLayerGroup(layergroup)
+	}
+	return layergroup
+}
+
+// DeleteStageAndCommit appends layergroup to the model stage and commit to the orm repo
+func (layergroup *LayerGroup) DeleteStageAndCommit() *LayerGroup {
+	layergroup.Unstage()
+	DeleteORMLayerGroup(layergroup)
+	return layergroup
+}
+
+// StageCopyAndCommit appends a copy of layergroup to the model stage and commit to the orm repo
+func (layergroup *LayerGroup) StageCopyAndCommit() *LayerGroup {
+	_layergroup := new(LayerGroup)
+	*_layergroup = *layergroup
+	_layergroup.Stage()
+	if Stage.AllModelsStructCreateCallback != nil {
+		Stage.AllModelsStructCreateCallback.CreateORMLayerGroup(layergroup)
+	}
+	return _layergroup
+}
+
+// CreateORMLayerGroup enables dynamic staging of a LayerGroup instance
+func CreateORMLayerGroup(layergroup *LayerGroup) {
+	layergroup.Stage()
+	if Stage.AllModelsStructCreateCallback != nil {
+		Stage.AllModelsStructCreateCallback.CreateORMLayerGroup(layergroup)
+	}
+}
+
+// DeleteORMLayerGroup enables dynamic staging of a LayerGroup instance
+func DeleteORMLayerGroup(layergroup *LayerGroup) {
+	layergroup.Unstage()
+	if Stage.AllModelsStructDeleteCallback != nil {
+		Stage.AllModelsStructDeleteCallback.DeleteORMLayerGroup(layergroup)
 	}
 }
 
@@ -443,108 +545,6 @@ func DeleteORMVisualCircle(visualcircle *VisualCircle) {
 	visualcircle.Unstage()
 	if Stage.AllModelsStructDeleteCallback != nil {
 		Stage.AllModelsStructDeleteCallback.DeleteORMVisualCircle(visualcircle)
-	}
-}
-
-func (stage *StageStruct) getVisualLayerOrderedStructWithNameField() []*VisualLayer {
-	// have alphabetical order generation
-	visuallayerOrdered := []*VisualLayer{}
-	for visuallayer := range stage.VisualLayers {
-		visuallayerOrdered = append(visuallayerOrdered, visuallayer)
-	}
-	sort.Slice(visuallayerOrdered[:], func(i, j int) bool {
-		return visuallayerOrdered[i].Name < visuallayerOrdered[j].Name
-	})
-	return visuallayerOrdered
-}
-
-// Stage puts visuallayer to the model stage
-func (visuallayer *VisualLayer) Stage() *VisualLayer {
-	Stage.VisualLayers[visuallayer] = __member
-	Stage.VisualLayers_mapString[visuallayer.Name] = visuallayer
-
-	return visuallayer
-}
-
-// Unstage removes visuallayer off the model stage
-func (visuallayer *VisualLayer) Unstage() *VisualLayer {
-	delete(Stage.VisualLayers, visuallayer)
-	delete(Stage.VisualLayers_mapString, visuallayer.Name)
-	return visuallayer
-}
-
-// commit visuallayer to the back repo (if it is already staged)
-func (visuallayer *VisualLayer) Commit() *VisualLayer {
-	if _, ok := Stage.VisualLayers[visuallayer]; ok {
-		if Stage.BackRepo != nil {
-			Stage.BackRepo.CommitVisualLayer(visuallayer)
-		}
-	}
-	return visuallayer
-}
-
-// Checkout visuallayer to the back repo (if it is already staged)
-func (visuallayer *VisualLayer) Checkout() *VisualLayer {
-	if _, ok := Stage.VisualLayers[visuallayer]; ok {
-		if Stage.BackRepo != nil {
-			Stage.BackRepo.CheckoutVisualLayer(visuallayer)
-		}
-	}
-	return visuallayer
-}
-
-//
-// Legacy, to be deleted
-//
-
-// StageCopy appends a copy of visuallayer to the model stage
-func (visuallayer *VisualLayer) StageCopy() *VisualLayer {
-	_visuallayer := new(VisualLayer)
-	*_visuallayer = *visuallayer
-	_visuallayer.Stage()
-	return _visuallayer
-}
-
-// StageAndCommit appends visuallayer to the model stage and commit to the orm repo
-func (visuallayer *VisualLayer) StageAndCommit() *VisualLayer {
-	visuallayer.Stage()
-	if Stage.AllModelsStructCreateCallback != nil {
-		Stage.AllModelsStructCreateCallback.CreateORMVisualLayer(visuallayer)
-	}
-	return visuallayer
-}
-
-// DeleteStageAndCommit appends visuallayer to the model stage and commit to the orm repo
-func (visuallayer *VisualLayer) DeleteStageAndCommit() *VisualLayer {
-	visuallayer.Unstage()
-	DeleteORMVisualLayer(visuallayer)
-	return visuallayer
-}
-
-// StageCopyAndCommit appends a copy of visuallayer to the model stage and commit to the orm repo
-func (visuallayer *VisualLayer) StageCopyAndCommit() *VisualLayer {
-	_visuallayer := new(VisualLayer)
-	*_visuallayer = *visuallayer
-	_visuallayer.Stage()
-	if Stage.AllModelsStructCreateCallback != nil {
-		Stage.AllModelsStructCreateCallback.CreateORMVisualLayer(visuallayer)
-	}
-	return _visuallayer
-}
-
-// CreateORMVisualLayer enables dynamic staging of a VisualLayer instance
-func CreateORMVisualLayer(visuallayer *VisualLayer) {
-	visuallayer.Stage()
-	if Stage.AllModelsStructCreateCallback != nil {
-		Stage.AllModelsStructCreateCallback.CreateORMVisualLayer(visuallayer)
-	}
-}
-
-// DeleteORMVisualLayer enables dynamic staging of a VisualLayer instance
-func DeleteORMVisualLayer(visuallayer *VisualLayer) {
-	visuallayer.Unstage()
-	if Stage.AllModelsStructDeleteCallback != nil {
-		Stage.AllModelsStructDeleteCallback.DeleteORMVisualLayer(visuallayer)
 	}
 }
 
@@ -857,9 +857,9 @@ func DeleteORMVisualTrack(visualtrack *VisualTrack) {
 // swagger:ignore
 type AllModelsStructCreateInterface interface { // insertion point for Callbacks on creation
 	CreateORMDivIcon(DivIcon *DivIcon)
+	CreateORMLayerGroup(LayerGroup *LayerGroup)
 	CreateORMMarker(Marker *Marker)
 	CreateORMVisualCircle(VisualCircle *VisualCircle)
-	CreateORMVisualLayer(VisualLayer *VisualLayer)
 	CreateORMVisualLine(VisualLine *VisualLine)
 	CreateORMVisualMap(VisualMap *VisualMap)
 	CreateORMVisualTrack(VisualTrack *VisualTrack)
@@ -867,9 +867,9 @@ type AllModelsStructCreateInterface interface { // insertion point for Callbacks
 
 type AllModelsStructDeleteInterface interface { // insertion point for Callbacks on deletion
 	DeleteORMDivIcon(DivIcon *DivIcon)
+	DeleteORMLayerGroup(LayerGroup *LayerGroup)
 	DeleteORMMarker(Marker *Marker)
 	DeleteORMVisualCircle(VisualCircle *VisualCircle)
-	DeleteORMVisualLayer(VisualLayer *VisualLayer)
 	DeleteORMVisualLine(VisualLine *VisualLine)
 	DeleteORMVisualMap(VisualMap *VisualMap)
 	DeleteORMVisualTrack(VisualTrack *VisualTrack)
@@ -879,14 +879,14 @@ func (stage *StageStruct) Reset() { // insertion point for array reset
 	stage.DivIcons = make(map[*DivIcon]struct{})
 	stage.DivIcons_mapString = make(map[string]*DivIcon)
 
+	stage.LayerGroups = make(map[*LayerGroup]struct{})
+	stage.LayerGroups_mapString = make(map[string]*LayerGroup)
+
 	stage.Markers = make(map[*Marker]struct{})
 	stage.Markers_mapString = make(map[string]*Marker)
 
 	stage.VisualCircles = make(map[*VisualCircle]struct{})
 	stage.VisualCircles_mapString = make(map[string]*VisualCircle)
-
-	stage.VisualLayers = make(map[*VisualLayer]struct{})
-	stage.VisualLayers_mapString = make(map[string]*VisualLayer)
 
 	stage.VisualLines = make(map[*VisualLine]struct{})
 	stage.VisualLines_mapString = make(map[string]*VisualLine)
@@ -903,14 +903,14 @@ func (stage *StageStruct) Nil() { // insertion point for array nil
 	stage.DivIcons = nil
 	stage.DivIcons_mapString = nil
 
+	stage.LayerGroups = nil
+	stage.LayerGroups_mapString = nil
+
 	stage.Markers = nil
 	stage.Markers_mapString = nil
 
 	stage.VisualCircles = nil
 	stage.VisualCircles_mapString = nil
-
-	stage.VisualLayers = nil
-	stage.VisualLayers_mapString = nil
 
 	stage.VisualLines = nil
 	stage.VisualLines_mapString = nil

@@ -1,5 +1,5 @@
 // insertion point for imports
-import { VisualLayerDB } from './visuallayer-db'
+import { LayerGroupDB } from './layergroup-db'
 
 // usefull for managing pointer ID values that can be nullable
 import { NullInt64 } from './null-int64'
@@ -23,7 +23,7 @@ export class VisualLineDB {
 	MessageBackward: string = ""
 
 	// insertion point for other declarations
-	VisualLayer?: VisualLayerDB
-	VisualLayerID: NullInt64 = new NullInt64 // if pointer is null, VisualLayer.ID = 0
+	LayerGroup?: LayerGroupDB
+	LayerGroupID: NullInt64 = new NullInt64 // if pointer is null, LayerGroup.ID = 0
 
 }

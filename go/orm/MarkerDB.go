@@ -46,9 +46,9 @@ type MarkerAPI struct {
 type MarkerPointersEnconding struct {
 	// insertion for pointer fields encoding declaration
 
-	// field VisualLayer is a pointer to another Struct (optional or 0..1)
+	// field LayerGroup is a pointer to another Struct (optional or 0..1)
 	// This field is generated into another field to enable AS ONE association
-	VisualLayerID sql.NullInt64
+	LayerGroupID sql.NullInt64
 
 	// field DivIcon is a pointer to another Struct (optional or 0..1)
 	// This field is generated into another field to enable AS ONE association
@@ -258,12 +258,12 @@ func (backRepoMarker *BackRepoMarkerStruct) CommitPhaseTwoInstance(backRepo *Bac
 		markerDB.CopyBasicFieldsFromMarker(marker)
 
 		// insertion point for translating pointers encodings into actual pointers
-		// commit pointer value marker.VisualLayer translates to updating the marker.VisualLayerID
-		markerDB.VisualLayerID.Valid = true // allow for a 0 value (nil association)
-		if marker.VisualLayer != nil {
-			if VisualLayerId, ok := (*backRepo.BackRepoVisualLayer.Map_VisualLayerPtr_VisualLayerDBID)[marker.VisualLayer]; ok {
-				markerDB.VisualLayerID.Int64 = int64(VisualLayerId)
-				markerDB.VisualLayerID.Valid = true
+		// commit pointer value marker.LayerGroup translates to updating the marker.LayerGroupID
+		markerDB.LayerGroupID.Valid = true // allow for a 0 value (nil association)
+		if marker.LayerGroup != nil {
+			if LayerGroupId, ok := (*backRepo.BackRepoLayerGroup.Map_LayerGroupPtr_LayerGroupDBID)[marker.LayerGroup]; ok {
+				markerDB.LayerGroupID.Int64 = int64(LayerGroupId)
+				markerDB.LayerGroupID.Valid = true
 			}
 		}
 
@@ -381,9 +381,9 @@ func (backRepoMarker *BackRepoMarkerStruct) CheckoutPhaseTwoInstance(backRepo *B
 	_ = marker // sometimes, there is no code generated. This lines voids the "unused variable" compilation error
 
 	// insertion point for checkout of pointer encoding
-	// VisualLayer field
-	if markerDB.VisualLayerID.Int64 != 0 {
-		marker.VisualLayer = (*backRepo.BackRepoVisualLayer.Map_VisualLayerDBID_VisualLayerPtr)[uint(markerDB.VisualLayerID.Int64)]
+	// LayerGroup field
+	if markerDB.LayerGroupID.Int64 != 0 {
+		marker.LayerGroup = (*backRepo.BackRepoLayerGroup.Map_LayerGroupDBID_LayerGroupPtr)[uint(markerDB.LayerGroupID.Int64)]
 	}
 	// DivIcon field
 	if markerDB.DivIconID.Int64 != 0 {
@@ -626,10 +626,10 @@ func (backRepoMarker *BackRepoMarkerStruct) RestorePhaseTwo() {
 		_ = markerDB
 
 		// insertion point for reindexing pointers encoding
-		// reindexing VisualLayer field
-		if markerDB.VisualLayerID.Int64 != 0 {
-			markerDB.VisualLayerID.Int64 = int64(BackRepoVisualLayerid_atBckpTime_newID[uint(markerDB.VisualLayerID.Int64)])
-			markerDB.VisualLayerID.Valid = true
+		// reindexing LayerGroup field
+		if markerDB.LayerGroupID.Int64 != 0 {
+			markerDB.LayerGroupID.Int64 = int64(BackRepoLayerGroupid_atBckpTime_newID[uint(markerDB.LayerGroupID.Int64)])
+			markerDB.LayerGroupID.Valid = true
 		}
 
 		// reindexing DivIcon field

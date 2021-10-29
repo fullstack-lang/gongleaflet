@@ -1,65 +1,62 @@
-[{
-        "ID": 3,
-        "CreatedAt": "2021-06-01T04:12:39.728988+02:00",
-        "UpdatedAt": "2021-06-01T04:13:16.451425+02:00",
-        "DeletedAt": null,
-        "Lat_Data": {
-            "Float64": 46,
-            "Valid": true
-        },
-        "Lng_Data": {
-            "Float64": 5.5,
-            "Valid": true
-        },
-        "Name_Data": {
-            "String": "Lyon Aiport",
-            "Valid": true
-        },
-        "VisualColorEnum_Data": {
-            "String": "GREEN",
-            "Valid": true
-        },
-        "VisualLayerID": {
-            "Int64": 2,
-            "Valid": true
-        },
-        "VisualLayerName": "Default",
-        "DivIconID": {
-            "Int64": 3,
-            "Valid": true
-        },
-        "DivIconName": "Airport"
-    },
-    {
-        "ID": 4,
-        "CreatedAt": "2021-06-01T04:15:12.721625+02:00",
-        "UpdatedAt": "2021-06-01T04:15:12.721625+02:00",
-        "DeletedAt": null,
-        "Lat_Data": {
-            "Float64": 46,
-            "Valid": true
-        },
-        "Lng_Data": {
-            "Float64": 5,
-            "Valid": true
-        },
-        "Name_Data": {
-            "String": "Radar Lyon",
-            "Valid": true
-        },
-        "VisualColorEnum_Data": {
-            "String": "BLUE",
-            "Valid": true
-        },
-        "VisualLayerID": {
-            "Int64": 2,
-            "Valid": true
-        },
-        "VisualLayerName": "Default",
-        "DivIconID": {
-            "Int64": 4,
-            "Valid": true
-        },
-        "DivIconName": "Radar"
-    }
+[
+ {
+  "ID": 1,
+  "CreatedAt": "2021-06-01T04:12:39.728988+02:00",
+  "UpdatedAt": "2021-10-29T09:37:52.650319+02:00",
+  "DeletedAt": null,
+  "Lat_Data": {
+   "Float64": 46,
+   "Valid": true
+  },
+  "Lng_Data": {
+   "Float64": 5.5,
+   "Valid": true
+  },
+  "Name_Data": {
+   "String": "Lyon Aiport",
+   "Valid": true
+  },
+  "VisualColorEnum_Data": {
+   "String": "GREEN",
+   "Valid": true
+  },
+  "LayerGroupID": {
+   "Int64": 2,
+   "Valid": true
+  },
+  "DivIconID": {
+   "Int64": 1,
+   "Valid": true
+  }
+ },
+ {
+  "ID": 2,
+  "CreatedAt": "2021-06-01T04:15:12.721625+02:00",
+  "UpdatedAt": "2021-10-29T09:37:52.651045+02:00",
+  "DeletedAt": null,
+  "Lat_Data": {
+   "Float64": 46,
+   "Valid": true
+  },
+  "Lng_Data": {
+   "Float64": 5,
+   "Valid": true
+  },
+  "Name_Data": {
+   "String": "Radar Lyon",
+   "Valid": true
+  },
+  "VisualColorEnum_Data": {
+   "String": "BLUE",
+   "Valid": true
+  },
+  "LayerGroupID": {
+   "Int64": 2,
+   "Valid": true
+  },
+  "DivIconID": {
+   "Int64": 2,
+   "Valid": true
+  }
+ }
 ]

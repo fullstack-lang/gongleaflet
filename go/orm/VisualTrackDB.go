@@ -46,9 +46,9 @@ type VisualTrackAPI struct {
 type VisualTrackPointersEnconding struct {
 	// insertion for pointer fields encoding declaration
 
-	// field VisualLayer is a pointer to another Struct (optional or 0..1)
+	// field LayerGroup is a pointer to another Struct (optional or 0..1)
 	// This field is generated into another field to enable AS ONE association
-	VisualLayerID sql.NullInt64
+	LayerGroupID sql.NullInt64
 
 	// field DivIcon is a pointer to another Struct (optional or 0..1)
 	// This field is generated into another field to enable AS ONE association
@@ -303,12 +303,12 @@ func (backRepoVisualTrack *BackRepoVisualTrackStruct) CommitPhaseTwoInstance(bac
 		visualtrackDB.CopyBasicFieldsFromVisualTrack(visualtrack)
 
 		// insertion point for translating pointers encodings into actual pointers
-		// commit pointer value visualtrack.VisualLayer translates to updating the visualtrack.VisualLayerID
-		visualtrackDB.VisualLayerID.Valid = true // allow for a 0 value (nil association)
-		if visualtrack.VisualLayer != nil {
-			if VisualLayerId, ok := (*backRepo.BackRepoVisualLayer.Map_VisualLayerPtr_VisualLayerDBID)[visualtrack.VisualLayer]; ok {
-				visualtrackDB.VisualLayerID.Int64 = int64(VisualLayerId)
-				visualtrackDB.VisualLayerID.Valid = true
+		// commit pointer value visualtrack.LayerGroup translates to updating the visualtrack.LayerGroupID
+		visualtrackDB.LayerGroupID.Valid = true // allow for a 0 value (nil association)
+		if visualtrack.LayerGroup != nil {
+			if LayerGroupId, ok := (*backRepo.BackRepoLayerGroup.Map_LayerGroupPtr_LayerGroupDBID)[visualtrack.LayerGroup]; ok {
+				visualtrackDB.LayerGroupID.Int64 = int64(LayerGroupId)
+				visualtrackDB.LayerGroupID.Valid = true
 			}
 		}
 
@@ -426,9 +426,9 @@ func (backRepoVisualTrack *BackRepoVisualTrackStruct) CheckoutPhaseTwoInstance(b
 	_ = visualtrack // sometimes, there is no code generated. This lines voids the "unused variable" compilation error
 
 	// insertion point for checkout of pointer encoding
-	// VisualLayer field
-	if visualtrackDB.VisualLayerID.Int64 != 0 {
-		visualtrack.VisualLayer = (*backRepo.BackRepoVisualLayer.Map_VisualLayerDBID_VisualLayerPtr)[uint(visualtrackDB.VisualLayerID.Int64)]
+	// LayerGroup field
+	if visualtrackDB.LayerGroupID.Int64 != 0 {
+		visualtrack.LayerGroup = (*backRepo.BackRepoLayerGroup.Map_LayerGroupDBID_LayerGroupPtr)[uint(visualtrackDB.LayerGroupID.Int64)]
 	}
 	// DivIcon field
 	if visualtrackDB.DivIconID.Int64 != 0 {
@@ -727,10 +727,10 @@ func (backRepoVisualTrack *BackRepoVisualTrackStruct) RestorePhaseTwo() {
 		_ = visualtrackDB
 
 		// insertion point for reindexing pointers encoding
-		// reindexing VisualLayer field
-		if visualtrackDB.VisualLayerID.Int64 != 0 {
-			visualtrackDB.VisualLayerID.Int64 = int64(BackRepoVisualLayerid_atBckpTime_newID[uint(visualtrackDB.VisualLayerID.Int64)])
-			visualtrackDB.VisualLayerID.Valid = true
+		// reindexing LayerGroup field
+		if visualtrackDB.LayerGroupID.Int64 != 0 {
+			visualtrackDB.LayerGroupID.Int64 = int64(BackRepoLayerGroupid_atBckpTime_newID[uint(visualtrackDB.LayerGroupID.Int64)])
+			visualtrackDB.LayerGroupID.Valid = true
 		}
 
 		// reindexing DivIcon field

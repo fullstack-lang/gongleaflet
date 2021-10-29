@@ -143,15 +143,15 @@ export class VisualLineDetailComponent implements OnInit {
 		// pointers fields, after the translation, are nulled in order to perform serialization
 
 		// insertion point for translation/nullation of each field
-		if (this.visualline.VisualLayerID == undefined) {
-			this.visualline.VisualLayerID = new NullInt64
+		if (this.visualline.LayerGroupID == undefined) {
+			this.visualline.LayerGroupID = new NullInt64
 		}
-		if (this.visualline.VisualLayer != undefined) {
-			this.visualline.VisualLayerID.Int64 = this.visualline.VisualLayer.ID
-			this.visualline.VisualLayerID.Valid = true
+		if (this.visualline.LayerGroup != undefined) {
+			this.visualline.LayerGroupID.Int64 = this.visualline.LayerGroup.ID
+			this.visualline.LayerGroupID.Valid = true
 		} else {
-			this.visualline.VisualLayerID.Int64 = 0
-			this.visualline.VisualLayerID.Valid = true
+			this.visualline.LayerGroupID.Int64 = 0
+			this.visualline.LayerGroupID.Valid = true
 		}
 
 		// save from the front pointer space to the non pointer space for serialization

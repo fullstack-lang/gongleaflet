@@ -11,8 +11,8 @@ type VisualTrack struct {
 
 	VisualColorEnum VisualColorEnum
 
-	// VisualLayer the object belongs to
-	VisualLayer *VisualLayer
+	// LayerGroup the object belongs to
+	LayerGroup *LayerGroup
 
 	// access to the models instance that contains the original information
 	// swagger:ignore
@@ -45,7 +45,7 @@ type VisualTrackInterface interface {
 
 	// the models name knows wether it has to be displayed
 	GetDisplay() bool
-	GetVisualLayerName() string
+	GetLayerGroupName() string
 }
 
 func (visualTrack *VisualTrack) UpdateTrack() {
@@ -60,6 +60,6 @@ func (visualTrack *VisualTrack) UpdateTrack() {
 		visualTrack.VerticalSpeed = visualTrack.VisualTrackInterface.GetVerticalSpeed()
 		visualTrack.Display = visualTrack.VisualTrackInterface.GetDisplay()
 
-		visualTrack.VisualLayer = computeVisualLayerFromVisualLayerName(visualTrack.VisualTrackInterface.GetVisualLayerName())
+		visualTrack.LayerGroup = computeLayerGroupFromLayerGroupName(visualTrack.VisualTrackInterface.GetLayerGroupName())
 	}
 }

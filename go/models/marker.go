@@ -11,8 +11,8 @@ type Marker struct {
 
 	VisualColorEnum VisualColorEnum
 
-	// VisualLayer the object belongs to
-	VisualLayer *VisualLayer
+	// LayerGroup the object belongs to
+	LayerGroup *LayerGroup
 
 	// DivIcon
 	DivIcon *DivIcon
@@ -26,7 +26,7 @@ type MarkerInterface interface {
 	GetLat() (lat float64)
 	GetLng() (lng float64)
 	GetName() (name string)
-	GetVisualLayerName() string
+	GetLayerGroupName() string
 }
 
 func (marker *Marker) UpdateMarker() {
@@ -36,7 +36,7 @@ func (marker *Marker) UpdateMarker() {
 		marker.Lat = marker.MarkerInteface.GetLat()
 		marker.Lng = marker.MarkerInteface.GetLng()
 
-		marker.VisualLayer =
-			computeVisualLayerFromVisualLayerName(marker.MarkerInteface.GetVisualLayerName())
+		marker.LayerGroup =
+			computeLayerGroupFromLayerGroupName(marker.MarkerInteface.GetLayerGroupName())
 	}
 }
