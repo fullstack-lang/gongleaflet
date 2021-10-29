@@ -14,6 +14,13 @@ export * from './lib/commitnb.service'
 export * from './lib/push_from_front_nb.service'
 
 
+export * from './lib/divicon-detail/divicon-detail.component'
+export * from './lib/divicon-presentation/divicon-presentation.component'
+export * from './lib/divicon-sorting/divicon-sorting.component'
+export * from './lib/divicons-table/divicons-table.component'
+export * from './lib/divicon-db'
+export * from './lib/divicon.service'
+
 export * from './lib/visualcenter-detail/visualcenter-detail.component'
 export * from './lib/visualcenter-presentation/visualcenter-presentation.component'
 export * from './lib/visualcenter-sorting/visualcenter-sorting.component'
@@ -27,13 +34,6 @@ export * from './lib/visualcircle-sorting/visualcircle-sorting.component'
 export * from './lib/visualcircles-table/visualcircles-table.component'
 export * from './lib/visualcircle-db'
 export * from './lib/visualcircle.service'
-
-export * from './lib/visualicon-detail/visualicon-detail.component'
-export * from './lib/visualicon-presentation/visualicon-presentation.component'
-export * from './lib/visualicon-sorting/visualicon-sorting.component'
-export * from './lib/visualicons-table/visualicons-table.component'
-export * from './lib/visualicon-db'
-export * from './lib/visualicon.service'
 
 export * from './lib/visuallayer-detail/visuallayer-detail.component'
 export * from './lib/visuallayer-presentation/visuallayer-presentation.component'

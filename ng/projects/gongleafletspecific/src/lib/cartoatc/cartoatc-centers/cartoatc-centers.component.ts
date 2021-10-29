@@ -20,12 +20,12 @@ export class CartoatcCentersComponent implements OnInit {
   gongleafletFrontRepo?: gongleaflet.FrontRepo
 
   centersLayer: Array<L.Layer> = [];
-  map_visualIconID_visualIconSVG = new Map<number, string>();
+  map_divIconID_divIconSVG = new Map<number, string>();
 
   constructor(
     private gongleafletFrontRepoService: gongleaflet.FrontRepoService,
     private visualCenterService: gongleaflet.VisualCenterService,
-    private visualIcon: gongleaflet.VisualIconService
+    private divIcon: gongleaflet.DivIconService
   ) { }
 
   ngOnInit(): void {
@@ -44,9 +44,9 @@ export class CartoatcCentersComponent implements OnInit {
       gongleafletFrontRepo => {
         this.gongleafletFrontRepo = gongleafletFrontRepo
 
-        this.gongleafletFrontRepo.VisualIcons.forEach((visualIcon) => {
-          if (!this.map_visualIconID_visualIconSVG.has(visualIcon.ID)) {
-            this.map_visualIconID_visualIconSVG.set(visualIcon.ID, visualIcon.SVG);
+        this.gongleafletFrontRepo.DivIcons.forEach((divIcon) => {
+          if (!this.map_divIconID_divIconSVG.has(divIcon.ID)) {
+            this.map_divIconID_divIconSVG.set(divIcon.ID, divIcon.SVG);
           }
         });
 
@@ -58,7 +58,7 @@ export class CartoatcCentersComponent implements OnInit {
             var icon: L.DivIcon = manageLeafletItems.newIcon(
               visualCenter.ID,
               'layer-' + visualCenter.VisualLayerID.Int64,
-              this.map_visualIconID_visualIconSVG.get(visualCenter.VisualIconID.Int64)!,
+              this.map_divIconID_divIconSVG.get(visualCenter.DivIconID.Int64)!,
               DEFAULT_ICON_SIZE,
               color,
               visualCenter.Name

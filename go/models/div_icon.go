@@ -1,9 +1,9 @@
 package models
 
-// VisualIcon provides all necessary elements to the front to display a track
+// DivIcon is the go implementation of the leaflet DivIcon object
 //
 // swagger:model visualicon
-type VisualIcon struct {
+type DivIcon struct {
 	Name string
 
 	SVG string // the SVG description
@@ -18,7 +18,7 @@ type VisualIconInterface interface {
 	GetSVG() (name string)
 }
 
-func (VisualIcon *VisualIcon) UpdateVisualIcon() {
+func (VisualIcon *DivIcon) UpdateVisualIcon() {
 	if VisualIcon.VisualIconInterface != nil {
 		VisualIcon.Name = VisualIcon.VisualIconInterface.GetIconName()
 	}

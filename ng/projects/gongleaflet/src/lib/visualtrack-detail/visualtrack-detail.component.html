@@ -78,11 +78,11 @@
     </mat-form-field>
 
     <mat-form-field class="detail-full-width">
-        <mat-label>VisualIcon</mat-label>
-        <mat-select [compareWith]="compareObjects" [(value)]="visualtrack.VisualIcon" (selectionChange)="fillUpNameIfEmpty($event)">
+        <mat-label>DivIcon</mat-label>
+        <mat-select [compareWith]="compareObjects" [(value)]="visualtrack.DivIcon" (selectionChange)="fillUpNameIfEmpty($event)">
             <mat-option>None</mat-option>
-            <mat-option *ngFor="let visualicon of frontRepo.VisualIcons_array" [value]="visualicon">
-                {{visualicon.Name}}
+            <mat-option *ngFor="let divicon of frontRepo.DivIcons_array" [value]="divicon">
+                {{divicon.Name}}
             </mat-option>
         </mat-select>
     </mat-form-field>

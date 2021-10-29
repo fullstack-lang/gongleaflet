@@ -50,9 +50,9 @@ type VisualCenterPointersEnconding struct {
 	// This field is generated into another field to enable AS ONE association
 	VisualLayerID sql.NullInt64
 
-	// field VisualIcon is a pointer to another Struct (optional or 0..1)
+	// field DivIcon is a pointer to another Struct (optional or 0..1)
 	// This field is generated into another field to enable AS ONE association
-	VisualIconID sql.NullInt64
+	DivIconID sql.NullInt64
 }
 
 // VisualCenterDB describes a visualcenter in the database
@@ -267,12 +267,12 @@ func (backRepoVisualCenter *BackRepoVisualCenterStruct) CommitPhaseTwoInstance(b
 			}
 		}
 
-		// commit pointer value visualcenter.VisualIcon translates to updating the visualcenter.VisualIconID
-		visualcenterDB.VisualIconID.Valid = true // allow for a 0 value (nil association)
-		if visualcenter.VisualIcon != nil {
-			if VisualIconId, ok := (*backRepo.BackRepoVisualIcon.Map_VisualIconPtr_VisualIconDBID)[visualcenter.VisualIcon]; ok {
-				visualcenterDB.VisualIconID.Int64 = int64(VisualIconId)
-				visualcenterDB.VisualIconID.Valid = true
+		// commit pointer value visualcenter.DivIcon translates to updating the visualcenter.DivIconID
+		visualcenterDB.DivIconID.Valid = true // allow for a 0 value (nil association)
+		if visualcenter.DivIcon != nil {
+			if DivIconId, ok := (*backRepo.BackRepoDivIcon.Map_DivIconPtr_DivIconDBID)[visualcenter.DivIcon]; ok {
+				visualcenterDB.DivIconID.Int64 = int64(DivIconId)
+				visualcenterDB.DivIconID.Valid = true
 			}
 		}
 
@@ -385,9 +385,9 @@ func (backRepoVisualCenter *BackRepoVisualCenterStruct) CheckoutPhaseTwoInstance
 	if visualcenterDB.VisualLayerID.Int64 != 0 {
 		visualcenter.VisualLayer = (*backRepo.BackRepoVisualLayer.Map_VisualLayerDBID_VisualLayerPtr)[uint(visualcenterDB.VisualLayerID.Int64)]
 	}
-	// VisualIcon field
-	if visualcenterDB.VisualIconID.Int64 != 0 {
-		visualcenter.VisualIcon = (*backRepo.BackRepoVisualIcon.Map_VisualIconDBID_VisualIconPtr)[uint(visualcenterDB.VisualIconID.Int64)]
+	// DivIcon field
+	if visualcenterDB.DivIconID.Int64 != 0 {
+		visualcenter.DivIcon = (*backRepo.BackRepoDivIcon.Map_DivIconDBID_DivIconPtr)[uint(visualcenterDB.DivIconID.Int64)]
 	}
 	return
 }
@@ -632,10 +632,10 @@ func (backRepoVisualCenter *BackRepoVisualCenterStruct) RestorePhaseTwo() {
 			visualcenterDB.VisualLayerID.Valid = true
 		}
 
-		// reindexing VisualIcon field
-		if visualcenterDB.VisualIconID.Int64 != 0 {
-			visualcenterDB.VisualIconID.Int64 = int64(BackRepoVisualIconid_atBckpTime_newID[uint(visualcenterDB.VisualIconID.Int64)])
-			visualcenterDB.VisualIconID.Valid = true
+		// reindexing DivIcon field
+		if visualcenterDB.DivIconID.Int64 != 0 {
+			visualcenterDB.DivIconID.Int64 = int64(BackRepoDivIconid_atBckpTime_newID[uint(visualcenterDB.DivIconID.Int64)])
+			visualcenterDB.DivIconID.Valid = true
 		}
 
 		// update databse with new index encoding

@@ -50,9 +50,9 @@ type VisualTrackPointersEnconding struct {
 	// This field is generated into another field to enable AS ONE association
 	VisualLayerID sql.NullInt64
 
-	// field VisualIcon is a pointer to another Struct (optional or 0..1)
+	// field DivIcon is a pointer to another Struct (optional or 0..1)
 	// This field is generated into another field to enable AS ONE association
-	VisualIconID sql.NullInt64
+	DivIconID sql.NullInt64
 }
 
 // VisualTrackDB describes a visualtrack in the database
@@ -312,12 +312,12 @@ func (backRepoVisualTrack *BackRepoVisualTrackStruct) CommitPhaseTwoInstance(bac
 			}
 		}
 
-		// commit pointer value visualtrack.VisualIcon translates to updating the visualtrack.VisualIconID
-		visualtrackDB.VisualIconID.Valid = true // allow for a 0 value (nil association)
-		if visualtrack.VisualIcon != nil {
-			if VisualIconId, ok := (*backRepo.BackRepoVisualIcon.Map_VisualIconPtr_VisualIconDBID)[visualtrack.VisualIcon]; ok {
-				visualtrackDB.VisualIconID.Int64 = int64(VisualIconId)
-				visualtrackDB.VisualIconID.Valid = true
+		// commit pointer value visualtrack.DivIcon translates to updating the visualtrack.DivIconID
+		visualtrackDB.DivIconID.Valid = true // allow for a 0 value (nil association)
+		if visualtrack.DivIcon != nil {
+			if DivIconId, ok := (*backRepo.BackRepoDivIcon.Map_DivIconPtr_DivIconDBID)[visualtrack.DivIcon]; ok {
+				visualtrackDB.DivIconID.Int64 = int64(DivIconId)
+				visualtrackDB.DivIconID.Valid = true
 			}
 		}
 
@@ -430,9 +430,9 @@ func (backRepoVisualTrack *BackRepoVisualTrackStruct) CheckoutPhaseTwoInstance(b
 	if visualtrackDB.VisualLayerID.Int64 != 0 {
 		visualtrack.VisualLayer = (*backRepo.BackRepoVisualLayer.Map_VisualLayerDBID_VisualLayerPtr)[uint(visualtrackDB.VisualLayerID.Int64)]
 	}
-	// VisualIcon field
-	if visualtrackDB.VisualIconID.Int64 != 0 {
-		visualtrack.VisualIcon = (*backRepo.BackRepoVisualIcon.Map_VisualIconDBID_VisualIconPtr)[uint(visualtrackDB.VisualIconID.Int64)]
+	// DivIcon field
+	if visualtrackDB.DivIconID.Int64 != 0 {
+		visualtrack.DivIcon = (*backRepo.BackRepoDivIcon.Map_DivIconDBID_DivIconPtr)[uint(visualtrackDB.DivIconID.Int64)]
 	}
 	return
 }
@@ -733,10 +733,10 @@ func (backRepoVisualTrack *BackRepoVisualTrackStruct) RestorePhaseTwo() {
 			visualtrackDB.VisualLayerID.Valid = true
 		}
 
-		// reindexing VisualIcon field
-		if visualtrackDB.VisualIconID.Int64 != 0 {
-			visualtrackDB.VisualIconID.Int64 = int64(BackRepoVisualIconid_atBckpTime_newID[uint(visualtrackDB.VisualIconID.Int64)])
-			visualtrackDB.VisualIconID.Valid = true
+		// reindexing DivIcon field
+		if visualtrackDB.DivIconID.Int64 != 0 {
+			visualtrackDB.DivIconID.Int64 = int64(BackRepoDivIconid_atBckpTime_newID[uint(visualtrackDB.DivIconID.Int64)])
+			visualtrackDB.DivIconID.Valid = true
 		}
 
 		// update databse with new index encoding

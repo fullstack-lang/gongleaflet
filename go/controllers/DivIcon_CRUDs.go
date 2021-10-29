@@ -13,14 +13,14 @@ import (
 )
 
 // declaration in order to justify use of the models import
-var __VisualIcon__dummysDeclaration__ models.VisualIcon
-var __VisualIcon_time__dummyDeclaration time.Duration
+var __DivIcon__dummysDeclaration__ models.DivIcon
+var __DivIcon_time__dummyDeclaration time.Duration
 
-// An VisualIconID parameter model.
+// An DivIconID parameter model.
 //
 // This is used for operations that want the ID of an order in the path
-// swagger:parameters getVisualIcon updateVisualIcon deleteVisualIcon
-type VisualIconID struct {
+// swagger:parameters getDivIcon updateDivIcon deleteDivIcon
+type DivIconID struct {
 	// The ID of the order
 	//
 	// in: path
@@ -28,30 +28,30 @@ type VisualIconID struct {
 	ID int64
 }
 
-// VisualIconInput is a schema that can validate the user’s
+// DivIconInput is a schema that can validate the user’s
 // input to prevent us from getting invalid data
-// swagger:parameters postVisualIcon updateVisualIcon
-type VisualIconInput struct {
-	// The VisualIcon to submit or modify
+// swagger:parameters postDivIcon updateDivIcon
+type DivIconInput struct {
+	// The DivIcon to submit or modify
 	// in: body
-	VisualIcon *orm.VisualIconAPI
+	DivIcon *orm.DivIconAPI
 }
 
-// GetVisualIcons
+// GetDivIcons
 //
-// swagger:route GET /visualicons visualicons getVisualIcons
+// swagger:route GET /divicons divicons getDivIcons
 //
-// Get all visualicons
+// Get all divicons
 //
 // Responses:
 //    default: genericError
-//        200: visualiconDBsResponse
-func GetVisualIcons(c *gin.Context) {
-	db := orm.BackRepo.BackRepoVisualIcon.GetDB()
+//        200: diviconDBsResponse
+func GetDivIcons(c *gin.Context) {
+	db := orm.BackRepo.BackRepoDivIcon.GetDB()
 
 	// source slice
-	var visualiconDBs []orm.VisualIconDB
-	query := db.Find(&visualiconDBs)
+	var diviconDBs []orm.DivIconDB
+	query := db.Find(&diviconDBs)
 	if query.Error != nil {
 		var returnError GenericError
 		returnError.Body.Code = http.StatusBadRequest
@@ -62,29 +62,29 @@ func GetVisualIcons(c *gin.Context) {
 	}
 
 	// slice that will be transmitted to the front
-	visualiconAPIs := make([]orm.VisualIconAPI, 0)
+	diviconAPIs := make([]orm.DivIconAPI, 0)
 
-	// for each visualicon, update fields from the database nullable fields
-	for idx := range visualiconDBs {
-		visualiconDB := &visualiconDBs[idx]
-		_ = visualiconDB
-		var visualiconAPI orm.VisualIconAPI
+	// for each divicon, update fields from the database nullable fields
+	for idx := range diviconDBs {
+		diviconDB := &diviconDBs[idx]
+		_ = diviconDB
+		var diviconAPI orm.DivIconAPI
 
 		// insertion point for updating fields
-		visualiconAPI.ID = visualiconDB.ID
-		visualiconDB.CopyBasicFieldsToVisualIcon(&visualiconAPI.VisualIcon)
-		visualiconAPI.VisualIconPointersEnconding = visualiconDB.VisualIconPointersEnconding
-		visualiconAPIs = append(visualiconAPIs, visualiconAPI)
+		diviconAPI.ID = diviconDB.ID
+		diviconDB.CopyBasicFieldsToDivIcon(&diviconAPI.DivIcon)
+		diviconAPI.DivIconPointersEnconding = diviconDB.DivIconPointersEnconding
+		diviconAPIs = append(diviconAPIs, diviconAPI)
 	}
 
-	c.JSON(http.StatusOK, visualiconAPIs)
+	c.JSON(http.StatusOK, diviconAPIs)
 }
 
-// PostVisualIcon
+// PostDivIcon
 //
-// swagger:route POST /visualicons visualicons postVisualIcon
+// swagger:route POST /divicons divicons postDivIcon
 //
-// Creates a visualicon
+// Creates a divicon
 //     Consumes:
 //     - application/json
 //
@@ -92,12 +92,12 @@ func GetVisualIcons(c *gin.Context) {
 //     - application/json
 //
 //     Responses:
-//       200: visualiconDBResponse
-func PostVisualIcon(c *gin.Context) {
-	db := orm.BackRepo.BackRepoVisualIcon.GetDB()
+//       200: diviconDBResponse
+func PostDivIcon(c *gin.Context) {
+	db := orm.BackRepo.BackRepoDivIcon.GetDB()
 
 	// Validate input
-	var input orm.VisualIconAPI
+	var input orm.DivIconAPI
 
 	err := c.ShouldBindJSON(&input)
 	if err != nil {
@@ -109,12 +109,12 @@ func PostVisualIcon(c *gin.Context) {
 		return
 	}
 
-	// Create visualicon
-	visualiconDB := orm.VisualIconDB{}
-	visualiconDB.VisualIconPointersEnconding = input.VisualIconPointersEnconding
-	visualiconDB.CopyBasicFieldsFromVisualIcon(&input.VisualIcon)
+	// Create divicon
+	diviconDB := orm.DivIconDB{}
+	diviconDB.DivIconPointersEnconding = input.DivIconPointersEnconding
+	diviconDB.CopyBasicFieldsFromDivIcon(&input.DivIcon)
 
-	query := db.Create(&visualiconDB)
+	query := db.Create(&diviconDB)
 	if query.Error != nil {
 		var returnError GenericError
 		returnError.Body.Code = http.StatusBadRequest
@@ -128,24 +128,24 @@ func PostVisualIcon(c *gin.Context) {
 	// (this will be improved with implementation of unit of work design pattern)
 	orm.BackRepo.IncrementPushFromFrontNb()
 
-	c.JSON(http.StatusOK, visualiconDB)
+	c.JSON(http.StatusOK, diviconDB)
 }
 
-// GetVisualIcon
+// GetDivIcon
 //
-// swagger:route GET /visualicons/{ID} visualicons getVisualIcon
+// swagger:route GET /divicons/{ID} divicons getDivIcon
 //
-// Gets the details for a visualicon.
+// Gets the details for a divicon.
 //
 // Responses:
 //    default: genericError
-//        200: visualiconDBResponse
-func GetVisualIcon(c *gin.Context) {
-	db := orm.BackRepo.BackRepoVisualIcon.GetDB()
+//        200: diviconDBResponse
+func GetDivIcon(c *gin.Context) {
+	db := orm.BackRepo.BackRepoDivIcon.GetDB()
 
-	// Get visualiconDB in DB
-	var visualiconDB orm.VisualIconDB
-	if err := db.First(&visualiconDB, c.Param("id")).Error; err != nil {
+	// Get diviconDB in DB
+	var diviconDB orm.DivIconDB
+	if err := db.First(&diviconDB, c.Param("id")).Error; err != nil {
 		var returnError GenericError
 		returnError.Body.Code = http.StatusBadRequest
 		returnError.Body.Message = err.Error()
@@ -154,31 +154,31 @@ func GetVisualIcon(c *gin.Context) {
 		return
 	}
 
-	var visualiconAPI orm.VisualIconAPI
-	visualiconAPI.ID = visualiconDB.ID
-	visualiconAPI.VisualIconPointersEnconding = visualiconDB.VisualIconPointersEnconding
-	visualiconDB.CopyBasicFieldsToVisualIcon(&visualiconAPI.VisualIcon)
+	var diviconAPI orm.DivIconAPI
+	diviconAPI.ID = diviconDB.ID
+	diviconAPI.DivIconPointersEnconding = diviconDB.DivIconPointersEnconding
+	diviconDB.CopyBasicFieldsToDivIcon(&diviconAPI.DivIcon)
 
-	c.JSON(http.StatusOK, visualiconAPI)
+	c.JSON(http.StatusOK, diviconAPI)
 }
 
-// UpdateVisualIcon
+// UpdateDivIcon
 //
-// swagger:route PATCH /visualicons/{ID} visualicons updateVisualIcon
+// swagger:route PATCH /divicons/{ID} divicons updateDivIcon
 //
-// Update a visualicon
+// Update a divicon
 //
 // Responses:
 //    default: genericError
-//        200: visualiconDBResponse
-func UpdateVisualIcon(c *gin.Context) {
-	db := orm.BackRepo.BackRepoVisualIcon.GetDB()
+//        200: diviconDBResponse
+func UpdateDivIcon(c *gin.Context) {
+	db := orm.BackRepo.BackRepoDivIcon.GetDB()
 
 	// Get model if exist
-	var visualiconDB orm.VisualIconDB
+	var diviconDB orm.DivIconDB
 
-	// fetch the visualicon
-	query := db.First(&visualiconDB, c.Param("id"))
+	// fetch the divicon
+	query := db.First(&diviconDB, c.Param("id"))
 
 	if query.Error != nil {
 		var returnError GenericError
@@ -190,7 +190,7 @@ func UpdateVisualIcon(c *gin.Context) {
 	}
 
 	// Validate input
-	var input orm.VisualIconAPI
+	var input orm.DivIconAPI
 	if err := c.ShouldBindJSON(&input); err != nil {
 		log.Println(err.Error())
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -198,10 +198,10 @@ func UpdateVisualIcon(c *gin.Context) {
 	}
 
 	// update
-	visualiconDB.CopyBasicFieldsFromVisualIcon(&input.VisualIcon)
-	visualiconDB.VisualIconPointersEnconding = input.VisualIconPointersEnconding
+	diviconDB.CopyBasicFieldsFromDivIcon(&input.DivIcon)
+	diviconDB.DivIconPointersEnconding = input.DivIconPointersEnconding
 
-	query = db.Model(&visualiconDB).Updates(visualiconDB)
+	query = db.Model(&diviconDB).Updates(diviconDB)
 	if query.Error != nil {
 		var returnError GenericError
 		returnError.Body.Code = http.StatusBadRequest
@@ -215,24 +215,24 @@ func UpdateVisualIcon(c *gin.Context) {
 	// (this will be improved with implementation of unit of work design pattern)
 	orm.BackRepo.IncrementPushFromFrontNb()
 
-	// return status OK with the marshalling of the the visualiconDB
-	c.JSON(http.StatusOK, visualiconDB)
+	// return status OK with the marshalling of the the diviconDB
+	c.JSON(http.StatusOK, diviconDB)
 }
 
-// DeleteVisualIcon
+// DeleteDivIcon
 //
-// swagger:route DELETE /visualicons/{ID} visualicons deleteVisualIcon
+// swagger:route DELETE /divicons/{ID} divicons deleteDivIcon
 //
-// Delete a visualicon
+// Delete a divicon
 //
 // Responses:
 //    default: genericError
-func DeleteVisualIcon(c *gin.Context) {
-	db := orm.BackRepo.BackRepoVisualIcon.GetDB()
+func DeleteDivIcon(c *gin.Context) {
+	db := orm.BackRepo.BackRepoDivIcon.GetDB()
 
 	// Get model if exist
-	var visualiconDB orm.VisualIconDB
-	if err := db.First(&visualiconDB, c.Param("id")).Error; err != nil {
+	var diviconDB orm.DivIconDB
+	if err := db.First(&diviconDB, c.Param("id")).Error; err != nil {
 		var returnError GenericError
 		returnError.Body.Code = http.StatusBadRequest
 		returnError.Body.Message = err.Error()
@@ -242,7 +242,7 @@ func DeleteVisualIcon(c *gin.Context) {
 	}
 
 	// with gorm.Model field, default delete is a soft delete. Unscoped() force delete
-	db.Unscoped().Delete(&visualiconDB)
+	db.Unscoped().Delete(&diviconDB)
 
 	// a DELETE generates a back repo commit increase
 	// (this will be improved with implementation of unit of work design pattern)

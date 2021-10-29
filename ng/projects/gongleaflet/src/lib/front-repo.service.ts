@@ -4,14 +4,14 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, combineLatest, BehaviorSubject } from 'rxjs';
 
 // insertion point sub template for services imports 
+import { DivIconDB } from './divicon-db'
+import { DivIconService } from './divicon.service'
+
 import { VisualCenterDB } from './visualcenter-db'
 import { VisualCenterService } from './visualcenter.service'
 
 import { VisualCircleDB } from './visualcircle-db'
 import { VisualCircleService } from './visualcircle.service'
-
-import { VisualIconDB } from './visualicon-db'
-import { VisualIconService } from './visualicon.service'
 
 import { VisualLayerDB } from './visuallayer-db'
 import { VisualLayerService } from './visuallayer.service'
@@ -28,15 +28,15 @@ import { VisualTrackService } from './visualtrack.service'
 
 // FrontRepo stores all instances in a front repository (design pattern repository)
 export class FrontRepo { // insertion point sub template 
+  DivIcons_array = new Array<DivIconDB>(); // array of repo instances
+  DivIcons = new Map<number, DivIconDB>(); // map of repo instances
+  DivIcons_batch = new Map<number, DivIconDB>(); // same but only in last GET (for finding repo instances to delete)
   VisualCenters_array = new Array<VisualCenterDB>(); // array of repo instances
   VisualCenters = new Map<number, VisualCenterDB>(); // map of repo instances
   VisualCenters_batch = new Map<number, VisualCenterDB>(); // same but only in last GET (for finding repo instances to delete)
   VisualCircles_array = new Array<VisualCircleDB>(); // array of repo instances
   VisualCircles = new Map<number, VisualCircleDB>(); // map of repo instances
   VisualCircles_batch = new Map<number, VisualCircleDB>(); // same but only in last GET (for finding repo instances to delete)
-  VisualIcons_array = new Array<VisualIconDB>(); // array of repo instances
-  VisualIcons = new Map<number, VisualIconDB>(); // map of repo instances
-  VisualIcons_batch = new Map<number, VisualIconDB>(); // same but only in last GET (for finding repo instances to delete)
   VisualLayers_array = new Array<VisualLayerDB>(); // array of repo instances
   VisualLayers = new Map<number, VisualLayerDB>(); // map of repo instances
   VisualLayers_batch = new Map<number, VisualLayerDB>(); // same but only in last GET (for finding repo instances to delete)
@@ -107,9 +107,9 @@ export class FrontRepoService {
 
   constructor(
     private http: HttpClient, // insertion point sub template 
+    private diviconService: DivIconService,
     private visualcenterService: VisualCenterService,
     private visualcircleService: VisualCircleService,
-    private visualiconService: VisualIconService,
     private visuallayerService: VisualLayerService,
     private visuallineService: VisualLineService,
     private visualmapService: VisualMapService,
@@ -144,17 +144,17 @@ export class FrontRepoService {
 
   // typing of observable can be messy in typescript. Therefore, one force the type
   observableFrontRepo: [ // insertion point sub template 
+    Observable<DivIconDB[]>,
     Observable<VisualCenterDB[]>,
     Observable<VisualCircleDB[]>,
-    Observable<VisualIconDB[]>,
     Observable<VisualLayerDB[]>,
     Observable<VisualLineDB[]>,
     Observable<VisualMapDB[]>,
     Observable<VisualTrackDB[]>,
   ] = [ // insertion point sub template 
+      this.diviconService.getDivIcons(),
       this.visualcenterService.getVisualCenters(),
       this.visualcircleService.getVisualCircles(),
-      this.visualiconService.getVisualIcons(),
       this.visuallayerService.getVisualLayers(),
       this.visuallineService.getVisualLines(),
       this.visualmapService.getVisualMaps(),
@@ -174,9 +174,9 @@ export class FrontRepoService {
           this.observableFrontRepo
         ).subscribe(
           ([ // insertion point sub template for declarations 
+            divicons_,
             visualcenters_,
             visualcircles_,
-            visualicons_,
             visuallayers_,
             visuallines_,
             visualmaps_,
@@ -184,12 +184,12 @@ export class FrontRepoService {
           ]) => {
             // Typing can be messy with many items. Therefore, type casting is necessary here
             // insertion point sub template for type casting 
+            var divicons: DivIconDB[]
+            divicons = divicons_ as DivIconDB[]
             var visualcenters: VisualCenterDB[]
             visualcenters = visualcenters_ as VisualCenterDB[]
             var visualcircles: VisualCircleDB[]
             visualcircles = visualcircles_ as VisualCircleDB[]
-            var visualicons: VisualIconDB[]
-            visualicons = visualicons_ as VisualIconDB[]
             var visuallayers: VisualLayerDB[]
             visuallayers = visuallayers_ as VisualLayerDB[]
             var visuallines: VisualLineDB[]
@@ -202,6 +202,39 @@ export class FrontRepoService {
             // 
             // First Step: init map of instances
             // insertion point sub template for init 
+            // init the array
+            FrontRepoSingloton.DivIcons_array = divicons
+
+            // clear the map that counts DivIcon in the GET
+            FrontRepoSingloton.DivIcons_batch.clear()
+
+            divicons.forEach(
+              divicon => {
+                FrontRepoSingloton.DivIcons.set(divicon.ID, divicon)
+                FrontRepoSingloton.DivIcons_batch.set(divicon.ID, divicon)
+              }
+            )
+
+            // clear divicons that are absent from the batch
+            FrontRepoSingloton.DivIcons.forEach(
+              divicon => {
+                if (FrontRepoSingloton.DivIcons_batch.get(divicon.ID) == undefined) {
+                  FrontRepoSingloton.DivIcons.delete(divicon.ID)
+                }
+              }
+            )
+
+            // sort DivIcons_array array
+            FrontRepoSingloton.DivIcons_array.sort((t1, t2) => {
+              if (t1.Name > t2.Name) {
+                return 1;
+              }
+              if (t1.Name < t2.Name) {
+                return -1;
+              }
+              return 0;
+            });
+
             // init the array
             FrontRepoSingloton.VisualCenters_array = visualcenters
 
@@ -259,39 +292,6 @@ export class FrontRepoService {
 
             // sort VisualCircles_array array
             FrontRepoSingloton.VisualCircles_array.sort((t1, t2) => {
-              if (t1.Name > t2.Name) {
-                return 1;
-              }
-              if (t1.Name < t2.Name) {
-                return -1;
-              }
-              return 0;
-            });
-
-            // init the array
-            FrontRepoSingloton.VisualIcons_array = visualicons
-
-            // clear the map that counts VisualIcon in the GET
-            FrontRepoSingloton.VisualIcons_batch.clear()
-
-            visualicons.forEach(
-              visualicon => {
-                FrontRepoSingloton.VisualIcons.set(visualicon.ID, visualicon)
-                FrontRepoSingloton.VisualIcons_batch.set(visualicon.ID, visualicon)
-              }
-            )
-
-            // clear visualicons that are absent from the batch
-            FrontRepoSingloton.VisualIcons.forEach(
-              visualicon => {
-                if (FrontRepoSingloton.VisualIcons_batch.get(visualicon.ID) == undefined) {
-                  FrontRepoSingloton.VisualIcons.delete(visualicon.ID)
-                }
-              }
-            )
-
-            // sort VisualIcons_array array
-            FrontRepoSingloton.VisualIcons_array.sort((t1, t2) => {
               if (t1.Name > t2.Name) {
                 return 1;
               }
@@ -437,6 +437,13 @@ export class FrontRepoService {
             // 
             // Second Step: redeem pointers between instances (thanks to maps in the First Step)
             // insertion point sub template for redeem 
+            divicons.forEach(
+              divicon => {
+                // insertion point sub sub template for ONE-/ZERO-ONE associations pointers redeeming
+
+                // insertion point for redeeming ONE-MANY associations
+              }
+            )
             visualcenters.forEach(
               visualcenter => {
                 // insertion point sub sub template for ONE-/ZERO-ONE associations pointers redeeming
@@ -447,11 +454,11 @@ export class FrontRepoService {
                     visualcenter.VisualLayer = _visuallayer
                   }
                 }
-                // insertion point for pointer field VisualIcon redeeming
+                // insertion point for pointer field DivIcon redeeming
                 {
-                  let _visualicon = FrontRepoSingloton.VisualIcons.get(visualcenter.VisualIconID.Int64)
-                  if (_visualicon) {
-                    visualcenter.VisualIcon = _visualicon
+                  let _divicon = FrontRepoSingloton.DivIcons.get(visualcenter.DivIconID.Int64)
+                  if (_divicon) {
+                    visualcenter.DivIcon = _divicon
                   }
                 }
 
@@ -468,13 +475,6 @@ export class FrontRepoService {
                     visualcircle.VisualLayer = _visuallayer
                   }
                 }
-
-                // insertion point for redeeming ONE-MANY associations
-              }
-            )
-            visualicons.forEach(
-              visualicon => {
-                // insertion point sub sub template for ONE-/ZERO-ONE associations pointers redeeming
 
                 // insertion point for redeeming ONE-MANY associations
               }
@@ -517,11 +517,11 @@ export class FrontRepoService {
                     visualtrack.VisualLayer = _visuallayer
                   }
                 }
-                // insertion point for pointer field VisualIcon redeeming
+                // insertion point for pointer field DivIcon redeeming
                 {
-                  let _visualicon = FrontRepoSingloton.VisualIcons.get(visualtrack.VisualIconID.Int64)
-                  if (_visualicon) {
-                    visualtrack.VisualIcon = _visualicon
+                  let _divicon = FrontRepoSingloton.DivIcons.get(visualtrack.DivIconID.Int64)
+                  if (_divicon) {
+                    visualtrack.DivIcon = _divicon
                   }
                 }
 
@@ -538,6 +538,57 @@ export class FrontRepoService {
   }
 
   // insertion point for pull per struct 
+
+  // DivIconPull performs a GET on DivIcon of the stack and redeem association pointers 
+  DivIconPull(): Observable<FrontRepo> {
+    return new Observable<FrontRepo>(
+      (observer) => {
+        combineLatest([
+          this.diviconService.getDivIcons()
+        ]).subscribe(
+          ([ // insertion point sub template 
+            divicons,
+          ]) => {
+            // init the array
+            FrontRepoSingloton.DivIcons_array = divicons
+
+            // clear the map that counts DivIcon in the GET
+            FrontRepoSingloton.DivIcons_batch.clear()
+
+            // 
+            // First Step: init map of instances
+            // insertion point sub template 
+            divicons.forEach(
+              divicon => {
+                FrontRepoSingloton.DivIcons.set(divicon.ID, divicon)
+                FrontRepoSingloton.DivIcons_batch.set(divicon.ID, divicon)
+
+                // insertion point for redeeming ONE/ZERO-ONE associations
+
+                // insertion point for redeeming ONE-MANY associations
+              }
+            )
+
+            // clear divicons that are absent from the GET
+            FrontRepoSingloton.DivIcons.forEach(
+              divicon => {
+                if (FrontRepoSingloton.DivIcons_batch.get(divicon.ID) == undefined) {
+                  FrontRepoSingloton.DivIcons.delete(divicon.ID)
+                }
+              }
+            )
+
+            // 
+            // Second Step: redeem pointers between instances (thanks to maps in the First Step)
+            // insertion point sub template 
+
+            // hand over control flow to observer
+            observer.next(FrontRepoSingloton)
+          }
+        )
+      }
+    )
+  }
 
   // VisualCenterPull performs a GET on VisualCenter of the stack and redeem association pointers 
   VisualCenterPull(): Observable<FrontRepo> {
@@ -571,11 +622,11 @@ export class FrontRepoService {
                     visualcenter.VisualLayer = _visuallayer
                   }
                 }
-                // insertion point for pointer field VisualIcon redeeming
+                // insertion point for pointer field DivIcon redeeming
                 {
-                  let _visualicon = FrontRepoSingloton.VisualIcons.get(visualcenter.VisualIconID.Int64)
-                  if (_visualicon) {
-                    visualcenter.VisualIcon = _visualicon
+                  let _divicon = FrontRepoSingloton.DivIcons.get(visualcenter.DivIconID.Int64)
+                  if (_divicon) {
+                    visualcenter.DivIcon = _divicon
                   }
                 }
 
@@ -646,57 +697,6 @@ export class FrontRepoService {
               visualcircle => {
                 if (FrontRepoSingloton.VisualCircles_batch.get(visualcircle.ID) == undefined) {
                   FrontRepoSingloton.VisualCircles.delete(visualcircle.ID)
-                }
-              }
-            )
-
-            // 
-            // Second Step: redeem pointers between instances (thanks to maps in the First Step)
-            // insertion point sub template 
-
-            // hand over control flow to observer
-            observer.next(FrontRepoSingloton)
-          }
-        )
-      }
-    )
-  }
-
-  // VisualIconPull performs a GET on VisualIcon of the stack and redeem association pointers 
-  VisualIconPull(): Observable<FrontRepo> {
-    return new Observable<FrontRepo>(
-      (observer) => {
-        combineLatest([
-          this.visualiconService.getVisualIcons()
-        ]).subscribe(
-          ([ // insertion point sub template 
-            visualicons,
-          ]) => {
-            // init the array
-            FrontRepoSingloton.VisualIcons_array = visualicons
-
-            // clear the map that counts VisualIcon in the GET
-            FrontRepoSingloton.VisualIcons_batch.clear()
-
-            // 
-            // First Step: init map of instances
-            // insertion point sub template 
-            visualicons.forEach(
-              visualicon => {
-                FrontRepoSingloton.VisualIcons.set(visualicon.ID, visualicon)
-                FrontRepoSingloton.VisualIcons_batch.set(visualicon.ID, visualicon)
-
-                // insertion point for redeeming ONE/ZERO-ONE associations
-
-                // insertion point for redeeming ONE-MANY associations
-              }
-            )
-
-            // clear visualicons that are absent from the GET
-            FrontRepoSingloton.VisualIcons.forEach(
-              visualicon => {
-                if (FrontRepoSingloton.VisualIcons_batch.get(visualicon.ID) == undefined) {
-                  FrontRepoSingloton.VisualIcons.delete(visualicon.ID)
                 }
               }
             )
@@ -905,11 +905,11 @@ export class FrontRepoService {
                     visualtrack.VisualLayer = _visuallayer
                   }
                 }
-                // insertion point for pointer field VisualIcon redeeming
+                // insertion point for pointer field DivIcon redeeming
                 {
-                  let _visualicon = FrontRepoSingloton.VisualIcons.get(visualtrack.VisualIconID.Int64)
-                  if (_visualicon) {
-                    visualtrack.VisualIcon = _visualicon
+                  let _divicon = FrontRepoSingloton.DivIcons.get(visualtrack.DivIconID.Int64)
+                  if (_divicon) {
+                    visualtrack.DivIcon = _divicon
                   }
                 }
 
@@ -940,13 +940,13 @@ export class FrontRepoService {
 }
 
 // insertion point for get unique ID per struct 
-export function getVisualCenterUniqueID(id: number): number {
+export function getDivIconUniqueID(id: number): number {
   return 31 * id
 }
-export function getVisualCircleUniqueID(id: number): number {
+export function getVisualCenterUniqueID(id: number): number {
   return 37 * id
 }
-export function getVisualIconUniqueID(id: number): number {
+export function getVisualCircleUniqueID(id: number): number {
   return 41 * id
 }
 export function getVisualLayerUniqueID(id: number): number {

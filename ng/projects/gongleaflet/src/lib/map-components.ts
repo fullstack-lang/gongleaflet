@@ -1,10 +1,10 @@
 // insertion point sub template for components imports 
+  import { DivIconsTableComponent } from './divicons-table/divicons-table.component'
+  import { DivIconSortingComponent } from './divicon-sorting/divicon-sorting.component'
   import { VisualCentersTableComponent } from './visualcenters-table/visualcenters-table.component'
   import { VisualCenterSortingComponent } from './visualcenter-sorting/visualcenter-sorting.component'
   import { VisualCirclesTableComponent } from './visualcircles-table/visualcircles-table.component'
   import { VisualCircleSortingComponent } from './visualcircle-sorting/visualcircle-sorting.component'
-  import { VisualIconsTableComponent } from './visualicons-table/visualicons-table.component'
-  import { VisualIconSortingComponent } from './visualicon-sorting/visualicon-sorting.component'
   import { VisualLayersTableComponent } from './visuallayers-table/visuallayers-table.component'
   import { VisualLayerSortingComponent } from './visuallayer-sorting/visuallayer-sorting.component'
   import { VisualLinesTableComponent } from './visuallines-table/visuallines-table.component'
@@ -15,12 +15,12 @@
   import { VisualTrackSortingComponent } from './visualtrack-sorting/visualtrack-sorting.component'
 
 // insertion point sub template for map of components per struct 
+  export const MapOfDivIconsComponents: Map<string, any> = new Map([["DivIconsTableComponent", DivIconsTableComponent],])
+  export const MapOfDivIconSortingComponents: Map<string, any> = new Map([["DivIconSortingComponent", DivIconSortingComponent],])
   export const MapOfVisualCentersComponents: Map<string, any> = new Map([["VisualCentersTableComponent", VisualCentersTableComponent],])
   export const MapOfVisualCenterSortingComponents: Map<string, any> = new Map([["VisualCenterSortingComponent", VisualCenterSortingComponent],])
   export const MapOfVisualCirclesComponents: Map<string, any> = new Map([["VisualCirclesTableComponent", VisualCirclesTableComponent],])
   export const MapOfVisualCircleSortingComponents: Map<string, any> = new Map([["VisualCircleSortingComponent", VisualCircleSortingComponent],])
-  export const MapOfVisualIconsComponents: Map<string, any> = new Map([["VisualIconsTableComponent", VisualIconsTableComponent],])
-  export const MapOfVisualIconSortingComponents: Map<string, any> = new Map([["VisualIconSortingComponent", VisualIconSortingComponent],])
   export const MapOfVisualLayersComponents: Map<string, any> = new Map([["VisualLayersTableComponent", VisualLayersTableComponent],])
   export const MapOfVisualLayerSortingComponents: Map<string, any> = new Map([["VisualLayerSortingComponent", VisualLayerSortingComponent],])
   export const MapOfVisualLinesComponents: Map<string, any> = new Map([["VisualLinesTableComponent", VisualLinesTableComponent],])
@@ -35,9 +35,9 @@ export const MapOfComponents: Map<string, any> =
   new Map(
     [
       // insertion point sub template for map of components 
+      ["DivIcon", MapOfDivIconsComponents],
       ["VisualCenter", MapOfVisualCentersComponents],
       ["VisualCircle", MapOfVisualCirclesComponents],
-      ["VisualIcon", MapOfVisualIconsComponents],
       ["VisualLayer", MapOfVisualLayersComponents],
       ["VisualLine", MapOfVisualLinesComponents],
       ["VisualMap", MapOfVisualMapsComponents],
@@ -50,9 +50,9 @@ export const MapOfSortingComponents: Map<string, any> =
   new Map(
     [
     // insertion point sub template for map of sorting components 
+      ["DivIcon", MapOfDivIconSortingComponents],
       ["VisualCenter", MapOfVisualCenterSortingComponents],
       ["VisualCircle", MapOfVisualCircleSortingComponents],
-      ["VisualIcon", MapOfVisualIconSortingComponents],
       ["VisualLayer", MapOfVisualLayerSortingComponents],
       ["VisualLine", MapOfVisualLineSortingComponents],
       ["VisualMap", MapOfVisualMapSortingComponents],

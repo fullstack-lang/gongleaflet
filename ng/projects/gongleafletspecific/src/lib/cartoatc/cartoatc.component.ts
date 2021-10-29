@@ -61,7 +61,7 @@ export class CartoatcComponent implements OnInit {
     this.router.routeReuseStrategy.shouldReuseRoute = () => false;
   }
 
-  // not yet clear
+  // not yet clear what those lines mean
   // onMapReady(map: L.Map) {
   //   setTimeout(() => {
   //     map.invalidateSize();
@@ -144,11 +144,11 @@ export class CartoatcComponent implements OnInit {
   manageNewVisualTrackMarker(visualTrack: gongleaflet.VisualTrackDB) {
     var color = manageLeafletItems.getColor(visualTrack.VisualColorEnum);
 
-    if (visualTrack.VisualIcon) {
+    if (visualTrack.DivIcon) {
       var icon: L.DivIcon = manageLeafletItems.newIcon(
         visualTrack.ID + '-track',
         'layer-' + visualTrack.VisualLayerID.Int64,
-        visualTrack.VisualIcon.SVG,
+        visualTrack.DivIcon.SVG,
         DEFAULT_ICON_SIZE,
         color,
         visualTrack.Name

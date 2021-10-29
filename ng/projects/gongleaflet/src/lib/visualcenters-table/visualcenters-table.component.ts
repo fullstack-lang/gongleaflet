@@ -81,8 +81,8 @@ export class VisualCentersTableComponent implements OnInit {
         case 'VisualLayer':
           return (visualcenterDB.VisualLayer ? visualcenterDB.VisualLayer.Name : '');
 
-        case 'VisualIcon':
-          return (visualcenterDB.VisualIcon ? visualcenterDB.VisualIcon.Name : '');
+        case 'DivIcon':
+          return (visualcenterDB.DivIcon ? visualcenterDB.DivIcon.Name : '');
 
         default:
           console.assert(false, "Unknown field")
@@ -105,8 +105,8 @@ export class VisualCentersTableComponent implements OnInit {
       if (visualcenterDB.VisualLayer) {
         mergedContent += visualcenterDB.VisualLayer.Name.toLowerCase()
       }
-      if (visualcenterDB.VisualIcon) {
-        mergedContent += visualcenterDB.VisualIcon.Name.toLowerCase()
+      if (visualcenterDB.DivIcon) {
+        mergedContent += visualcenterDB.DivIcon.Name.toLowerCase()
       }
 
       let isSelected = mergedContent.includes(filter.toLowerCase())
@@ -163,7 +163,7 @@ export class VisualCentersTableComponent implements OnInit {
         "Name",
         "VisualColorEnum",
         "VisualLayer",
-        "VisualIcon",
+        "DivIcon",
       ]
     } else {
       this.displayedColumns = ['select', 'ID', // insertion point for columns to display
@@ -172,7 +172,7 @@ export class VisualCentersTableComponent implements OnInit {
         "Name",
         "VisualColorEnum",
         "VisualLayer",
-        "VisualIcon",
+        "DivIcon",
       ]
       this.selection = new SelectionModel<VisualCenterDB>(allowMultiSelect, this.initialSelection);
     }

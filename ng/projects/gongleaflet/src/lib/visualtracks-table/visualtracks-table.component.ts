@@ -93,8 +93,8 @@ export class VisualTracksTableComponent implements OnInit {
         case 'VisualLayer':
           return (visualtrackDB.VisualLayer ? visualtrackDB.VisualLayer.Name : '');
 
-        case 'VisualIcon':
-          return (visualtrackDB.VisualIcon ? visualtrackDB.VisualIcon.Name : '');
+        case 'DivIcon':
+          return (visualtrackDB.DivIcon ? visualtrackDB.DivIcon.Name : '');
 
         case 'Display':
           return visualtrackDB.Display?"true":"false";
@@ -130,8 +130,8 @@ export class VisualTracksTableComponent implements OnInit {
       if (visualtrackDB.VisualLayer) {
         mergedContent += visualtrackDB.VisualLayer.Name.toLowerCase()
       }
-      if (visualtrackDB.VisualIcon) {
-        mergedContent += visualtrackDB.VisualIcon.Name.toLowerCase()
+      if (visualtrackDB.DivIcon) {
+        mergedContent += visualtrackDB.DivIcon.Name.toLowerCase()
       }
 
       let isSelected = mergedContent.includes(filter.toLowerCase())
@@ -192,7 +192,7 @@ export class VisualTracksTableComponent implements OnInit {
         "Name",
         "VisualColorEnum",
         "VisualLayer",
-        "VisualIcon",
+        "DivIcon",
         "Display",
         "DisplayTrackHistory",
         "DisplayLevelAndSpeed",
@@ -208,7 +208,7 @@ export class VisualTracksTableComponent implements OnInit {
         "Name",
         "VisualColorEnum",
         "VisualLayer",
-        "VisualIcon",
+        "DivIcon",
         "Display",
         "DisplayTrackHistory",
         "DisplayLevelAndSpeed",

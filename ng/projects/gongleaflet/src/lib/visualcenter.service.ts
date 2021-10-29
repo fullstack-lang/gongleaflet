@@ -15,7 +15,7 @@ import { VisualCenterDB } from './visualcenter-db';
 
 // insertion point for imports
 import { VisualLayerDB } from './visuallayer-db'
-import { VisualIconDB } from './visualicon-db'
+import { DivIconDB } from './divicon-db'
 
 @Injectable({
   providedIn: 'root'
@@ -73,7 +73,7 @@ export class VisualCenterService {
 
     // insertion point for reset of pointers and reverse pointers (to avoid circular JSON)
     visualcenterdb.VisualLayer = new VisualLayerDB
-    visualcenterdb.VisualIcon = new VisualIconDB
+    visualcenterdb.DivIcon = new DivIconDB
 
     return this.http.post<VisualCenterDB>(this.visualcentersUrl, visualcenterdb, this.httpOptions).pipe(
       tap(_ => {
@@ -102,7 +102,7 @@ export class VisualCenterService {
 
     // insertion point for reset of pointers and reverse pointers (to avoid circular JSON)
     visualcenterdb.VisualLayer = new VisualLayerDB
-    visualcenterdb.VisualIcon = new VisualIconDB
+    visualcenterdb.DivIcon = new DivIconDB
 
     return this.http.put<VisualCenterDB>(url, visualcenterdb, this.httpOptions).pipe(
       tap(_ => {

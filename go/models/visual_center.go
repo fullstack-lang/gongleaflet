@@ -11,8 +11,9 @@ type VisualCenter struct {
 
 	// VisualLayer the object belongs to
 	VisualLayer *VisualLayer
-	// VisualIcon
-	VisualIcon *VisualIcon
+
+	// DivIcon
+	DivIcon *DivIcon
 
 	// swagger:ignore
 	// access to the models instance that contains the original information

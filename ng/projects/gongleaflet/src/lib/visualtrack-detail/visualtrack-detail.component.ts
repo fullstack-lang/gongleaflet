@@ -153,15 +153,15 @@ export class VisualTrackDetailComponent implements OnInit {
 			this.visualtrack.VisualLayerID.Int64 = 0
 			this.visualtrack.VisualLayerID.Valid = true
 		}
-		if (this.visualtrack.VisualIconID == undefined) {
-			this.visualtrack.VisualIconID = new NullInt64
+		if (this.visualtrack.DivIconID == undefined) {
+			this.visualtrack.DivIconID = new NullInt64
 		}
-		if (this.visualtrack.VisualIcon != undefined) {
-			this.visualtrack.VisualIconID.Int64 = this.visualtrack.VisualIcon.ID
-			this.visualtrack.VisualIconID.Valid = true
+		if (this.visualtrack.DivIcon != undefined) {
+			this.visualtrack.DivIconID.Int64 = this.visualtrack.DivIcon.ID
+			this.visualtrack.DivIconID.Valid = true
 		} else {
-			this.visualtrack.VisualIconID.Int64 = 0
-			this.visualtrack.VisualIconID.Valid = true
+			this.visualtrack.DivIconID.Int64 = 0
+			this.visualtrack.DivIconID.Valid = true
 		}
 		this.visualtrack.Display = this.DisplayFormControl.value
 		this.visualtrack.DisplayTrackHistory = this.DisplayTrackHistoryFormControl.value

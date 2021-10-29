@@ -147,15 +147,15 @@ export class VisualCenterDetailComponent implements OnInit {
 			this.visualcenter.VisualLayerID.Int64 = 0
 			this.visualcenter.VisualLayerID.Valid = true
 		}
-		if (this.visualcenter.VisualIconID == undefined) {
-			this.visualcenter.VisualIconID = new NullInt64
+		if (this.visualcenter.DivIconID == undefined) {
+			this.visualcenter.DivIconID = new NullInt64
 		}
-		if (this.visualcenter.VisualIcon != undefined) {
-			this.visualcenter.VisualIconID.Int64 = this.visualcenter.VisualIcon.ID
-			this.visualcenter.VisualIconID.Valid = true
+		if (this.visualcenter.DivIcon != undefined) {
+			this.visualcenter.DivIconID.Int64 = this.visualcenter.DivIcon.ID
+			this.visualcenter.DivIconID.Valid = true
 		} else {
-			this.visualcenter.VisualIconID.Int64 = 0
-			this.visualcenter.VisualIconID.Valid = true
+			this.visualcenter.DivIconID.Int64 = 0
+			this.visualcenter.DivIconID.Valid = true
 		}
 
 		// save from the front pointer space to the non pointer space for serialization

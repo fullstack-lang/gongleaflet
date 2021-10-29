@@ -2,6 +2,8 @@ package models
 
 // VisualTrack provides all necessary elements to the front to display a track
 //
+// In leaflet, it is translated into a MovingMarker
+//
 // swagger:model visualtrack
 type VisualTrack struct {
 	Lat, Lng, Heading, Level, Speed, VerticalSpeed float64
@@ -16,7 +18,7 @@ type VisualTrack struct {
 	// swagger:ignore
 	VisualTrackInterface VisualTrackInterface `gorm:"-"`
 
-	VisualIcon *VisualIcon
+	DivIcon *DivIcon
 
 	Display bool
 

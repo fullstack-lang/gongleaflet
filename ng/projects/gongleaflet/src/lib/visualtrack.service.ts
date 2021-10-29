@@ -15,7 +15,7 @@ import { VisualTrackDB } from './visualtrack-db';
 
 // insertion point for imports
 import { VisualLayerDB } from './visuallayer-db'
-import { VisualIconDB } from './visualicon-db'
+import { DivIconDB } from './divicon-db'
 
 @Injectable({
   providedIn: 'root'
@@ -73,7 +73,7 @@ export class VisualTrackService {
 
     // insertion point for reset of pointers and reverse pointers (to avoid circular JSON)
     visualtrackdb.VisualLayer = new VisualLayerDB
-    visualtrackdb.VisualIcon = new VisualIconDB
+    visualtrackdb.DivIcon = new DivIconDB
 
     return this.http.post<VisualTrackDB>(this.visualtracksUrl, visualtrackdb, this.httpOptions).pipe(
       tap(_ => {
@@ -102,7 +102,7 @@ export class VisualTrackService {
 
     // insertion point for reset of pointers and reverse pointers (to avoid circular JSON)
     visualtrackdb.VisualLayer = new VisualLayerDB
-    visualtrackdb.VisualIcon = new VisualIconDB
+    visualtrackdb.DivIcon = new DivIconDB
 
     return this.http.put<VisualTrackDB>(url, visualtrackdb, this.httpOptions).pipe(
       tap(_ => {

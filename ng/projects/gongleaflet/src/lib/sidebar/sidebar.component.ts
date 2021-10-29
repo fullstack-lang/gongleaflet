@@ -8,12 +8,12 @@ import { FrontRepoService, FrontRepo } from '../front-repo.service'
 import { CommitNbService } from '../commitnb.service'
 
 // insertion point for per struct import code
+import { DivIconService } from '../divicon.service'
+import { getDivIconUniqueID } from '../front-repo.service'
 import { VisualCenterService } from '../visualcenter.service'
 import { getVisualCenterUniqueID } from '../front-repo.service'
 import { VisualCircleService } from '../visualcircle.service'
 import { getVisualCircleUniqueID } from '../front-repo.service'
-import { VisualIconService } from '../visualicon.service'
-import { getVisualIconUniqueID } from '../front-repo.service'
 import { VisualLayerService } from '../visuallayer.service'
 import { getVisualLayerUniqueID } from '../front-repo.service'
 import { VisualLineService } from '../visualline.service'
@@ -157,9 +157,9 @@ export class SidebarComponent implements OnInit {
     private commitNbService: CommitNbService,
 
     // insertion point for per struct service declaration
+    private diviconService: DivIconService,
     private visualcenterService: VisualCenterService,
     private visualcircleService: VisualCircleService,
-    private visualiconService: VisualIconService,
     private visuallayerService: VisualLayerService,
     private visuallineService: VisualLineService,
     private visualmapService: VisualMapService,
@@ -171,6 +171,14 @@ export class SidebarComponent implements OnInit {
 
     // insertion point for per struct observable for refresh trigger
     // observable for changes in structs
+    this.diviconService.DivIconServiceChanged.subscribe(
+      message => {
+        if (message == "post" || message == "update" || message == "delete") {
+          this.refresh()
+        }
+      }
+    )
+    // observable for changes in structs
     this.visualcenterService.VisualCenterServiceChanged.subscribe(
       message => {
         if (message == "post" || message == "update" || message == "delete") {
@@ -180,14 +188,6 @@ export class SidebarComponent implements OnInit {
     )
     // observable for changes in structs
     this.visualcircleService.VisualCircleServiceChanged.subscribe(
-      message => {
-        if (message == "post" || message == "update" || message == "delete") {
-          this.refresh()
-        }
-      }
-    )
-    // observable for changes in structs
-    this.visualiconService.VisualIconServiceChanged.subscribe(
       message => {
         if (message == "post" || message == "update" || message == "delete") {
           this.refresh()
@@ -250,6 +250,50 @@ export class SidebarComponent implements OnInit {
       this.gongNodeTree = new Array<GongNode>();
       
       // insertion point for per struct tree construction
+      /**
+      * fill up the DivIcon part of the mat tree
+      */
+      let diviconGongNodeStruct: GongNode = {
+        name: "DivIcon",
+        type: GongNodeType.STRUCT,
+        id: 0,
+        uniqueIdPerStack: 13 * nonInstanceNodeId,
+        structName: "DivIcon",
+        associationField: "",
+        associatedStructName: "",
+        children: new Array<GongNode>()
+      }
+      nonInstanceNodeId = nonInstanceNodeId + 1
+      this.gongNodeTree.push(diviconGongNodeStruct)
+
+      this.frontRepo.DivIcons_array.sort((t1, t2) => {
+        if (t1.Name > t2.Name) {
+          return 1;
+        }
+        if (t1.Name < t2.Name) {
+          return -1;
+        }
+        return 0;
+      });
+
+      this.frontRepo.DivIcons_array.forEach(
+        diviconDB => {
+          let diviconGongNodeInstance: GongNode = {
+            name: diviconDB.Name,
+            type: GongNodeType.INSTANCE,
+            id: diviconDB.ID,
+            uniqueIdPerStack: getDivIconUniqueID(diviconDB.ID),
+            structName: "DivIcon",
+            associationField: "",
+            associatedStructName: "",
+            children: new Array<GongNode>()
+          }
+          diviconGongNodeStruct.children!.push(diviconGongNodeInstance)
+
+          // insertion point for per field code
+        }
+      )
+
       /**
       * fill up the VisualCenter part of the mat tree
       */
@@ -327,38 +371,38 @@ export class SidebarComponent implements OnInit {
           }
 
           /**
-          * let append a node for the association VisualIcon
+          * let append a node for the association DivIcon
           */
-          let VisualIconGongNodeAssociation: GongNode = {
-            name: "(VisualIcon) VisualIcon",
+          let DivIconGongNodeAssociation: GongNode = {
+            name: "(DivIcon) DivIcon",
             type: GongNodeType.ONE__ZERO_ONE_ASSOCIATION,
             id: visualcenterDB.ID,
             uniqueIdPerStack: 17 * nonInstanceNodeId,
             structName: "VisualCenter",
-            associationField: "VisualIcon",
-            associatedStructName: "VisualIcon",
+            associationField: "DivIcon",
+            associatedStructName: "DivIcon",
             children: new Array<GongNode>()
           }
           nonInstanceNodeId = nonInstanceNodeId + 1
-          visualcenterGongNodeInstance.children!.push(VisualIconGongNodeAssociation)
+          visualcenterGongNodeInstance.children!.push(DivIconGongNodeAssociation)
 
           /**
-            * let append a node for the instance behind the asssociation VisualIcon
+            * let append a node for the instance behind the asssociation DivIcon
             */
-          if (visualcenterDB.VisualIcon != undefined) {
-            let visualcenterGongNodeInstance_VisualIcon: GongNode = {
-              name: visualcenterDB.VisualIcon.Name,
+          if (visualcenterDB.DivIcon != undefined) {
+            let visualcenterGongNodeInstance_DivIcon: GongNode = {
+              name: visualcenterDB.DivIcon.Name,
               type: GongNodeType.INSTANCE,
-              id: visualcenterDB.VisualIcon.ID,
+              id: visualcenterDB.DivIcon.ID,
               uniqueIdPerStack: // godel numbering (thank you kurt)
                 3 * getVisualCenterUniqueID(visualcenterDB.ID)
-                + 5 * getVisualIconUniqueID(visualcenterDB.VisualIcon.ID),
-              structName: "VisualIcon",
+                + 5 * getDivIconUniqueID(visualcenterDB.DivIcon.ID),
+              structName: "DivIcon",
               associationField: "",
               associatedStructName: "",
               children: new Array<GongNode>()
             }
-            VisualIconGongNodeAssociation.children.push(visualcenterGongNodeInstance_VisualIcon)
+            DivIconGongNodeAssociation.children.push(visualcenterGongNodeInstance_DivIcon)
           }
 
         }
@@ -440,50 +484,6 @@ export class SidebarComponent implements OnInit {
             VisualLayerGongNodeAssociation.children.push(visualcircleGongNodeInstance_VisualLayer)
           }
 
-        }
-      )
-
-      /**
-      * fill up the VisualIcon part of the mat tree
-      */
-      let visualiconGongNodeStruct: GongNode = {
-        name: "VisualIcon",
-        type: GongNodeType.STRUCT,
-        id: 0,
-        uniqueIdPerStack: 13 * nonInstanceNodeId,
-        structName: "VisualIcon",
-        associationField: "",
-        associatedStructName: "",
-        children: new Array<GongNode>()
-      }
-      nonInstanceNodeId = nonInstanceNodeId + 1
-      this.gongNodeTree.push(visualiconGongNodeStruct)
-
-      this.frontRepo.VisualIcons_array.sort((t1, t2) => {
-        if (t1.Name > t2.Name) {
-          return 1;
-        }
-        if (t1.Name < t2.Name) {
-          return -1;
-        }
-        return 0;
-      });
-
-      this.frontRepo.VisualIcons_array.forEach(
-        visualiconDB => {
-          let visualiconGongNodeInstance: GongNode = {
-            name: visualiconDB.Name,
-            type: GongNodeType.INSTANCE,
-            id: visualiconDB.ID,
-            uniqueIdPerStack: getVisualIconUniqueID(visualiconDB.ID),
-            structName: "VisualIcon",
-            associationField: "",
-            associatedStructName: "",
-            children: new Array<GongNode>()
-          }
-          visualiconGongNodeStruct.children!.push(visualiconGongNodeInstance)
-
-          // insertion point for per field code
         }
       )
 
@@ -731,38 +731,38 @@ export class SidebarComponent implements OnInit {
           }
 
           /**
-          * let append a node for the association VisualIcon
+          * let append a node for the association DivIcon
           */
-          let VisualIconGongNodeAssociation: GongNode = {
-            name: "(VisualIcon) VisualIcon",
+          let DivIconGongNodeAssociation: GongNode = {
+            name: "(DivIcon) DivIcon",
             type: GongNodeType.ONE__ZERO_ONE_ASSOCIATION,
             id: visualtrackDB.ID,
             uniqueIdPerStack: 17 * nonInstanceNodeId,
             structName: "VisualTrack",
-            associationField: "VisualIcon",
-            associatedStructName: "VisualIcon",
+            associationField: "DivIcon",
+            associatedStructName: "DivIcon",
             children: new Array<GongNode>()
           }
           nonInstanceNodeId = nonInstanceNodeId + 1
-          visualtrackGongNodeInstance.children!.push(VisualIconGongNodeAssociation)
+          visualtrackGongNodeInstance.children!.push(DivIconGongNodeAssociation)
 
           /**
-            * let append a node for the instance behind the asssociation VisualIcon
+            * let append a node for the instance behind the asssociation DivIcon
             */
-          if (visualtrackDB.VisualIcon != undefined) {
-            let visualtrackGongNodeInstance_VisualIcon: GongNode = {
-              name: visualtrackDB.VisualIcon.Name,
+          if (visualtrackDB.DivIcon != undefined) {
+            let visualtrackGongNodeInstance_DivIcon: GongNode = {
+              name: visualtrackDB.DivIcon.Name,
               type: GongNodeType.INSTANCE,
-              id: visualtrackDB.VisualIcon.ID,
+              id: visualtrackDB.DivIcon.ID,
               uniqueIdPerStack: // godel numbering (thank you kurt)
                 3 * getVisualTrackUniqueID(visualtrackDB.ID)
-                + 5 * getVisualIconUniqueID(visualtrackDB.VisualIcon.ID),
-              structName: "VisualIcon",
+                + 5 * getDivIconUniqueID(visualtrackDB.DivIcon.ID),
+              structName: "DivIcon",
               associationField: "",
               associatedStructName: "",
               children: new Array<GongNode>()
             }
-            VisualIconGongNodeAssociation.children.push(visualtrackGongNodeInstance_VisualIcon)
+            DivIconGongNodeAssociation.children.push(visualtrackGongNodeInstance_DivIcon)
           }
 
         }
