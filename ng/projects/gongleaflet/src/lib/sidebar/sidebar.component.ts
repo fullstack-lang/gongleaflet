@@ -10,8 +10,8 @@ import { CommitNbService } from '../commitnb.service'
 // insertion point for per struct import code
 import { DivIconService } from '../divicon.service'
 import { getDivIconUniqueID } from '../front-repo.service'
-import { VisualCenterService } from '../visualcenter.service'
-import { getVisualCenterUniqueID } from '../front-repo.service'
+import { MarkerService } from '../marker.service'
+import { getMarkerUniqueID } from '../front-repo.service'
 import { VisualCircleService } from '../visualcircle.service'
 import { getVisualCircleUniqueID } from '../front-repo.service'
 import { VisualLayerService } from '../visuallayer.service'
@@ -158,7 +158,7 @@ export class SidebarComponent implements OnInit {
 
     // insertion point for per struct service declaration
     private diviconService: DivIconService,
-    private visualcenterService: VisualCenterService,
+    private markerService: MarkerService,
     private visualcircleService: VisualCircleService,
     private visuallayerService: VisualLayerService,
     private visuallineService: VisualLineService,
@@ -179,7 +179,7 @@ export class SidebarComponent implements OnInit {
       }
     )
     // observable for changes in structs
-    this.visualcenterService.VisualCenterServiceChanged.subscribe(
+    this.markerService.MarkerServiceChanged.subscribe(
       message => {
         if (message == "post" || message == "update" || message == "delete") {
           this.refresh()
@@ -295,22 +295,22 @@ export class SidebarComponent implements OnInit {
       )
 
       /**
-      * fill up the VisualCenter part of the mat tree
+      * fill up the Marker part of the mat tree
       */
-      let visualcenterGongNodeStruct: GongNode = {
-        name: "VisualCenter",
+      let markerGongNodeStruct: GongNode = {
+        name: "Marker",
         type: GongNodeType.STRUCT,
         id: 0,
         uniqueIdPerStack: 13 * nonInstanceNodeId,
-        structName: "VisualCenter",
+        structName: "Marker",
         associationField: "",
         associatedStructName: "",
         children: new Array<GongNode>()
       }
       nonInstanceNodeId = nonInstanceNodeId + 1
-      this.gongNodeTree.push(visualcenterGongNodeStruct)
+      this.gongNodeTree.push(markerGongNodeStruct)
 
-      this.frontRepo.VisualCenters_array.sort((t1, t2) => {
+      this.frontRepo.Markers_array.sort((t1, t2) => {
         if (t1.Name > t2.Name) {
           return 1;
         }
@@ -320,19 +320,19 @@ export class SidebarComponent implements OnInit {
         return 0;
       });
 
-      this.frontRepo.VisualCenters_array.forEach(
-        visualcenterDB => {
-          let visualcenterGongNodeInstance: GongNode = {
-            name: visualcenterDB.Name,
+      this.frontRepo.Markers_array.forEach(
+        markerDB => {
+          let markerGongNodeInstance: GongNode = {
+            name: markerDB.Name,
             type: GongNodeType.INSTANCE,
-            id: visualcenterDB.ID,
-            uniqueIdPerStack: getVisualCenterUniqueID(visualcenterDB.ID),
-            structName: "VisualCenter",
+            id: markerDB.ID,
+            uniqueIdPerStack: getMarkerUniqueID(markerDB.ID),
+            structName: "Marker",
             associationField: "",
             associatedStructName: "",
             children: new Array<GongNode>()
           }
-          visualcenterGongNodeStruct.children!.push(visualcenterGongNodeInstance)
+          markerGongNodeStruct.children!.push(markerGongNodeInstance)
 
           // insertion point for per field code
           /**
@@ -341,33 +341,33 @@ export class SidebarComponent implements OnInit {
           let VisualLayerGongNodeAssociation: GongNode = {
             name: "(VisualLayer) VisualLayer",
             type: GongNodeType.ONE__ZERO_ONE_ASSOCIATION,
-            id: visualcenterDB.ID,
+            id: markerDB.ID,
             uniqueIdPerStack: 17 * nonInstanceNodeId,
-            structName: "VisualCenter",
+            structName: "Marker",
             associationField: "VisualLayer",
             associatedStructName: "VisualLayer",
             children: new Array<GongNode>()
           }
           nonInstanceNodeId = nonInstanceNodeId + 1
-          visualcenterGongNodeInstance.children!.push(VisualLayerGongNodeAssociation)
+          markerGongNodeInstance.children!.push(VisualLayerGongNodeAssociation)
 
           /**
             * let append a node for the instance behind the asssociation VisualLayer
             */
-          if (visualcenterDB.VisualLayer != undefined) {
-            let visualcenterGongNodeInstance_VisualLayer: GongNode = {
-              name: visualcenterDB.VisualLayer.Name,
+          if (markerDB.VisualLayer != undefined) {
+            let markerGongNodeInstance_VisualLayer: GongNode = {
+              name: markerDB.VisualLayer.Name,
               type: GongNodeType.INSTANCE,
-              id: visualcenterDB.VisualLayer.ID,
+              id: markerDB.VisualLayer.ID,
               uniqueIdPerStack: // godel numbering (thank you kurt)
-                3 * getVisualCenterUniqueID(visualcenterDB.ID)
-                + 5 * getVisualLayerUniqueID(visualcenterDB.VisualLayer.ID),
+                3 * getMarkerUniqueID(markerDB.ID)
+                + 5 * getVisualLayerUniqueID(markerDB.VisualLayer.ID),
               structName: "VisualLayer",
               associationField: "",
               associatedStructName: "",
               children: new Array<GongNode>()
             }
-            VisualLayerGongNodeAssociation.children.push(visualcenterGongNodeInstance_VisualLayer)
+            VisualLayerGongNodeAssociation.children.push(markerGongNodeInstance_VisualLayer)
           }
 
           /**
@@ -376,33 +376,33 @@ export class SidebarComponent implements OnInit {
           let DivIconGongNodeAssociation: GongNode = {
             name: "(DivIcon) DivIcon",
             type: GongNodeType.ONE__ZERO_ONE_ASSOCIATION,
-            id: visualcenterDB.ID,
+            id: markerDB.ID,
             uniqueIdPerStack: 17 * nonInstanceNodeId,
-            structName: "VisualCenter",
+            structName: "Marker",
             associationField: "DivIcon",
             associatedStructName: "DivIcon",
             children: new Array<GongNode>()
           }
           nonInstanceNodeId = nonInstanceNodeId + 1
-          visualcenterGongNodeInstance.children!.push(DivIconGongNodeAssociation)
+          markerGongNodeInstance.children!.push(DivIconGongNodeAssociation)
 
           /**
             * let append a node for the instance behind the asssociation DivIcon
             */
-          if (visualcenterDB.DivIcon != undefined) {
-            let visualcenterGongNodeInstance_DivIcon: GongNode = {
-              name: visualcenterDB.DivIcon.Name,
+          if (markerDB.DivIcon != undefined) {
+            let markerGongNodeInstance_DivIcon: GongNode = {
+              name: markerDB.DivIcon.Name,
               type: GongNodeType.INSTANCE,
-              id: visualcenterDB.DivIcon.ID,
+              id: markerDB.DivIcon.ID,
               uniqueIdPerStack: // godel numbering (thank you kurt)
-                3 * getVisualCenterUniqueID(visualcenterDB.ID)
-                + 5 * getDivIconUniqueID(visualcenterDB.DivIcon.ID),
+                3 * getMarkerUniqueID(markerDB.ID)
+                + 5 * getDivIconUniqueID(markerDB.DivIcon.ID),
               structName: "DivIcon",
               associationField: "",
               associatedStructName: "",
               children: new Array<GongNode>()
             }
-            DivIconGongNodeAssociation.children.push(visualcenterGongNodeInstance_DivIcon)
+            DivIconGongNodeAssociation.children.push(markerGongNodeInstance_DivIcon)
           }
 
         }

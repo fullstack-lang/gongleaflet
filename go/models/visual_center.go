@@ -1,11 +1,11 @@
 package models
 
-// VisualCenter provides all necessary elements to the front to display a track
+// Marker provides all necessary elements to the front to display a track
 //
 // L.Marker is used to display clickable/draggable icons on the map. Extends Layer.
 //
 // swagger:model visualcenter
-type VisualCenter struct {
+type Marker struct {
 	Lat, Lng float64
 	Name     string
 
@@ -29,14 +29,14 @@ type VisualCenterInterface interface {
 	GetVisualLayerName() string
 }
 
-func (visualCenter *VisualCenter) UpdateCenter() {
-	if visualCenter.VisualCenterInteface != nil {
-		visualCenter.Name = visualCenter.VisualCenterInteface.GetName()
+func (marker *Marker) UpdateMarker() {
+	if marker.VisualCenterInteface != nil {
+		marker.Name = marker.VisualCenterInteface.GetName()
 
-		visualCenter.Lat = visualCenter.VisualCenterInteface.GetLat()
-		visualCenter.Lng = visualCenter.VisualCenterInteface.GetLng()
+		marker.Lat = marker.VisualCenterInteface.GetLat()
+		marker.Lng = marker.VisualCenterInteface.GetLng()
 
-		visualCenter.VisualLayer =
-			computeVisualLayerFromVisualLayerName(visualCenter.VisualCenterInteface.GetVisualLayerName())
+		marker.VisualLayer =
+			computeVisualLayerFromVisualLayerName(marker.VisualCenterInteface.GetVisualLayerName())
 	}
 }

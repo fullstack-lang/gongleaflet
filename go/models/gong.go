@@ -15,8 +15,8 @@ type StageStruct struct { // insertion point for definition of arrays registerin
 	DivIcons           map[*DivIcon]struct{}
 	DivIcons_mapString map[string]*DivIcon
 
-	VisualCenters           map[*VisualCenter]struct{}
-	VisualCenters_mapString map[string]*VisualCenter
+	Markers           map[*Marker]struct{}
+	Markers_mapString map[string]*Marker
 
 	VisualCircles           map[*VisualCircle]struct{}
 	VisualCircles_mapString map[string]*VisualCircle
@@ -57,8 +57,8 @@ type BackRepoInterface interface {
 	// insertion point for Commit and Checkout signatures
 	CommitDivIcon(divicon *DivIcon)
 	CheckoutDivIcon(divicon *DivIcon)
-	CommitVisualCenter(visualcenter *VisualCenter)
-	CheckoutVisualCenter(visualcenter *VisualCenter)
+	CommitMarker(marker *Marker)
+	CheckoutMarker(marker *Marker)
 	CommitVisualCircle(visualcircle *VisualCircle)
 	CheckoutVisualCircle(visualcircle *VisualCircle)
 	CommitVisualLayer(visuallayer *VisualLayer)
@@ -78,8 +78,8 @@ var Stage StageStruct = StageStruct{ // insertion point for array initiatialisat
 	DivIcons:           make(map[*DivIcon]struct{}),
 	DivIcons_mapString: make(map[string]*DivIcon),
 
-	VisualCenters:           make(map[*VisualCenter]struct{}),
-	VisualCenters_mapString: make(map[string]*VisualCenter),
+	Markers:           make(map[*Marker]struct{}),
+	Markers_mapString: make(map[string]*Marker),
 
 	VisualCircles:           make(map[*VisualCircle]struct{}),
 	VisualCircles_mapString: make(map[string]*VisualCircle),
@@ -242,105 +242,105 @@ func DeleteORMDivIcon(divicon *DivIcon) {
 	}
 }
 
-func (stage *StageStruct) getVisualCenterOrderedStructWithNameField() []*VisualCenter {
+func (stage *StageStruct) getMarkerOrderedStructWithNameField() []*Marker {
 	// have alphabetical order generation
-	visualcenterOrdered := []*VisualCenter{}
-	for visualcenter := range stage.VisualCenters {
-		visualcenterOrdered = append(visualcenterOrdered, visualcenter)
+	markerOrdered := []*Marker{}
+	for marker := range stage.Markers {
+		markerOrdered = append(markerOrdered, marker)
 	}
-	sort.Slice(visualcenterOrdered[:], func(i, j int) bool {
-		return visualcenterOrdered[i].Name < visualcenterOrdered[j].Name
+	sort.Slice(markerOrdered[:], func(i, j int) bool {
+		return markerOrdered[i].Name < markerOrdered[j].Name
 	})
-	return visualcenterOrdered
+	return markerOrdered
 }
 
-// Stage puts visualcenter to the model stage
-func (visualcenter *VisualCenter) Stage() *VisualCenter {
-	Stage.VisualCenters[visualcenter] = __member
-	Stage.VisualCenters_mapString[visualcenter.Name] = visualcenter
+// Stage puts marker to the model stage
+func (marker *Marker) Stage() *Marker {
+	Stage.Markers[marker] = __member
+	Stage.Markers_mapString[marker.Name] = marker
 
-	return visualcenter
+	return marker
 }
 
-// Unstage removes visualcenter off the model stage
-func (visualcenter *VisualCenter) Unstage() *VisualCenter {
-	delete(Stage.VisualCenters, visualcenter)
-	delete(Stage.VisualCenters_mapString, visualcenter.Name)
-	return visualcenter
+// Unstage removes marker off the model stage
+func (marker *Marker) Unstage() *Marker {
+	delete(Stage.Markers, marker)
+	delete(Stage.Markers_mapString, marker.Name)
+	return marker
 }
 
-// commit visualcenter to the back repo (if it is already staged)
-func (visualcenter *VisualCenter) Commit() *VisualCenter {
-	if _, ok := Stage.VisualCenters[visualcenter]; ok {
+// commit marker to the back repo (if it is already staged)
+func (marker *Marker) Commit() *Marker {
+	if _, ok := Stage.Markers[marker]; ok {
 		if Stage.BackRepo != nil {
-			Stage.BackRepo.CommitVisualCenter(visualcenter)
+			Stage.BackRepo.CommitMarker(marker)
 		}
 	}
-	return visualcenter
+	return marker
 }
 
-// Checkout visualcenter to the back repo (if it is already staged)
-func (visualcenter *VisualCenter) Checkout() *VisualCenter {
-	if _, ok := Stage.VisualCenters[visualcenter]; ok {
+// Checkout marker to the back repo (if it is already staged)
+func (marker *Marker) Checkout() *Marker {
+	if _, ok := Stage.Markers[marker]; ok {
 		if Stage.BackRepo != nil {
-			Stage.BackRepo.CheckoutVisualCenter(visualcenter)
+			Stage.BackRepo.CheckoutMarker(marker)
 		}
 	}
-	return visualcenter
+	return marker
 }
 
 //
 // Legacy, to be deleted
 //
 
-// StageCopy appends a copy of visualcenter to the model stage
-func (visualcenter *VisualCenter) StageCopy() *VisualCenter {
-	_visualcenter := new(VisualCenter)
-	*_visualcenter = *visualcenter
-	_visualcenter.Stage()
-	return _visualcenter
+// StageCopy appends a copy of marker to the model stage
+func (marker *Marker) StageCopy() *Marker {
+	_marker := new(Marker)
+	*_marker = *marker
+	_marker.Stage()
+	return _marker
 }
 
-// StageAndCommit appends visualcenter to the model stage and commit to the orm repo
-func (visualcenter *VisualCenter) StageAndCommit() *VisualCenter {
-	visualcenter.Stage()
+// StageAndCommit appends marker to the model stage and commit to the orm repo
+func (marker *Marker) StageAndCommit() *Marker {
+	marker.Stage()
 	if Stage.AllModelsStructCreateCallback != nil {
-		Stage.AllModelsStructCreateCallback.CreateORMVisualCenter(visualcenter)
+		Stage.AllModelsStructCreateCallback.CreateORMMarker(marker)
 	}
-	return visualcenter
+	return marker
 }
 
-// DeleteStageAndCommit appends visualcenter to the model stage and commit to the orm repo
-func (visualcenter *VisualCenter) DeleteStageAndCommit() *VisualCenter {
-	visualcenter.Unstage()
-	DeleteORMVisualCenter(visualcenter)
-	return visualcenter
+// DeleteStageAndCommit appends marker to the model stage and commit to the orm repo
+func (marker *Marker) DeleteStageAndCommit() *Marker {
+	marker.Unstage()
+	DeleteORMMarker(marker)
+	return marker
 }
 
-// StageCopyAndCommit appends a copy of visualcenter to the model stage and commit to the orm repo
-func (visualcenter *VisualCenter) StageCopyAndCommit() *VisualCenter {
-	_visualcenter := new(VisualCenter)
-	*_visualcenter = *visualcenter
-	_visualcenter.Stage()
+// StageCopyAndCommit appends a copy of marker to the model stage and commit to the orm repo
+func (marker *Marker) StageCopyAndCommit() *Marker {
+	_marker := new(Marker)
+	*_marker = *marker
+	_marker.Stage()
 	if Stage.AllModelsStructCreateCallback != nil {
-		Stage.AllModelsStructCreateCallback.CreateORMVisualCenter(visualcenter)
+		Stage.AllModelsStructCreateCallback.CreateORMMarker(marker)
 	}
-	return _visualcenter
+	return _marker
 }
 
-// CreateORMVisualCenter enables dynamic staging of a VisualCenter instance
-func CreateORMVisualCenter(visualcenter *VisualCenter) {
-	visualcenter.Stage()
+// CreateORMMarker enables dynamic staging of a Marker instance
+func CreateORMMarker(marker *Marker) {
+	marker.Stage()
 	if Stage.AllModelsStructCreateCallback != nil {
-		Stage.AllModelsStructCreateCallback.CreateORMVisualCenter(visualcenter)
+		Stage.AllModelsStructCreateCallback.CreateORMMarker(marker)
 	}
 }
 
-// DeleteORMVisualCenter enables dynamic staging of a VisualCenter instance
-func DeleteORMVisualCenter(visualcenter *VisualCenter) {
-	visualcenter.Unstage()
+// DeleteORMMarker enables dynamic staging of a Marker instance
+func DeleteORMMarker(marker *Marker) {
+	marker.Unstage()
 	if Stage.AllModelsStructDeleteCallback != nil {
-		Stage.AllModelsStructDeleteCallback.DeleteORMVisualCenter(visualcenter)
+		Stage.AllModelsStructDeleteCallback.DeleteORMMarker(marker)
 	}
 }
 
@@ -857,7 +857,7 @@ func DeleteORMVisualTrack(visualtrack *VisualTrack) {
 // swagger:ignore
 type AllModelsStructCreateInterface interface { // insertion point for Callbacks on creation
 	CreateORMDivIcon(DivIcon *DivIcon)
-	CreateORMVisualCenter(VisualCenter *VisualCenter)
+	CreateORMMarker(Marker *Marker)
 	CreateORMVisualCircle(VisualCircle *VisualCircle)
 	CreateORMVisualLayer(VisualLayer *VisualLayer)
 	CreateORMVisualLine(VisualLine *VisualLine)
@@ -867,7 +867,7 @@ type AllModelsStructCreateInterface interface { // insertion point for Callbacks
 
 type AllModelsStructDeleteInterface interface { // insertion point for Callbacks on deletion
 	DeleteORMDivIcon(DivIcon *DivIcon)
-	DeleteORMVisualCenter(VisualCenter *VisualCenter)
+	DeleteORMMarker(Marker *Marker)
 	DeleteORMVisualCircle(VisualCircle *VisualCircle)
 	DeleteORMVisualLayer(VisualLayer *VisualLayer)
 	DeleteORMVisualLine(VisualLine *VisualLine)
@@ -879,8 +879,8 @@ func (stage *StageStruct) Reset() { // insertion point for array reset
 	stage.DivIcons = make(map[*DivIcon]struct{})
 	stage.DivIcons_mapString = make(map[string]*DivIcon)
 
-	stage.VisualCenters = make(map[*VisualCenter]struct{})
-	stage.VisualCenters_mapString = make(map[string]*VisualCenter)
+	stage.Markers = make(map[*Marker]struct{})
+	stage.Markers_mapString = make(map[string]*Marker)
 
 	stage.VisualCircles = make(map[*VisualCircle]struct{})
 	stage.VisualCircles_mapString = make(map[string]*VisualCircle)
@@ -903,8 +903,8 @@ func (stage *StageStruct) Nil() { // insertion point for array nil
 	stage.DivIcons = nil
 	stage.DivIcons_mapString = nil
 
-	stage.VisualCenters = nil
-	stage.VisualCenters_mapString = nil
+	stage.Markers = nil
+	stage.Markers_mapString = nil
 
 	stage.VisualCircles = nil
 	stage.VisualCircles_mapString = nil

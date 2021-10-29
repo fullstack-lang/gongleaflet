@@ -43,10 +43,10 @@ import { DivIconSortingComponent } from './divicon-sorting/divicon-sorting.compo
 import { DivIconDetailComponent } from './divicon-detail/divicon-detail.component'
 import { DivIconPresentationComponent } from './divicon-presentation/divicon-presentation.component'
 
-import { VisualCentersTableComponent } from './visualcenters-table/visualcenters-table.component'
-import { VisualCenterSortingComponent } from './visualcenter-sorting/visualcenter-sorting.component'
-import { VisualCenterDetailComponent } from './visualcenter-detail/visualcenter-detail.component'
-import { VisualCenterPresentationComponent } from './visualcenter-presentation/visualcenter-presentation.component'
+import { MarkersTableComponent } from './markers-table/markers-table.component'
+import { MarkerSortingComponent } from './marker-sorting/marker-sorting.component'
+import { MarkerDetailComponent } from './marker-detail/marker-detail.component'
+import { MarkerPresentationComponent } from './marker-presentation/marker-presentation.component'
 
 import { VisualCirclesTableComponent } from './visualcircles-table/visualcircles-table.component'
 import { VisualCircleSortingComponent } from './visualcircle-sorting/visualcircle-sorting.component'
@@ -82,10 +82,10 @@ import { VisualTrackPresentationComponent } from './visualtrack-presentation/vis
 		DivIconDetailComponent,
 		DivIconPresentationComponent,
 
-		VisualCentersTableComponent,
-		VisualCenterSortingComponent,
-		VisualCenterDetailComponent,
-		VisualCenterPresentationComponent,
+		MarkersTableComponent,
+		MarkerSortingComponent,
+		MarkerDetailComponent,
+		MarkerPresentationComponent,
 
 		VisualCirclesTableComponent,
 		VisualCircleSortingComponent,
@@ -156,10 +156,10 @@ import { VisualTrackPresentationComponent } from './visualtrack-presentation/vis
 		DivIconDetailComponent,
 		DivIconPresentationComponent,
 
-		VisualCentersTableComponent,
-		VisualCenterSortingComponent,
-		VisualCenterDetailComponent,
-		VisualCenterPresentationComponent,
+		MarkersTableComponent,
+		MarkerSortingComponent,
+		MarkerDetailComponent,
+		MarkerPresentationComponent,
 
 		VisualCirclesTableComponent,
 		VisualCircleSortingComponent,

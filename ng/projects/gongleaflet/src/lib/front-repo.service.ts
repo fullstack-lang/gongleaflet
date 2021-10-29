@@ -7,8 +7,8 @@ import { Observable, combineLatest, BehaviorSubject } from 'rxjs';
 import { DivIconDB } from './divicon-db'
 import { DivIconService } from './divicon.service'
 
-import { VisualCenterDB } from './visualcenter-db'
-import { VisualCenterService } from './visualcenter.service'
+import { MarkerDB } from './marker-db'
+import { MarkerService } from './marker.service'
 
 import { VisualCircleDB } from './visualcircle-db'
 import { VisualCircleService } from './visualcircle.service'
@@ -31,9 +31,9 @@ export class FrontRepo { // insertion point sub template
   DivIcons_array = new Array<DivIconDB>(); // array of repo instances
   DivIcons = new Map<number, DivIconDB>(); // map of repo instances
   DivIcons_batch = new Map<number, DivIconDB>(); // same but only in last GET (for finding repo instances to delete)
-  VisualCenters_array = new Array<VisualCenterDB>(); // array of repo instances
-  VisualCenters = new Map<number, VisualCenterDB>(); // map of repo instances
-  VisualCenters_batch = new Map<number, VisualCenterDB>(); // same but only in last GET (for finding repo instances to delete)
+  Markers_array = new Array<MarkerDB>(); // array of repo instances
+  Markers = new Map<number, MarkerDB>(); // map of repo instances
+  Markers_batch = new Map<number, MarkerDB>(); // same but only in last GET (for finding repo instances to delete)
   VisualCircles_array = new Array<VisualCircleDB>(); // array of repo instances
   VisualCircles = new Map<number, VisualCircleDB>(); // map of repo instances
   VisualCircles_batch = new Map<number, VisualCircleDB>(); // same but only in last GET (for finding repo instances to delete)
@@ -108,7 +108,7 @@ export class FrontRepoService {
   constructor(
     private http: HttpClient, // insertion point sub template 
     private diviconService: DivIconService,
-    private visualcenterService: VisualCenterService,
+    private markerService: MarkerService,
     private visualcircleService: VisualCircleService,
     private visuallayerService: VisualLayerService,
     private visuallineService: VisualLineService,
@@ -145,7 +145,7 @@ export class FrontRepoService {
   // typing of observable can be messy in typescript. Therefore, one force the type
   observableFrontRepo: [ // insertion point sub template 
     Observable<DivIconDB[]>,
-    Observable<VisualCenterDB[]>,
+    Observable<MarkerDB[]>,
     Observable<VisualCircleDB[]>,
     Observable<VisualLayerDB[]>,
     Observable<VisualLineDB[]>,
@@ -153,7 +153,7 @@ export class FrontRepoService {
     Observable<VisualTrackDB[]>,
   ] = [ // insertion point sub template 
       this.diviconService.getDivIcons(),
-      this.visualcenterService.getVisualCenters(),
+      this.markerService.getMarkers(),
       this.visualcircleService.getVisualCircles(),
       this.visuallayerService.getVisualLayers(),
       this.visuallineService.getVisualLines(),
@@ -175,7 +175,7 @@ export class FrontRepoService {
         ).subscribe(
           ([ // insertion point sub template for declarations 
             divicons_,
-            visualcenters_,
+            markers_,
             visualcircles_,
             visuallayers_,
             visuallines_,
@@ -186,8 +186,8 @@ export class FrontRepoService {
             // insertion point sub template for type casting 
             var divicons: DivIconDB[]
             divicons = divicons_ as DivIconDB[]
-            var visualcenters: VisualCenterDB[]
-            visualcenters = visualcenters_ as VisualCenterDB[]
+            var markers: MarkerDB[]
+            markers = markers_ as MarkerDB[]
             var visualcircles: VisualCircleDB[]
             visualcircles = visualcircles_ as VisualCircleDB[]
             var visuallayers: VisualLayerDB[]
@@ -236,29 +236,29 @@ export class FrontRepoService {
             });
 
             // init the array
-            FrontRepoSingloton.VisualCenters_array = visualcenters
+            FrontRepoSingloton.Markers_array = markers
 
-            // clear the map that counts VisualCenter in the GET
-            FrontRepoSingloton.VisualCenters_batch.clear()
+            // clear the map that counts Marker in the GET
+            FrontRepoSingloton.Markers_batch.clear()
 
-            visualcenters.forEach(
-              visualcenter => {
-                FrontRepoSingloton.VisualCenters.set(visualcenter.ID, visualcenter)
-                FrontRepoSingloton.VisualCenters_batch.set(visualcenter.ID, visualcenter)
+            markers.forEach(
+              marker => {
+                FrontRepoSingloton.Markers.set(marker.ID, marker)
+                FrontRepoSingloton.Markers_batch.set(marker.ID, marker)
               }
             )
 
-            // clear visualcenters that are absent from the batch
-            FrontRepoSingloton.VisualCenters.forEach(
-              visualcenter => {
-                if (FrontRepoSingloton.VisualCenters_batch.get(visualcenter.ID) == undefined) {
-                  FrontRepoSingloton.VisualCenters.delete(visualcenter.ID)
+            // clear markers that are absent from the batch
+            FrontRepoSingloton.Markers.forEach(
+              marker => {
+                if (FrontRepoSingloton.Markers_batch.get(marker.ID) == undefined) {
+                  FrontRepoSingloton.Markers.delete(marker.ID)
                 }
               }
             )
 
-            // sort VisualCenters_array array
-            FrontRepoSingloton.VisualCenters_array.sort((t1, t2) => {
+            // sort Markers_array array
+            FrontRepoSingloton.Markers_array.sort((t1, t2) => {
               if (t1.Name > t2.Name) {
                 return 1;
               }
@@ -444,21 +444,21 @@ export class FrontRepoService {
                 // insertion point for redeeming ONE-MANY associations
               }
             )
-            visualcenters.forEach(
-              visualcenter => {
+            markers.forEach(
+              marker => {
                 // insertion point sub sub template for ONE-/ZERO-ONE associations pointers redeeming
                 // insertion point for pointer field VisualLayer redeeming
                 {
-                  let _visuallayer = FrontRepoSingloton.VisualLayers.get(visualcenter.VisualLayerID.Int64)
+                  let _visuallayer = FrontRepoSingloton.VisualLayers.get(marker.VisualLayerID.Int64)
                   if (_visuallayer) {
-                    visualcenter.VisualLayer = _visuallayer
+                    marker.VisualLayer = _visuallayer
                   }
                 }
                 // insertion point for pointer field DivIcon redeeming
                 {
-                  let _divicon = FrontRepoSingloton.DivIcons.get(visualcenter.DivIconID.Int64)
+                  let _divicon = FrontRepoSingloton.DivIcons.get(marker.DivIconID.Int64)
                   if (_divicon) {
-                    visualcenter.DivIcon = _divicon
+                    marker.DivIcon = _divicon
                   }
                 }
 
@@ -590,43 +590,43 @@ export class FrontRepoService {
     )
   }
 
-  // VisualCenterPull performs a GET on VisualCenter of the stack and redeem association pointers 
-  VisualCenterPull(): Observable<FrontRepo> {
+  // MarkerPull performs a GET on Marker of the stack and redeem association pointers 
+  MarkerPull(): Observable<FrontRepo> {
     return new Observable<FrontRepo>(
       (observer) => {
         combineLatest([
-          this.visualcenterService.getVisualCenters()
+          this.markerService.getMarkers()
         ]).subscribe(
           ([ // insertion point sub template 
-            visualcenters,
+            markers,
           ]) => {
             // init the array
-            FrontRepoSingloton.VisualCenters_array = visualcenters
+            FrontRepoSingloton.Markers_array = markers
 
-            // clear the map that counts VisualCenter in the GET
-            FrontRepoSingloton.VisualCenters_batch.clear()
+            // clear the map that counts Marker in the GET
+            FrontRepoSingloton.Markers_batch.clear()
 
             // 
             // First Step: init map of instances
             // insertion point sub template 
-            visualcenters.forEach(
-              visualcenter => {
-                FrontRepoSingloton.VisualCenters.set(visualcenter.ID, visualcenter)
-                FrontRepoSingloton.VisualCenters_batch.set(visualcenter.ID, visualcenter)
+            markers.forEach(
+              marker => {
+                FrontRepoSingloton.Markers.set(marker.ID, marker)
+                FrontRepoSingloton.Markers_batch.set(marker.ID, marker)
 
                 // insertion point for redeeming ONE/ZERO-ONE associations
                 // insertion point for pointer field VisualLayer redeeming
                 {
-                  let _visuallayer = FrontRepoSingloton.VisualLayers.get(visualcenter.VisualLayerID.Int64)
+                  let _visuallayer = FrontRepoSingloton.VisualLayers.get(marker.VisualLayerID.Int64)
                   if (_visuallayer) {
-                    visualcenter.VisualLayer = _visuallayer
+                    marker.VisualLayer = _visuallayer
                   }
                 }
                 // insertion point for pointer field DivIcon redeeming
                 {
-                  let _divicon = FrontRepoSingloton.DivIcons.get(visualcenter.DivIconID.Int64)
+                  let _divicon = FrontRepoSingloton.DivIcons.get(marker.DivIconID.Int64)
                   if (_divicon) {
-                    visualcenter.DivIcon = _divicon
+                    marker.DivIcon = _divicon
                   }
                 }
 
@@ -634,11 +634,11 @@ export class FrontRepoService {
               }
             )
 
-            // clear visualcenters that are absent from the GET
-            FrontRepoSingloton.VisualCenters.forEach(
-              visualcenter => {
-                if (FrontRepoSingloton.VisualCenters_batch.get(visualcenter.ID) == undefined) {
-                  FrontRepoSingloton.VisualCenters.delete(visualcenter.ID)
+            // clear markers that are absent from the GET
+            FrontRepoSingloton.Markers.forEach(
+              marker => {
+                if (FrontRepoSingloton.Markers_batch.get(marker.ID) == undefined) {
+                  FrontRepoSingloton.Markers.delete(marker.ID)
                 }
               }
             )
@@ -943,7 +943,7 @@ export class FrontRepoService {
 export function getDivIconUniqueID(id: number): number {
   return 31 * id
 }
-export function getVisualCenterUniqueID(id: number): number {
+export function getMarkerUniqueID(id: number): number {
   return 37 * id
 }
 export function getVisualCircleUniqueID(id: number): number {

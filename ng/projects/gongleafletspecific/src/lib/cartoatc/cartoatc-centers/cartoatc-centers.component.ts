@@ -14,8 +14,8 @@ import * as L from 'leaflet';
 })
 export class CartoatcCentersComponent implements OnInit {
 
-  // store relation between the VisualCenters & the markers
-  mapVisualCenterID_LeafletMarker = new Map<number, L.Marker>();
+  // store relation between the Markers & the markers
+  mapMarkerID_LeafletMarker = new Map<number, L.Marker>();
 
   gongleafletFrontRepo?: gongleaflet.FrontRepo
 
@@ -24,14 +24,14 @@ export class CartoatcCentersComponent implements OnInit {
 
   constructor(
     private gongleafletFrontRepoService: gongleaflet.FrontRepoService,
-    private visualCenterService: gongleaflet.VisualCenterService,
+    private markerService: gongleaflet.MarkerService,
     private divIcon: gongleaflet.DivIconService
   ) { }
 
   ngOnInit(): void {
     this.refreshMapWithVisualCircle()
 
-    this.visualCenterService.VisualCenterServiceChanged.subscribe(
+    this.markerService.MarkerServiceChanged.subscribe(
       message => {
         if (message == "post" || message == "update" || message == "delete") {
           this.refreshMapWithVisualCircle()
@@ -50,28 +50,28 @@ export class CartoatcCentersComponent implements OnInit {
           }
         });
 
-        this.gongleafletFrontRepo.VisualCenters.forEach((visualCenter) => {
+        this.gongleafletFrontRepo.Markers.forEach((marker) => {
 
-          if (!this.mapVisualCenterID_LeafletMarker.has(visualCenter.ID)) {
-            var color = manageLeafletItems.getColor(visualCenter.VisualColorEnum);
+          if (!this.mapMarkerID_LeafletMarker.has(marker.ID)) {
+            var color = manageLeafletItems.getColor(marker.VisualColorEnum);
 
             var icon: L.DivIcon = manageLeafletItems.newIcon(
-              visualCenter.ID,
-              'layer-' + visualCenter.VisualLayerID.Int64,
-              this.map_divIconID_divIconSVG.get(visualCenter.DivIconID.Int64)!,
+              marker.ID,
+              'layer-' + marker.VisualLayerID.Int64,
+              this.map_divIconID_divIconSVG.get(marker.DivIconID.Int64)!,
               DEFAULT_ICON_SIZE,
               color,
-              visualCenter.Name
+              marker.Name
             );
-            var marker: L.Marker
-            marker = manageLeafletItems.newMarkerWithIcon(
-              visualCenter.Lat,
-              visualCenter.Lng,
+            var leafletMarker: L.Marker
+            leafletMarker = manageLeafletItems.newMarkerWithIcon(
+              marker.Lat,
+              marker.Lng,
               icon
             );
-            this.centersLayer.push(marker);
+            this.centersLayer.push(leafletMarker);
 
-            this.mapVisualCenterID_LeafletMarker.set(visualCenter.ID, marker)
+            this.mapMarkerID_LeafletMarker.set(marker.ID, leafletMarker)
           }
         })
       }
