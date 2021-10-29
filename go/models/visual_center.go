@@ -2,6 +2,8 @@ package models
 
 // VisualCenter provides all necessary elements to the front to display a track
 //
+// L.Marker is used to display clickable/draggable icons on the map. Extends Layer.
+//
 // swagger:model visualcenter
 type VisualCenter struct {
 	Lat, Lng float64
