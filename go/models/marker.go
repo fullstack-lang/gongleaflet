@@ -19,10 +19,10 @@ type Marker struct {
 
 	// swagger:ignore
 	// access to the models instance that contains the original information
-	VisualCenterInteface VisualCenterInterface `gorm:"-"`
+	MarkerInteface MarkerInterface `gorm:"-"`
 }
 
-type VisualCenterInterface interface {
+type MarkerInterface interface {
 	GetLat() (lat float64)
 	GetLng() (lng float64)
 	GetName() (name string)
@@ -30,13 +30,13 @@ type VisualCenterInterface interface {
 }
 
 func (marker *Marker) UpdateMarker() {
-	if marker.VisualCenterInteface != nil {
-		marker.Name = marker.VisualCenterInteface.GetName()
+	if marker.MarkerInteface != nil {
+		marker.Name = marker.MarkerInteface.GetName()
 
-		marker.Lat = marker.VisualCenterInteface.GetLat()
-		marker.Lng = marker.VisualCenterInteface.GetLng()
+		marker.Lat = marker.MarkerInteface.GetLat()
+		marker.Lng = marker.MarkerInteface.GetLng()
 
 		marker.VisualLayer =
-			computeVisualLayerFromVisualLayerName(marker.VisualCenterInteface.GetVisualLayerName())
+			computeVisualLayerFromVisualLayerName(marker.MarkerInteface.GetVisualLayerName())
 	}
 }

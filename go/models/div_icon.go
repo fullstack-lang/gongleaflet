@@ -10,16 +10,16 @@ type DivIcon struct {
 
 	// swagger:ignore
 	// access to the models instance that contains the original information
-	VisualIconInterface VisualIconInterface `gorm:"-"`
+	DivIconInterface DivIconInterface `gorm:"-"`
 }
 
-type VisualIconInterface interface {
+type DivIconInterface interface {
 	GetIconName() (name string)
 	GetSVG() (name string)
 }
 
 func (VisualIcon *DivIcon) UpdateVisualIcon() {
-	if VisualIcon.VisualIconInterface != nil {
-		VisualIcon.Name = VisualIcon.VisualIconInterface.GetIconName()
+	if VisualIcon.DivIconInterface != nil {
+		VisualIcon.Name = VisualIcon.DivIconInterface.GetIconName()
 	}
 }
