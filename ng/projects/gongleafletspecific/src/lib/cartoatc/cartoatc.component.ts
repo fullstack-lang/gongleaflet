@@ -29,6 +29,9 @@ export class CartoatcComponent implements OnInit {
   // name of the initial map
   @Input() mapName: string = ""
 
+  // current map
+  currentMap?: L.Map
+
   // [leafletOptions]="mapOptions" is passed to the leaflet map in the html
   mapOptions?: L.MapOptions // stangely, impossible to type without ?
 
@@ -69,6 +72,8 @@ export class CartoatcComponent implements OnInit {
   // }
 
   ngOnInit(): void {
+
+    // this.currentMap = L.map('atcmapid')
 
     console.log("layers name " + this.initialLayers)
 
