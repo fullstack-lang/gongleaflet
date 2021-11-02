@@ -10,7 +10,7 @@ import { GongleafletspecificComponent } from './gongleafletspecific.component';
 import { CartoatcComponent } from './cartoatc/cartoatc.component';
 // Leaflet
 import { LeafletModule } from '@asymmetrik/ngx-leaflet';
-import { CartoatcCentersComponent } from './cartoatc/cartoatc-centers/cartoatc-centers.component';
+import { MarkersComponent } from './cartoatc/markers/markers.component';
 import { CartoatcLinesComponent } from './cartoatc/cartoatc-lines/cartoatc-lines.component';
 import { CartoatcControlSettingsComponent } from './cartoatc/cartoatc-control-settings/cartoatc-control-settings.component';
 import { CartoatcCirclesComponent } from './cartoatc/cartoatc-circles/cartoatc-circles.component';
@@ -25,7 +25,7 @@ import { MatIconModule } from '@angular/material/icon';
     GongleafletspecificComponent,
 
     CartoatcComponent,
-    CartoatcCentersComponent,
+    MarkersComponent,
     CartoatcLinesComponent,
     CartoatcControlSettingsComponent,
     CartoatcCirclesComponent,
@@ -44,10 +44,10 @@ import { MatIconModule } from '@angular/material/icon';
     GongleafletspecificComponent,
 
     CartoatcComponent,
-    CartoatcCentersComponent,
+    MarkersComponent,
     CartoatcLinesComponent,
     CartoatcControlSettingsComponent,
     CartoatcCirclesComponent,
   ],
 })
-export class GongleafletspecificModule {}
+export class GongleafletspecificModule { }

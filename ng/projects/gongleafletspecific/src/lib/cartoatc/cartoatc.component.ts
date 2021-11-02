@@ -36,7 +36,10 @@ export class CartoatcComponent implements OnInit {
   mapOptions?: L.MapOptions // stangely, impossible to type without ?
 
   // [leafletLayers]="layerGroups" is passed to one div in the html
-  layerGroups: L.Layer[] = [];
+  rootOfLayerGroups: L.Layer[] = [];
+
+  // map between a gong layerGroup ID and a leaflet L.LayerGroup
+  mapGongLayerGroupID_LayerGroup = new Map<number, L.Layer>();
 
   // passed to the html as layers [leafletLayers]="visualTracksHistory"
   visualTracksHistory: L.Layer[] = [];
@@ -112,6 +115,12 @@ export class CartoatcComponent implements OnInit {
 
             this.frontRepo = frontRepo
 
+            // get all LayerGroups and add them to the "layerGroup"
+            for (let gongLayerGroup of this.frontRepo.LayerGroups_array) {
+              let leafletLayerGroup = L.layerGroup()
+              this.rootOfLayerGroups.push(leafletLayerGroup)
+              this.mapGongLayerGroupID_LayerGroup.set(gongLayerGroup.ID, leafletLayerGroup)
+            }
             // update marker from visual track
             this.frontRepo.VisualTracks.forEach(
               (vTrack: gongleaflet.VisualTrackDB) => {
@@ -177,7 +186,7 @@ export class CartoatcComponent implements OnInit {
 
       this.mapVisualTrackID_VisualMarker.set(visualTrack.ID, marker);
       this.mapVisualMarker_VisualTrackID.set(marker, visualTrack.ID);
-      this.layerGroups.push(marker);
+      this.rootOfLayerGroups.push(marker);
     }
   }
 

@@ -8,19 +8,26 @@ import * as manageLeafletItems from '../manage-leaflet-items';
 import * as L from 'leaflet';
 
 @Component({
-  selector: 'app-cartoatc-centers',
-  templateUrl: './cartoatc-centers.component.html',
-  styleUrls: ['./cartoatc-centers.component.scss'],
+  selector: 'markers-component',
+  templateUrl: './markers.component.html',
+  styleUrls: ['./markers.component.scss'],
 })
-export class CartoatcCentersComponent implements OnInit {
+export class MarkersComponent implements OnInit {
 
   // store relation between the Markers & the markers
   mapMarkerID_LeafletMarker = new Map<number, L.Marker>();
 
   gongleafletFrontRepo?: gongleaflet.FrontRepo
 
-  centersLayer: Array<L.Layer> = [];
+  // root of layerGroups
+  markersRootLayer: Array<L.Layer> = [];
+  // markersRootLayer: L.LayerGroup<L.Marker | L.LayerGroup<L.Marker>> = new L.LayerGroup<L.Marker | L.LayerGroup<L.Marker>>()
+
+  // 
   map_divIconID_divIconSVG = new Map<number, string>();
+
+  // map between a gong layerGroup ID and a leaflet L.LayerGroup
+  mapGongLayerGroupID_LayerGroup = new Map<number, L.LayerGroup<L.Marker>>();
 
   constructor(
     private gongleafletFrontRepoService: gongleaflet.FrontRepoService,
@@ -29,20 +36,30 @@ export class CartoatcCentersComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    this.refreshMapWithVisualCircle()
+    this.refreshMapWithMarkers()
 
     this.markerService.MarkerServiceChanged.subscribe(
       message => {
         if (message == "post" || message == "update" || message == "delete") {
-          this.refreshMapWithVisualCircle()
+          this.refreshMapWithMarkers()
         }
       })
   }
 
-  refreshMapWithVisualCircle() {
+  refreshMapWithMarkers() {
     this.gongleafletFrontRepoService.pull().subscribe(
       gongleafletFrontRepo => {
         this.gongleafletFrontRepo = gongleafletFrontRepo
+
+        // get layers
+        // get all gong LayerGroups, and add them to the "layerGroup"
+        for (let gongLayerGroup of this.gongleafletFrontRepo.LayerGroups_array) {
+
+          // create a leaflet layer group
+          let leafletLayerGroup = new L.LayerGroup<L.Marker>()
+          this.markersRootLayer.push(leafletLayerGroup)
+          this.mapGongLayerGroupID_LayerGroup.set(gongLayerGroup.ID, leafletLayerGroup)
+        }
 
         this.gongleafletFrontRepo.DivIcons.forEach((divIcon) => {
           if (!this.map_divIconID_divIconSVG.has(divIcon.ID)) {
@@ -69,7 +86,18 @@ export class CartoatcCentersComponent implements OnInit {
               marker.Lng,
               icon
             );
-            this.centersLayer.push(leafletMarker);
+            this.markersRootLayer.push(leafletMarker)
+
+            // get the GroupLayer of the marker
+            let groupLayerID = marker.LayerGroup?.ID
+            if (groupLayerID) {
+              let leafletLayer = this.mapGongLayerGroupID_LayerGroup.get(groupLayerID)
+              if (leafletLayer) {
+                leafletMarker.addTo(leafletLayer)
+              }
+            }
+
+
 
             this.mapMarkerID_LeafletMarker.set(marker.ID, leafletMarker)
           }
