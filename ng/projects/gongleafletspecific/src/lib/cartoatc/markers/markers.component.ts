@@ -86,7 +86,7 @@ export class MarkersComponent implements OnInit {
               marker.Lng,
               icon
             );
-            this.markersRootLayer.push(leafletMarker)
+            // this.markersRootLayer.push(leafletMarker)
 
             // get the GroupLayer of the marker
             let groupLayerID = marker.LayerGroup?.ID
@@ -96,8 +96,6 @@ export class MarkersComponent implements OnInit {
                 leafletMarker.addTo(leafletLayer)
               }
             }
-
-
 
             this.mapMarkerID_LeafletMarker.set(marker.ID, leafletMarker)
           }

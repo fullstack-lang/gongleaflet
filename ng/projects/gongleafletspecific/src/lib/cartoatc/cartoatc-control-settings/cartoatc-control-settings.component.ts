@@ -3,6 +3,15 @@ import { MatSlideToggleChange } from '@angular/material/slide-toggle';
 import { LayerGroupService } from 'gongleaflet';
 import { setVisibilityHTMLElement } from '../manage-leaflet-items';
 
+import * as gongleaflet from 'gongleaflet'
+
+class LayerItem {
+  id: number = 0
+  name: string = ""
+  display: string = ""
+  status: boolean = false
+}
+
 // https://stackoverflow.com/questions/54734329/ngx-leaflet-how-to-add-a-custom-control
 @Component({
   selector: 'app-cartoatc-control-settings',
@@ -10,22 +19,29 @@ import { setVisibilityHTMLElement } from '../manage-leaflet-items';
   styleUrls: ['./cartoatc-control-settings.component.scss'],
 })
 export class CartoatcControlSettingsComponent implements OnInit {
-  list: Array<any> = [];
+
+  layerGroups: gongleaflet.LayerGroupDB[] = []
+  list: Array<LayerItem> = [];
   open: boolean = false;
 
   constructor(private layerGroupService: LayerGroupService) { }
 
   ngOnInit(): void {
-    this.layerGroupService.getLayerGroups().subscribe((layerGroups) => {
-      layerGroups.forEach((layerGroup) => {
-        this.list.push({
-          id: layerGroup.ID,
-          name: layerGroup.Name,
-          display: layerGroup.DisplayName || layerGroup.Name,
-          status: true,
-        });
-      });
-    });
+    this.layerGroupService.getLayerGroups().subscribe(
+      layerGroups => {
+        this.layerGroups = layerGroups
+
+        for (let layerGroup of this.layerGroups) {
+          let layerItem = new LayerItem
+          layerItem.id = layerGroup.ID
+          layerItem.name = layerGroup.Name
+          layerItem.display = layerGroup.DisplayName || layerGroup.Name
+          layerItem.status = true
+
+          this.list.push(layerItem);
+        }
+      }
+    )
   }
 
   toggleOpen() {
@@ -33,6 +49,11 @@ export class CartoatcControlSettingsComponent implements OnInit {
   }
 
   handleChange(change: MatSlideToggleChange, id: number) {
+
+    console.log("Toggling layer " + id)
+
+
+
     let layerItems = document.getElementsByClassName('layer-' + id);
     for (let index = 0; index < layerItems.length; index++) {
       let htmlElement: Element | any = layerItems[index];
