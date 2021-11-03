@@ -6,6 +6,7 @@ import { DEFAULT_ICON_SIZE } from '../cartoatc.component'
 
 import * as manageLeafletItems from '../manage-leaflet-items';
 import * as L from 'leaflet';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'markers-component',
@@ -32,8 +33,7 @@ export class MarkersComponent implements OnInit {
   constructor(
     private gongleafletFrontRepoService: gongleaflet.FrontRepoService,
     private markerService: gongleaflet.MarkerService,
-    private divIcon: gongleaflet.DivIconService
-  ) { }
+  ) {   }
 
   ngOnInit(): void {
     this.refreshMapWithMarkers()
@@ -88,7 +88,7 @@ export class MarkersComponent implements OnInit {
             );
             // this.markersRootLayer.push(leafletMarker)
 
-            // get the GroupLayer of the marker
+            // get the GroupLayer of the marker and add it to the layer
             let groupLayerID = marker.LayerGroup?.ID
             if (groupLayerID) {
               let leafletLayer = this.mapGongLayerGroupID_LayerGroup.get(groupLayerID)
