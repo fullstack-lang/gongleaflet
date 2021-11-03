@@ -10,6 +10,10 @@ import { LayerGroupsTableComponent } from './layergroups-table/layergroups-table
 import { LayerGroupDetailComponent } from './layergroup-detail/layergroup-detail.component'
 import { LayerGroupPresentationComponent } from './layergroup-presentation/layergroup-presentation.component'
 
+import { MapOptionssTableComponent } from './mapoptionss-table/mapoptionss-table.component'
+import { MapOptionsDetailComponent } from './mapoptions-detail/mapoptions-detail.component'
+import { MapOptionsPresentationComponent } from './mapoptions-presentation/mapoptions-presentation.component'
+
 import { MarkersTableComponent } from './markers-table/markers-table.component'
 import { MarkerDetailComponent } from './marker-detail/marker-detail.component'
 import { MarkerPresentationComponent } from './marker-presentation/marker-presentation.component'
@@ -21,10 +25,6 @@ import { VisualCirclePresentationComponent } from './visualcircle-presentation/v
 import { VisualLinesTableComponent } from './visuallines-table/visuallines-table.component'
 import { VisualLineDetailComponent } from './visualline-detail/visualline-detail.component'
 import { VisualLinePresentationComponent } from './visualline-presentation/visualline-presentation.component'
-
-import { VisualMapsTableComponent } from './visualmaps-table/visualmaps-table.component'
-import { VisualMapDetailComponent } from './visualmap-detail/visualmap-detail.component'
-import { VisualMapPresentationComponent } from './visualmap-presentation/visualmap-presentation.component'
 
 import { VisualTracksTableComponent } from './visualtracks-table/visualtracks-table.component'
 import { VisualTrackDetailComponent } from './visualtrack-detail/visualtrack-detail.component'
@@ -46,6 +46,13 @@ const routes: Routes = [ // insertion point for routes declarations
 	{ path: 'github_com_fullstack_lang_gongleaflet_go-layergroup-presentation/:id', component: LayerGroupPresentationComponent, outlet: 'github_com_fullstack_lang_gongleaflet_go_presentation' },
 	{ path: 'github_com_fullstack_lang_gongleaflet_go-layergroup-presentation-special/:id', component: LayerGroupPresentationComponent, outlet: 'github_com_fullstack_lang_gongleaflet_golayergrouppres' },
 
+	{ path: 'github_com_fullstack_lang_gongleaflet_go-mapoptionss', component: MapOptionssTableComponent, outlet: 'github_com_fullstack_lang_gongleaflet_go_table' },
+	{ path: 'github_com_fullstack_lang_gongleaflet_go-mapoptions-adder', component: MapOptionsDetailComponent, outlet: 'github_com_fullstack_lang_gongleaflet_go_editor' },
+	{ path: 'github_com_fullstack_lang_gongleaflet_go-mapoptions-adder/:id/:originStruct/:originStructFieldName', component: MapOptionsDetailComponent, outlet: 'github_com_fullstack_lang_gongleaflet_go_editor' },
+	{ path: 'github_com_fullstack_lang_gongleaflet_go-mapoptions-detail/:id', component: MapOptionsDetailComponent, outlet: 'github_com_fullstack_lang_gongleaflet_go_editor' },
+	{ path: 'github_com_fullstack_lang_gongleaflet_go-mapoptions-presentation/:id', component: MapOptionsPresentationComponent, outlet: 'github_com_fullstack_lang_gongleaflet_go_presentation' },
+	{ path: 'github_com_fullstack_lang_gongleaflet_go-mapoptions-presentation-special/:id', component: MapOptionsPresentationComponent, outlet: 'github_com_fullstack_lang_gongleaflet_gomapoptionspres' },
+
 	{ path: 'github_com_fullstack_lang_gongleaflet_go-markers', component: MarkersTableComponent, outlet: 'github_com_fullstack_lang_gongleaflet_go_table' },
 	{ path: 'github_com_fullstack_lang_gongleaflet_go-marker-adder', component: MarkerDetailComponent, outlet: 'github_com_fullstack_lang_gongleaflet_go_editor' },
 	{ path: 'github_com_fullstack_lang_gongleaflet_go-marker-adder/:id/:originStruct/:originStructFieldName', component: MarkerDetailComponent, outlet: 'github_com_fullstack_lang_gongleaflet_go_editor' },
@@ -66,13 +73,6 @@ const routes: Routes = [ // insertion point for routes declarations
 	{ path: 'github_com_fullstack_lang_gongleaflet_go-visualline-detail/:id', component: VisualLineDetailComponent, outlet: 'github_com_fullstack_lang_gongleaflet_go_editor' },
 	{ path: 'github_com_fullstack_lang_gongleaflet_go-visualline-presentation/:id', component: VisualLinePresentationComponent, outlet: 'github_com_fullstack_lang_gongleaflet_go_presentation' },
 	{ path: 'github_com_fullstack_lang_gongleaflet_go-visualline-presentation-special/:id', component: VisualLinePresentationComponent, outlet: 'github_com_fullstack_lang_gongleaflet_govisuallinepres' },
-
-	{ path: 'github_com_fullstack_lang_gongleaflet_go-visualmaps', component: VisualMapsTableComponent, outlet: 'github_com_fullstack_lang_gongleaflet_go_table' },
-	{ path: 'github_com_fullstack_lang_gongleaflet_go-visualmap-adder', component: VisualMapDetailComponent, outlet: 'github_com_fullstack_lang_gongleaflet_go_editor' },
-	{ path: 'github_com_fullstack_lang_gongleaflet_go-visualmap-adder/:id/:originStruct/:originStructFieldName', component: VisualMapDetailComponent, outlet: 'github_com_fullstack_lang_gongleaflet_go_editor' },
-	{ path: 'github_com_fullstack_lang_gongleaflet_go-visualmap-detail/:id', component: VisualMapDetailComponent, outlet: 'github_com_fullstack_lang_gongleaflet_go_editor' },
-	{ path: 'github_com_fullstack_lang_gongleaflet_go-visualmap-presentation/:id', component: VisualMapPresentationComponent, outlet: 'github_com_fullstack_lang_gongleaflet_go_presentation' },
-	{ path: 'github_com_fullstack_lang_gongleaflet_go-visualmap-presentation-special/:id', component: VisualMapPresentationComponent, outlet: 'github_com_fullstack_lang_gongleaflet_govisualmappres' },
 
 	{ path: 'github_com_fullstack_lang_gongleaflet_go-visualtracks', component: VisualTracksTableComponent, outlet: 'github_com_fullstack_lang_gongleaflet_go_table' },
 	{ path: 'github_com_fullstack_lang_gongleaflet_go-visualtrack-adder', component: VisualTrackDetailComponent, outlet: 'github_com_fullstack_lang_gongleaflet_go_editor' },

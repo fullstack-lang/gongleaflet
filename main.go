@@ -182,7 +182,7 @@ func main() {
 	LyonRadarRange.Name = "Lyon's Radar Range"
 	LyonRadarRange.LayerGroup = MarkersLayer2
 	LyonRadarRange.Radius = 100
-	LyonRadarRange.VisualColorEnum = gongleaflet_models.GREEN
+	LyonRadarRange.VisualColorEnum = gongleaflet_models.LIGHT_BROWN_8D6E63
 	LyonRadarRange.DashStyleEnum = gongleaflet_models.FIVE_TWENTY
 
 	//
@@ -195,13 +195,13 @@ func main() {
 	TestLine.EndLng = 6
 	TestLine.Name = "Test line"
 	TestLine.LayerGroup = MarkersLayer2
-	TestLine.VisualColorEnum = gongleaflet_models.GREEN
+	TestLine.VisualColorEnum = gongleaflet_models.RED
 	TestLine.DashStyleEnum = gongleaflet_models.FIVE_TWENTY
 
 	//
 	// Visual Map
 	//
-	Map1 := new(gongleaflet_models.VisualMap).Stage()
+	Map1 := new(gongleaflet_models.MapOptions).Stage()
 	Map1.Name = "Map1"
 	Map1.UrlTemplate = "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
 	Map1.Attribution = "osm"
@@ -211,7 +211,7 @@ func main() {
 	Map1.Lat = 45
 	Map1.Lng = 4
 
-	Map2 := new(gongleaflet_models.VisualMap).Stage()
+	Map2 := new(gongleaflet_models.MapOptions).Stage()
 	Map2.Name = "Map2"
 	Map2.UrlTemplate = "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
 	Map2.Attribution = "osm"
@@ -222,7 +222,7 @@ func main() {
 	Map2.Lng = 4
 
 	//
-	// Tacks
+	// Tracks
 	//
 	Plane := new(gongleaflet_models.VisualTrack).Stage()
 	Plane.Lat = 46

@@ -48,6 +48,11 @@ import { LayerGroupSortingComponent } from './layergroup-sorting/layergroup-sort
 import { LayerGroupDetailComponent } from './layergroup-detail/layergroup-detail.component'
 import { LayerGroupPresentationComponent } from './layergroup-presentation/layergroup-presentation.component'
 
+import { MapOptionssTableComponent } from './mapoptionss-table/mapoptionss-table.component'
+import { MapOptionsSortingComponent } from './mapoptions-sorting/mapoptions-sorting.component'
+import { MapOptionsDetailComponent } from './mapoptions-detail/mapoptions-detail.component'
+import { MapOptionsPresentationComponent } from './mapoptions-presentation/mapoptions-presentation.component'
+
 import { MarkersTableComponent } from './markers-table/markers-table.component'
 import { MarkerSortingComponent } from './marker-sorting/marker-sorting.component'
 import { MarkerDetailComponent } from './marker-detail/marker-detail.component'
@@ -62,11 +67,6 @@ import { VisualLinesTableComponent } from './visuallines-table/visuallines-table
 import { VisualLineSortingComponent } from './visualline-sorting/visualline-sorting.component'
 import { VisualLineDetailComponent } from './visualline-detail/visualline-detail.component'
 import { VisualLinePresentationComponent } from './visualline-presentation/visualline-presentation.component'
-
-import { VisualMapsTableComponent } from './visualmaps-table/visualmaps-table.component'
-import { VisualMapSortingComponent } from './visualmap-sorting/visualmap-sorting.component'
-import { VisualMapDetailComponent } from './visualmap-detail/visualmap-detail.component'
-import { VisualMapPresentationComponent } from './visualmap-presentation/visualmap-presentation.component'
 
 import { VisualTracksTableComponent } from './visualtracks-table/visualtracks-table.component'
 import { VisualTrackSortingComponent } from './visualtrack-sorting/visualtrack-sorting.component'
@@ -87,6 +87,11 @@ import { VisualTrackPresentationComponent } from './visualtrack-presentation/vis
 		LayerGroupDetailComponent,
 		LayerGroupPresentationComponent,
 
+		MapOptionssTableComponent,
+		MapOptionsSortingComponent,
+		MapOptionsDetailComponent,
+		MapOptionsPresentationComponent,
+
 		MarkersTableComponent,
 		MarkerSortingComponent,
 		MarkerDetailComponent,
@@ -101,11 +106,6 @@ import { VisualTrackPresentationComponent } from './visualtrack-presentation/vis
 		VisualLineSortingComponent,
 		VisualLineDetailComponent,
 		VisualLinePresentationComponent,
-
-		VisualMapsTableComponent,
-		VisualMapSortingComponent,
-		VisualMapDetailComponent,
-		VisualMapPresentationComponent,
 
 		VisualTracksTableComponent,
 		VisualTrackSortingComponent,
@@ -161,6 +161,11 @@ import { VisualTrackPresentationComponent } from './visualtrack-presentation/vis
 		LayerGroupDetailComponent,
 		LayerGroupPresentationComponent,
 
+		MapOptionssTableComponent,
+		MapOptionsSortingComponent,
+		MapOptionsDetailComponent,
+		MapOptionsPresentationComponent,
+
 		MarkersTableComponent,
 		MarkerSortingComponent,
 		MarkerDetailComponent,
@@ -175,11 +180,6 @@ import { VisualTrackPresentationComponent } from './visualtrack-presentation/vis
 		VisualLineSortingComponent,
 		VisualLineDetailComponent,
 		VisualLinePresentationComponent,
-
-		VisualMapsTableComponent,
-		VisualMapSortingComponent,
-		VisualMapDetailComponent,
-		VisualMapPresentationComponent,
 
 		VisualTracksTableComponent,
 		VisualTrackSortingComponent,

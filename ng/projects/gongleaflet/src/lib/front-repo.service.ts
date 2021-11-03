@@ -10,6 +10,9 @@ import { DivIconService } from './divicon.service'
 import { LayerGroupDB } from './layergroup-db'
 import { LayerGroupService } from './layergroup.service'
 
+import { MapOptionsDB } from './mapoptions-db'
+import { MapOptionsService } from './mapoptions.service'
+
 import { MarkerDB } from './marker-db'
 import { MarkerService } from './marker.service'
 
@@ -18,9 +21,6 @@ import { VisualCircleService } from './visualcircle.service'
 
 import { VisualLineDB } from './visualline-db'
 import { VisualLineService } from './visualline.service'
-
-import { VisualMapDB } from './visualmap-db'
-import { VisualMapService } from './visualmap.service'
 
 import { VisualTrackDB } from './visualtrack-db'
 import { VisualTrackService } from './visualtrack.service'
@@ -34,6 +34,9 @@ export class FrontRepo { // insertion point sub template
   LayerGroups_array = new Array<LayerGroupDB>(); // array of repo instances
   LayerGroups = new Map<number, LayerGroupDB>(); // map of repo instances
   LayerGroups_batch = new Map<number, LayerGroupDB>(); // same but only in last GET (for finding repo instances to delete)
+  MapOptionss_array = new Array<MapOptionsDB>(); // array of repo instances
+  MapOptionss = new Map<number, MapOptionsDB>(); // map of repo instances
+  MapOptionss_batch = new Map<number, MapOptionsDB>(); // same but only in last GET (for finding repo instances to delete)
   Markers_array = new Array<MarkerDB>(); // array of repo instances
   Markers = new Map<number, MarkerDB>(); // map of repo instances
   Markers_batch = new Map<number, MarkerDB>(); // same but only in last GET (for finding repo instances to delete)
@@ -43,9 +46,6 @@ export class FrontRepo { // insertion point sub template
   VisualLines_array = new Array<VisualLineDB>(); // array of repo instances
   VisualLines = new Map<number, VisualLineDB>(); // map of repo instances
   VisualLines_batch = new Map<number, VisualLineDB>(); // same but only in last GET (for finding repo instances to delete)
-  VisualMaps_array = new Array<VisualMapDB>(); // array of repo instances
-  VisualMaps = new Map<number, VisualMapDB>(); // map of repo instances
-  VisualMaps_batch = new Map<number, VisualMapDB>(); // same but only in last GET (for finding repo instances to delete)
   VisualTracks_array = new Array<VisualTrackDB>(); // array of repo instances
   VisualTracks = new Map<number, VisualTrackDB>(); // map of repo instances
   VisualTracks_batch = new Map<number, VisualTrackDB>(); // same but only in last GET (for finding repo instances to delete)
@@ -109,10 +109,10 @@ export class FrontRepoService {
     private http: HttpClient, // insertion point sub template 
     private diviconService: DivIconService,
     private layergroupService: LayerGroupService,
+    private mapoptionsService: MapOptionsService,
     private markerService: MarkerService,
     private visualcircleService: VisualCircleService,
     private visuallineService: VisualLineService,
-    private visualmapService: VisualMapService,
     private visualtrackService: VisualTrackService,
   ) { }
 
@@ -146,18 +146,18 @@ export class FrontRepoService {
   observableFrontRepo: [ // insertion point sub template 
     Observable<DivIconDB[]>,
     Observable<LayerGroupDB[]>,
+    Observable<MapOptionsDB[]>,
     Observable<MarkerDB[]>,
     Observable<VisualCircleDB[]>,
     Observable<VisualLineDB[]>,
-    Observable<VisualMapDB[]>,
     Observable<VisualTrackDB[]>,
   ] = [ // insertion point sub template 
       this.diviconService.getDivIcons(),
       this.layergroupService.getLayerGroups(),
+      this.mapoptionsService.getMapOptionss(),
       this.markerService.getMarkers(),
       this.visualcircleService.getVisualCircles(),
       this.visuallineService.getVisualLines(),
-      this.visualmapService.getVisualMaps(),
       this.visualtrackService.getVisualTracks(),
     ];
 
@@ -176,10 +176,10 @@ export class FrontRepoService {
           ([ // insertion point sub template for declarations 
             divicons_,
             layergroups_,
+            mapoptionss_,
             markers_,
             visualcircles_,
             visuallines_,
-            visualmaps_,
             visualtracks_,
           ]) => {
             // Typing can be messy with many items. Therefore, type casting is necessary here
@@ -188,14 +188,14 @@ export class FrontRepoService {
             divicons = divicons_ as DivIconDB[]
             var layergroups: LayerGroupDB[]
             layergroups = layergroups_ as LayerGroupDB[]
+            var mapoptionss: MapOptionsDB[]
+            mapoptionss = mapoptionss_ as MapOptionsDB[]
             var markers: MarkerDB[]
             markers = markers_ as MarkerDB[]
             var visualcircles: VisualCircleDB[]
             visualcircles = visualcircles_ as VisualCircleDB[]
             var visuallines: VisualLineDB[]
             visuallines = visuallines_ as VisualLineDB[]
-            var visualmaps: VisualMapDB[]
-            visualmaps = visualmaps_ as VisualMapDB[]
             var visualtracks: VisualTrackDB[]
             visualtracks = visualtracks_ as VisualTrackDB[]
 
@@ -259,6 +259,39 @@ export class FrontRepoService {
 
             // sort LayerGroups_array array
             FrontRepoSingloton.LayerGroups_array.sort((t1, t2) => {
+              if (t1.Name > t2.Name) {
+                return 1;
+              }
+              if (t1.Name < t2.Name) {
+                return -1;
+              }
+              return 0;
+            });
+
+            // init the array
+            FrontRepoSingloton.MapOptionss_array = mapoptionss
+
+            // clear the map that counts MapOptions in the GET
+            FrontRepoSingloton.MapOptionss_batch.clear()
+
+            mapoptionss.forEach(
+              mapoptions => {
+                FrontRepoSingloton.MapOptionss.set(mapoptions.ID, mapoptions)
+                FrontRepoSingloton.MapOptionss_batch.set(mapoptions.ID, mapoptions)
+              }
+            )
+
+            // clear mapoptionss that are absent from the batch
+            FrontRepoSingloton.MapOptionss.forEach(
+              mapoptions => {
+                if (FrontRepoSingloton.MapOptionss_batch.get(mapoptions.ID) == undefined) {
+                  FrontRepoSingloton.MapOptionss.delete(mapoptions.ID)
+                }
+              }
+            )
+
+            // sort MapOptionss_array array
+            FrontRepoSingloton.MapOptionss_array.sort((t1, t2) => {
               if (t1.Name > t2.Name) {
                 return 1;
               }
@@ -368,39 +401,6 @@ export class FrontRepoService {
             });
 
             // init the array
-            FrontRepoSingloton.VisualMaps_array = visualmaps
-
-            // clear the map that counts VisualMap in the GET
-            FrontRepoSingloton.VisualMaps_batch.clear()
-
-            visualmaps.forEach(
-              visualmap => {
-                FrontRepoSingloton.VisualMaps.set(visualmap.ID, visualmap)
-                FrontRepoSingloton.VisualMaps_batch.set(visualmap.ID, visualmap)
-              }
-            )
-
-            // clear visualmaps that are absent from the batch
-            FrontRepoSingloton.VisualMaps.forEach(
-              visualmap => {
-                if (FrontRepoSingloton.VisualMaps_batch.get(visualmap.ID) == undefined) {
-                  FrontRepoSingloton.VisualMaps.delete(visualmap.ID)
-                }
-              }
-            )
-
-            // sort VisualMaps_array array
-            FrontRepoSingloton.VisualMaps_array.sort((t1, t2) => {
-              if (t1.Name > t2.Name) {
-                return 1;
-              }
-              if (t1.Name < t2.Name) {
-                return -1;
-              }
-              return 0;
-            });
-
-            // init the array
             FrontRepoSingloton.VisualTracks_array = visualtracks
 
             // clear the map that counts VisualTrack in the GET
@@ -451,6 +451,13 @@ export class FrontRepoService {
                 // insertion point for redeeming ONE-MANY associations
               }
             )
+            mapoptionss.forEach(
+              mapoptions => {
+                // insertion point sub sub template for ONE-/ZERO-ONE associations pointers redeeming
+
+                // insertion point for redeeming ONE-MANY associations
+              }
+            )
             markers.forEach(
               marker => {
                 // insertion point sub sub template for ONE-/ZERO-ONE associations pointers redeeming
@@ -496,13 +503,6 @@ export class FrontRepoService {
                     visualline.LayerGroup = _layergroup
                   }
                 }
-
-                // insertion point for redeeming ONE-MANY associations
-              }
-            )
-            visualmaps.forEach(
-              visualmap => {
-                // insertion point sub sub template for ONE-/ZERO-ONE associations pointers redeeming
 
                 // insertion point for redeeming ONE-MANY associations
               }
@@ -625,6 +625,57 @@ export class FrontRepoService {
               layergroup => {
                 if (FrontRepoSingloton.LayerGroups_batch.get(layergroup.ID) == undefined) {
                   FrontRepoSingloton.LayerGroups.delete(layergroup.ID)
+                }
+              }
+            )
+
+            // 
+            // Second Step: redeem pointers between instances (thanks to maps in the First Step)
+            // insertion point sub template 
+
+            // hand over control flow to observer
+            observer.next(FrontRepoSingloton)
+          }
+        )
+      }
+    )
+  }
+
+  // MapOptionsPull performs a GET on MapOptions of the stack and redeem association pointers 
+  MapOptionsPull(): Observable<FrontRepo> {
+    return new Observable<FrontRepo>(
+      (observer) => {
+        combineLatest([
+          this.mapoptionsService.getMapOptionss()
+        ]).subscribe(
+          ([ // insertion point sub template 
+            mapoptionss,
+          ]) => {
+            // init the array
+            FrontRepoSingloton.MapOptionss_array = mapoptionss
+
+            // clear the map that counts MapOptions in the GET
+            FrontRepoSingloton.MapOptionss_batch.clear()
+
+            // 
+            // First Step: init map of instances
+            // insertion point sub template 
+            mapoptionss.forEach(
+              mapoptions => {
+                FrontRepoSingloton.MapOptionss.set(mapoptions.ID, mapoptions)
+                FrontRepoSingloton.MapOptionss_batch.set(mapoptions.ID, mapoptions)
+
+                // insertion point for redeeming ONE/ZERO-ONE associations
+
+                // insertion point for redeeming ONE-MANY associations
+              }
+            )
+
+            // clear mapoptionss that are absent from the GET
+            FrontRepoSingloton.MapOptionss.forEach(
+              mapoptions => {
+                if (FrontRepoSingloton.MapOptionss_batch.get(mapoptions.ID) == undefined) {
+                  FrontRepoSingloton.MapOptionss.delete(mapoptions.ID)
                 }
               }
             )
@@ -822,57 +873,6 @@ export class FrontRepoService {
     )
   }
 
-  // VisualMapPull performs a GET on VisualMap of the stack and redeem association pointers 
-  VisualMapPull(): Observable<FrontRepo> {
-    return new Observable<FrontRepo>(
-      (observer) => {
-        combineLatest([
-          this.visualmapService.getVisualMaps()
-        ]).subscribe(
-          ([ // insertion point sub template 
-            visualmaps,
-          ]) => {
-            // init the array
-            FrontRepoSingloton.VisualMaps_array = visualmaps
-
-            // clear the map that counts VisualMap in the GET
-            FrontRepoSingloton.VisualMaps_batch.clear()
-
-            // 
-            // First Step: init map of instances
-            // insertion point sub template 
-            visualmaps.forEach(
-              visualmap => {
-                FrontRepoSingloton.VisualMaps.set(visualmap.ID, visualmap)
-                FrontRepoSingloton.VisualMaps_batch.set(visualmap.ID, visualmap)
-
-                // insertion point for redeeming ONE/ZERO-ONE associations
-
-                // insertion point for redeeming ONE-MANY associations
-              }
-            )
-
-            // clear visualmaps that are absent from the GET
-            FrontRepoSingloton.VisualMaps.forEach(
-              visualmap => {
-                if (FrontRepoSingloton.VisualMaps_batch.get(visualmap.ID) == undefined) {
-                  FrontRepoSingloton.VisualMaps.delete(visualmap.ID)
-                }
-              }
-            )
-
-            // 
-            // Second Step: redeem pointers between instances (thanks to maps in the First Step)
-            // insertion point sub template 
-
-            // hand over control flow to observer
-            observer.next(FrontRepoSingloton)
-          }
-        )
-      }
-    )
-  }
-
   // VisualTrackPull performs a GET on VisualTrack of the stack and redeem association pointers 
   VisualTrackPull(): Observable<FrontRepo> {
     return new Observable<FrontRepo>(
@@ -946,16 +946,16 @@ export function getDivIconUniqueID(id: number): number {
 export function getLayerGroupUniqueID(id: number): number {
   return 37 * id
 }
-export function getMarkerUniqueID(id: number): number {
+export function getMapOptionsUniqueID(id: number): number {
   return 41 * id
 }
-export function getVisualCircleUniqueID(id: number): number {
+export function getMarkerUniqueID(id: number): number {
   return 43 * id
 }
-export function getVisualLineUniqueID(id: number): number {
+export function getVisualCircleUniqueID(id: number): number {
   return 47 * id
 }
-export function getVisualMapUniqueID(id: number): number {
+export function getVisualLineUniqueID(id: number): number {
   return 53 * id
 }
 export function getVisualTrackUniqueID(id: number): number {

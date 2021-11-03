@@ -3,7 +3,7 @@ import {
   VisualCircleDB,
   VisualColorEnum,
   VisualLineDB,
-  VisualMapDB,
+  MapOptionsDB,
 } from 'gongleaflet';
 
 import * as L from 'leaflet';
@@ -11,7 +11,7 @@ import { map } from 'rxjs/operators';
 
 // return the mapOptions that is passed to the 
 // creation of the map
-const visualMapToLeafletMapOptions = (vMap: VisualMapDB): L.MapOptions => {
+const visualMapToLeafletMapOptions = (vMap: MapOptionsDB): L.MapOptions => {
 
   let mapOptions: L.MapOptions = {}
 

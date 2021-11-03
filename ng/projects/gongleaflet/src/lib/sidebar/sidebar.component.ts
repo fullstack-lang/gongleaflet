@@ -12,14 +12,14 @@ import { DivIconService } from '../divicon.service'
 import { getDivIconUniqueID } from '../front-repo.service'
 import { LayerGroupService } from '../layergroup.service'
 import { getLayerGroupUniqueID } from '../front-repo.service'
+import { MapOptionsService } from '../mapoptions.service'
+import { getMapOptionsUniqueID } from '../front-repo.service'
 import { MarkerService } from '../marker.service'
 import { getMarkerUniqueID } from '../front-repo.service'
 import { VisualCircleService } from '../visualcircle.service'
 import { getVisualCircleUniqueID } from '../front-repo.service'
 import { VisualLineService } from '../visualline.service'
 import { getVisualLineUniqueID } from '../front-repo.service'
-import { VisualMapService } from '../visualmap.service'
-import { getVisualMapUniqueID } from '../front-repo.service'
 import { VisualTrackService } from '../visualtrack.service'
 import { getVisualTrackUniqueID } from '../front-repo.service'
 
@@ -159,10 +159,10 @@ export class SidebarComponent implements OnInit {
     // insertion point for per struct service declaration
     private diviconService: DivIconService,
     private layergroupService: LayerGroupService,
+    private mapoptionsService: MapOptionsService,
     private markerService: MarkerService,
     private visualcircleService: VisualCircleService,
     private visuallineService: VisualLineService,
-    private visualmapService: VisualMapService,
     private visualtrackService: VisualTrackService,
   ) { }
 
@@ -187,6 +187,14 @@ export class SidebarComponent implements OnInit {
       }
     )
     // observable for changes in structs
+    this.mapoptionsService.MapOptionsServiceChanged.subscribe(
+      message => {
+        if (message == "post" || message == "update" || message == "delete") {
+          this.refresh()
+        }
+      }
+    )
+    // observable for changes in structs
     this.markerService.MarkerServiceChanged.subscribe(
       message => {
         if (message == "post" || message == "update" || message == "delete") {
@@ -204,14 +212,6 @@ export class SidebarComponent implements OnInit {
     )
     // observable for changes in structs
     this.visuallineService.VisualLineServiceChanged.subscribe(
-      message => {
-        if (message == "post" || message == "update" || message == "delete") {
-          this.refresh()
-        }
-      }
-    )
-    // observable for changes in structs
-    this.visualmapService.VisualMapServiceChanged.subscribe(
       message => {
         if (message == "post" || message == "update" || message == "delete") {
           this.refresh()
@@ -333,6 +333,50 @@ export class SidebarComponent implements OnInit {
             children: new Array<GongNode>()
           }
           layergroupGongNodeStruct.children!.push(layergroupGongNodeInstance)
+
+          // insertion point for per field code
+        }
+      )
+
+      /**
+      * fill up the MapOptions part of the mat tree
+      */
+      let mapoptionsGongNodeStruct: GongNode = {
+        name: "MapOptions",
+        type: GongNodeType.STRUCT,
+        id: 0,
+        uniqueIdPerStack: 13 * nonInstanceNodeId,
+        structName: "MapOptions",
+        associationField: "",
+        associatedStructName: "",
+        children: new Array<GongNode>()
+      }
+      nonInstanceNodeId = nonInstanceNodeId + 1
+      this.gongNodeTree.push(mapoptionsGongNodeStruct)
+
+      this.frontRepo.MapOptionss_array.sort((t1, t2) => {
+        if (t1.Name > t2.Name) {
+          return 1;
+        }
+        if (t1.Name < t2.Name) {
+          return -1;
+        }
+        return 0;
+      });
+
+      this.frontRepo.MapOptionss_array.forEach(
+        mapoptionsDB => {
+          let mapoptionsGongNodeInstance: GongNode = {
+            name: mapoptionsDB.Name,
+            type: GongNodeType.INSTANCE,
+            id: mapoptionsDB.ID,
+            uniqueIdPerStack: getMapOptionsUniqueID(mapoptionsDB.ID),
+            structName: "MapOptions",
+            associationField: "",
+            associatedStructName: "",
+            children: new Array<GongNode>()
+          }
+          mapoptionsGongNodeStruct.children!.push(mapoptionsGongNodeInstance)
 
           // insertion point for per field code
         }
@@ -607,50 +651,6 @@ export class SidebarComponent implements OnInit {
             LayerGroupGongNodeAssociation.children.push(visuallineGongNodeInstance_LayerGroup)
           }
 
-        }
-      )
-
-      /**
-      * fill up the VisualMap part of the mat tree
-      */
-      let visualmapGongNodeStruct: GongNode = {
-        name: "VisualMap",
-        type: GongNodeType.STRUCT,
-        id: 0,
-        uniqueIdPerStack: 13 * nonInstanceNodeId,
-        structName: "VisualMap",
-        associationField: "",
-        associatedStructName: "",
-        children: new Array<GongNode>()
-      }
-      nonInstanceNodeId = nonInstanceNodeId + 1
-      this.gongNodeTree.push(visualmapGongNodeStruct)
-
-      this.frontRepo.VisualMaps_array.sort((t1, t2) => {
-        if (t1.Name > t2.Name) {
-          return 1;
-        }
-        if (t1.Name < t2.Name) {
-          return -1;
-        }
-        return 0;
-      });
-
-      this.frontRepo.VisualMaps_array.forEach(
-        visualmapDB => {
-          let visualmapGongNodeInstance: GongNode = {
-            name: visualmapDB.Name,
-            type: GongNodeType.INSTANCE,
-            id: visualmapDB.ID,
-            uniqueIdPerStack: getVisualMapUniqueID(visualmapDB.ID),
-            structName: "VisualMap",
-            associationField: "",
-            associatedStructName: "",
-            children: new Array<GongNode>()
-          }
-          visualmapGongNodeStruct.children!.push(visualmapGongNodeInstance)
-
-          // insertion point for per field code
         }
       )
 

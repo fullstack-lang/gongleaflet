@@ -57,6 +57,13 @@ func RegisterControllers(r *gin.Engine) {
 		v1.PUT("/v1/layergroups/:id", UpdateLayerGroup)
 		v1.DELETE("/v1/layergroups/:id", DeleteLayerGroup)
 
+		v1.GET("/v1/mapoptionss", GetMapOptionss)
+		v1.GET("/v1/mapoptionss/:id", GetMapOptions)
+		v1.POST("/v1/mapoptionss", PostMapOptions)
+		v1.PATCH("/v1/mapoptionss/:id", UpdateMapOptions)
+		v1.PUT("/v1/mapoptionss/:id", UpdateMapOptions)
+		v1.DELETE("/v1/mapoptionss/:id", DeleteMapOptions)
+
 		v1.GET("/v1/markers", GetMarkers)
 		v1.GET("/v1/markers/:id", GetMarker)
 		v1.POST("/v1/markers", PostMarker)
@@ -77,13 +84,6 @@ func RegisterControllers(r *gin.Engine) {
 		v1.PATCH("/v1/visuallines/:id", UpdateVisualLine)
 		v1.PUT("/v1/visuallines/:id", UpdateVisualLine)
 		v1.DELETE("/v1/visuallines/:id", DeleteVisualLine)
-
-		v1.GET("/v1/visualmaps", GetVisualMaps)
-		v1.GET("/v1/visualmaps/:id", GetVisualMap)
-		v1.POST("/v1/visualmaps", PostVisualMap)
-		v1.PATCH("/v1/visualmaps/:id", UpdateVisualMap)
-		v1.PUT("/v1/visualmaps/:id", UpdateVisualMap)
-		v1.DELETE("/v1/visualmaps/:id", DeleteVisualMap)
 
 		v1.GET("/v1/visualtracks", GetVisualTracks)
 		v1.GET("/v1/visualtracks/:id", GetVisualTrack)

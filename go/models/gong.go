@@ -18,6 +18,9 @@ type StageStruct struct { // insertion point for definition of arrays registerin
 	LayerGroups           map[*LayerGroup]struct{}
 	LayerGroups_mapString map[string]*LayerGroup
 
+	MapOptionss           map[*MapOptions]struct{}
+	MapOptionss_mapString map[string]*MapOptions
+
 	Markers           map[*Marker]struct{}
 	Markers_mapString map[string]*Marker
 
@@ -26,9 +29,6 @@ type StageStruct struct { // insertion point for definition of arrays registerin
 
 	VisualLines           map[*VisualLine]struct{}
 	VisualLines_mapString map[string]*VisualLine
-
-	VisualMaps           map[*VisualMap]struct{}
-	VisualMaps_mapString map[string]*VisualMap
 
 	VisualTracks           map[*VisualTrack]struct{}
 	VisualTracks_mapString map[string]*VisualTrack
@@ -59,14 +59,14 @@ type BackRepoInterface interface {
 	CheckoutDivIcon(divicon *DivIcon)
 	CommitLayerGroup(layergroup *LayerGroup)
 	CheckoutLayerGroup(layergroup *LayerGroup)
+	CommitMapOptions(mapoptions *MapOptions)
+	CheckoutMapOptions(mapoptions *MapOptions)
 	CommitMarker(marker *Marker)
 	CheckoutMarker(marker *Marker)
 	CommitVisualCircle(visualcircle *VisualCircle)
 	CheckoutVisualCircle(visualcircle *VisualCircle)
 	CommitVisualLine(visualline *VisualLine)
 	CheckoutVisualLine(visualline *VisualLine)
-	CommitVisualMap(visualmap *VisualMap)
-	CheckoutVisualMap(visualmap *VisualMap)
 	CommitVisualTrack(visualtrack *VisualTrack)
 	CheckoutVisualTrack(visualtrack *VisualTrack)
 	GetLastCommitNb() uint
@@ -81,6 +81,9 @@ var Stage StageStruct = StageStruct{ // insertion point for array initiatialisat
 	LayerGroups:           make(map[*LayerGroup]struct{}),
 	LayerGroups_mapString: make(map[string]*LayerGroup),
 
+	MapOptionss:           make(map[*MapOptions]struct{}),
+	MapOptionss_mapString: make(map[string]*MapOptions),
+
 	Markers:           make(map[*Marker]struct{}),
 	Markers_mapString: make(map[string]*Marker),
 
@@ -89,9 +92,6 @@ var Stage StageStruct = StageStruct{ // insertion point for array initiatialisat
 
 	VisualLines:           make(map[*VisualLine]struct{}),
 	VisualLines_mapString: make(map[string]*VisualLine),
-
-	VisualMaps:           make(map[*VisualMap]struct{}),
-	VisualMaps_mapString: make(map[string]*VisualMap),
 
 	VisualTracks:           make(map[*VisualTrack]struct{}),
 	VisualTracks_mapString: make(map[string]*VisualTrack),
@@ -341,6 +341,108 @@ func DeleteORMLayerGroup(layergroup *LayerGroup) {
 	layergroup.Unstage()
 	if Stage.AllModelsStructDeleteCallback != nil {
 		Stage.AllModelsStructDeleteCallback.DeleteORMLayerGroup(layergroup)
+	}
+}
+
+func (stage *StageStruct) getMapOptionsOrderedStructWithNameField() []*MapOptions {
+	// have alphabetical order generation
+	mapoptionsOrdered := []*MapOptions{}
+	for mapoptions := range stage.MapOptionss {
+		mapoptionsOrdered = append(mapoptionsOrdered, mapoptions)
+	}
+	sort.Slice(mapoptionsOrdered[:], func(i, j int) bool {
+		return mapoptionsOrdered[i].Name < mapoptionsOrdered[j].Name
+	})
+	return mapoptionsOrdered
+}
+
+// Stage puts mapoptions to the model stage
+func (mapoptions *MapOptions) Stage() *MapOptions {
+	Stage.MapOptionss[mapoptions] = __member
+	Stage.MapOptionss_mapString[mapoptions.Name] = mapoptions
+
+	return mapoptions
+}
+
+// Unstage removes mapoptions off the model stage
+func (mapoptions *MapOptions) Unstage() *MapOptions {
+	delete(Stage.MapOptionss, mapoptions)
+	delete(Stage.MapOptionss_mapString, mapoptions.Name)
+	return mapoptions
+}
+
+// commit mapoptions to the back repo (if it is already staged)
+func (mapoptions *MapOptions) Commit() *MapOptions {
+	if _, ok := Stage.MapOptionss[mapoptions]; ok {
+		if Stage.BackRepo != nil {
+			Stage.BackRepo.CommitMapOptions(mapoptions)
+		}
+	}
+	return mapoptions
+}
+
+// Checkout mapoptions to the back repo (if it is already staged)
+func (mapoptions *MapOptions) Checkout() *MapOptions {
+	if _, ok := Stage.MapOptionss[mapoptions]; ok {
+		if Stage.BackRepo != nil {
+			Stage.BackRepo.CheckoutMapOptions(mapoptions)
+		}
+	}
+	return mapoptions
+}
+
+//
+// Legacy, to be deleted
+//
+
+// StageCopy appends a copy of mapoptions to the model stage
+func (mapoptions *MapOptions) StageCopy() *MapOptions {
+	_mapoptions := new(MapOptions)
+	*_mapoptions = *mapoptions
+	_mapoptions.Stage()
+	return _mapoptions
+}
+
+// StageAndCommit appends mapoptions to the model stage and commit to the orm repo
+func (mapoptions *MapOptions) StageAndCommit() *MapOptions {
+	mapoptions.Stage()
+	if Stage.AllModelsStructCreateCallback != nil {
+		Stage.AllModelsStructCreateCallback.CreateORMMapOptions(mapoptions)
+	}
+	return mapoptions
+}
+
+// DeleteStageAndCommit appends mapoptions to the model stage and commit to the orm repo
+func (mapoptions *MapOptions) DeleteStageAndCommit() *MapOptions {
+	mapoptions.Unstage()
+	DeleteORMMapOptions(mapoptions)
+	return mapoptions
+}
+
+// StageCopyAndCommit appends a copy of mapoptions to the model stage and commit to the orm repo
+func (mapoptions *MapOptions) StageCopyAndCommit() *MapOptions {
+	_mapoptions := new(MapOptions)
+	*_mapoptions = *mapoptions
+	_mapoptions.Stage()
+	if Stage.AllModelsStructCreateCallback != nil {
+		Stage.AllModelsStructCreateCallback.CreateORMMapOptions(mapoptions)
+	}
+	return _mapoptions
+}
+
+// CreateORMMapOptions enables dynamic staging of a MapOptions instance
+func CreateORMMapOptions(mapoptions *MapOptions) {
+	mapoptions.Stage()
+	if Stage.AllModelsStructCreateCallback != nil {
+		Stage.AllModelsStructCreateCallback.CreateORMMapOptions(mapoptions)
+	}
+}
+
+// DeleteORMMapOptions enables dynamic staging of a MapOptions instance
+func DeleteORMMapOptions(mapoptions *MapOptions) {
+	mapoptions.Unstage()
+	if Stage.AllModelsStructDeleteCallback != nil {
+		Stage.AllModelsStructDeleteCallback.DeleteORMMapOptions(mapoptions)
 	}
 }
 
@@ -650,108 +752,6 @@ func DeleteORMVisualLine(visualline *VisualLine) {
 	}
 }
 
-func (stage *StageStruct) getVisualMapOrderedStructWithNameField() []*VisualMap {
-	// have alphabetical order generation
-	visualmapOrdered := []*VisualMap{}
-	for visualmap := range stage.VisualMaps {
-		visualmapOrdered = append(visualmapOrdered, visualmap)
-	}
-	sort.Slice(visualmapOrdered[:], func(i, j int) bool {
-		return visualmapOrdered[i].Name < visualmapOrdered[j].Name
-	})
-	return visualmapOrdered
-}
-
-// Stage puts visualmap to the model stage
-func (visualmap *VisualMap) Stage() *VisualMap {
-	Stage.VisualMaps[visualmap] = __member
-	Stage.VisualMaps_mapString[visualmap.Name] = visualmap
-
-	return visualmap
-}
-
-// Unstage removes visualmap off the model stage
-func (visualmap *VisualMap) Unstage() *VisualMap {
-	delete(Stage.VisualMaps, visualmap)
-	delete(Stage.VisualMaps_mapString, visualmap.Name)
-	return visualmap
-}
-
-// commit visualmap to the back repo (if it is already staged)
-func (visualmap *VisualMap) Commit() *VisualMap {
-	if _, ok := Stage.VisualMaps[visualmap]; ok {
-		if Stage.BackRepo != nil {
-			Stage.BackRepo.CommitVisualMap(visualmap)
-		}
-	}
-	return visualmap
-}
-
-// Checkout visualmap to the back repo (if it is already staged)
-func (visualmap *VisualMap) Checkout() *VisualMap {
-	if _, ok := Stage.VisualMaps[visualmap]; ok {
-		if Stage.BackRepo != nil {
-			Stage.BackRepo.CheckoutVisualMap(visualmap)
-		}
-	}
-	return visualmap
-}
-
-//
-// Legacy, to be deleted
-//
-
-// StageCopy appends a copy of visualmap to the model stage
-func (visualmap *VisualMap) StageCopy() *VisualMap {
-	_visualmap := new(VisualMap)
-	*_visualmap = *visualmap
-	_visualmap.Stage()
-	return _visualmap
-}
-
-// StageAndCommit appends visualmap to the model stage and commit to the orm repo
-func (visualmap *VisualMap) StageAndCommit() *VisualMap {
-	visualmap.Stage()
-	if Stage.AllModelsStructCreateCallback != nil {
-		Stage.AllModelsStructCreateCallback.CreateORMVisualMap(visualmap)
-	}
-	return visualmap
-}
-
-// DeleteStageAndCommit appends visualmap to the model stage and commit to the orm repo
-func (visualmap *VisualMap) DeleteStageAndCommit() *VisualMap {
-	visualmap.Unstage()
-	DeleteORMVisualMap(visualmap)
-	return visualmap
-}
-
-// StageCopyAndCommit appends a copy of visualmap to the model stage and commit to the orm repo
-func (visualmap *VisualMap) StageCopyAndCommit() *VisualMap {
-	_visualmap := new(VisualMap)
-	*_visualmap = *visualmap
-	_visualmap.Stage()
-	if Stage.AllModelsStructCreateCallback != nil {
-		Stage.AllModelsStructCreateCallback.CreateORMVisualMap(visualmap)
-	}
-	return _visualmap
-}
-
-// CreateORMVisualMap enables dynamic staging of a VisualMap instance
-func CreateORMVisualMap(visualmap *VisualMap) {
-	visualmap.Stage()
-	if Stage.AllModelsStructCreateCallback != nil {
-		Stage.AllModelsStructCreateCallback.CreateORMVisualMap(visualmap)
-	}
-}
-
-// DeleteORMVisualMap enables dynamic staging of a VisualMap instance
-func DeleteORMVisualMap(visualmap *VisualMap) {
-	visualmap.Unstage()
-	if Stage.AllModelsStructDeleteCallback != nil {
-		Stage.AllModelsStructDeleteCallback.DeleteORMVisualMap(visualmap)
-	}
-}
-
 func (stage *StageStruct) getVisualTrackOrderedStructWithNameField() []*VisualTrack {
 	// have alphabetical order generation
 	visualtrackOrdered := []*VisualTrack{}
@@ -858,20 +858,20 @@ func DeleteORMVisualTrack(visualtrack *VisualTrack) {
 type AllModelsStructCreateInterface interface { // insertion point for Callbacks on creation
 	CreateORMDivIcon(DivIcon *DivIcon)
 	CreateORMLayerGroup(LayerGroup *LayerGroup)
+	CreateORMMapOptions(MapOptions *MapOptions)
 	CreateORMMarker(Marker *Marker)
 	CreateORMVisualCircle(VisualCircle *VisualCircle)
 	CreateORMVisualLine(VisualLine *VisualLine)
-	CreateORMVisualMap(VisualMap *VisualMap)
 	CreateORMVisualTrack(VisualTrack *VisualTrack)
 }
 
 type AllModelsStructDeleteInterface interface { // insertion point for Callbacks on deletion
 	DeleteORMDivIcon(DivIcon *DivIcon)
 	DeleteORMLayerGroup(LayerGroup *LayerGroup)
+	DeleteORMMapOptions(MapOptions *MapOptions)
 	DeleteORMMarker(Marker *Marker)
 	DeleteORMVisualCircle(VisualCircle *VisualCircle)
 	DeleteORMVisualLine(VisualLine *VisualLine)
-	DeleteORMVisualMap(VisualMap *VisualMap)
 	DeleteORMVisualTrack(VisualTrack *VisualTrack)
 }
 
@@ -882,6 +882,9 @@ func (stage *StageStruct) Reset() { // insertion point for array reset
 	stage.LayerGroups = make(map[*LayerGroup]struct{})
 	stage.LayerGroups_mapString = make(map[string]*LayerGroup)
 
+	stage.MapOptionss = make(map[*MapOptions]struct{})
+	stage.MapOptionss_mapString = make(map[string]*MapOptions)
+
 	stage.Markers = make(map[*Marker]struct{})
 	stage.Markers_mapString = make(map[string]*Marker)
 
@@ -890,9 +893,6 @@ func (stage *StageStruct) Reset() { // insertion point for array reset
 
 	stage.VisualLines = make(map[*VisualLine]struct{})
 	stage.VisualLines_mapString = make(map[string]*VisualLine)
-
-	stage.VisualMaps = make(map[*VisualMap]struct{})
-	stage.VisualMaps_mapString = make(map[string]*VisualMap)
 
 	stage.VisualTracks = make(map[*VisualTrack]struct{})
 	stage.VisualTracks_mapString = make(map[string]*VisualTrack)
@@ -906,6 +906,9 @@ func (stage *StageStruct) Nil() { // insertion point for array nil
 	stage.LayerGroups = nil
 	stage.LayerGroups_mapString = nil
 
+	stage.MapOptionss = nil
+	stage.MapOptionss_mapString = nil
+
 	stage.Markers = nil
 	stage.Markers_mapString = nil
 
@@ -914,9 +917,6 @@ func (stage *StageStruct) Nil() { // insertion point for array nil
 
 	stage.VisualLines = nil
 	stage.VisualLines_mapString = nil
-
-	stage.VisualMaps = nil
-	stage.VisualMaps_mapString = nil
 
 	stage.VisualTracks = nil
 	stage.VisualTracks_mapString = nil

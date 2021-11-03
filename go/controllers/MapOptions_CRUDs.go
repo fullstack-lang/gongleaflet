@@ -13,14 +13,14 @@ import (
 )
 
 // declaration in order to justify use of the models import
-var __VisualMap__dummysDeclaration__ models.VisualMap
-var __VisualMap_time__dummyDeclaration time.Duration
+var __MapOptions__dummysDeclaration__ models.MapOptions
+var __MapOptions_time__dummyDeclaration time.Duration
 
-// An VisualMapID parameter model.
+// An MapOptionsID parameter model.
 //
 // This is used for operations that want the ID of an order in the path
-// swagger:parameters getVisualMap updateVisualMap deleteVisualMap
-type VisualMapID struct {
+// swagger:parameters getMapOptions updateMapOptions deleteMapOptions
+type MapOptionsID struct {
 	// The ID of the order
 	//
 	// in: path
@@ -28,30 +28,30 @@ type VisualMapID struct {
 	ID int64
 }
 
-// VisualMapInput is a schema that can validate the user’s
+// MapOptionsInput is a schema that can validate the user’s
 // input to prevent us from getting invalid data
-// swagger:parameters postVisualMap updateVisualMap
-type VisualMapInput struct {
-	// The VisualMap to submit or modify
+// swagger:parameters postMapOptions updateMapOptions
+type MapOptionsInput struct {
+	// The MapOptions to submit or modify
 	// in: body
-	VisualMap *orm.VisualMapAPI
+	MapOptions *orm.MapOptionsAPI
 }
 
-// GetVisualMaps
+// GetMapOptionss
 //
-// swagger:route GET /visualmaps visualmaps getVisualMaps
+// swagger:route GET /mapoptionss mapoptionss getMapOptionss
 //
-// Get all visualmaps
+// Get all mapoptionss
 //
 // Responses:
 //    default: genericError
-//        200: visualmapDBsResponse
-func GetVisualMaps(c *gin.Context) {
-	db := orm.BackRepo.BackRepoVisualMap.GetDB()
+//        200: mapoptionsDBsResponse
+func GetMapOptionss(c *gin.Context) {
+	db := orm.BackRepo.BackRepoMapOptions.GetDB()
 
 	// source slice
-	var visualmapDBs []orm.VisualMapDB
-	query := db.Find(&visualmapDBs)
+	var mapoptionsDBs []orm.MapOptionsDB
+	query := db.Find(&mapoptionsDBs)
 	if query.Error != nil {
 		var returnError GenericError
 		returnError.Body.Code = http.StatusBadRequest
@@ -62,29 +62,29 @@ func GetVisualMaps(c *gin.Context) {
 	}
 
 	// slice that will be transmitted to the front
-	visualmapAPIs := make([]orm.VisualMapAPI, 0)
+	mapoptionsAPIs := make([]orm.MapOptionsAPI, 0)
 
-	// for each visualmap, update fields from the database nullable fields
-	for idx := range visualmapDBs {
-		visualmapDB := &visualmapDBs[idx]
-		_ = visualmapDB
-		var visualmapAPI orm.VisualMapAPI
+	// for each mapoptions, update fields from the database nullable fields
+	for idx := range mapoptionsDBs {
+		mapoptionsDB := &mapoptionsDBs[idx]
+		_ = mapoptionsDB
+		var mapoptionsAPI orm.MapOptionsAPI
 
 		// insertion point for updating fields
-		visualmapAPI.ID = visualmapDB.ID
-		visualmapDB.CopyBasicFieldsToVisualMap(&visualmapAPI.VisualMap)
-		visualmapAPI.VisualMapPointersEnconding = visualmapDB.VisualMapPointersEnconding
-		visualmapAPIs = append(visualmapAPIs, visualmapAPI)
+		mapoptionsAPI.ID = mapoptionsDB.ID
+		mapoptionsDB.CopyBasicFieldsToMapOptions(&mapoptionsAPI.MapOptions)
+		mapoptionsAPI.MapOptionsPointersEnconding = mapoptionsDB.MapOptionsPointersEnconding
+		mapoptionsAPIs = append(mapoptionsAPIs, mapoptionsAPI)
 	}
 
-	c.JSON(http.StatusOK, visualmapAPIs)
+	c.JSON(http.StatusOK, mapoptionsAPIs)
 }
 
-// PostVisualMap
+// PostMapOptions
 //
-// swagger:route POST /visualmaps visualmaps postVisualMap
+// swagger:route POST /mapoptionss mapoptionss postMapOptions
 //
-// Creates a visualmap
+// Creates a mapoptions
 //     Consumes:
 //     - application/json
 //
@@ -92,12 +92,12 @@ func GetVisualMaps(c *gin.Context) {
 //     - application/json
 //
 //     Responses:
-//       200: visualmapDBResponse
-func PostVisualMap(c *gin.Context) {
-	db := orm.BackRepo.BackRepoVisualMap.GetDB()
+//       200: mapoptionsDBResponse
+func PostMapOptions(c *gin.Context) {
+	db := orm.BackRepo.BackRepoMapOptions.GetDB()
 
 	// Validate input
-	var input orm.VisualMapAPI
+	var input orm.MapOptionsAPI
 
 	err := c.ShouldBindJSON(&input)
 	if err != nil {
@@ -109,12 +109,12 @@ func PostVisualMap(c *gin.Context) {
 		return
 	}
 
-	// Create visualmap
-	visualmapDB := orm.VisualMapDB{}
-	visualmapDB.VisualMapPointersEnconding = input.VisualMapPointersEnconding
-	visualmapDB.CopyBasicFieldsFromVisualMap(&input.VisualMap)
+	// Create mapoptions
+	mapoptionsDB := orm.MapOptionsDB{}
+	mapoptionsDB.MapOptionsPointersEnconding = input.MapOptionsPointersEnconding
+	mapoptionsDB.CopyBasicFieldsFromMapOptions(&input.MapOptions)
 
-	query := db.Create(&visualmapDB)
+	query := db.Create(&mapoptionsDB)
 	if query.Error != nil {
 		var returnError GenericError
 		returnError.Body.Code = http.StatusBadRequest
@@ -128,24 +128,24 @@ func PostVisualMap(c *gin.Context) {
 	// (this will be improved with implementation of unit of work design pattern)
 	orm.BackRepo.IncrementPushFromFrontNb()
 
-	c.JSON(http.StatusOK, visualmapDB)
+	c.JSON(http.StatusOK, mapoptionsDB)
 }
 
-// GetVisualMap
+// GetMapOptions
 //
-// swagger:route GET /visualmaps/{ID} visualmaps getVisualMap
+// swagger:route GET /mapoptionss/{ID} mapoptionss getMapOptions
 //
-// Gets the details for a visualmap.
+// Gets the details for a mapoptions.
 //
 // Responses:
 //    default: genericError
-//        200: visualmapDBResponse
-func GetVisualMap(c *gin.Context) {
-	db := orm.BackRepo.BackRepoVisualMap.GetDB()
+//        200: mapoptionsDBResponse
+func GetMapOptions(c *gin.Context) {
+	db := orm.BackRepo.BackRepoMapOptions.GetDB()
 
-	// Get visualmapDB in DB
-	var visualmapDB orm.VisualMapDB
-	if err := db.First(&visualmapDB, c.Param("id")).Error; err != nil {
+	// Get mapoptionsDB in DB
+	var mapoptionsDB orm.MapOptionsDB
+	if err := db.First(&mapoptionsDB, c.Param("id")).Error; err != nil {
 		var returnError GenericError
 		returnError.Body.Code = http.StatusBadRequest
 		returnError.Body.Message = err.Error()
@@ -154,31 +154,31 @@ func GetVisualMap(c *gin.Context) {
 		return
 	}
 
-	var visualmapAPI orm.VisualMapAPI
-	visualmapAPI.ID = visualmapDB.ID
-	visualmapAPI.VisualMapPointersEnconding = visualmapDB.VisualMapPointersEnconding
-	visualmapDB.CopyBasicFieldsToVisualMap(&visualmapAPI.VisualMap)
+	var mapoptionsAPI orm.MapOptionsAPI
+	mapoptionsAPI.ID = mapoptionsDB.ID
+	mapoptionsAPI.MapOptionsPointersEnconding = mapoptionsDB.MapOptionsPointersEnconding
+	mapoptionsDB.CopyBasicFieldsToMapOptions(&mapoptionsAPI.MapOptions)
 
-	c.JSON(http.StatusOK, visualmapAPI)
+	c.JSON(http.StatusOK, mapoptionsAPI)
 }
 
-// UpdateVisualMap
+// UpdateMapOptions
 //
-// swagger:route PATCH /visualmaps/{ID} visualmaps updateVisualMap
+// swagger:route PATCH /mapoptionss/{ID} mapoptionss updateMapOptions
 //
-// Update a visualmap
+// Update a mapoptions
 //
 // Responses:
 //    default: genericError
-//        200: visualmapDBResponse
-func UpdateVisualMap(c *gin.Context) {
-	db := orm.BackRepo.BackRepoVisualMap.GetDB()
+//        200: mapoptionsDBResponse
+func UpdateMapOptions(c *gin.Context) {
+	db := orm.BackRepo.BackRepoMapOptions.GetDB()
 
 	// Get model if exist
-	var visualmapDB orm.VisualMapDB
+	var mapoptionsDB orm.MapOptionsDB
 
-	// fetch the visualmap
-	query := db.First(&visualmapDB, c.Param("id"))
+	// fetch the mapoptions
+	query := db.First(&mapoptionsDB, c.Param("id"))
 
 	if query.Error != nil {
 		var returnError GenericError
@@ -190,7 +190,7 @@ func UpdateVisualMap(c *gin.Context) {
 	}
 
 	// Validate input
-	var input orm.VisualMapAPI
+	var input orm.MapOptionsAPI
 	if err := c.ShouldBindJSON(&input); err != nil {
 		log.Println(err.Error())
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -198,10 +198,10 @@ func UpdateVisualMap(c *gin.Context) {
 	}
 
 	// update
-	visualmapDB.CopyBasicFieldsFromVisualMap(&input.VisualMap)
-	visualmapDB.VisualMapPointersEnconding = input.VisualMapPointersEnconding
+	mapoptionsDB.CopyBasicFieldsFromMapOptions(&input.MapOptions)
+	mapoptionsDB.MapOptionsPointersEnconding = input.MapOptionsPointersEnconding
 
-	query = db.Model(&visualmapDB).Updates(visualmapDB)
+	query = db.Model(&mapoptionsDB).Updates(mapoptionsDB)
 	if query.Error != nil {
 		var returnError GenericError
 		returnError.Body.Code = http.StatusBadRequest
@@ -215,24 +215,24 @@ func UpdateVisualMap(c *gin.Context) {
 	// (this will be improved with implementation of unit of work design pattern)
 	orm.BackRepo.IncrementPushFromFrontNb()
 
-	// return status OK with the marshalling of the the visualmapDB
-	c.JSON(http.StatusOK, visualmapDB)
+	// return status OK with the marshalling of the the mapoptionsDB
+	c.JSON(http.StatusOK, mapoptionsDB)
 }
 
-// DeleteVisualMap
+// DeleteMapOptions
 //
-// swagger:route DELETE /visualmaps/{ID} visualmaps deleteVisualMap
+// swagger:route DELETE /mapoptionss/{ID} mapoptionss deleteMapOptions
 //
-// Delete a visualmap
+// Delete a mapoptions
 //
 // Responses:
 //    default: genericError
-func DeleteVisualMap(c *gin.Context) {
-	db := orm.BackRepo.BackRepoVisualMap.GetDB()
+func DeleteMapOptions(c *gin.Context) {
+	db := orm.BackRepo.BackRepoMapOptions.GetDB()
 
 	// Get model if exist
-	var visualmapDB orm.VisualMapDB
-	if err := db.First(&visualmapDB, c.Param("id")).Error; err != nil {
+	var mapoptionsDB orm.MapOptionsDB
+	if err := db.First(&mapoptionsDB, c.Param("id")).Error; err != nil {
 		var returnError GenericError
 		returnError.Body.Code = http.StatusBadRequest
 		returnError.Body.Message = err.Error()
@@ -242,7 +242,7 @@ func DeleteVisualMap(c *gin.Context) {
 	}
 
 	// with gorm.Model field, default delete is a soft delete. Unscoped() force delete
-	db.Unscoped().Delete(&visualmapDB)
+	db.Unscoped().Delete(&mapoptionsDB)
 
 	// a DELETE generates a back repo commit increase
 	// (this will be improved with implementation of unit of work design pattern)

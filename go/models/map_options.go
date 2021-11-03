@@ -1,9 +1,9 @@
 package models
 
-// VisualMap provides all necessary elements to the front to display a track
+// MapOptions provides all necessary elements to the front to display a track
 //
 // swagger:model visualmap
-type VisualMap struct {
+type MapOptions struct {
 	Lat, Lng  float64 // map center
 	Name      string
 	ZoomLevel float64 // zoom level at the initialisation

@@ -84,11 +84,11 @@ export class CartoatcComponent implements OnInit {
       frontRepo => {
         this.frontRepo = frontRepo
 
-        let mapOptions = Array.from(this.frontRepo.VisualMaps.values())[0]
+        let mapOptions = Array.from(this.frontRepo.MapOptionss.values())[0]
 
         // if the map name is set, then map options might differ
         if (this.mapName != "") {
-          for (let visualMap of this.frontRepo.VisualMaps.values()) {
+          for (let visualMap of this.frontRepo.MapOptionss.values()) {
             if (visualMap.Name == this.mapName) {
               mapOptions = visualMap
             }
