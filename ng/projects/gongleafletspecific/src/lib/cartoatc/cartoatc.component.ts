@@ -28,6 +28,7 @@ export class CartoatcComponent implements OnInit {
 
   // name of the initial map
   @Input() mapName: string = ""
+  gongleafletMapOptions? : gongleaflet.MapOptionsDB
 
   // current map
   currentMap?: L.Map
@@ -88,9 +89,10 @@ export class CartoatcComponent implements OnInit {
 
         // if the map name is set, then map options might differ
         if (this.mapName != "") {
-          for (let visualMap of this.frontRepo.MapOptionss.values()) {
-            if (visualMap.Name == this.mapName) {
-              mapOptions = visualMap
+          for (let gongleafletMapOptions of this.frontRepo.MapOptionss.values()) {
+            if (gongleafletMapOptions.Name == this.mapName) {
+              this.gongleafletMapOptions = gongleafletMapOptions
+              mapOptions = gongleafletMapOptions
             }
           }
 

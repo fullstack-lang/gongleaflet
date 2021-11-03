@@ -209,7 +209,7 @@ func main() {
 	Map1.ZoomSnap = 1.0
 	Map1.MaxZoom = 18.0
 	Map1.Lat = 45
-	Map1.Lng = 4
+	Map1.Lng = 5
 
 	Map2 := new(gongleaflet_models.MapOptions).Stage()
 	Map2.Name = "Map2"
@@ -219,7 +219,7 @@ func main() {
 	Map2.ZoomSnap = 1.0
 	Map2.MaxZoom = 18.0
 	Map2.Lat = 45
-	Map2.Lng = 4
+	Map2.Lng = 3
 
 	//
 	// Tracks

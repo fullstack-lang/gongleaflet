@@ -1,7 +1,7 @@
 <div id="atcmapid">
     <ng-container *ngIf="mapOptions">
         <div style="height:100%;width:100%;" leaflet [leafletOptions]="mapOptions">
-            <markers-component></markers-component>
+            <markers-component [mapName]="mapName"></markers-component>
             <app-cartoatc-circles></app-cartoatc-circles>
             <app-cartoatc-lines></app-cartoatc-lines>
             <div [leafletLayers]="rootOfLayerGroups"></div>

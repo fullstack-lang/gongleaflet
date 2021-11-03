@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 
 import * as gongleaflet from 'gongleaflet';
 
@@ -13,7 +13,10 @@ import { Router } from '@angular/router';
   templateUrl: './markers.component.html',
   styleUrls: ['./markers.component.scss'],
 })
-export class MarkersComponent implements OnInit {
+export class MarkersComponent implements OnInit, OnChanges {
+
+  // mapMap
+  @Input() mapName!: string
 
   // store relation between the Markers & the markers
   mapMarkerID_LeafletMarker = new Map<number, L.Marker>();
@@ -30,10 +33,26 @@ export class MarkersComponent implements OnInit {
   // map between a gong layerGroup ID and a leaflet L.LayerGroup
   mapGongLayerGroupID_LayerGroup = new Map<number, L.LayerGroup<L.Marker>>();
 
+  ngOnChanges(changes: SimpleChanges) {
+    const log: string[] = [];
+    for (const propName in changes) {
+      const changedProp = changes[propName];
+      const to = JSON.stringify(changedProp.currentValue);
+      if (changedProp.isFirstChange()) {
+        console.log(`Initial value of ${propName} set to ${to}`)
+        log.push(`Initial value of ${propName} set to ${to}`);
+      } else {
+        const from = JSON.stringify(changedProp.previousValue);
+        console.log(`${propName} changed from ${from} to ${to}`)
+        log.push(`${propName} changed from ${from} to ${to}`);
+      }
+    }
+  }
+
   constructor(
     private gongleafletFrontRepoService: gongleaflet.FrontRepoService,
     private markerService: gongleaflet.MarkerService,
-  ) {   }
+  ) { }
 
   ngOnInit(): void {
     this.refreshMapWithMarkers()
