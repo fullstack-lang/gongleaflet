@@ -10,7 +10,6 @@ import { GongleafletspecificComponent } from './gongleafletspecific.component';
 import { MapoptionsComponent } from './mapoptions/mapoptions.component';
 // Leaflet
 import { LeafletModule } from '@asymmetrik/ngx-leaflet';
-import { MarkersComponent } from './mapoptions/markers/markers.component';
 import { CartoatcControlSettingsComponent } from './mapoptions/cartoatc-control-settings/cartoatc-control-settings.component';
 // Material UI
 import { MatButtonModule } from '@angular/material/button';
@@ -23,7 +22,6 @@ import { MatIconModule } from '@angular/material/icon';
     GongleafletspecificComponent,
 
     MapoptionsComponent,
-    MarkersComponent,
     CartoatcControlSettingsComponent,
 
   ],
@@ -41,7 +39,6 @@ import { MatIconModule } from '@angular/material/icon';
     GongleafletspecificComponent,
 
     MapoptionsComponent,
-    MarkersComponent,
     CartoatcControlSettingsComponent,
   ],
 })
