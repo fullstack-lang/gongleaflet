@@ -16,12 +16,12 @@ import { LayerGroupService } from '../layergroup.service'
 import { getLayerGroupUniqueID } from '../front-repo.service'
 import { LayerGroupUseService } from '../layergroupuse.service'
 import { getLayerGroupUseUniqueID } from '../front-repo.service'
+import { LineService } from '../line.service'
+import { getLineUniqueID } from '../front-repo.service'
 import { MapOptionsService } from '../mapoptions.service'
 import { getMapOptionsUniqueID } from '../front-repo.service'
 import { MarkerService } from '../marker.service'
 import { getMarkerUniqueID } from '../front-repo.service'
-import { VisualLineService } from '../visualline.service'
-import { getVisualLineUniqueID } from '../front-repo.service'
 import { VisualTrackService } from '../visualtrack.service'
 import { getVisualTrackUniqueID } from '../front-repo.service'
 
@@ -163,9 +163,9 @@ export class SidebarComponent implements OnInit {
     private diviconService: DivIconService,
     private layergroupService: LayerGroupService,
     private layergroupuseService: LayerGroupUseService,
+    private lineService: LineService,
     private mapoptionsService: MapOptionsService,
     private markerService: MarkerService,
-    private visuallineService: VisualLineService,
     private visualtrackService: VisualTrackService,
   ) { }
 
@@ -206,6 +206,14 @@ export class SidebarComponent implements OnInit {
       }
     )
     // observable for changes in structs
+    this.lineService.LineServiceChanged.subscribe(
+      message => {
+        if (message == "post" || message == "update" || message == "delete") {
+          this.refresh()
+        }
+      }
+    )
+    // observable for changes in structs
     this.mapoptionsService.MapOptionsServiceChanged.subscribe(
       message => {
         if (message == "post" || message == "update" || message == "delete") {
@@ -215,14 +223,6 @@ export class SidebarComponent implements OnInit {
     )
     // observable for changes in structs
     this.markerService.MarkerServiceChanged.subscribe(
-      message => {
-        if (message == "post" || message == "update" || message == "delete") {
-          this.refresh()
-        }
-      }
-    )
-    // observable for changes in structs
-    this.visuallineService.VisualLineServiceChanged.subscribe(
       message => {
         if (message == "post" || message == "update" || message == "delete") {
           this.refresh()
@@ -508,6 +508,85 @@ export class SidebarComponent implements OnInit {
       )
 
       /**
+      * fill up the Line part of the mat tree
+      */
+      let lineGongNodeStruct: GongNode = {
+        name: "Line",
+        type: GongNodeType.STRUCT,
+        id: 0,
+        uniqueIdPerStack: 13 * nonInstanceNodeId,
+        structName: "Line",
+        associationField: "",
+        associatedStructName: "",
+        children: new Array<GongNode>()
+      }
+      nonInstanceNodeId = nonInstanceNodeId + 1
+      this.gongNodeTree.push(lineGongNodeStruct)
+
+      this.frontRepo.Lines_array.sort((t1, t2) => {
+        if (t1.Name > t2.Name) {
+          return 1;
+        }
+        if (t1.Name < t2.Name) {
+          return -1;
+        }
+        return 0;
+      });
+
+      this.frontRepo.Lines_array.forEach(
+        lineDB => {
+          let lineGongNodeInstance: GongNode = {
+            name: lineDB.Name,
+            type: GongNodeType.INSTANCE,
+            id: lineDB.ID,
+            uniqueIdPerStack: getLineUniqueID(lineDB.ID),
+            structName: "Line",
+            associationField: "",
+            associatedStructName: "",
+            children: new Array<GongNode>()
+          }
+          lineGongNodeStruct.children!.push(lineGongNodeInstance)
+
+          // insertion point for per field code
+          /**
+          * let append a node for the association LayerGroup
+          */
+          let LayerGroupGongNodeAssociation: GongNode = {
+            name: "(LayerGroup) LayerGroup",
+            type: GongNodeType.ONE__ZERO_ONE_ASSOCIATION,
+            id: lineDB.ID,
+            uniqueIdPerStack: 17 * nonInstanceNodeId,
+            structName: "Line",
+            associationField: "LayerGroup",
+            associatedStructName: "LayerGroup",
+            children: new Array<GongNode>()
+          }
+          nonInstanceNodeId = nonInstanceNodeId + 1
+          lineGongNodeInstance.children!.push(LayerGroupGongNodeAssociation)
+
+          /**
+            * let append a node for the instance behind the asssociation LayerGroup
+            */
+          if (lineDB.LayerGroup != undefined) {
+            let lineGongNodeInstance_LayerGroup: GongNode = {
+              name: lineDB.LayerGroup.Name,
+              type: GongNodeType.INSTANCE,
+              id: lineDB.LayerGroup.ID,
+              uniqueIdPerStack: // godel numbering (thank you kurt)
+                3 * getLineUniqueID(lineDB.ID)
+                + 5 * getLayerGroupUniqueID(lineDB.LayerGroup.ID),
+              structName: "LayerGroup",
+              associationField: "",
+              associatedStructName: "",
+              children: new Array<GongNode>()
+            }
+            LayerGroupGongNodeAssociation.children.push(lineGongNodeInstance_LayerGroup)
+          }
+
+        }
+      )
+
+      /**
       * fill up the MapOptions part of the mat tree
       */
       let mapoptionsGongNodeStruct: GongNode = {
@@ -660,85 +739,6 @@ export class SidebarComponent implements OnInit {
               children: new Array<GongNode>()
             }
             DivIconGongNodeAssociation.children.push(markerGongNodeInstance_DivIcon)
-          }
-
-        }
-      )
-
-      /**
-      * fill up the VisualLine part of the mat tree
-      */
-      let visuallineGongNodeStruct: GongNode = {
-        name: "VisualLine",
-        type: GongNodeType.STRUCT,
-        id: 0,
-        uniqueIdPerStack: 13 * nonInstanceNodeId,
-        structName: "VisualLine",
-        associationField: "",
-        associatedStructName: "",
-        children: new Array<GongNode>()
-      }
-      nonInstanceNodeId = nonInstanceNodeId + 1
-      this.gongNodeTree.push(visuallineGongNodeStruct)
-
-      this.frontRepo.VisualLines_array.sort((t1, t2) => {
-        if (t1.Name > t2.Name) {
-          return 1;
-        }
-        if (t1.Name < t2.Name) {
-          return -1;
-        }
-        return 0;
-      });
-
-      this.frontRepo.VisualLines_array.forEach(
-        visuallineDB => {
-          let visuallineGongNodeInstance: GongNode = {
-            name: visuallineDB.Name,
-            type: GongNodeType.INSTANCE,
-            id: visuallineDB.ID,
-            uniqueIdPerStack: getVisualLineUniqueID(visuallineDB.ID),
-            structName: "VisualLine",
-            associationField: "",
-            associatedStructName: "",
-            children: new Array<GongNode>()
-          }
-          visuallineGongNodeStruct.children!.push(visuallineGongNodeInstance)
-
-          // insertion point for per field code
-          /**
-          * let append a node for the association LayerGroup
-          */
-          let LayerGroupGongNodeAssociation: GongNode = {
-            name: "(LayerGroup) LayerGroup",
-            type: GongNodeType.ONE__ZERO_ONE_ASSOCIATION,
-            id: visuallineDB.ID,
-            uniqueIdPerStack: 17 * nonInstanceNodeId,
-            structName: "VisualLine",
-            associationField: "LayerGroup",
-            associatedStructName: "LayerGroup",
-            children: new Array<GongNode>()
-          }
-          nonInstanceNodeId = nonInstanceNodeId + 1
-          visuallineGongNodeInstance.children!.push(LayerGroupGongNodeAssociation)
-
-          /**
-            * let append a node for the instance behind the asssociation LayerGroup
-            */
-          if (visuallineDB.LayerGroup != undefined) {
-            let visuallineGongNodeInstance_LayerGroup: GongNode = {
-              name: visuallineDB.LayerGroup.Name,
-              type: GongNodeType.INSTANCE,
-              id: visuallineDB.LayerGroup.ID,
-              uniqueIdPerStack: // godel numbering (thank you kurt)
-                3 * getVisualLineUniqueID(visuallineDB.ID)
-                + 5 * getLayerGroupUniqueID(visuallineDB.LayerGroup.ID),
-              structName: "LayerGroup",
-              associationField: "",
-              associatedStructName: "",
-              children: new Array<GongNode>()
-            }
-            LayerGroupGongNodeAssociation.children.push(visuallineGongNodeInstance_LayerGroup)
           }
 
         }

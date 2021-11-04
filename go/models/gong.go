@@ -24,14 +24,14 @@ type StageStruct struct { // insertion point for definition of arrays registerin
 	LayerGroupUses           map[*LayerGroupUse]struct{}
 	LayerGroupUses_mapString map[string]*LayerGroupUse
 
+	Lines           map[*Line]struct{}
+	Lines_mapString map[string]*Line
+
 	MapOptionss           map[*MapOptions]struct{}
 	MapOptionss_mapString map[string]*MapOptions
 
 	Markers           map[*Marker]struct{}
 	Markers_mapString map[string]*Marker
-
-	VisualLines           map[*VisualLine]struct{}
-	VisualLines_mapString map[string]*VisualLine
 
 	VisualTracks           map[*VisualTrack]struct{}
 	VisualTracks_mapString map[string]*VisualTrack
@@ -66,12 +66,12 @@ type BackRepoInterface interface {
 	CheckoutLayerGroup(layergroup *LayerGroup)
 	CommitLayerGroupUse(layergroupuse *LayerGroupUse)
 	CheckoutLayerGroupUse(layergroupuse *LayerGroupUse)
+	CommitLine(line *Line)
+	CheckoutLine(line *Line)
 	CommitMapOptions(mapoptions *MapOptions)
 	CheckoutMapOptions(mapoptions *MapOptions)
 	CommitMarker(marker *Marker)
 	CheckoutMarker(marker *Marker)
-	CommitVisualLine(visualline *VisualLine)
-	CheckoutVisualLine(visualline *VisualLine)
 	CommitVisualTrack(visualtrack *VisualTrack)
 	CheckoutVisualTrack(visualtrack *VisualTrack)
 	GetLastCommitNb() uint
@@ -92,14 +92,14 @@ var Stage StageStruct = StageStruct{ // insertion point for array initiatialisat
 	LayerGroupUses:           make(map[*LayerGroupUse]struct{}),
 	LayerGroupUses_mapString: make(map[string]*LayerGroupUse),
 
+	Lines:           make(map[*Line]struct{}),
+	Lines_mapString: make(map[string]*Line),
+
 	MapOptionss:           make(map[*MapOptions]struct{}),
 	MapOptionss_mapString: make(map[string]*MapOptions),
 
 	Markers:           make(map[*Marker]struct{}),
 	Markers_mapString: make(map[string]*Marker),
-
-	VisualLines:           make(map[*VisualLine]struct{}),
-	VisualLines_mapString: make(map[string]*VisualLine),
 
 	VisualTracks:           make(map[*VisualTrack]struct{}),
 	VisualTracks_mapString: make(map[string]*VisualTrack),
@@ -556,6 +556,108 @@ func DeleteORMLayerGroupUse(layergroupuse *LayerGroupUse) {
 	}
 }
 
+func (stage *StageStruct) getLineOrderedStructWithNameField() []*Line {
+	// have alphabetical order generation
+	lineOrdered := []*Line{}
+	for line := range stage.Lines {
+		lineOrdered = append(lineOrdered, line)
+	}
+	sort.Slice(lineOrdered[:], func(i, j int) bool {
+		return lineOrdered[i].Name < lineOrdered[j].Name
+	})
+	return lineOrdered
+}
+
+// Stage puts line to the model stage
+func (line *Line) Stage() *Line {
+	Stage.Lines[line] = __member
+	Stage.Lines_mapString[line.Name] = line
+
+	return line
+}
+
+// Unstage removes line off the model stage
+func (line *Line) Unstage() *Line {
+	delete(Stage.Lines, line)
+	delete(Stage.Lines_mapString, line.Name)
+	return line
+}
+
+// commit line to the back repo (if it is already staged)
+func (line *Line) Commit() *Line {
+	if _, ok := Stage.Lines[line]; ok {
+		if Stage.BackRepo != nil {
+			Stage.BackRepo.CommitLine(line)
+		}
+	}
+	return line
+}
+
+// Checkout line to the back repo (if it is already staged)
+func (line *Line) Checkout() *Line {
+	if _, ok := Stage.Lines[line]; ok {
+		if Stage.BackRepo != nil {
+			Stage.BackRepo.CheckoutLine(line)
+		}
+	}
+	return line
+}
+
+//
+// Legacy, to be deleted
+//
+
+// StageCopy appends a copy of line to the model stage
+func (line *Line) StageCopy() *Line {
+	_line := new(Line)
+	*_line = *line
+	_line.Stage()
+	return _line
+}
+
+// StageAndCommit appends line to the model stage and commit to the orm repo
+func (line *Line) StageAndCommit() *Line {
+	line.Stage()
+	if Stage.AllModelsStructCreateCallback != nil {
+		Stage.AllModelsStructCreateCallback.CreateORMLine(line)
+	}
+	return line
+}
+
+// DeleteStageAndCommit appends line to the model stage and commit to the orm repo
+func (line *Line) DeleteStageAndCommit() *Line {
+	line.Unstage()
+	DeleteORMLine(line)
+	return line
+}
+
+// StageCopyAndCommit appends a copy of line to the model stage and commit to the orm repo
+func (line *Line) StageCopyAndCommit() *Line {
+	_line := new(Line)
+	*_line = *line
+	_line.Stage()
+	if Stage.AllModelsStructCreateCallback != nil {
+		Stage.AllModelsStructCreateCallback.CreateORMLine(line)
+	}
+	return _line
+}
+
+// CreateORMLine enables dynamic staging of a Line instance
+func CreateORMLine(line *Line) {
+	line.Stage()
+	if Stage.AllModelsStructCreateCallback != nil {
+		Stage.AllModelsStructCreateCallback.CreateORMLine(line)
+	}
+}
+
+// DeleteORMLine enables dynamic staging of a Line instance
+func DeleteORMLine(line *Line) {
+	line.Unstage()
+	if Stage.AllModelsStructDeleteCallback != nil {
+		Stage.AllModelsStructDeleteCallback.DeleteORMLine(line)
+	}
+}
+
 func (stage *StageStruct) getMapOptionsOrderedStructWithNameField() []*MapOptions {
 	// have alphabetical order generation
 	mapoptionsOrdered := []*MapOptions{}
@@ -760,108 +862,6 @@ func DeleteORMMarker(marker *Marker) {
 	}
 }
 
-func (stage *StageStruct) getVisualLineOrderedStructWithNameField() []*VisualLine {
-	// have alphabetical order generation
-	visuallineOrdered := []*VisualLine{}
-	for visualline := range stage.VisualLines {
-		visuallineOrdered = append(visuallineOrdered, visualline)
-	}
-	sort.Slice(visuallineOrdered[:], func(i, j int) bool {
-		return visuallineOrdered[i].Name < visuallineOrdered[j].Name
-	})
-	return visuallineOrdered
-}
-
-// Stage puts visualline to the model stage
-func (visualline *VisualLine) Stage() *VisualLine {
-	Stage.VisualLines[visualline] = __member
-	Stage.VisualLines_mapString[visualline.Name] = visualline
-
-	return visualline
-}
-
-// Unstage removes visualline off the model stage
-func (visualline *VisualLine) Unstage() *VisualLine {
-	delete(Stage.VisualLines, visualline)
-	delete(Stage.VisualLines_mapString, visualline.Name)
-	return visualline
-}
-
-// commit visualline to the back repo (if it is already staged)
-func (visualline *VisualLine) Commit() *VisualLine {
-	if _, ok := Stage.VisualLines[visualline]; ok {
-		if Stage.BackRepo != nil {
-			Stage.BackRepo.CommitVisualLine(visualline)
-		}
-	}
-	return visualline
-}
-
-// Checkout visualline to the back repo (if it is already staged)
-func (visualline *VisualLine) Checkout() *VisualLine {
-	if _, ok := Stage.VisualLines[visualline]; ok {
-		if Stage.BackRepo != nil {
-			Stage.BackRepo.CheckoutVisualLine(visualline)
-		}
-	}
-	return visualline
-}
-
-//
-// Legacy, to be deleted
-//
-
-// StageCopy appends a copy of visualline to the model stage
-func (visualline *VisualLine) StageCopy() *VisualLine {
-	_visualline := new(VisualLine)
-	*_visualline = *visualline
-	_visualline.Stage()
-	return _visualline
-}
-
-// StageAndCommit appends visualline to the model stage and commit to the orm repo
-func (visualline *VisualLine) StageAndCommit() *VisualLine {
-	visualline.Stage()
-	if Stage.AllModelsStructCreateCallback != nil {
-		Stage.AllModelsStructCreateCallback.CreateORMVisualLine(visualline)
-	}
-	return visualline
-}
-
-// DeleteStageAndCommit appends visualline to the model stage and commit to the orm repo
-func (visualline *VisualLine) DeleteStageAndCommit() *VisualLine {
-	visualline.Unstage()
-	DeleteORMVisualLine(visualline)
-	return visualline
-}
-
-// StageCopyAndCommit appends a copy of visualline to the model stage and commit to the orm repo
-func (visualline *VisualLine) StageCopyAndCommit() *VisualLine {
-	_visualline := new(VisualLine)
-	*_visualline = *visualline
-	_visualline.Stage()
-	if Stage.AllModelsStructCreateCallback != nil {
-		Stage.AllModelsStructCreateCallback.CreateORMVisualLine(visualline)
-	}
-	return _visualline
-}
-
-// CreateORMVisualLine enables dynamic staging of a VisualLine instance
-func CreateORMVisualLine(visualline *VisualLine) {
-	visualline.Stage()
-	if Stage.AllModelsStructCreateCallback != nil {
-		Stage.AllModelsStructCreateCallback.CreateORMVisualLine(visualline)
-	}
-}
-
-// DeleteORMVisualLine enables dynamic staging of a VisualLine instance
-func DeleteORMVisualLine(visualline *VisualLine) {
-	visualline.Unstage()
-	if Stage.AllModelsStructDeleteCallback != nil {
-		Stage.AllModelsStructDeleteCallback.DeleteORMVisualLine(visualline)
-	}
-}
-
 func (stage *StageStruct) getVisualTrackOrderedStructWithNameField() []*VisualTrack {
 	// have alphabetical order generation
 	visualtrackOrdered := []*VisualTrack{}
@@ -970,9 +970,9 @@ type AllModelsStructCreateInterface interface { // insertion point for Callbacks
 	CreateORMDivIcon(DivIcon *DivIcon)
 	CreateORMLayerGroup(LayerGroup *LayerGroup)
 	CreateORMLayerGroupUse(LayerGroupUse *LayerGroupUse)
+	CreateORMLine(Line *Line)
 	CreateORMMapOptions(MapOptions *MapOptions)
 	CreateORMMarker(Marker *Marker)
-	CreateORMVisualLine(VisualLine *VisualLine)
 	CreateORMVisualTrack(VisualTrack *VisualTrack)
 }
 
@@ -981,9 +981,9 @@ type AllModelsStructDeleteInterface interface { // insertion point for Callbacks
 	DeleteORMDivIcon(DivIcon *DivIcon)
 	DeleteORMLayerGroup(LayerGroup *LayerGroup)
 	DeleteORMLayerGroupUse(LayerGroupUse *LayerGroupUse)
+	DeleteORMLine(Line *Line)
 	DeleteORMMapOptions(MapOptions *MapOptions)
 	DeleteORMMarker(Marker *Marker)
-	DeleteORMVisualLine(VisualLine *VisualLine)
 	DeleteORMVisualTrack(VisualTrack *VisualTrack)
 }
 
@@ -1000,14 +1000,14 @@ func (stage *StageStruct) Reset() { // insertion point for array reset
 	stage.LayerGroupUses = make(map[*LayerGroupUse]struct{})
 	stage.LayerGroupUses_mapString = make(map[string]*LayerGroupUse)
 
+	stage.Lines = make(map[*Line]struct{})
+	stage.Lines_mapString = make(map[string]*Line)
+
 	stage.MapOptionss = make(map[*MapOptions]struct{})
 	stage.MapOptionss_mapString = make(map[string]*MapOptions)
 
 	stage.Markers = make(map[*Marker]struct{})
 	stage.Markers_mapString = make(map[string]*Marker)
-
-	stage.VisualLines = make(map[*VisualLine]struct{})
-	stage.VisualLines_mapString = make(map[string]*VisualLine)
 
 	stage.VisualTracks = make(map[*VisualTrack]struct{})
 	stage.VisualTracks_mapString = make(map[string]*VisualTrack)
@@ -1027,14 +1027,14 @@ func (stage *StageStruct) Nil() { // insertion point for array nil
 	stage.LayerGroupUses = nil
 	stage.LayerGroupUses_mapString = nil
 
+	stage.Lines = nil
+	stage.Lines_mapString = nil
+
 	stage.MapOptionss = nil
 	stage.MapOptionss_mapString = nil
 
 	stage.Markers = nil
 	stage.Markers_mapString = nil
-
-	stage.VisualLines = nil
-	stage.VisualLines_mapString = nil
 
 	stage.VisualTracks = nil
 	stage.VisualTracks_mapString = nil

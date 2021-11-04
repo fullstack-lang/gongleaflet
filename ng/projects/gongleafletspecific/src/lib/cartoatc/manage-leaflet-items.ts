@@ -108,18 +108,18 @@ const newCircle = (circle: gongleaflet.CircleDB): L.Circle => {
   });
 };
 
-const setLine = (newVisualLineData: gongleaflet.VisualLineDB): L.Polyline => {
+const setLine = (newLineData: gongleaflet.LineDB): L.Polyline => {
   return new L.Polyline([])
     .setLatLngs([
-      L.latLng(newVisualLineData.StartLat, newVisualLineData.StartLng),
-      L.latLng(newVisualLineData.EndLat, newVisualLineData.EndLng),
+      L.latLng(newLineData.StartLat, newLineData.StartLng),
+      L.latLng(newLineData.EndLat, newLineData.EndLng),
     ])
     .setStyle({
-      className: 'layer-' + newVisualLineData.LayerGroupID.Int64,
+      className: 'layer-' + newLineData.LayerGroupID.Int64,
       weight: 2,
-      dashArray: getDashStyle(newVisualLineData.DashStyleEnum),
+      dashArray: getDashStyle(newLineData.DashStyleEnum),
       opacity: 0.5,
-      color: getColor(newVisualLineData.ColorEnum),
+      color: getColor(newLineData.ColorEnum),
     });
 };
 

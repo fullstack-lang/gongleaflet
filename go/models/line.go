@@ -1,9 +1,9 @@
 package models
 
-// VisualLine provides all necessary elements to the front to display a line in leaflet
+// Line provides all necessary elements to the front to display a line in leaflet
 //
-// swagger:model VisualLine
-type VisualLine struct {
+// swagger:model Line
+type Line struct {
 	StartLat, StartLng float64
 	EndLat, EndLng     float64
 	Name               string
@@ -22,7 +22,7 @@ type VisualLine struct {
 
 	// swagger:ignore
 	// access to the models instance that contains the original information
-	VisualLineInterface VisualLineInterface `gorm:"-"`
+	VisualLineInterface LineInterface `gorm:"-"`
 }
 
 // for the moment, the angular front end does not get booleans, therefore, we translate the
@@ -48,7 +48,7 @@ const (
 	BACKWARD_END_TO_START Start_To_End_Enum = "BACKWARD_START_TO_END"
 )
 
-type VisualLineInterface interface {
+type LineInterface interface {
 	GetStartLat() (lat float64)
 	GetStartLng() (lng float64)
 
@@ -68,7 +68,7 @@ type VisualLineInterface interface {
 
 }
 
-func (visualLine *VisualLine) UpdateLine() {
+func (visualLine *Line) UpdateLine() {
 	if visualLine.VisualLineInterface != nil {
 		visualLine.Name = visualLine.VisualLineInterface.GetName()
 

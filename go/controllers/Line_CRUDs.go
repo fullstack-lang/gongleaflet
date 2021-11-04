@@ -13,14 +13,14 @@ import (
 )
 
 // declaration in order to justify use of the models import
-var __VisualLine__dummysDeclaration__ models.VisualLine
-var __VisualLine_time__dummyDeclaration time.Duration
+var __Line__dummysDeclaration__ models.Line
+var __Line_time__dummyDeclaration time.Duration
 
-// An VisualLineID parameter model.
+// An LineID parameter model.
 //
 // This is used for operations that want the ID of an order in the path
-// swagger:parameters getVisualLine updateVisualLine deleteVisualLine
-type VisualLineID struct {
+// swagger:parameters getLine updateLine deleteLine
+type LineID struct {
 	// The ID of the order
 	//
 	// in: path
@@ -28,30 +28,30 @@ type VisualLineID struct {
 	ID int64
 }
 
-// VisualLineInput is a schema that can validate the user’s
+// LineInput is a schema that can validate the user’s
 // input to prevent us from getting invalid data
-// swagger:parameters postVisualLine updateVisualLine
-type VisualLineInput struct {
-	// The VisualLine to submit or modify
+// swagger:parameters postLine updateLine
+type LineInput struct {
+	// The Line to submit or modify
 	// in: body
-	VisualLine *orm.VisualLineAPI
+	Line *orm.LineAPI
 }
 
-// GetVisualLines
+// GetLines
 //
-// swagger:route GET /visuallines visuallines getVisualLines
+// swagger:route GET /lines lines getLines
 //
-// Get all visuallines
+// Get all lines
 //
 // Responses:
 //    default: genericError
-//        200: visuallineDBsResponse
-func GetVisualLines(c *gin.Context) {
-	db := orm.BackRepo.BackRepoVisualLine.GetDB()
+//        200: lineDBsResponse
+func GetLines(c *gin.Context) {
+	db := orm.BackRepo.BackRepoLine.GetDB()
 
 	// source slice
-	var visuallineDBs []orm.VisualLineDB
-	query := db.Find(&visuallineDBs)
+	var lineDBs []orm.LineDB
+	query := db.Find(&lineDBs)
 	if query.Error != nil {
 		var returnError GenericError
 		returnError.Body.Code = http.StatusBadRequest
@@ -62,29 +62,29 @@ func GetVisualLines(c *gin.Context) {
 	}
 
 	// slice that will be transmitted to the front
-	visuallineAPIs := make([]orm.VisualLineAPI, 0)
+	lineAPIs := make([]orm.LineAPI, 0)
 
-	// for each visualline, update fields from the database nullable fields
-	for idx := range visuallineDBs {
-		visuallineDB := &visuallineDBs[idx]
-		_ = visuallineDB
-		var visuallineAPI orm.VisualLineAPI
+	// for each line, update fields from the database nullable fields
+	for idx := range lineDBs {
+		lineDB := &lineDBs[idx]
+		_ = lineDB
+		var lineAPI orm.LineAPI
 
 		// insertion point for updating fields
-		visuallineAPI.ID = visuallineDB.ID
-		visuallineDB.CopyBasicFieldsToVisualLine(&visuallineAPI.VisualLine)
-		visuallineAPI.VisualLinePointersEnconding = visuallineDB.VisualLinePointersEnconding
-		visuallineAPIs = append(visuallineAPIs, visuallineAPI)
+		lineAPI.ID = lineDB.ID
+		lineDB.CopyBasicFieldsToLine(&lineAPI.Line)
+		lineAPI.LinePointersEnconding = lineDB.LinePointersEnconding
+		lineAPIs = append(lineAPIs, lineAPI)
 	}
 
-	c.JSON(http.StatusOK, visuallineAPIs)
+	c.JSON(http.StatusOK, lineAPIs)
 }
 
-// PostVisualLine
+// PostLine
 //
-// swagger:route POST /visuallines visuallines postVisualLine
+// swagger:route POST /lines lines postLine
 //
-// Creates a visualline
+// Creates a line
 //     Consumes:
 //     - application/json
 //
@@ -92,12 +92,12 @@ func GetVisualLines(c *gin.Context) {
 //     - application/json
 //
 //     Responses:
-//       200: visuallineDBResponse
-func PostVisualLine(c *gin.Context) {
-	db := orm.BackRepo.BackRepoVisualLine.GetDB()
+//       200: lineDBResponse
+func PostLine(c *gin.Context) {
+	db := orm.BackRepo.BackRepoLine.GetDB()
 
 	// Validate input
-	var input orm.VisualLineAPI
+	var input orm.LineAPI
 
 	err := c.ShouldBindJSON(&input)
 	if err != nil {
@@ -109,12 +109,12 @@ func PostVisualLine(c *gin.Context) {
 		return
 	}
 
-	// Create visualline
-	visuallineDB := orm.VisualLineDB{}
-	visuallineDB.VisualLinePointersEnconding = input.VisualLinePointersEnconding
-	visuallineDB.CopyBasicFieldsFromVisualLine(&input.VisualLine)
+	// Create line
+	lineDB := orm.LineDB{}
+	lineDB.LinePointersEnconding = input.LinePointersEnconding
+	lineDB.CopyBasicFieldsFromLine(&input.Line)
 
-	query := db.Create(&visuallineDB)
+	query := db.Create(&lineDB)
 	if query.Error != nil {
 		var returnError GenericError
 		returnError.Body.Code = http.StatusBadRequest
@@ -128,24 +128,24 @@ func PostVisualLine(c *gin.Context) {
 	// (this will be improved with implementation of unit of work design pattern)
 	orm.BackRepo.IncrementPushFromFrontNb()
 
-	c.JSON(http.StatusOK, visuallineDB)
+	c.JSON(http.StatusOK, lineDB)
 }
 
-// GetVisualLine
+// GetLine
 //
-// swagger:route GET /visuallines/{ID} visuallines getVisualLine
+// swagger:route GET /lines/{ID} lines getLine
 //
-// Gets the details for a visualline.
+// Gets the details for a line.
 //
 // Responses:
 //    default: genericError
-//        200: visuallineDBResponse
-func GetVisualLine(c *gin.Context) {
-	db := orm.BackRepo.BackRepoVisualLine.GetDB()
+//        200: lineDBResponse
+func GetLine(c *gin.Context) {
+	db := orm.BackRepo.BackRepoLine.GetDB()
 
-	// Get visuallineDB in DB
-	var visuallineDB orm.VisualLineDB
-	if err := db.First(&visuallineDB, c.Param("id")).Error; err != nil {
+	// Get lineDB in DB
+	var lineDB orm.LineDB
+	if err := db.First(&lineDB, c.Param("id")).Error; err != nil {
 		var returnError GenericError
 		returnError.Body.Code = http.StatusBadRequest
 		returnError.Body.Message = err.Error()
@@ -154,31 +154,31 @@ func GetVisualLine(c *gin.Context) {
 		return
 	}
 
-	var visuallineAPI orm.VisualLineAPI
-	visuallineAPI.ID = visuallineDB.ID
-	visuallineAPI.VisualLinePointersEnconding = visuallineDB.VisualLinePointersEnconding
-	visuallineDB.CopyBasicFieldsToVisualLine(&visuallineAPI.VisualLine)
+	var lineAPI orm.LineAPI
+	lineAPI.ID = lineDB.ID
+	lineAPI.LinePointersEnconding = lineDB.LinePointersEnconding
+	lineDB.CopyBasicFieldsToLine(&lineAPI.Line)
 
-	c.JSON(http.StatusOK, visuallineAPI)
+	c.JSON(http.StatusOK, lineAPI)
 }
 
-// UpdateVisualLine
+// UpdateLine
 //
-// swagger:route PATCH /visuallines/{ID} visuallines updateVisualLine
+// swagger:route PATCH /lines/{ID} lines updateLine
 //
-// Update a visualline
+// Update a line
 //
 // Responses:
 //    default: genericError
-//        200: visuallineDBResponse
-func UpdateVisualLine(c *gin.Context) {
-	db := orm.BackRepo.BackRepoVisualLine.GetDB()
+//        200: lineDBResponse
+func UpdateLine(c *gin.Context) {
+	db := orm.BackRepo.BackRepoLine.GetDB()
 
 	// Get model if exist
-	var visuallineDB orm.VisualLineDB
+	var lineDB orm.LineDB
 
-	// fetch the visualline
-	query := db.First(&visuallineDB, c.Param("id"))
+	// fetch the line
+	query := db.First(&lineDB, c.Param("id"))
 
 	if query.Error != nil {
 		var returnError GenericError
@@ -190,7 +190,7 @@ func UpdateVisualLine(c *gin.Context) {
 	}
 
 	// Validate input
-	var input orm.VisualLineAPI
+	var input orm.LineAPI
 	if err := c.ShouldBindJSON(&input); err != nil {
 		log.Println(err.Error())
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -198,10 +198,10 @@ func UpdateVisualLine(c *gin.Context) {
 	}
 
 	// update
-	visuallineDB.CopyBasicFieldsFromVisualLine(&input.VisualLine)
-	visuallineDB.VisualLinePointersEnconding = input.VisualLinePointersEnconding
+	lineDB.CopyBasicFieldsFromLine(&input.Line)
+	lineDB.LinePointersEnconding = input.LinePointersEnconding
 
-	query = db.Model(&visuallineDB).Updates(visuallineDB)
+	query = db.Model(&lineDB).Updates(lineDB)
 	if query.Error != nil {
 		var returnError GenericError
 		returnError.Body.Code = http.StatusBadRequest
@@ -215,24 +215,24 @@ func UpdateVisualLine(c *gin.Context) {
 	// (this will be improved with implementation of unit of work design pattern)
 	orm.BackRepo.IncrementPushFromFrontNb()
 
-	// return status OK with the marshalling of the the visuallineDB
-	c.JSON(http.StatusOK, visuallineDB)
+	// return status OK with the marshalling of the the lineDB
+	c.JSON(http.StatusOK, lineDB)
 }
 
-// DeleteVisualLine
+// DeleteLine
 //
-// swagger:route DELETE /visuallines/{ID} visuallines deleteVisualLine
+// swagger:route DELETE /lines/{ID} lines deleteLine
 //
-// Delete a visualline
+// Delete a line
 //
 // Responses:
 //    default: genericError
-func DeleteVisualLine(c *gin.Context) {
-	db := orm.BackRepo.BackRepoVisualLine.GetDB()
+func DeleteLine(c *gin.Context) {
+	db := orm.BackRepo.BackRepoLine.GetDB()
 
 	// Get model if exist
-	var visuallineDB orm.VisualLineDB
-	if err := db.First(&visuallineDB, c.Param("id")).Error; err != nil {
+	var lineDB orm.LineDB
+	if err := db.First(&lineDB, c.Param("id")).Error; err != nil {
 		var returnError GenericError
 		returnError.Body.Code = http.StatusBadRequest
 		returnError.Body.Message = err.Error()
@@ -242,7 +242,7 @@ func DeleteVisualLine(c *gin.Context) {
 	}
 
 	// with gorm.Model field, default delete is a soft delete. Unscoped() force delete
-	db.Unscoped().Delete(&visuallineDB)
+	db.Unscoped().Delete(&lineDB)
 
 	// a DELETE generates a back repo commit increase
 	// (this will be improved with implementation of unit of work design pattern)

@@ -35,43 +35,43 @@ export class CartoatcLinesComponent implements OnInit {
   currTime: number = 0
 
   constructor(
-    private visualLineService: gongleaflet.VisualLineService
+    private lineService: gongleaflet.LineService
   ) {
 
   }
 
   ngOnInit(): void {
     // init polylines
-    combineLatest([this.visualLineService.getVisualLines()]).subscribe(
-      ([visualLines]) => {
-        visualLines.forEach((visualLine) => {
+    combineLatest([this.lineService.getLines()]).subscribe(
+      ([lines]) => {
+        lines.forEach((line) => {
           var polyline: L.Polyline = new L.Polyline([]);
-          polyline = manageLeafletItems.setLine(visualLine);
+          polyline = manageLeafletItems.setLine(line);
 
           this.linesLayer.push(polyline);
-          this.mapVisualLineID_LeafletPolyline.set(visualLine.ID, polyline);
+          this.mapVisualLineID_LeafletPolyline.set(line.ID, polyline);
         });
       }
     );
 
-    this.visualLineService.VisualLineServiceChanged.subscribe(
+    this.lineService.LineServiceChanged.subscribe(
       message => {
         if (message == "post" || message == "update" || message == "delete") {
           // update line positions
-          this.visualLineService.getVisualLines().subscribe((visualLines) => {
-            visualLines.forEach((visualLine) => {
+          this.lineService.getLines().subscribe((lines) => {
+            lines.forEach((line) => {
               var visualLineMarker = this.mapVisualLineID_LeafletPolyline.get(
-                visualLine.ID
+                line.ID
               );
 
               if (visualLineMarker) {
                 // update position
                 visualLineMarker.setLatLngs([
-                  [visualLine.StartLat, visualLine.StartLng],
-                  [visualLine.EndLat, visualLine.EndLng],
+                  [line.StartLat, line.StartLng],
+                  [line.EndLat, line.EndLng],
                 ]);
                 visualLineMarker.options.color = manageLeafletItems.getColor(
-                  visualLine.ColorEnum
+                  line.ColorEnum
                 );
                 visualLineMarker.setStyle(visualLineMarker.options);
               }

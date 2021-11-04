@@ -7,12 +7,12 @@
   import { LayerGroupSortingComponent } from './layergroup-sorting/layergroup-sorting.component'
   import { LayerGroupUsesTableComponent } from './layergroupuses-table/layergroupuses-table.component'
   import { LayerGroupUseSortingComponent } from './layergroupuse-sorting/layergroupuse-sorting.component'
+  import { LinesTableComponent } from './lines-table/lines-table.component'
+  import { LineSortingComponent } from './line-sorting/line-sorting.component'
   import { MapOptionssTableComponent } from './mapoptionss-table/mapoptionss-table.component'
   import { MapOptionsSortingComponent } from './mapoptions-sorting/mapoptions-sorting.component'
   import { MarkersTableComponent } from './markers-table/markers-table.component'
   import { MarkerSortingComponent } from './marker-sorting/marker-sorting.component'
-  import { VisualLinesTableComponent } from './visuallines-table/visuallines-table.component'
-  import { VisualLineSortingComponent } from './visualline-sorting/visualline-sorting.component'
   import { VisualTracksTableComponent } from './visualtracks-table/visualtracks-table.component'
   import { VisualTrackSortingComponent } from './visualtrack-sorting/visualtrack-sorting.component'
 
@@ -25,12 +25,12 @@
   export const MapOfLayerGroupSortingComponents: Map<string, any> = new Map([["LayerGroupSortingComponent", LayerGroupSortingComponent],])
   export const MapOfLayerGroupUsesComponents: Map<string, any> = new Map([["LayerGroupUsesTableComponent", LayerGroupUsesTableComponent],])
   export const MapOfLayerGroupUseSortingComponents: Map<string, any> = new Map([["LayerGroupUseSortingComponent", LayerGroupUseSortingComponent],])
+  export const MapOfLinesComponents: Map<string, any> = new Map([["LinesTableComponent", LinesTableComponent],])
+  export const MapOfLineSortingComponents: Map<string, any> = new Map([["LineSortingComponent", LineSortingComponent],])
   export const MapOfMapOptionssComponents: Map<string, any> = new Map([["MapOptionssTableComponent", MapOptionssTableComponent],])
   export const MapOfMapOptionsSortingComponents: Map<string, any> = new Map([["MapOptionsSortingComponent", MapOptionsSortingComponent],])
   export const MapOfMarkersComponents: Map<string, any> = new Map([["MarkersTableComponent", MarkersTableComponent],])
   export const MapOfMarkerSortingComponents: Map<string, any> = new Map([["MarkerSortingComponent", MarkerSortingComponent],])
-  export const MapOfVisualLinesComponents: Map<string, any> = new Map([["VisualLinesTableComponent", VisualLinesTableComponent],])
-  export const MapOfVisualLineSortingComponents: Map<string, any> = new Map([["VisualLineSortingComponent", VisualLineSortingComponent],])
   export const MapOfVisualTracksComponents: Map<string, any> = new Map([["VisualTracksTableComponent", VisualTracksTableComponent],])
   export const MapOfVisualTrackSortingComponents: Map<string, any> = new Map([["VisualTrackSortingComponent", VisualTrackSortingComponent],])
 
@@ -43,9 +43,9 @@ export const MapOfComponents: Map<string, any> =
       ["DivIcon", MapOfDivIconsComponents],
       ["LayerGroup", MapOfLayerGroupsComponents],
       ["LayerGroupUse", MapOfLayerGroupUsesComponents],
+      ["Line", MapOfLinesComponents],
       ["MapOptions", MapOfMapOptionssComponents],
       ["Marker", MapOfMarkersComponents],
-      ["VisualLine", MapOfVisualLinesComponents],
       ["VisualTrack", MapOfVisualTracksComponents],
     ]
   )
@@ -59,9 +59,9 @@ export const MapOfSortingComponents: Map<string, any> =
       ["DivIcon", MapOfDivIconSortingComponents],
       ["LayerGroup", MapOfLayerGroupSortingComponents],
       ["LayerGroupUse", MapOfLayerGroupUseSortingComponents],
+      ["Line", MapOfLineSortingComponents],
       ["MapOptions", MapOfMapOptionsSortingComponents],
       ["Marker", MapOfMarkerSortingComponents],
-      ["VisualLine", MapOfVisualLineSortingComponents],
       ["VisualTrack", MapOfVisualTrackSortingComponents],
     ]
   )
