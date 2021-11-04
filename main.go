@@ -188,7 +188,7 @@ func main() {
 	//
 	// Line
 	//
-	TestLine := new(gongleaflet_models.Line).Stage()
+	TestLine := new(gongleaflet_models.VLine).Stage()
 	TestLine.StartLat = 46
 	TestLine.StartLng = 5
 	TestLine.EndLat = 42

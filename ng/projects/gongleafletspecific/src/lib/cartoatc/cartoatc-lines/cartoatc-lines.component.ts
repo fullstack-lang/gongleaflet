@@ -35,14 +35,14 @@ export class CartoatcLinesComponent implements OnInit {
   currTime: number = 0
 
   constructor(
-    private lineService: gongleaflet.LineService
+    private lineService: gongleaflet.VLineService
   ) {
 
   }
 
   ngOnInit(): void {
     // init polylines
-    combineLatest([this.lineService.getLines()]).subscribe(
+    combineLatest([this.lineService.getVLines()]).subscribe(
       ([lines]) => {
         lines.forEach((line) => {
           var polyline: L.Polyline = new L.Polyline([]);
@@ -54,11 +54,11 @@ export class CartoatcLinesComponent implements OnInit {
       }
     );
 
-    this.lineService.LineServiceChanged.subscribe(
+    this.lineService.VLineServiceChanged.subscribe(
       message => {
         if (message == "post" || message == "update" || message == "delete") {
           // update line positions
-          this.lineService.getLines().subscribe((lines) => {
+          this.lineService.getVLines().subscribe((lines) => {
             lines.forEach((line) => {
               var visualLineMarker = this.mapVisualLineID_LeafletPolyline.get(
                 line.ID

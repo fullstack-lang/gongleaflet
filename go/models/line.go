@@ -1,9 +1,11 @@
 package models
 
-// Line provides all necessary elements to the front to display a line in leaflet
+// VLine provides all necessary elements to the front to display a line in leaflet
 //
-// swagger:model Line
-type Line struct {
+// back to VLine because if Line breacks the chrome navigator (to be investigated)
+//
+// swagger:model VLine
+type VLine struct {
 	StartLat, StartLng float64
 	EndLat, EndLng     float64
 	Name               string
@@ -68,7 +70,7 @@ type LineInterface interface {
 
 }
 
-func (visualLine *Line) UpdateLine() {
+func (visualLine *VLine) UpdateLine() {
 	if visualLine.LineInterface != nil {
 		visualLine.Name = visualLine.LineInterface.GetName()
 

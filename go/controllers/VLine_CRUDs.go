@@ -13,14 +13,14 @@ import (
 )
 
 // declaration in order to justify use of the models import
-var __Line__dummysDeclaration__ models.Line
-var __Line_time__dummyDeclaration time.Duration
+var __VLine__dummysDeclaration__ models.VLine
+var __VLine_time__dummyDeclaration time.Duration
 
-// An LineID parameter model.
+// An VLineID parameter model.
 //
 // This is used for operations that want the ID of an order in the path
-// swagger:parameters getLine updateLine deleteLine
-type LineID struct {
+// swagger:parameters getVLine updateVLine deleteVLine
+type VLineID struct {
 	// The ID of the order
 	//
 	// in: path
@@ -28,30 +28,30 @@ type LineID struct {
 	ID int64
 }
 
-// LineInput is a schema that can validate the user’s
+// VLineInput is a schema that can validate the user’s
 // input to prevent us from getting invalid data
-// swagger:parameters postLine updateLine
-type LineInput struct {
-	// The Line to submit or modify
+// swagger:parameters postVLine updateVLine
+type VLineInput struct {
+	// The VLine to submit or modify
 	// in: body
-	Line *orm.LineAPI
+	VLine *orm.VLineAPI
 }
 
-// GetLines
+// GetVLines
 //
-// swagger:route GET /lines lines getLines
+// swagger:route GET /vlines vlines getVLines
 //
-// Get all lines
+// Get all vlines
 //
 // Responses:
 //    default: genericError
-//        200: lineDBsResponse
-func GetLines(c *gin.Context) {
-	db := orm.BackRepo.BackRepoLine.GetDB()
+//        200: vlineDBsResponse
+func GetVLines(c *gin.Context) {
+	db := orm.BackRepo.BackRepoVLine.GetDB()
 
 	// source slice
-	var lineDBs []orm.LineDB
-	query := db.Find(&lineDBs)
+	var vlineDBs []orm.VLineDB
+	query := db.Find(&vlineDBs)
 	if query.Error != nil {
 		var returnError GenericError
 		returnError.Body.Code = http.StatusBadRequest
@@ -62,29 +62,29 @@ func GetLines(c *gin.Context) {
 	}
 
 	// slice that will be transmitted to the front
-	lineAPIs := make([]orm.LineAPI, 0)
+	vlineAPIs := make([]orm.VLineAPI, 0)
 
-	// for each line, update fields from the database nullable fields
-	for idx := range lineDBs {
-		lineDB := &lineDBs[idx]
-		_ = lineDB
-		var lineAPI orm.LineAPI
+	// for each vline, update fields from the database nullable fields
+	for idx := range vlineDBs {
+		vlineDB := &vlineDBs[idx]
+		_ = vlineDB
+		var vlineAPI orm.VLineAPI
 
 		// insertion point for updating fields
-		lineAPI.ID = lineDB.ID
-		lineDB.CopyBasicFieldsToLine(&lineAPI.Line)
-		lineAPI.LinePointersEnconding = lineDB.LinePointersEnconding
-		lineAPIs = append(lineAPIs, lineAPI)
+		vlineAPI.ID = vlineDB.ID
+		vlineDB.CopyBasicFieldsToVLine(&vlineAPI.VLine)
+		vlineAPI.VLinePointersEnconding = vlineDB.VLinePointersEnconding
+		vlineAPIs = append(vlineAPIs, vlineAPI)
 	}
 
-	c.JSON(http.StatusOK, lineAPIs)
+	c.JSON(http.StatusOK, vlineAPIs)
 }
 
-// PostLine
+// PostVLine
 //
-// swagger:route POST /lines lines postLine
+// swagger:route POST /vlines vlines postVLine
 //
-// Creates a line
+// Creates a vline
 //     Consumes:
 //     - application/json
 //
@@ -92,12 +92,12 @@ func GetLines(c *gin.Context) {
 //     - application/json
 //
 //     Responses:
-//       200: lineDBResponse
-func PostLine(c *gin.Context) {
-	db := orm.BackRepo.BackRepoLine.GetDB()
+//       200: vlineDBResponse
+func PostVLine(c *gin.Context) {
+	db := orm.BackRepo.BackRepoVLine.GetDB()
 
 	// Validate input
-	var input orm.LineAPI
+	var input orm.VLineAPI
 
 	err := c.ShouldBindJSON(&input)
 	if err != nil {
@@ -109,12 +109,12 @@ func PostLine(c *gin.Context) {
 		return
 	}
 
-	// Create line
-	lineDB := orm.LineDB{}
-	lineDB.LinePointersEnconding = input.LinePointersEnconding
-	lineDB.CopyBasicFieldsFromLine(&input.Line)
+	// Create vline
+	vlineDB := orm.VLineDB{}
+	vlineDB.VLinePointersEnconding = input.VLinePointersEnconding
+	vlineDB.CopyBasicFieldsFromVLine(&input.VLine)
 
-	query := db.Create(&lineDB)
+	query := db.Create(&vlineDB)
 	if query.Error != nil {
 		var returnError GenericError
 		returnError.Body.Code = http.StatusBadRequest
@@ -128,24 +128,24 @@ func PostLine(c *gin.Context) {
 	// (this will be improved with implementation of unit of work design pattern)
 	orm.BackRepo.IncrementPushFromFrontNb()
 
-	c.JSON(http.StatusOK, lineDB)
+	c.JSON(http.StatusOK, vlineDB)
 }
 
-// GetLine
+// GetVLine
 //
-// swagger:route GET /lines/{ID} lines getLine
+// swagger:route GET /vlines/{ID} vlines getVLine
 //
-// Gets the details for a line.
+// Gets the details for a vline.
 //
 // Responses:
 //    default: genericError
-//        200: lineDBResponse
-func GetLine(c *gin.Context) {
-	db := orm.BackRepo.BackRepoLine.GetDB()
+//        200: vlineDBResponse
+func GetVLine(c *gin.Context) {
+	db := orm.BackRepo.BackRepoVLine.GetDB()
 
-	// Get lineDB in DB
-	var lineDB orm.LineDB
-	if err := db.First(&lineDB, c.Param("id")).Error; err != nil {
+	// Get vlineDB in DB
+	var vlineDB orm.VLineDB
+	if err := db.First(&vlineDB, c.Param("id")).Error; err != nil {
 		var returnError GenericError
 		returnError.Body.Code = http.StatusBadRequest
 		returnError.Body.Message = err.Error()
@@ -154,31 +154,31 @@ func GetLine(c *gin.Context) {
 		return
 	}
 
-	var lineAPI orm.LineAPI
-	lineAPI.ID = lineDB.ID
-	lineAPI.LinePointersEnconding = lineDB.LinePointersEnconding
-	lineDB.CopyBasicFieldsToLine(&lineAPI.Line)
+	var vlineAPI orm.VLineAPI
+	vlineAPI.ID = vlineDB.ID
+	vlineAPI.VLinePointersEnconding = vlineDB.VLinePointersEnconding
+	vlineDB.CopyBasicFieldsToVLine(&vlineAPI.VLine)
 
-	c.JSON(http.StatusOK, lineAPI)
+	c.JSON(http.StatusOK, vlineAPI)
 }
 
-// UpdateLine
+// UpdateVLine
 //
-// swagger:route PATCH /lines/{ID} lines updateLine
+// swagger:route PATCH /vlines/{ID} vlines updateVLine
 //
-// Update a line
+// Update a vline
 //
 // Responses:
 //    default: genericError
-//        200: lineDBResponse
-func UpdateLine(c *gin.Context) {
-	db := orm.BackRepo.BackRepoLine.GetDB()
+//        200: vlineDBResponse
+func UpdateVLine(c *gin.Context) {
+	db := orm.BackRepo.BackRepoVLine.GetDB()
 
 	// Get model if exist
-	var lineDB orm.LineDB
+	var vlineDB orm.VLineDB
 
-	// fetch the line
-	query := db.First(&lineDB, c.Param("id"))
+	// fetch the vline
+	query := db.First(&vlineDB, c.Param("id"))
 
 	if query.Error != nil {
 		var returnError GenericError
@@ -190,7 +190,7 @@ func UpdateLine(c *gin.Context) {
 	}
 
 	// Validate input
-	var input orm.LineAPI
+	var input orm.VLineAPI
 	if err := c.ShouldBindJSON(&input); err != nil {
 		log.Println(err.Error())
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -198,10 +198,10 @@ func UpdateLine(c *gin.Context) {
 	}
 
 	// update
-	lineDB.CopyBasicFieldsFromLine(&input.Line)
-	lineDB.LinePointersEnconding = input.LinePointersEnconding
+	vlineDB.CopyBasicFieldsFromVLine(&input.VLine)
+	vlineDB.VLinePointersEnconding = input.VLinePointersEnconding
 
-	query = db.Model(&lineDB).Updates(lineDB)
+	query = db.Model(&vlineDB).Updates(vlineDB)
 	if query.Error != nil {
 		var returnError GenericError
 		returnError.Body.Code = http.StatusBadRequest
@@ -215,24 +215,24 @@ func UpdateLine(c *gin.Context) {
 	// (this will be improved with implementation of unit of work design pattern)
 	orm.BackRepo.IncrementPushFromFrontNb()
 
-	// return status OK with the marshalling of the the lineDB
-	c.JSON(http.StatusOK, lineDB)
+	// return status OK with the marshalling of the the vlineDB
+	c.JSON(http.StatusOK, vlineDB)
 }
 
-// DeleteLine
+// DeleteVLine
 //
-// swagger:route DELETE /lines/{ID} lines deleteLine
+// swagger:route DELETE /vlines/{ID} vlines deleteVLine
 //
-// Delete a line
+// Delete a vline
 //
 // Responses:
 //    default: genericError
-func DeleteLine(c *gin.Context) {
-	db := orm.BackRepo.BackRepoLine.GetDB()
+func DeleteVLine(c *gin.Context) {
+	db := orm.BackRepo.BackRepoVLine.GetDB()
 
 	// Get model if exist
-	var lineDB orm.LineDB
-	if err := db.First(&lineDB, c.Param("id")).Error; err != nil {
+	var vlineDB orm.VLineDB
+	if err := db.First(&vlineDB, c.Param("id")).Error; err != nil {
 		var returnError GenericError
 		returnError.Body.Code = http.StatusBadRequest
 		returnError.Body.Message = err.Error()
@@ -242,7 +242,7 @@ func DeleteLine(c *gin.Context) {
 	}
 
 	// with gorm.Model field, default delete is a soft delete. Unscoped() force delete
-	db.Unscoped().Delete(&lineDB)
+	db.Unscoped().Delete(&vlineDB)
 
 	// a DELETE generates a back repo commit increase
 	// (this will be improved with implementation of unit of work design pattern)

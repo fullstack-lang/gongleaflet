@@ -16,14 +16,14 @@ import { LayerGroupService } from './layergroup.service'
 import { LayerGroupUseDB } from './layergroupuse-db'
 import { LayerGroupUseService } from './layergroupuse.service'
 
-import { LineDB } from './line-db'
-import { LineService } from './line.service'
-
 import { MapOptionsDB } from './mapoptions-db'
 import { MapOptionsService } from './mapoptions.service'
 
 import { MarkerDB } from './marker-db'
 import { MarkerService } from './marker.service'
+
+import { VLineDB } from './vline-db'
+import { VLineService } from './vline.service'
 
 import { VisualTrackDB } from './visualtrack-db'
 import { VisualTrackService } from './visualtrack.service'
@@ -43,15 +43,15 @@ export class FrontRepo { // insertion point sub template
   LayerGroupUses_array = new Array<LayerGroupUseDB>(); // array of repo instances
   LayerGroupUses = new Map<number, LayerGroupUseDB>(); // map of repo instances
   LayerGroupUses_batch = new Map<number, LayerGroupUseDB>(); // same but only in last GET (for finding repo instances to delete)
-  Lines_array = new Array<LineDB>(); // array of repo instances
-  Lines = new Map<number, LineDB>(); // map of repo instances
-  Lines_batch = new Map<number, LineDB>(); // same but only in last GET (for finding repo instances to delete)
   MapOptionss_array = new Array<MapOptionsDB>(); // array of repo instances
   MapOptionss = new Map<number, MapOptionsDB>(); // map of repo instances
   MapOptionss_batch = new Map<number, MapOptionsDB>(); // same but only in last GET (for finding repo instances to delete)
   Markers_array = new Array<MarkerDB>(); // array of repo instances
   Markers = new Map<number, MarkerDB>(); // map of repo instances
   Markers_batch = new Map<number, MarkerDB>(); // same but only in last GET (for finding repo instances to delete)
+  VLines_array = new Array<VLineDB>(); // array of repo instances
+  VLines = new Map<number, VLineDB>(); // map of repo instances
+  VLines_batch = new Map<number, VLineDB>(); // same but only in last GET (for finding repo instances to delete)
   VisualTracks_array = new Array<VisualTrackDB>(); // array of repo instances
   VisualTracks = new Map<number, VisualTrackDB>(); // map of repo instances
   VisualTracks_batch = new Map<number, VisualTrackDB>(); // same but only in last GET (for finding repo instances to delete)
@@ -117,9 +117,9 @@ export class FrontRepoService {
     private diviconService: DivIconService,
     private layergroupService: LayerGroupService,
     private layergroupuseService: LayerGroupUseService,
-    private lineService: LineService,
     private mapoptionsService: MapOptionsService,
     private markerService: MarkerService,
+    private vlineService: VLineService,
     private visualtrackService: VisualTrackService,
   ) { }
 
@@ -155,18 +155,18 @@ export class FrontRepoService {
     Observable<DivIconDB[]>,
     Observable<LayerGroupDB[]>,
     Observable<LayerGroupUseDB[]>,
-    Observable<LineDB[]>,
     Observable<MapOptionsDB[]>,
     Observable<MarkerDB[]>,
+    Observable<VLineDB[]>,
     Observable<VisualTrackDB[]>,
   ] = [ // insertion point sub template 
       this.circleService.getCircles(),
       this.diviconService.getDivIcons(),
       this.layergroupService.getLayerGroups(),
       this.layergroupuseService.getLayerGroupUses(),
-      this.lineService.getLines(),
       this.mapoptionsService.getMapOptionss(),
       this.markerService.getMarkers(),
+      this.vlineService.getVLines(),
       this.visualtrackService.getVisualTracks(),
     ];
 
@@ -187,9 +187,9 @@ export class FrontRepoService {
             divicons_,
             layergroups_,
             layergroupuses_,
-            lines_,
             mapoptionss_,
             markers_,
+            vlines_,
             visualtracks_,
           ]) => {
             // Typing can be messy with many items. Therefore, type casting is necessary here
@@ -202,12 +202,12 @@ export class FrontRepoService {
             layergroups = layergroups_ as LayerGroupDB[]
             var layergroupuses: LayerGroupUseDB[]
             layergroupuses = layergroupuses_ as LayerGroupUseDB[]
-            var lines: LineDB[]
-            lines = lines_ as LineDB[]
             var mapoptionss: MapOptionsDB[]
             mapoptionss = mapoptionss_ as MapOptionsDB[]
             var markers: MarkerDB[]
             markers = markers_ as MarkerDB[]
+            var vlines: VLineDB[]
+            vlines = vlines_ as VLineDB[]
             var visualtracks: VisualTrackDB[]
             visualtracks = visualtracks_ as VisualTrackDB[]
 
@@ -347,39 +347,6 @@ export class FrontRepoService {
             });
 
             // init the array
-            FrontRepoSingloton.Lines_array = lines
-
-            // clear the map that counts Line in the GET
-            FrontRepoSingloton.Lines_batch.clear()
-
-            lines.forEach(
-              line => {
-                FrontRepoSingloton.Lines.set(line.ID, line)
-                FrontRepoSingloton.Lines_batch.set(line.ID, line)
-              }
-            )
-
-            // clear lines that are absent from the batch
-            FrontRepoSingloton.Lines.forEach(
-              line => {
-                if (FrontRepoSingloton.Lines_batch.get(line.ID) == undefined) {
-                  FrontRepoSingloton.Lines.delete(line.ID)
-                }
-              }
-            )
-
-            // sort Lines_array array
-            FrontRepoSingloton.Lines_array.sort((t1, t2) => {
-              if (t1.Name > t2.Name) {
-                return 1;
-              }
-              if (t1.Name < t2.Name) {
-                return -1;
-              }
-              return 0;
-            });
-
-            // init the array
             FrontRepoSingloton.MapOptionss_array = mapoptionss
 
             // clear the map that counts MapOptions in the GET
@@ -436,6 +403,39 @@ export class FrontRepoService {
 
             // sort Markers_array array
             FrontRepoSingloton.Markers_array.sort((t1, t2) => {
+              if (t1.Name > t2.Name) {
+                return 1;
+              }
+              if (t1.Name < t2.Name) {
+                return -1;
+              }
+              return 0;
+            });
+
+            // init the array
+            FrontRepoSingloton.VLines_array = vlines
+
+            // clear the map that counts VLine in the GET
+            FrontRepoSingloton.VLines_batch.clear()
+
+            vlines.forEach(
+              vline => {
+                FrontRepoSingloton.VLines.set(vline.ID, vline)
+                FrontRepoSingloton.VLines_batch.set(vline.ID, vline)
+              }
+            )
+
+            // clear vlines that are absent from the batch
+            FrontRepoSingloton.VLines.forEach(
+              vline => {
+                if (FrontRepoSingloton.VLines_batch.get(vline.ID) == undefined) {
+                  FrontRepoSingloton.VLines.delete(vline.ID)
+                }
+              }
+            )
+
+            // sort VLines_array array
+            FrontRepoSingloton.VLines_array.sort((t1, t2) => {
               if (t1.Name > t2.Name) {
                 return 1;
               }
@@ -537,20 +537,6 @@ export class FrontRepoService {
                 }
               }
             )
-            lines.forEach(
-              line => {
-                // insertion point sub sub template for ONE-/ZERO-ONE associations pointers redeeming
-                // insertion point for pointer field LayerGroup redeeming
-                {
-                  let _layergroup = FrontRepoSingloton.LayerGroups.get(line.LayerGroupID.Int64)
-                  if (_layergroup) {
-                    line.LayerGroup = _layergroup
-                  }
-                }
-
-                // insertion point for redeeming ONE-MANY associations
-              }
-            )
             mapoptionss.forEach(
               mapoptions => {
                 // insertion point sub sub template for ONE-/ZERO-ONE associations pointers redeeming
@@ -573,6 +559,20 @@ export class FrontRepoService {
                   let _divicon = FrontRepoSingloton.DivIcons.get(marker.DivIconID.Int64)
                   if (_divicon) {
                     marker.DivIcon = _divicon
+                  }
+                }
+
+                // insertion point for redeeming ONE-MANY associations
+              }
+            )
+            vlines.forEach(
+              vline => {
+                // insertion point sub sub template for ONE-/ZERO-ONE associations pointers redeeming
+                // insertion point for pointer field LayerGroup redeeming
+                {
+                  let _layergroup = FrontRepoSingloton.LayerGroups.get(vline.LayerGroupID.Int64)
+                  if (_layergroup) {
+                    vline.LayerGroup = _layergroup
                   }
                 }
 
@@ -842,64 +842,6 @@ export class FrontRepoService {
     )
   }
 
-  // LinePull performs a GET on Line of the stack and redeem association pointers 
-  LinePull(): Observable<FrontRepo> {
-    return new Observable<FrontRepo>(
-      (observer) => {
-        combineLatest([
-          this.lineService.getLines()
-        ]).subscribe(
-          ([ // insertion point sub template 
-            lines,
-          ]) => {
-            // init the array
-            FrontRepoSingloton.Lines_array = lines
-
-            // clear the map that counts Line in the GET
-            FrontRepoSingloton.Lines_batch.clear()
-
-            // 
-            // First Step: init map of instances
-            // insertion point sub template 
-            lines.forEach(
-              line => {
-                FrontRepoSingloton.Lines.set(line.ID, line)
-                FrontRepoSingloton.Lines_batch.set(line.ID, line)
-
-                // insertion point for redeeming ONE/ZERO-ONE associations
-                // insertion point for pointer field LayerGroup redeeming
-                {
-                  let _layergroup = FrontRepoSingloton.LayerGroups.get(line.LayerGroupID.Int64)
-                  if (_layergroup) {
-                    line.LayerGroup = _layergroup
-                  }
-                }
-
-                // insertion point for redeeming ONE-MANY associations
-              }
-            )
-
-            // clear lines that are absent from the GET
-            FrontRepoSingloton.Lines.forEach(
-              line => {
-                if (FrontRepoSingloton.Lines_batch.get(line.ID) == undefined) {
-                  FrontRepoSingloton.Lines.delete(line.ID)
-                }
-              }
-            )
-
-            // 
-            // Second Step: redeem pointers between instances (thanks to maps in the First Step)
-            // insertion point sub template 
-
-            // hand over control flow to observer
-            observer.next(FrontRepoSingloton)
-          }
-        )
-      }
-    )
-  }
-
   // MapOptionsPull performs a GET on MapOptions of the stack and redeem association pointers 
   MapOptionsPull(): Observable<FrontRepo> {
     return new Observable<FrontRepo>(
@@ -1016,6 +958,64 @@ export class FrontRepoService {
     )
   }
 
+  // VLinePull performs a GET on VLine of the stack and redeem association pointers 
+  VLinePull(): Observable<FrontRepo> {
+    return new Observable<FrontRepo>(
+      (observer) => {
+        combineLatest([
+          this.vlineService.getVLines()
+        ]).subscribe(
+          ([ // insertion point sub template 
+            vlines,
+          ]) => {
+            // init the array
+            FrontRepoSingloton.VLines_array = vlines
+
+            // clear the map that counts VLine in the GET
+            FrontRepoSingloton.VLines_batch.clear()
+
+            // 
+            // First Step: init map of instances
+            // insertion point sub template 
+            vlines.forEach(
+              vline => {
+                FrontRepoSingloton.VLines.set(vline.ID, vline)
+                FrontRepoSingloton.VLines_batch.set(vline.ID, vline)
+
+                // insertion point for redeeming ONE/ZERO-ONE associations
+                // insertion point for pointer field LayerGroup redeeming
+                {
+                  let _layergroup = FrontRepoSingloton.LayerGroups.get(vline.LayerGroupID.Int64)
+                  if (_layergroup) {
+                    vline.LayerGroup = _layergroup
+                  }
+                }
+
+                // insertion point for redeeming ONE-MANY associations
+              }
+            )
+
+            // clear vlines that are absent from the GET
+            FrontRepoSingloton.VLines.forEach(
+              vline => {
+                if (FrontRepoSingloton.VLines_batch.get(vline.ID) == undefined) {
+                  FrontRepoSingloton.VLines.delete(vline.ID)
+                }
+              }
+            )
+
+            // 
+            // Second Step: redeem pointers between instances (thanks to maps in the First Step)
+            // insertion point sub template 
+
+            // hand over control flow to observer
+            observer.next(FrontRepoSingloton)
+          }
+        )
+      }
+    )
+  }
+
   // VisualTrackPull performs a GET on VisualTrack of the stack and redeem association pointers 
   VisualTrackPull(): Observable<FrontRepo> {
     return new Observable<FrontRepo>(
@@ -1095,13 +1095,13 @@ export function getLayerGroupUniqueID(id: number): number {
 export function getLayerGroupUseUniqueID(id: number): number {
   return 43 * id
 }
-export function getLineUniqueID(id: number): number {
+export function getMapOptionsUniqueID(id: number): number {
   return 47 * id
 }
-export function getMapOptionsUniqueID(id: number): number {
+export function getMarkerUniqueID(id: number): number {
   return 53 * id
 }
-export function getMarkerUniqueID(id: number): number {
+export function getVLineUniqueID(id: number): number {
   return 59 * id
 }
 export function getVisualTrackUniqueID(id: number): number {
