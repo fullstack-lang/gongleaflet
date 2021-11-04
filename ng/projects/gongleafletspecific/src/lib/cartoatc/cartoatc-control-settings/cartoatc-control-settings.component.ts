@@ -20,6 +20,9 @@ class LayerItem {
 })
 export class CartoatcControlSettingsComponent implements OnInit {
 
+  // mapMap
+  @Input() mapName!: string
+
   layerGroups: gongleaflet.LayerGroupDB[] = []
   list: Array<LayerItem> = [];
   open: boolean = false;

@@ -7,7 +7,7 @@
             <div [leafletLayers]="rootOfLayerGroups"></div>
             <div [leafletLayers]="visualTracksHistory"></div>
         </div>
-        <app-cartoatc-control-settings></app-cartoatc-control-settings>
+        <app-cartoatc-control-settings [mapName]="mapName"></app-cartoatc-control-settings>
     </ng-container>
     <ng-container *ngIf="!mapOptions">
         <div class="cartoatc--empty">

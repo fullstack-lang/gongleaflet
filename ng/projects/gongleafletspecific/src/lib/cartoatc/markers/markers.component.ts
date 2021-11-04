@@ -13,7 +13,7 @@ import { Router } from '@angular/router';
   templateUrl: './markers.component.html',
   styleUrls: ['./markers.component.scss'],
 })
-export class MarkersComponent implements OnInit, OnChanges {
+export class MarkersComponent implements OnInit {
 
   // mapMap
   @Input() mapName!: string
@@ -33,21 +33,21 @@ export class MarkersComponent implements OnInit, OnChanges {
   // map between a gong layerGroup ID and a leaflet L.LayerGroup
   mapGongLayerGroupID_LayerGroup = new Map<number, L.LayerGroup<L.Marker>>();
 
-  ngOnChanges(changes: SimpleChanges) {
-    const log: string[] = [];
-    for (const propName in changes) {
-      const changedProp = changes[propName];
-      const to = JSON.stringify(changedProp.currentValue);
-      if (changedProp.isFirstChange()) {
-        console.log(`Initial value of ${propName} set to ${to}`)
-        log.push(`Initial value of ${propName} set to ${to}`);
-      } else {
-        const from = JSON.stringify(changedProp.previousValue);
-        console.log(`${propName} changed from ${from} to ${to}`)
-        log.push(`${propName} changed from ${from} to ${to}`);
-      }
-    }
-  }
+  // ngOnChanges(changes: SimpleChanges) {
+  //   const log: string[] = [];
+  //   for (const propName in changes) {
+  //     const changedProp = changes[propName];
+  //     const to = JSON.stringify(changedProp.currentValue);
+  //     if (changedProp.isFirstChange()) {
+  //       console.log(`Initial value of ${propName} set to ${to}`)
+  //       log.push(`Initial value of ${propName} set to ${to}`);
+  //     } else {
+  //       const from = JSON.stringify(changedProp.previousValue);
+  //       console.log(`${propName} changed from ${from} to ${to}`)
+  //       log.push(`${propName} changed from ${from} to ${to}`);
+  //     }
+  //   }
+  // }
 
   constructor(
     private gongleafletFrontRepoService: gongleaflet.FrontRepoService,
@@ -55,6 +55,9 @@ export class MarkersComponent implements OnInit, OnChanges {
   ) { }
 
   ngOnInit(): void {
+
+    console.log("Markers mapName at OnInit is " + this.mapName)
+
     this.refreshMapWithMarkers()
 
     this.markerService.MarkerServiceChanged.subscribe(
