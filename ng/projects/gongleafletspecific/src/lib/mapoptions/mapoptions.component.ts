@@ -57,12 +57,18 @@ export class MapoptionsComponent implements OnInit {
   // mapVisualTrackName_positionsHistory stores tracks histories
   mapVisualTrackName_positionsHistory: Map<string, Array<L.LatLng>> = new Map();
 
+
+  // map that store leaflet polylines according to the gong line
+  mapVLineID_LeafletPolyline = new Map<number, L.Polyline>();
+
+
   // the gong front repo
   frontRepo?: gongleaflet.FrontRepo
 
   constructor(
     private frontRepoService: gongleaflet.FrontRepoService,
     private visualTrackService: gongleaflet.VisualTrackService,
+    private lineService: gongleaflet.VLineService,
     private router: Router
   ) {
     this.router.routeReuseStrategy.shouldReuseRoute = () => false;
@@ -104,8 +110,42 @@ export class MapoptionsComponent implements OnInit {
           let leafletCircle = manageLeafletItems.newCircle(circle)
           this.rootOfLayerGroups.push(leafletCircle)
         }
-      }
-    )
+
+        // display vlines
+        for (let line of this.frontRepo.VLines_array) {
+          var polyline: L.Polyline = new L.Polyline([]);
+          polyline = manageLeafletItems.setLine(line);
+
+          this.rootOfLayerGroups.push(polyline);
+          this.mapVLineID_LeafletPolyline.set(line.ID, polyline);
+        }
+
+        this.lineService.VLineServiceChanged.subscribe(
+          message => {
+            if (message == "post" || message == "update" || message == "delete") {
+              // update line positions
+              this.lineService.getVLines().subscribe((lines) => {
+                lines.forEach((line) => {
+                  var visualLineMarker = this.mapVLineID_LeafletPolyline.get(
+                    line.ID
+                  );
+
+                  if (visualLineMarker) {
+                    // update position
+                    visualLineMarker.setLatLngs([
+                      [line.StartLat, line.StartLng],
+                      [line.EndLat, line.EndLng],
+                    ]);
+                    visualLineMarker.options.color = manageLeafletItems.getColor(
+                      line.ColorEnum
+                    );
+                    visualLineMarker.setStyle(visualLineMarker.options);
+                  }
+                });
+              });
+            }
+          })
+      })
 
     this.visualTrackService.VisualTrackServiceChanged.next('update');
 
