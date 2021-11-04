@@ -77,8 +77,8 @@ type VisualLineDB struct {
 	// Declation for basic field visuallineDB.Name {{BasicKind}} (to be completed)
 	Name_Data sql.NullString
 
-	// Declation for basic field visuallineDB.VisualColorEnum {{BasicKind}} (to be completed)
-	VisualColorEnum_Data sql.NullString
+	// Declation for basic field visuallineDB.ColorEnum {{BasicKind}} (to be completed)
+	ColorEnum_Data sql.NullString
 
 	// Declation for basic field visuallineDB.DashStyleEnum {{BasicKind}} (to be completed)
 	DashStyleEnum_Data sql.NullString
@@ -125,7 +125,7 @@ type VisualLineWOP struct {
 
 	Name string `xlsx:"5"`
 
-	VisualColorEnum models.VisualColorEnum `xlsx:"6"`
+	ColorEnum models.ColorEnum `xlsx:"6"`
 
 	DashStyleEnum models.DashStyleEnum `xlsx:"7"`
 
@@ -147,7 +147,7 @@ var VisualLine_Fields = []string{
 	"EndLat",
 	"EndLng",
 	"Name",
-	"VisualColorEnum",
+	"ColorEnum",
 	"DashStyleEnum",
 	"IsTransmitting",
 	"Message",
@@ -462,8 +462,8 @@ func (visuallineDB *VisualLineDB) CopyBasicFieldsFromVisualLine(visualline *mode
 	visuallineDB.Name_Data.String = visualline.Name
 	visuallineDB.Name_Data.Valid = true
 
-	visuallineDB.VisualColorEnum_Data.String = string(visualline.VisualColorEnum)
-	visuallineDB.VisualColorEnum_Data.Valid = true
+	visuallineDB.ColorEnum_Data.String = string(visualline.ColorEnum)
+	visuallineDB.ColorEnum_Data.Valid = true
 
 	visuallineDB.DashStyleEnum_Data.String = string(visualline.DashStyleEnum)
 	visuallineDB.DashStyleEnum_Data.Valid = true
@@ -500,8 +500,8 @@ func (visuallineDB *VisualLineDB) CopyBasicFieldsFromVisualLineWOP(visualline *V
 	visuallineDB.Name_Data.String = visualline.Name
 	visuallineDB.Name_Data.Valid = true
 
-	visuallineDB.VisualColorEnum_Data.String = string(visualline.VisualColorEnum)
-	visuallineDB.VisualColorEnum_Data.Valid = true
+	visuallineDB.ColorEnum_Data.String = string(visualline.ColorEnum)
+	visuallineDB.ColorEnum_Data.Valid = true
 
 	visuallineDB.DashStyleEnum_Data.String = string(visualline.DashStyleEnum)
 	visuallineDB.DashStyleEnum_Data.Valid = true
@@ -527,7 +527,7 @@ func (visuallineDB *VisualLineDB) CopyBasicFieldsToVisualLine(visualline *models
 	visualline.EndLat = visuallineDB.EndLat_Data.Float64
 	visualline.EndLng = visuallineDB.EndLng_Data.Float64
 	visualline.Name = visuallineDB.Name_Data.String
-	visualline.VisualColorEnum = models.VisualColorEnum(visuallineDB.VisualColorEnum_Data.String)
+	visualline.ColorEnum = models.ColorEnum(visuallineDB.ColorEnum_Data.String)
 	visualline.DashStyleEnum = models.DashStyleEnum(visuallineDB.DashStyleEnum_Data.String)
 	visualline.IsTransmitting = models.TransmittingEnum(visuallineDB.IsTransmitting_Data.String)
 	visualline.Message = visuallineDB.Message_Data.String
@@ -544,7 +544,7 @@ func (visuallineDB *VisualLineDB) CopyBasicFieldsToVisualLineWOP(visualline *Vis
 	visualline.EndLat = visuallineDB.EndLat_Data.Float64
 	visualline.EndLng = visuallineDB.EndLng_Data.Float64
 	visualline.Name = visuallineDB.Name_Data.String
-	visualline.VisualColorEnum = models.VisualColorEnum(visuallineDB.VisualColorEnum_Data.String)
+	visualline.ColorEnum = models.ColorEnum(visuallineDB.ColorEnum_Data.String)
 	visualline.DashStyleEnum = models.DashStyleEnum(visuallineDB.DashStyleEnum_Data.String)
 	visualline.IsTransmitting = models.TransmittingEnum(visuallineDB.IsTransmitting_Data.String)
 	visualline.Message = visuallineDB.Message_Data.String

@@ -14,7 +14,7 @@ export class VisualCircleDB {
 	Lng: number = 0
 	Name: string = ""
 	Radius: number = 0
-	VisualColorEnum: string = ""
+	ColorEnum: string = ""
 	DashStyleEnum: string = ""
 
 	// insertion point for other declarations

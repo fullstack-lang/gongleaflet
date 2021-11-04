@@ -87,8 +87,8 @@ export class VisualTracksTableComponent implements OnInit {
         case 'Name':
           return visualtrackDB.Name;
 
-        case 'VisualColorEnum':
-          return visualtrackDB.VisualColorEnum;
+        case 'ColorEnum':
+          return visualtrackDB.ColorEnum;
 
         case 'LayerGroup':
           return (visualtrackDB.LayerGroup ? visualtrackDB.LayerGroup.Name : '');
@@ -126,7 +126,7 @@ export class VisualTracksTableComponent implements OnInit {
       mergedContent += visualtrackDB.Speed.toString()
       mergedContent += visualtrackDB.VerticalSpeed.toString()
       mergedContent += visualtrackDB.Name.toLowerCase()
-      mergedContent += visualtrackDB.VisualColorEnum.toLowerCase()
+      mergedContent += visualtrackDB.ColorEnum.toLowerCase()
       if (visualtrackDB.LayerGroup) {
         mergedContent += visualtrackDB.LayerGroup.Name.toLowerCase()
       }
@@ -190,7 +190,7 @@ export class VisualTracksTableComponent implements OnInit {
         "Speed",
         "VerticalSpeed",
         "Name",
-        "VisualColorEnum",
+        "ColorEnum",
         "LayerGroup",
         "DivIcon",
         "Display",
@@ -206,7 +206,7 @@ export class VisualTracksTableComponent implements OnInit {
         "Speed",
         "VerticalSpeed",
         "Name",
-        "VisualColorEnum",
+        "ColorEnum",
         "LayerGroup",
         "DivIcon",
         "Display",

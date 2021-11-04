@@ -9,7 +9,7 @@ type VisualTrack struct {
 	Lat, Lng, Heading, Level, Speed, VerticalSpeed float64
 	Name                                           string
 
-	VisualColorEnum VisualColorEnum
+	ColorEnum ColorEnum
 
 	// LayerGroup the object belongs to
 	LayerGroup *LayerGroup

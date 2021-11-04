@@ -3,6 +3,8 @@
   import { DivIconSortingComponent } from './divicon-sorting/divicon-sorting.component'
   import { LayerGroupsTableComponent } from './layergroups-table/layergroups-table.component'
   import { LayerGroupSortingComponent } from './layergroup-sorting/layergroup-sorting.component'
+  import { LayerGroupUsesTableComponent } from './layergroupuses-table/layergroupuses-table.component'
+  import { LayerGroupUseSortingComponent } from './layergroupuse-sorting/layergroupuse-sorting.component'
   import { MapOptionssTableComponent } from './mapoptionss-table/mapoptionss-table.component'
   import { MapOptionsSortingComponent } from './mapoptions-sorting/mapoptions-sorting.component'
   import { MarkersTableComponent } from './markers-table/markers-table.component'
@@ -19,6 +21,8 @@
   export const MapOfDivIconSortingComponents: Map<string, any> = new Map([["DivIconSortingComponent", DivIconSortingComponent],])
   export const MapOfLayerGroupsComponents: Map<string, any> = new Map([["LayerGroupsTableComponent", LayerGroupsTableComponent],])
   export const MapOfLayerGroupSortingComponents: Map<string, any> = new Map([["LayerGroupSortingComponent", LayerGroupSortingComponent],])
+  export const MapOfLayerGroupUsesComponents: Map<string, any> = new Map([["LayerGroupUsesTableComponent", LayerGroupUsesTableComponent],])
+  export const MapOfLayerGroupUseSortingComponents: Map<string, any> = new Map([["LayerGroupUseSortingComponent", LayerGroupUseSortingComponent],])
   export const MapOfMapOptionssComponents: Map<string, any> = new Map([["MapOptionssTableComponent", MapOptionssTableComponent],])
   export const MapOfMapOptionsSortingComponents: Map<string, any> = new Map([["MapOptionsSortingComponent", MapOptionsSortingComponent],])
   export const MapOfMarkersComponents: Map<string, any> = new Map([["MarkersTableComponent", MarkersTableComponent],])
@@ -37,6 +41,7 @@ export const MapOfComponents: Map<string, any> =
       // insertion point sub template for map of components 
       ["DivIcon", MapOfDivIconsComponents],
       ["LayerGroup", MapOfLayerGroupsComponents],
+      ["LayerGroupUse", MapOfLayerGroupUsesComponents],
       ["MapOptions", MapOfMapOptionssComponents],
       ["Marker", MapOfMarkersComponents],
       ["VisualCircle", MapOfVisualCirclesComponents],
@@ -52,6 +57,7 @@ export const MapOfSortingComponents: Map<string, any> =
     // insertion point sub template for map of sorting components 
       ["DivIcon", MapOfDivIconSortingComponents],
       ["LayerGroup", MapOfLayerGroupSortingComponents],
+      ["LayerGroupUse", MapOfLayerGroupUseSortingComponents],
       ["MapOptions", MapOfMapOptionsSortingComponents],
       ["Marker", MapOfMarkerSortingComponents],
       ["VisualCircle", MapOfVisualCircleSortingComponents],

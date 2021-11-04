@@ -28,7 +28,7 @@ export class CartoatcComponent implements OnInit {
 
   // name of the initial map
   @Input() mapName: string = ""
-  gongleafletMapOptions? : gongleaflet.MapOptionsDB
+  gongleafletMapOptions?: gongleaflet.MapOptionsDB
 
   // current map
   currentMap?: L.Map
@@ -158,7 +158,7 @@ export class CartoatcComponent implements OnInit {
   // manageNewVisualTrackMarker takes a visualTrack and 
   // add a L.DivIcon to the 
   manageNewVisualTrackMarker(visualTrack: gongleaflet.VisualTrackDB) {
-    var color = manageLeafletItems.getColor(visualTrack.VisualColorEnum);
+    var color = manageLeafletItems.getColor(visualTrack.ColorEnum);
 
     if (visualTrack.DivIcon) {
       var icon: L.DivIcon = manageLeafletItems.newIcon(

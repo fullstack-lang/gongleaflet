@@ -41,9 +41,9 @@
 
     <!-- -->
     <mat-form-field appearance="fill" class="detail-full-width">
-        <mat-label>VisualColorEnum</mat-label>
-        <mat-select [(ngModel)]="visualcircle.VisualColorEnum" [ngModelOptions]="{standalone: true}">
-            <mat-option *ngFor="let enum of VisualColorEnumList" [value]="enum.value">
+        <mat-label>ColorEnum</mat-label>
+        <mat-select [(ngModel)]="visualcircle.ColorEnum" [ngModelOptions]="{standalone: true}">
+            <mat-option *ngFor="let enum of ColorEnumList" [value]="enum.value">
                 {{enum.viewValue}}
             </mat-option>
         </mat-select>

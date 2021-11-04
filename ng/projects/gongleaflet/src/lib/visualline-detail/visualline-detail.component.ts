@@ -10,7 +10,7 @@ import { MapOfComponents } from '../map-components'
 import { MapOfSortingComponents } from '../map-components'
 
 // insertion point for imports
-import { VisualColorEnumSelect, VisualColorEnumList } from '../VisualColorEnum'
+import { ColorEnumSelect, ColorEnumList } from '../ColorEnum'
 import { DashStyleEnumSelect, DashStyleEnumList } from '../DashStyleEnum'
 import { TransmittingEnumSelect, TransmittingEnumList } from '../TransmittingEnum'
 
@@ -36,7 +36,7 @@ enum VisualLineDetailComponentState {
 export class VisualLineDetailComponent implements OnInit {
 
 	// insertion point for declarations
-	VisualColorEnumList: VisualColorEnumSelect[] = []
+	ColorEnumList: ColorEnumSelect[] = []
 	DashStyleEnumList: DashStyleEnumSelect[] = []
 	TransmittingEnumList: TransmittingEnumSelect[] = []
 
@@ -105,7 +105,7 @@ export class VisualLineDetailComponent implements OnInit {
 		)
 
 		// insertion point for initialisation of enums list
-		this.VisualColorEnumList = VisualColorEnumList
+		this.ColorEnumList = ColorEnumList
 		this.DashStyleEnumList = DashStyleEnumList
 		this.TransmittingEnumList = TransmittingEnumList
 	}

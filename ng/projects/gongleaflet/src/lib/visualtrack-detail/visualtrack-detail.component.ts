@@ -10,7 +10,7 @@ import { MapOfComponents } from '../map-components'
 import { MapOfSortingComponents } from '../map-components'
 
 // insertion point for imports
-import { VisualColorEnumSelect, VisualColorEnumList } from '../VisualColorEnum'
+import { ColorEnumSelect, ColorEnumList } from '../ColorEnum'
 
 import { Router, RouterState, ActivatedRoute } from '@angular/router';
 
@@ -34,7 +34,7 @@ enum VisualTrackDetailComponentState {
 export class VisualTrackDetailComponent implements OnInit {
 
 	// insertion point for declarations
-	VisualColorEnumList: VisualColorEnumSelect[] = []
+	ColorEnumList: ColorEnumSelect[] = []
 	DisplayFormControl = new FormControl(false);
 	DisplayTrackHistoryFormControl = new FormControl(false);
 	DisplayLevelAndSpeedFormControl = new FormControl(false);
@@ -104,7 +104,7 @@ export class VisualTrackDetailComponent implements OnInit {
 		)
 
 		// insertion point for initialisation of enums list
-		this.VisualColorEnumList = VisualColorEnumList
+		this.ColorEnumList = ColorEnumList
 	}
 
 	getVisualTrack(): void {

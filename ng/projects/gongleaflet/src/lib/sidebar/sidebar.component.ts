@@ -12,6 +12,8 @@ import { DivIconService } from '../divicon.service'
 import { getDivIconUniqueID } from '../front-repo.service'
 import { LayerGroupService } from '../layergroup.service'
 import { getLayerGroupUniqueID } from '../front-repo.service'
+import { LayerGroupUseService } from '../layergroupuse.service'
+import { getLayerGroupUseUniqueID } from '../front-repo.service'
 import { MapOptionsService } from '../mapoptions.service'
 import { getMapOptionsUniqueID } from '../front-repo.service'
 import { MarkerService } from '../marker.service'
@@ -159,6 +161,7 @@ export class SidebarComponent implements OnInit {
     // insertion point for per struct service declaration
     private diviconService: DivIconService,
     private layergroupService: LayerGroupService,
+    private layergroupuseService: LayerGroupUseService,
     private mapoptionsService: MapOptionsService,
     private markerService: MarkerService,
     private visualcircleService: VisualCircleService,
@@ -180,6 +183,14 @@ export class SidebarComponent implements OnInit {
     )
     // observable for changes in structs
     this.layergroupService.LayerGroupServiceChanged.subscribe(
+      message => {
+        if (message == "post" || message == "update" || message == "delete") {
+          this.refresh()
+        }
+      }
+    )
+    // observable for changes in structs
+    this.layergroupuseService.LayerGroupUseServiceChanged.subscribe(
       message => {
         if (message == "post" || message == "update" || message == "delete") {
           this.refresh()
@@ -335,6 +346,85 @@ export class SidebarComponent implements OnInit {
           layergroupGongNodeStruct.children!.push(layergroupGongNodeInstance)
 
           // insertion point for per field code
+        }
+      )
+
+      /**
+      * fill up the LayerGroupUse part of the mat tree
+      */
+      let layergroupuseGongNodeStruct: GongNode = {
+        name: "LayerGroupUse",
+        type: GongNodeType.STRUCT,
+        id: 0,
+        uniqueIdPerStack: 13 * nonInstanceNodeId,
+        structName: "LayerGroupUse",
+        associationField: "",
+        associatedStructName: "",
+        children: new Array<GongNode>()
+      }
+      nonInstanceNodeId = nonInstanceNodeId + 1
+      this.gongNodeTree.push(layergroupuseGongNodeStruct)
+
+      this.frontRepo.LayerGroupUses_array.sort((t1, t2) => {
+        if (t1.Name > t2.Name) {
+          return 1;
+        }
+        if (t1.Name < t2.Name) {
+          return -1;
+        }
+        return 0;
+      });
+
+      this.frontRepo.LayerGroupUses_array.forEach(
+        layergroupuseDB => {
+          let layergroupuseGongNodeInstance: GongNode = {
+            name: layergroupuseDB.Name,
+            type: GongNodeType.INSTANCE,
+            id: layergroupuseDB.ID,
+            uniqueIdPerStack: getLayerGroupUseUniqueID(layergroupuseDB.ID),
+            structName: "LayerGroupUse",
+            associationField: "",
+            associatedStructName: "",
+            children: new Array<GongNode>()
+          }
+          layergroupuseGongNodeStruct.children!.push(layergroupuseGongNodeInstance)
+
+          // insertion point for per field code
+          /**
+          * let append a node for the association LayerGroup
+          */
+          let LayerGroupGongNodeAssociation: GongNode = {
+            name: "(LayerGroup) LayerGroup",
+            type: GongNodeType.ONE__ZERO_ONE_ASSOCIATION,
+            id: layergroupuseDB.ID,
+            uniqueIdPerStack: 17 * nonInstanceNodeId,
+            structName: "LayerGroupUse",
+            associationField: "LayerGroup",
+            associatedStructName: "LayerGroup",
+            children: new Array<GongNode>()
+          }
+          nonInstanceNodeId = nonInstanceNodeId + 1
+          layergroupuseGongNodeInstance.children!.push(LayerGroupGongNodeAssociation)
+
+          /**
+            * let append a node for the instance behind the asssociation LayerGroup
+            */
+          if (layergroupuseDB.LayerGroup != undefined) {
+            let layergroupuseGongNodeInstance_LayerGroup: GongNode = {
+              name: layergroupuseDB.LayerGroup.Name,
+              type: GongNodeType.INSTANCE,
+              id: layergroupuseDB.LayerGroup.ID,
+              uniqueIdPerStack: // godel numbering (thank you kurt)
+                3 * getLayerGroupUseUniqueID(layergroupuseDB.ID)
+                + 5 * getLayerGroupUniqueID(layergroupuseDB.LayerGroup.ID),
+              structName: "LayerGroup",
+              associationField: "",
+              associatedStructName: "",
+              children: new Array<GongNode>()
+            }
+            LayerGroupGongNodeAssociation.children.push(layergroupuseGongNodeInstance_LayerGroup)
+          }
+
         }
       )
 

@@ -44,6 +44,7 @@ func AutoMigrate(db *gorm.DB) {
 	err := db.AutoMigrate( // insertion point for reference to structs
 		&DivIconDB{},
 		&LayerGroupDB{},
+		&LayerGroupUseDB{},
 		&MapOptionsDB{},
 		&MarkerDB{},
 		&VisualCircleDB{},
@@ -63,6 +64,7 @@ func AutoMigrate(db *gorm.DB) {
 func ResetDB(db *gorm.DB) { // insertion point for reference to structs
 	db.Delete(&DivIconDB{})
 	db.Delete(&LayerGroupDB{})
+	db.Delete(&LayerGroupUseDB{})
 	db.Delete(&MapOptionsDB{})
 	db.Delete(&MarkerDB{})
 	db.Delete(&VisualCircleDB{})

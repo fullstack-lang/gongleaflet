@@ -92,7 +92,7 @@ export class MarkersComponent implements OnInit {
         this.gongleafletFrontRepo.Markers.forEach((marker) => {
 
           if (!this.mapMarkerID_LeafletMarker.has(marker.ID)) {
-            var color = manageLeafletItems.getColor(marker.VisualColorEnum);
+            var color = manageLeafletItems.getColor(marker.ColorEnum);
 
             var icon: L.DivIcon = manageLeafletItems.newIcon(
               marker.ID,

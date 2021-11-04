@@ -75,8 +75,8 @@ type MarkerDB struct {
 	// Declation for basic field markerDB.Name {{BasicKind}} (to be completed)
 	Name_Data sql.NullString
 
-	// Declation for basic field markerDB.VisualColorEnum {{BasicKind}} (to be completed)
-	VisualColorEnum_Data sql.NullString
+	// Declation for basic field markerDB.ColorEnum {{BasicKind}} (to be completed)
+	ColorEnum_Data sql.NullString
 	// encoding of pointers
 	MarkerPointersEnconding
 }
@@ -104,7 +104,7 @@ type MarkerWOP struct {
 
 	Name string `xlsx:"3"`
 
-	VisualColorEnum models.VisualColorEnum `xlsx:"4"`
+	ColorEnum models.ColorEnum `xlsx:"4"`
 	// insertion for WOP pointer fields
 }
 
@@ -114,7 +114,7 @@ var Marker_Fields = []string{
 	"Lat",
 	"Lng",
 	"Name",
-	"VisualColorEnum",
+	"ColorEnum",
 }
 
 type BackRepoMarkerStruct struct {
@@ -431,8 +431,8 @@ func (markerDB *MarkerDB) CopyBasicFieldsFromMarker(marker *models.Marker) {
 	markerDB.Name_Data.String = marker.Name
 	markerDB.Name_Data.Valid = true
 
-	markerDB.VisualColorEnum_Data.String = string(marker.VisualColorEnum)
-	markerDB.VisualColorEnum_Data.Valid = true
+	markerDB.ColorEnum_Data.String = string(marker.ColorEnum)
+	markerDB.ColorEnum_Data.Valid = true
 }
 
 // CopyBasicFieldsFromMarkerWOP
@@ -448,8 +448,8 @@ func (markerDB *MarkerDB) CopyBasicFieldsFromMarkerWOP(marker *MarkerWOP) {
 	markerDB.Name_Data.String = marker.Name
 	markerDB.Name_Data.Valid = true
 
-	markerDB.VisualColorEnum_Data.String = string(marker.VisualColorEnum)
-	markerDB.VisualColorEnum_Data.Valid = true
+	markerDB.ColorEnum_Data.String = string(marker.ColorEnum)
+	markerDB.ColorEnum_Data.Valid = true
 }
 
 // CopyBasicFieldsToMarker
@@ -458,7 +458,7 @@ func (markerDB *MarkerDB) CopyBasicFieldsToMarker(marker *models.Marker) {
 	marker.Lat = markerDB.Lat_Data.Float64
 	marker.Lng = markerDB.Lng_Data.Float64
 	marker.Name = markerDB.Name_Data.String
-	marker.VisualColorEnum = models.VisualColorEnum(markerDB.VisualColorEnum_Data.String)
+	marker.ColorEnum = models.ColorEnum(markerDB.ColorEnum_Data.String)
 }
 
 // CopyBasicFieldsToMarkerWOP
@@ -468,7 +468,7 @@ func (markerDB *MarkerDB) CopyBasicFieldsToMarkerWOP(marker *MarkerWOP) {
 	marker.Lat = markerDB.Lat_Data.Float64
 	marker.Lng = markerDB.Lng_Data.Float64
 	marker.Name = markerDB.Name_Data.String
-	marker.VisualColorEnum = models.VisualColorEnum(markerDB.VisualColorEnum_Data.String)
+	marker.ColorEnum = models.ColorEnum(markerDB.ColorEnum_Data.String)
 }
 
 // Backup generates a json file from a slice of all MarkerDB instances in the backrepo

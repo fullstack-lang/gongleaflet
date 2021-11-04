@@ -48,6 +48,11 @@ import { LayerGroupSortingComponent } from './layergroup-sorting/layergroup-sort
 import { LayerGroupDetailComponent } from './layergroup-detail/layergroup-detail.component'
 import { LayerGroupPresentationComponent } from './layergroup-presentation/layergroup-presentation.component'
 
+import { LayerGroupUsesTableComponent } from './layergroupuses-table/layergroupuses-table.component'
+import { LayerGroupUseSortingComponent } from './layergroupuse-sorting/layergroupuse-sorting.component'
+import { LayerGroupUseDetailComponent } from './layergroupuse-detail/layergroupuse-detail.component'
+import { LayerGroupUsePresentationComponent } from './layergroupuse-presentation/layergroupuse-presentation.component'
+
 import { MapOptionssTableComponent } from './mapoptionss-table/mapoptionss-table.component'
 import { MapOptionsSortingComponent } from './mapoptions-sorting/mapoptions-sorting.component'
 import { MapOptionsDetailComponent } from './mapoptions-detail/mapoptions-detail.component'
@@ -86,6 +91,11 @@ import { VisualTrackPresentationComponent } from './visualtrack-presentation/vis
 		LayerGroupSortingComponent,
 		LayerGroupDetailComponent,
 		LayerGroupPresentationComponent,
+
+		LayerGroupUsesTableComponent,
+		LayerGroupUseSortingComponent,
+		LayerGroupUseDetailComponent,
+		LayerGroupUsePresentationComponent,
 
 		MapOptionssTableComponent,
 		MapOptionsSortingComponent,
@@ -160,6 +170,11 @@ import { VisualTrackPresentationComponent } from './visualtrack-presentation/vis
 		LayerGroupSortingComponent,
 		LayerGroupDetailComponent,
 		LayerGroupPresentationComponent,
+
+		LayerGroupUsesTableComponent,
+		LayerGroupUseSortingComponent,
+		LayerGroupUseDetailComponent,
+		LayerGroupUsePresentationComponent,
 
 		MapOptionssTableComponent,
 		MapOptionsSortingComponent,

@@ -10,6 +10,9 @@ import { DivIconService } from './divicon.service'
 import { LayerGroupDB } from './layergroup-db'
 import { LayerGroupService } from './layergroup.service'
 
+import { LayerGroupUseDB } from './layergroupuse-db'
+import { LayerGroupUseService } from './layergroupuse.service'
+
 import { MapOptionsDB } from './mapoptions-db'
 import { MapOptionsService } from './mapoptions.service'
 
@@ -34,6 +37,9 @@ export class FrontRepo { // insertion point sub template
   LayerGroups_array = new Array<LayerGroupDB>(); // array of repo instances
   LayerGroups = new Map<number, LayerGroupDB>(); // map of repo instances
   LayerGroups_batch = new Map<number, LayerGroupDB>(); // same but only in last GET (for finding repo instances to delete)
+  LayerGroupUses_array = new Array<LayerGroupUseDB>(); // array of repo instances
+  LayerGroupUses = new Map<number, LayerGroupUseDB>(); // map of repo instances
+  LayerGroupUses_batch = new Map<number, LayerGroupUseDB>(); // same but only in last GET (for finding repo instances to delete)
   MapOptionss_array = new Array<MapOptionsDB>(); // array of repo instances
   MapOptionss = new Map<number, MapOptionsDB>(); // map of repo instances
   MapOptionss_batch = new Map<number, MapOptionsDB>(); // same but only in last GET (for finding repo instances to delete)
@@ -109,6 +115,7 @@ export class FrontRepoService {
     private http: HttpClient, // insertion point sub template 
     private diviconService: DivIconService,
     private layergroupService: LayerGroupService,
+    private layergroupuseService: LayerGroupUseService,
     private mapoptionsService: MapOptionsService,
     private markerService: MarkerService,
     private visualcircleService: VisualCircleService,
@@ -146,6 +153,7 @@ export class FrontRepoService {
   observableFrontRepo: [ // insertion point sub template 
     Observable<DivIconDB[]>,
     Observable<LayerGroupDB[]>,
+    Observable<LayerGroupUseDB[]>,
     Observable<MapOptionsDB[]>,
     Observable<MarkerDB[]>,
     Observable<VisualCircleDB[]>,
@@ -154,6 +162,7 @@ export class FrontRepoService {
   ] = [ // insertion point sub template 
       this.diviconService.getDivIcons(),
       this.layergroupService.getLayerGroups(),
+      this.layergroupuseService.getLayerGroupUses(),
       this.mapoptionsService.getMapOptionss(),
       this.markerService.getMarkers(),
       this.visualcircleService.getVisualCircles(),
@@ -176,6 +185,7 @@ export class FrontRepoService {
           ([ // insertion point sub template for declarations 
             divicons_,
             layergroups_,
+            layergroupuses_,
             mapoptionss_,
             markers_,
             visualcircles_,
@@ -188,6 +198,8 @@ export class FrontRepoService {
             divicons = divicons_ as DivIconDB[]
             var layergroups: LayerGroupDB[]
             layergroups = layergroups_ as LayerGroupDB[]
+            var layergroupuses: LayerGroupUseDB[]
+            layergroupuses = layergroupuses_ as LayerGroupUseDB[]
             var mapoptionss: MapOptionsDB[]
             mapoptionss = mapoptionss_ as MapOptionsDB[]
             var markers: MarkerDB[]
@@ -259,6 +271,39 @@ export class FrontRepoService {
 
             // sort LayerGroups_array array
             FrontRepoSingloton.LayerGroups_array.sort((t1, t2) => {
+              if (t1.Name > t2.Name) {
+                return 1;
+              }
+              if (t1.Name < t2.Name) {
+                return -1;
+              }
+              return 0;
+            });
+
+            // init the array
+            FrontRepoSingloton.LayerGroupUses_array = layergroupuses
+
+            // clear the map that counts LayerGroupUse in the GET
+            FrontRepoSingloton.LayerGroupUses_batch.clear()
+
+            layergroupuses.forEach(
+              layergroupuse => {
+                FrontRepoSingloton.LayerGroupUses.set(layergroupuse.ID, layergroupuse)
+                FrontRepoSingloton.LayerGroupUses_batch.set(layergroupuse.ID, layergroupuse)
+              }
+            )
+
+            // clear layergroupuses that are absent from the batch
+            FrontRepoSingloton.LayerGroupUses.forEach(
+              layergroupuse => {
+                if (FrontRepoSingloton.LayerGroupUses_batch.get(layergroupuse.ID) == undefined) {
+                  FrontRepoSingloton.LayerGroupUses.delete(layergroupuse.ID)
+                }
+              }
+            )
+
+            // sort LayerGroupUses_array array
+            FrontRepoSingloton.LayerGroupUses_array.sort((t1, t2) => {
               if (t1.Name > t2.Name) {
                 return 1;
               }
@@ -451,6 +496,20 @@ export class FrontRepoService {
                 // insertion point for redeeming ONE-MANY associations
               }
             )
+            layergroupuses.forEach(
+              layergroupuse => {
+                // insertion point sub sub template for ONE-/ZERO-ONE associations pointers redeeming
+                // insertion point for pointer field LayerGroup redeeming
+                {
+                  let _layergroup = FrontRepoSingloton.LayerGroups.get(layergroupuse.LayerGroupID.Int64)
+                  if (_layergroup) {
+                    layergroupuse.LayerGroup = _layergroup
+                  }
+                }
+
+                // insertion point for redeeming ONE-MANY associations
+              }
+            )
             mapoptionss.forEach(
               mapoptions => {
                 // insertion point sub sub template for ONE-/ZERO-ONE associations pointers redeeming
@@ -625,6 +684,64 @@ export class FrontRepoService {
               layergroup => {
                 if (FrontRepoSingloton.LayerGroups_batch.get(layergroup.ID) == undefined) {
                   FrontRepoSingloton.LayerGroups.delete(layergroup.ID)
+                }
+              }
+            )
+
+            // 
+            // Second Step: redeem pointers between instances (thanks to maps in the First Step)
+            // insertion point sub template 
+
+            // hand over control flow to observer
+            observer.next(FrontRepoSingloton)
+          }
+        )
+      }
+    )
+  }
+
+  // LayerGroupUsePull performs a GET on LayerGroupUse of the stack and redeem association pointers 
+  LayerGroupUsePull(): Observable<FrontRepo> {
+    return new Observable<FrontRepo>(
+      (observer) => {
+        combineLatest([
+          this.layergroupuseService.getLayerGroupUses()
+        ]).subscribe(
+          ([ // insertion point sub template 
+            layergroupuses,
+          ]) => {
+            // init the array
+            FrontRepoSingloton.LayerGroupUses_array = layergroupuses
+
+            // clear the map that counts LayerGroupUse in the GET
+            FrontRepoSingloton.LayerGroupUses_batch.clear()
+
+            // 
+            // First Step: init map of instances
+            // insertion point sub template 
+            layergroupuses.forEach(
+              layergroupuse => {
+                FrontRepoSingloton.LayerGroupUses.set(layergroupuse.ID, layergroupuse)
+                FrontRepoSingloton.LayerGroupUses_batch.set(layergroupuse.ID, layergroupuse)
+
+                // insertion point for redeeming ONE/ZERO-ONE associations
+                // insertion point for pointer field LayerGroup redeeming
+                {
+                  let _layergroup = FrontRepoSingloton.LayerGroups.get(layergroupuse.LayerGroupID.Int64)
+                  if (_layergroup) {
+                    layergroupuse.LayerGroup = _layergroup
+                  }
+                }
+
+                // insertion point for redeeming ONE-MANY associations
+              }
+            )
+
+            // clear layergroupuses that are absent from the GET
+            FrontRepoSingloton.LayerGroupUses.forEach(
+              layergroupuse => {
+                if (FrontRepoSingloton.LayerGroupUses_batch.get(layergroupuse.ID) == undefined) {
+                  FrontRepoSingloton.LayerGroupUses.delete(layergroupuse.ID)
                 }
               }
             )
@@ -946,18 +1063,21 @@ export function getDivIconUniqueID(id: number): number {
 export function getLayerGroupUniqueID(id: number): number {
   return 37 * id
 }
-export function getMapOptionsUniqueID(id: number): number {
+export function getLayerGroupUseUniqueID(id: number): number {
   return 41 * id
 }
-export function getMarkerUniqueID(id: number): number {
+export function getMapOptionsUniqueID(id: number): number {
   return 43 * id
 }
-export function getVisualCircleUniqueID(id: number): number {
+export function getMarkerUniqueID(id: number): number {
   return 47 * id
 }
-export function getVisualLineUniqueID(id: number): number {
+export function getVisualCircleUniqueID(id: number): number {
   return 53 * id
 }
-export function getVisualTrackUniqueID(id: number): number {
+export function getVisualLineUniqueID(id: number): number {
   return 59 * id
+}
+export function getVisualTrackUniqueID(id: number): number {
+  return 61 * id
 }

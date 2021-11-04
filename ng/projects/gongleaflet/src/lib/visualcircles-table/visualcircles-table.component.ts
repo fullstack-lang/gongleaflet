@@ -78,8 +78,8 @@ export class VisualCirclesTableComponent implements OnInit {
         case 'Radius':
           return visualcircleDB.Radius;
 
-        case 'VisualColorEnum':
-          return visualcircleDB.VisualColorEnum;
+        case 'ColorEnum':
+          return visualcircleDB.ColorEnum;
 
         case 'DashStyleEnum':
           return visualcircleDB.DashStyleEnum;
@@ -105,7 +105,7 @@ export class VisualCirclesTableComponent implements OnInit {
       mergedContent += visualcircleDB.Lng.toString()
       mergedContent += visualcircleDB.Name.toLowerCase()
       mergedContent += visualcircleDB.Radius.toString()
-      mergedContent += visualcircleDB.VisualColorEnum.toLowerCase()
+      mergedContent += visualcircleDB.ColorEnum.toLowerCase()
       mergedContent += visualcircleDB.DashStyleEnum.toLowerCase()
       if (visualcircleDB.LayerGroup) {
         mergedContent += visualcircleDB.LayerGroup.Name.toLowerCase()
@@ -164,7 +164,7 @@ export class VisualCirclesTableComponent implements OnInit {
         "Lng",
         "Name",
         "Radius",
-        "VisualColorEnum",
+        "ColorEnum",
         "DashStyleEnum",
         "LayerGroup",
       ]
@@ -174,7 +174,7 @@ export class VisualCirclesTableComponent implements OnInit {
         "Lng",
         "Name",
         "Radius",
-        "VisualColorEnum",
+        "ColorEnum",
         "DashStyleEnum",
         "LayerGroup",
       ]

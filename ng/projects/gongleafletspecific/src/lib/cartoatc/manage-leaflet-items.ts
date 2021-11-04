@@ -1,7 +1,7 @@
 import { Type } from '@angular/core';
 import {
   VisualCircleDB,
-  VisualColorEnum,
+  ColorEnum,
   VisualLineDB,
   MapOptionsDB,
 } from 'gongleaflet';
@@ -105,7 +105,7 @@ const newCircle = (visualCircle: VisualCircleDB): L.Circle => {
   return L.circle([visualCircle.Lat, visualCircle.Lng], {
     className: 'layer-' + visualCircle.LayerGroupID.Int64,
     radius: visualCircle.Radius * 1000,
-    color: getColor(visualCircle.VisualColorEnum),
+    color: getColor(visualCircle.ColorEnum),
     opacity: 0.2,
     dashArray: getDashStyle(visualCircle.DashStyleEnum),
     dashOffset: '0',
@@ -124,26 +124,26 @@ const setLine = (newVisualLineData: VisualLineDB): L.Polyline => {
       weight: 2,
       dashArray: getDashStyle(newVisualLineData.DashStyleEnum),
       opacity: 0.5,
-      color: getColor(newVisualLineData.VisualColorEnum),
+      color: getColor(newVisualLineData.ColorEnum),
     });
 };
 
 const getColor = (visualColorEnum: string): string => {
   var color = 'grey';
   switch (visualColorEnum) {
-    case VisualColorEnum.RED:
+    case ColorEnum.RED:
       color = 'red';
       break;
-    case VisualColorEnum.GREY:
+    case ColorEnum.GREY:
       color = 'grey';
       break;
-    case VisualColorEnum.GREEN:
+    case ColorEnum.GREEN:
       color = 'green';
       break;
-    case VisualColorEnum.BLUE:
+    case ColorEnum.BLUE:
       color = 'blue';
       break;
-    case VisualColorEnum.LIGHT_BROWN_8D6E63:
+    case ColorEnum.LIGHT_BROWN_8D6E63:
       color = '#8D6E63';
       break;
   }

@@ -9,8 +9,8 @@ type VisualCircle struct {
 
 	Radius float64
 
-	VisualColorEnum VisualColorEnum
-	DashStyleEnum   DashStyleEnum
+	ColorEnum     ColorEnum
+	DashStyleEnum DashStyleEnum
 
 	// LayerGroup the object belongs to
 	LayerGroup *LayerGroup

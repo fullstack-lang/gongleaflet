@@ -71,7 +71,7 @@ export class CartoatcLinesComponent implements OnInit {
                   [visualLine.EndLat, visualLine.EndLng],
                 ]);
                 visualLineMarker.options.color = manageLeafletItems.getColor(
-                  visualLine.VisualColorEnum
+                  visualLine.ColorEnum
                 );
                 visualLineMarker.setStyle(visualLineMarker.options);
               }

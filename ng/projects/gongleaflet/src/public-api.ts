@@ -28,6 +28,13 @@ export * from './lib/layergroups-table/layergroups-table.component'
 export * from './lib/layergroup-db'
 export * from './lib/layergroup.service'
 
+export * from './lib/layergroupuse-detail/layergroupuse-detail.component'
+export * from './lib/layergroupuse-presentation/layergroupuse-presentation.component'
+export * from './lib/layergroupuse-sorting/layergroupuse-sorting.component'
+export * from './lib/layergroupuses-table/layergroupuses-table.component'
+export * from './lib/layergroupuse-db'
+export * from './lib/layergroupuse.service'
+
 export * from './lib/mapoptions-detail/mapoptions-detail.component'
 export * from './lib/mapoptions-presentation/mapoptions-presentation.component'
 export * from './lib/mapoptions-sorting/mapoptions-sorting.component'
@@ -64,7 +71,7 @@ export * from './lib/visualtrack-db'
 export * from './lib/visualtrack.service'
 
 
+export * from './lib/ColorEnum'
 export * from './lib/DashStyleEnum'
 export * from './lib/Start_To_End_Enum'
 export * from './lib/TransmittingEnum'
-export * from './lib/VisualColorEnum'

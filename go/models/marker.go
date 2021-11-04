@@ -9,7 +9,7 @@ type Marker struct {
 	Lat, Lng float64
 	Name     string
 
-	VisualColorEnum VisualColorEnum
+	ColorEnum ColorEnum
 
 	// LayerGroup the object belongs to
 	LayerGroup *LayerGroup

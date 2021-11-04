@@ -57,6 +57,13 @@ func RegisterControllers(r *gin.Engine) {
 		v1.PUT("/v1/layergroups/:id", UpdateLayerGroup)
 		v1.DELETE("/v1/layergroups/:id", DeleteLayerGroup)
 
+		v1.GET("/v1/layergroupuses", GetLayerGroupUses)
+		v1.GET("/v1/layergroupuses/:id", GetLayerGroupUse)
+		v1.POST("/v1/layergroupuses", PostLayerGroupUse)
+		v1.PATCH("/v1/layergroupuses/:id", UpdateLayerGroupUse)
+		v1.PUT("/v1/layergroupuses/:id", UpdateLayerGroupUse)
+		v1.DELETE("/v1/layergroupuses/:id", DeleteLayerGroupUse)
+
 		v1.GET("/v1/mapoptionss", GetMapOptionss)
 		v1.GET("/v1/mapoptionss/:id", GetMapOptions)
 		v1.POST("/v1/mapoptionss", PostMapOptions)

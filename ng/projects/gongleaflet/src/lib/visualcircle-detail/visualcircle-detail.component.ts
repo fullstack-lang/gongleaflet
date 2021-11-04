@@ -10,7 +10,7 @@ import { MapOfComponents } from '../map-components'
 import { MapOfSortingComponents } from '../map-components'
 
 // insertion point for imports
-import { VisualColorEnumSelect, VisualColorEnumList } from '../VisualColorEnum'
+import { ColorEnumSelect, ColorEnumList } from '../ColorEnum'
 import { DashStyleEnumSelect, DashStyleEnumList } from '../DashStyleEnum'
 
 import { Router, RouterState, ActivatedRoute } from '@angular/router';
@@ -35,7 +35,7 @@ enum VisualCircleDetailComponentState {
 export class VisualCircleDetailComponent implements OnInit {
 
 	// insertion point for declarations
-	VisualColorEnumList: VisualColorEnumSelect[] = []
+	ColorEnumList: ColorEnumSelect[] = []
 	DashStyleEnumList: DashStyleEnumSelect[] = []
 
 	// the VisualCircleDB of interest
@@ -103,7 +103,7 @@ export class VisualCircleDetailComponent implements OnInit {
 		)
 
 		// insertion point for initialisation of enums list
-		this.VisualColorEnumList = VisualColorEnumList
+		this.ColorEnumList = ColorEnumList
 		this.DashStyleEnumList = DashStyleEnumList
 	}
 

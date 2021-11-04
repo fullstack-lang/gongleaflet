@@ -18,6 +18,9 @@ type StageStruct struct { // insertion point for definition of arrays registerin
 	LayerGroups           map[*LayerGroup]struct{}
 	LayerGroups_mapString map[string]*LayerGroup
 
+	LayerGroupUses           map[*LayerGroupUse]struct{}
+	LayerGroupUses_mapString map[string]*LayerGroupUse
+
 	MapOptionss           map[*MapOptions]struct{}
 	MapOptionss_mapString map[string]*MapOptions
 
@@ -59,6 +62,8 @@ type BackRepoInterface interface {
 	CheckoutDivIcon(divicon *DivIcon)
 	CommitLayerGroup(layergroup *LayerGroup)
 	CheckoutLayerGroup(layergroup *LayerGroup)
+	CommitLayerGroupUse(layergroupuse *LayerGroupUse)
+	CheckoutLayerGroupUse(layergroupuse *LayerGroupUse)
 	CommitMapOptions(mapoptions *MapOptions)
 	CheckoutMapOptions(mapoptions *MapOptions)
 	CommitMarker(marker *Marker)
@@ -80,6 +85,9 @@ var Stage StageStruct = StageStruct{ // insertion point for array initiatialisat
 
 	LayerGroups:           make(map[*LayerGroup]struct{}),
 	LayerGroups_mapString: make(map[string]*LayerGroup),
+
+	LayerGroupUses:           make(map[*LayerGroupUse]struct{}),
+	LayerGroupUses_mapString: make(map[string]*LayerGroupUse),
 
 	MapOptionss:           make(map[*MapOptions]struct{}),
 	MapOptionss_mapString: make(map[string]*MapOptions),
@@ -341,6 +349,108 @@ func DeleteORMLayerGroup(layergroup *LayerGroup) {
 	layergroup.Unstage()
 	if Stage.AllModelsStructDeleteCallback != nil {
 		Stage.AllModelsStructDeleteCallback.DeleteORMLayerGroup(layergroup)
+	}
+}
+
+func (stage *StageStruct) getLayerGroupUseOrderedStructWithNameField() []*LayerGroupUse {
+	// have alphabetical order generation
+	layergroupuseOrdered := []*LayerGroupUse{}
+	for layergroupuse := range stage.LayerGroupUses {
+		layergroupuseOrdered = append(layergroupuseOrdered, layergroupuse)
+	}
+	sort.Slice(layergroupuseOrdered[:], func(i, j int) bool {
+		return layergroupuseOrdered[i].Name < layergroupuseOrdered[j].Name
+	})
+	return layergroupuseOrdered
+}
+
+// Stage puts layergroupuse to the model stage
+func (layergroupuse *LayerGroupUse) Stage() *LayerGroupUse {
+	Stage.LayerGroupUses[layergroupuse] = __member
+	Stage.LayerGroupUses_mapString[layergroupuse.Name] = layergroupuse
+
+	return layergroupuse
+}
+
+// Unstage removes layergroupuse off the model stage
+func (layergroupuse *LayerGroupUse) Unstage() *LayerGroupUse {
+	delete(Stage.LayerGroupUses, layergroupuse)
+	delete(Stage.LayerGroupUses_mapString, layergroupuse.Name)
+	return layergroupuse
+}
+
+// commit layergroupuse to the back repo (if it is already staged)
+func (layergroupuse *LayerGroupUse) Commit() *LayerGroupUse {
+	if _, ok := Stage.LayerGroupUses[layergroupuse]; ok {
+		if Stage.BackRepo != nil {
+			Stage.BackRepo.CommitLayerGroupUse(layergroupuse)
+		}
+	}
+	return layergroupuse
+}
+
+// Checkout layergroupuse to the back repo (if it is already staged)
+func (layergroupuse *LayerGroupUse) Checkout() *LayerGroupUse {
+	if _, ok := Stage.LayerGroupUses[layergroupuse]; ok {
+		if Stage.BackRepo != nil {
+			Stage.BackRepo.CheckoutLayerGroupUse(layergroupuse)
+		}
+	}
+	return layergroupuse
+}
+
+//
+// Legacy, to be deleted
+//
+
+// StageCopy appends a copy of layergroupuse to the model stage
+func (layergroupuse *LayerGroupUse) StageCopy() *LayerGroupUse {
+	_layergroupuse := new(LayerGroupUse)
+	*_layergroupuse = *layergroupuse
+	_layergroupuse.Stage()
+	return _layergroupuse
+}
+
+// StageAndCommit appends layergroupuse to the model stage and commit to the orm repo
+func (layergroupuse *LayerGroupUse) StageAndCommit() *LayerGroupUse {
+	layergroupuse.Stage()
+	if Stage.AllModelsStructCreateCallback != nil {
+		Stage.AllModelsStructCreateCallback.CreateORMLayerGroupUse(layergroupuse)
+	}
+	return layergroupuse
+}
+
+// DeleteStageAndCommit appends layergroupuse to the model stage and commit to the orm repo
+func (layergroupuse *LayerGroupUse) DeleteStageAndCommit() *LayerGroupUse {
+	layergroupuse.Unstage()
+	DeleteORMLayerGroupUse(layergroupuse)
+	return layergroupuse
+}
+
+// StageCopyAndCommit appends a copy of layergroupuse to the model stage and commit to the orm repo
+func (layergroupuse *LayerGroupUse) StageCopyAndCommit() *LayerGroupUse {
+	_layergroupuse := new(LayerGroupUse)
+	*_layergroupuse = *layergroupuse
+	_layergroupuse.Stage()
+	if Stage.AllModelsStructCreateCallback != nil {
+		Stage.AllModelsStructCreateCallback.CreateORMLayerGroupUse(layergroupuse)
+	}
+	return _layergroupuse
+}
+
+// CreateORMLayerGroupUse enables dynamic staging of a LayerGroupUse instance
+func CreateORMLayerGroupUse(layergroupuse *LayerGroupUse) {
+	layergroupuse.Stage()
+	if Stage.AllModelsStructCreateCallback != nil {
+		Stage.AllModelsStructCreateCallback.CreateORMLayerGroupUse(layergroupuse)
+	}
+}
+
+// DeleteORMLayerGroupUse enables dynamic staging of a LayerGroupUse instance
+func DeleteORMLayerGroupUse(layergroupuse *LayerGroupUse) {
+	layergroupuse.Unstage()
+	if Stage.AllModelsStructDeleteCallback != nil {
+		Stage.AllModelsStructDeleteCallback.DeleteORMLayerGroupUse(layergroupuse)
 	}
 }
 
@@ -858,6 +968,7 @@ func DeleteORMVisualTrack(visualtrack *VisualTrack) {
 type AllModelsStructCreateInterface interface { // insertion point for Callbacks on creation
 	CreateORMDivIcon(DivIcon *DivIcon)
 	CreateORMLayerGroup(LayerGroup *LayerGroup)
+	CreateORMLayerGroupUse(LayerGroupUse *LayerGroupUse)
 	CreateORMMapOptions(MapOptions *MapOptions)
 	CreateORMMarker(Marker *Marker)
 	CreateORMVisualCircle(VisualCircle *VisualCircle)
@@ -868,6 +979,7 @@ type AllModelsStructCreateInterface interface { // insertion point for Callbacks
 type AllModelsStructDeleteInterface interface { // insertion point for Callbacks on deletion
 	DeleteORMDivIcon(DivIcon *DivIcon)
 	DeleteORMLayerGroup(LayerGroup *LayerGroup)
+	DeleteORMLayerGroupUse(LayerGroupUse *LayerGroupUse)
 	DeleteORMMapOptions(MapOptions *MapOptions)
 	DeleteORMMarker(Marker *Marker)
 	DeleteORMVisualCircle(VisualCircle *VisualCircle)
@@ -881,6 +993,9 @@ func (stage *StageStruct) Reset() { // insertion point for array reset
 
 	stage.LayerGroups = make(map[*LayerGroup]struct{})
 	stage.LayerGroups_mapString = make(map[string]*LayerGroup)
+
+	stage.LayerGroupUses = make(map[*LayerGroupUse]struct{})
+	stage.LayerGroupUses_mapString = make(map[string]*LayerGroupUse)
 
 	stage.MapOptionss = make(map[*MapOptions]struct{})
 	stage.MapOptionss_mapString = make(map[string]*MapOptions)
@@ -905,6 +1020,9 @@ func (stage *StageStruct) Nil() { // insertion point for array nil
 
 	stage.LayerGroups = nil
 	stage.LayerGroups_mapString = nil
+
+	stage.LayerGroupUses = nil
+	stage.LayerGroupUses_mapString = nil
 
 	stage.MapOptionss = nil
 	stage.MapOptionss_mapString = nil

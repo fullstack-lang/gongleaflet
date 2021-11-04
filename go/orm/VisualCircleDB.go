@@ -74,8 +74,8 @@ type VisualCircleDB struct {
 	// Declation for basic field visualcircleDB.Radius {{BasicKind}} (to be completed)
 	Radius_Data sql.NullFloat64
 
-	// Declation for basic field visualcircleDB.VisualColorEnum {{BasicKind}} (to be completed)
-	VisualColorEnum_Data sql.NullString
+	// Declation for basic field visualcircleDB.ColorEnum {{BasicKind}} (to be completed)
+	ColorEnum_Data sql.NullString
 
 	// Declation for basic field visualcircleDB.DashStyleEnum {{BasicKind}} (to be completed)
 	DashStyleEnum_Data sql.NullString
@@ -108,7 +108,7 @@ type VisualCircleWOP struct {
 
 	Radius float64 `xlsx:"4"`
 
-	VisualColorEnum models.VisualColorEnum `xlsx:"5"`
+	ColorEnum models.ColorEnum `xlsx:"5"`
 
 	DashStyleEnum models.DashStyleEnum `xlsx:"6"`
 	// insertion for WOP pointer fields
@@ -121,7 +121,7 @@ var VisualCircle_Fields = []string{
 	"Lng",
 	"Name",
 	"Radius",
-	"VisualColorEnum",
+	"ColorEnum",
 	"DashStyleEnum",
 }
 
@@ -429,8 +429,8 @@ func (visualcircleDB *VisualCircleDB) CopyBasicFieldsFromVisualCircle(visualcirc
 	visualcircleDB.Radius_Data.Float64 = visualcircle.Radius
 	visualcircleDB.Radius_Data.Valid = true
 
-	visualcircleDB.VisualColorEnum_Data.String = string(visualcircle.VisualColorEnum)
-	visualcircleDB.VisualColorEnum_Data.Valid = true
+	visualcircleDB.ColorEnum_Data.String = string(visualcircle.ColorEnum)
+	visualcircleDB.ColorEnum_Data.Valid = true
 
 	visualcircleDB.DashStyleEnum_Data.String = string(visualcircle.DashStyleEnum)
 	visualcircleDB.DashStyleEnum_Data.Valid = true
@@ -452,8 +452,8 @@ func (visualcircleDB *VisualCircleDB) CopyBasicFieldsFromVisualCircleWOP(visualc
 	visualcircleDB.Radius_Data.Float64 = visualcircle.Radius
 	visualcircleDB.Radius_Data.Valid = true
 
-	visualcircleDB.VisualColorEnum_Data.String = string(visualcircle.VisualColorEnum)
-	visualcircleDB.VisualColorEnum_Data.Valid = true
+	visualcircleDB.ColorEnum_Data.String = string(visualcircle.ColorEnum)
+	visualcircleDB.ColorEnum_Data.Valid = true
 
 	visualcircleDB.DashStyleEnum_Data.String = string(visualcircle.DashStyleEnum)
 	visualcircleDB.DashStyleEnum_Data.Valid = true
@@ -466,7 +466,7 @@ func (visualcircleDB *VisualCircleDB) CopyBasicFieldsToVisualCircle(visualcircle
 	visualcircle.Lng = visualcircleDB.Lng_Data.Float64
 	visualcircle.Name = visualcircleDB.Name_Data.String
 	visualcircle.Radius = visualcircleDB.Radius_Data.Float64
-	visualcircle.VisualColorEnum = models.VisualColorEnum(visualcircleDB.VisualColorEnum_Data.String)
+	visualcircle.ColorEnum = models.ColorEnum(visualcircleDB.ColorEnum_Data.String)
 	visualcircle.DashStyleEnum = models.DashStyleEnum(visualcircleDB.DashStyleEnum_Data.String)
 }
 
@@ -478,7 +478,7 @@ func (visualcircleDB *VisualCircleDB) CopyBasicFieldsToVisualCircleWOP(visualcir
 	visualcircle.Lng = visualcircleDB.Lng_Data.Float64
 	visualcircle.Name = visualcircleDB.Name_Data.String
 	visualcircle.Radius = visualcircleDB.Radius_Data.Float64
-	visualcircle.VisualColorEnum = models.VisualColorEnum(visualcircleDB.VisualColorEnum_Data.String)
+	visualcircle.ColorEnum = models.ColorEnum(visualcircleDB.ColorEnum_Data.String)
 	visualcircle.DashStyleEnum = models.DashStyleEnum(visualcircleDB.DashStyleEnum_Data.String)
 }
 

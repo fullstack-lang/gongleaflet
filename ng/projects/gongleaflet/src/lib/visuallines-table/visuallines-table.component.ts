@@ -81,8 +81,8 @@ export class VisualLinesTableComponent implements OnInit {
         case 'Name':
           return visuallineDB.Name;
 
-        case 'VisualColorEnum':
-          return visuallineDB.VisualColorEnum;
+        case 'ColorEnum':
+          return visuallineDB.ColorEnum;
 
         case 'DashStyleEnum':
           return visuallineDB.DashStyleEnum;
@@ -121,7 +121,7 @@ export class VisualLinesTableComponent implements OnInit {
       mergedContent += visuallineDB.EndLat.toString()
       mergedContent += visuallineDB.EndLng.toString()
       mergedContent += visuallineDB.Name.toLowerCase()
-      mergedContent += visuallineDB.VisualColorEnum.toLowerCase()
+      mergedContent += visuallineDB.ColorEnum.toLowerCase()
       mergedContent += visuallineDB.DashStyleEnum.toLowerCase()
       if (visuallineDB.LayerGroup) {
         mergedContent += visuallineDB.LayerGroup.Name.toLowerCase()
@@ -185,7 +185,7 @@ export class VisualLinesTableComponent implements OnInit {
         "EndLat",
         "EndLng",
         "Name",
-        "VisualColorEnum",
+        "ColorEnum",
         "DashStyleEnum",
         "LayerGroup",
         "IsTransmitting",
@@ -200,7 +200,7 @@ export class VisualLinesTableComponent implements OnInit {
         "EndLat",
         "EndLng",
         "Name",
-        "VisualColorEnum",
+        "ColorEnum",
         "DashStyleEnum",
         "LayerGroup",
         "IsTransmitting",

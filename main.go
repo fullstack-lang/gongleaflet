@@ -163,7 +163,7 @@ func main() {
 	LyonAirport.Name = "Lyon's Airport"
 	LyonAirport.LayerGroup = MarkersLayer1
 	LyonAirport.DivIcon = AirTrafficControlerIcon
-	LyonAirport.VisualColorEnum = gongleaflet_models.GREEN
+	LyonAirport.ColorEnum = gongleaflet_models.GREEN
 
 	LyonRadar := new(gongleaflet_models.Marker).Stage()
 	LyonRadar.Lat = 46
@@ -171,7 +171,7 @@ func main() {
 	LyonRadar.Name = "Lyon's Radar"
 	LyonRadar.LayerGroup = MarkersLayer2
 	LyonRadar.DivIcon = RadarIcon
-	LyonRadar.VisualColorEnum = gongleaflet_models.BLUE
+	LyonRadar.ColorEnum = gongleaflet_models.BLUE
 
 	//
 	// Set up Circles
@@ -182,7 +182,7 @@ func main() {
 	LyonRadarRange.Name = "Lyon's Radar Range"
 	LyonRadarRange.LayerGroup = MarkersLayer2
 	LyonRadarRange.Radius = 100
-	LyonRadarRange.VisualColorEnum = gongleaflet_models.LIGHT_BROWN_8D6E63
+	LyonRadarRange.ColorEnum = gongleaflet_models.LIGHT_BROWN_8D6E63
 	LyonRadarRange.DashStyleEnum = gongleaflet_models.FIVE_TWENTY
 
 	//
@@ -195,7 +195,7 @@ func main() {
 	TestLine.EndLng = 6
 	TestLine.Name = "Test line"
 	TestLine.LayerGroup = MarkersLayer2
-	TestLine.VisualColorEnum = gongleaflet_models.RED
+	TestLine.ColorEnum = gongleaflet_models.RED
 	TestLine.DashStyleEnum = gongleaflet_models.FIVE_TWENTY
 
 	//
@@ -230,7 +230,7 @@ func main() {
 	Plane.Name = "Plane Track"
 	Plane.LayerGroup = TracksLayer
 	Plane.DivIcon = AirplaneIcon
-	Plane.VisualColorEnum = gongleaflet_models.GREEN
+	Plane.ColorEnum = gongleaflet_models.GREEN
 	Plane.Heading = 130
 	Plane.Level = 220
 	Plane.Speed = 300

@@ -8,8 +8,8 @@ type VisualLine struct {
 	EndLat, EndLng     float64
 	Name               string
 
-	VisualColorEnum VisualColorEnum
-	DashStyleEnum   DashStyleEnum
+	ColorEnum     ColorEnum
+	DashStyleEnum DashStyleEnum
 
 	// LayerGroup the object belongs to
 	LayerGroup *LayerGroup

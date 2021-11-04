@@ -15,7 +15,7 @@ export class VisualLineDB {
 	EndLat: number = 0
 	EndLng: number = 0
 	Name: string = ""
-	VisualColorEnum: string = ""
+	ColorEnum: string = ""
 	DashStyleEnum: string = ""
 	IsTransmitting: string = ""
 	Message: string = ""

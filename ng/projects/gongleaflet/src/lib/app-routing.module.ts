@@ -10,6 +10,10 @@ import { LayerGroupsTableComponent } from './layergroups-table/layergroups-table
 import { LayerGroupDetailComponent } from './layergroup-detail/layergroup-detail.component'
 import { LayerGroupPresentationComponent } from './layergroup-presentation/layergroup-presentation.component'
 
+import { LayerGroupUsesTableComponent } from './layergroupuses-table/layergroupuses-table.component'
+import { LayerGroupUseDetailComponent } from './layergroupuse-detail/layergroupuse-detail.component'
+import { LayerGroupUsePresentationComponent } from './layergroupuse-presentation/layergroupuse-presentation.component'
+
 import { MapOptionssTableComponent } from './mapoptionss-table/mapoptionss-table.component'
 import { MapOptionsDetailComponent } from './mapoptions-detail/mapoptions-detail.component'
 import { MapOptionsPresentationComponent } from './mapoptions-presentation/mapoptions-presentation.component'
@@ -45,6 +49,13 @@ const routes: Routes = [ // insertion point for routes declarations
 	{ path: 'github_com_fullstack_lang_gongleaflet_go-layergroup-detail/:id', component: LayerGroupDetailComponent, outlet: 'github_com_fullstack_lang_gongleaflet_go_editor' },
 	{ path: 'github_com_fullstack_lang_gongleaflet_go-layergroup-presentation/:id', component: LayerGroupPresentationComponent, outlet: 'github_com_fullstack_lang_gongleaflet_go_presentation' },
 	{ path: 'github_com_fullstack_lang_gongleaflet_go-layergroup-presentation-special/:id', component: LayerGroupPresentationComponent, outlet: 'github_com_fullstack_lang_gongleaflet_golayergrouppres' },
+
+	{ path: 'github_com_fullstack_lang_gongleaflet_go-layergroupuses', component: LayerGroupUsesTableComponent, outlet: 'github_com_fullstack_lang_gongleaflet_go_table' },
+	{ path: 'github_com_fullstack_lang_gongleaflet_go-layergroupuse-adder', component: LayerGroupUseDetailComponent, outlet: 'github_com_fullstack_lang_gongleaflet_go_editor' },
+	{ path: 'github_com_fullstack_lang_gongleaflet_go-layergroupuse-adder/:id/:originStruct/:originStructFieldName', component: LayerGroupUseDetailComponent, outlet: 'github_com_fullstack_lang_gongleaflet_go_editor' },
+	{ path: 'github_com_fullstack_lang_gongleaflet_go-layergroupuse-detail/:id', component: LayerGroupUseDetailComponent, outlet: 'github_com_fullstack_lang_gongleaflet_go_editor' },
+	{ path: 'github_com_fullstack_lang_gongleaflet_go-layergroupuse-presentation/:id', component: LayerGroupUsePresentationComponent, outlet: 'github_com_fullstack_lang_gongleaflet_go_presentation' },
+	{ path: 'github_com_fullstack_lang_gongleaflet_go-layergroupuse-presentation-special/:id', component: LayerGroupUsePresentationComponent, outlet: 'github_com_fullstack_lang_gongleaflet_golayergroupusepres' },
 
 	{ path: 'github_com_fullstack_lang_gongleaflet_go-mapoptionss', component: MapOptionssTableComponent, outlet: 'github_com_fullstack_lang_gongleaflet_go_table' },
 	{ path: 'github_com_fullstack_lang_gongleaflet_go-mapoptions-adder', component: MapOptionsDetailComponent, outlet: 'github_com_fullstack_lang_gongleaflet_go_editor' },
