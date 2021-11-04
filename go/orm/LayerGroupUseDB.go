@@ -49,6 +49,12 @@ type LayerGroupUsePointersEnconding struct {
 	// field LayerGroup is a pointer to another Struct (optional or 0..1)
 	// This field is generated into another field to enable AS ONE association
 	LayerGroupID sql.NullInt64
+
+	// Implementation of a reverse ID for field MapOptions{}.LayerGroupUses []*LayerGroupUse
+	MapOptions_LayerGroupUsesDBID sql.NullInt64
+
+	// implementation of the index of the withing the slice
+	MapOptions_LayerGroupUsesDBID_Index sql.NullInt64
 }
 
 // LayerGroupUseDB describes a layergroupuse in the database
@@ -64,6 +70,10 @@ type LayerGroupUseDB struct {
 
 	// Declation for basic field layergroupuseDB.Name {{BasicKind}} (to be completed)
 	Name_Data sql.NullString
+
+	// Declation for basic field layergroupuseDB.Display bool (to be completed)
+	// provide the sql storage for the boolan
+	Display_Data sql.NullBool
 	// encoding of pointers
 	LayerGroupUsePointersEnconding
 }
@@ -86,6 +96,8 @@ type LayerGroupUseWOP struct {
 	// insertion for WOP basic fields
 
 	Name string `xlsx:"1"`
+
+	Display bool `xlsx:"2"`
 	// insertion for WOP pointer fields
 }
 
@@ -93,6 +105,7 @@ var LayerGroupUse_Fields = []string{
 	// insertion for WOP basic fields
 	"ID",
 	"Name",
+	"Display",
 }
 
 type BackRepoLayerGroupUseStruct struct {
@@ -389,6 +402,9 @@ func (layergroupuseDB *LayerGroupUseDB) CopyBasicFieldsFromLayerGroupUse(layergr
 
 	layergroupuseDB.Name_Data.String = layergroupuse.Name
 	layergroupuseDB.Name_Data.Valid = true
+
+	layergroupuseDB.Display_Data.Bool = layergroupuse.Display
+	layergroupuseDB.Display_Data.Valid = true
 }
 
 // CopyBasicFieldsFromLayerGroupUseWOP
@@ -397,12 +413,16 @@ func (layergroupuseDB *LayerGroupUseDB) CopyBasicFieldsFromLayerGroupUseWOP(laye
 
 	layergroupuseDB.Name_Data.String = layergroupuse.Name
 	layergroupuseDB.Name_Data.Valid = true
+
+	layergroupuseDB.Display_Data.Bool = layergroupuse.Display
+	layergroupuseDB.Display_Data.Valid = true
 }
 
 // CopyBasicFieldsToLayerGroupUse
 func (layergroupuseDB *LayerGroupUseDB) CopyBasicFieldsToLayerGroupUse(layergroupuse *models.LayerGroupUse) {
 	// insertion point for checkout of basic fields (back repo to stage)
 	layergroupuse.Name = layergroupuseDB.Name_Data.String
+	layergroupuse.Display = layergroupuseDB.Display_Data.Bool
 }
 
 // CopyBasicFieldsToLayerGroupUseWOP
@@ -410,6 +430,7 @@ func (layergroupuseDB *LayerGroupUseDB) CopyBasicFieldsToLayerGroupUseWOP(layerg
 	layergroupuse.ID = int(layergroupuseDB.ID)
 	// insertion point for checkout of basic fields (back repo to stage)
 	layergroupuse.Name = layergroupuseDB.Name_Data.String
+	layergroupuse.Display = layergroupuseDB.Display_Data.Bool
 }
 
 // Backup generates a json file from a slice of all LayerGroupUseDB instances in the backrepo
@@ -571,6 +592,12 @@ func (backRepoLayerGroupUse *BackRepoLayerGroupUseStruct) RestorePhaseTwo() {
 		if layergroupuseDB.LayerGroupID.Int64 != 0 {
 			layergroupuseDB.LayerGroupID.Int64 = int64(BackRepoLayerGroupid_atBckpTime_newID[uint(layergroupuseDB.LayerGroupID.Int64)])
 			layergroupuseDB.LayerGroupID.Valid = true
+		}
+
+		// This reindex layergroupuse.LayerGroupUses
+		if layergroupuseDB.MapOptions_LayerGroupUsesDBID.Int64 != 0 {
+			layergroupuseDB.MapOptions_LayerGroupUsesDBID.Int64 =
+				int64(BackRepoMapOptionsid_atBckpTime_newID[uint(layergroupuseDB.MapOptions_LayerGroupUsesDBID.Int64)])
 		}
 
 		// update databse with new index encoding

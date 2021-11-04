@@ -211,6 +211,16 @@ func main() {
 	Map1.Lat = 45
 	Map1.Lng = 5
 
+	Map1MarkersLayer1Use := new(gongleaflet_models.LayerGroupUse).Stage()
+	Map1MarkersLayer1Use.Name = "Map1MarkersLayer1Use"
+	Map1MarkersLayer1Use.LayerGroup = MarkersLayer1
+	Map1.LayerGroupUses = append(Map1.LayerGroupUses, Map1MarkersLayer1Use)
+
+	Map1MarkersLayer2Use := new(gongleaflet_models.LayerGroupUse).Stage()
+	Map1MarkersLayer2Use.Name = "Map1MarkersLayer2Use"
+	Map1MarkersLayer2Use.LayerGroup = MarkersLayer2
+	Map1.LayerGroupUses = append(Map1.LayerGroupUses, Map1MarkersLayer2Use)
+
 	Map2 := new(gongleaflet_models.MapOptions).Stage()
 	Map2.Name = "Map2"
 	Map2.UrlTemplate = "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
@@ -220,6 +230,16 @@ func main() {
 	Map2.MaxZoom = 18.0
 	Map2.Lat = 45
 	Map2.Lng = 3
+
+	Map2MarkersLayer1Use := new(gongleaflet_models.LayerGroupUse).Stage()
+	Map2MarkersLayer1Use.Name = "Map2MarkersLayer1Use"
+	Map2MarkersLayer1Use.LayerGroup = MarkersLayer1
+	Map2.LayerGroupUses = append(Map2.LayerGroupUses, Map2MarkersLayer1Use)
+
+	Map2MarkersLayer2Use := new(gongleaflet_models.LayerGroupUse).Stage()
+	Map2MarkersLayer2Use.Name = "Map2MarkersLayer2Use"
+	Map2MarkersLayer2Use.LayerGroup = MarkersLayer2
+	Map2.LayerGroupUses = append(Map2.LayerGroupUses, Map2MarkersLayer2Use)
 
 	//
 	// Tracks

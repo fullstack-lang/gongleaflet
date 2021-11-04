@@ -6,5 +6,8 @@ package models
 type LayerGroupUse struct {
 	Name string
 
+	// indicate wether to display the layer
+	Display bool
+
 	LayerGroup *LayerGroup
 }

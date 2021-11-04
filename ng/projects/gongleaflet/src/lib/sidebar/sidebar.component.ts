@@ -627,6 +627,38 @@ export class SidebarComponent implements OnInit {
           mapoptionsGongNodeStruct.children!.push(mapoptionsGongNodeInstance)
 
           // insertion point for per field code
+          /**
+          * let append a node for the slide of pointer LayerGroupUses
+          */
+          let LayerGroupUsesGongNodeAssociation: GongNode = {
+            name: "(LayerGroupUse) LayerGroupUses",
+            type: GongNodeType.ONE__ZERO_MANY_ASSOCIATION,
+            id: mapoptionsDB.ID,
+            uniqueIdPerStack: 19 * nonInstanceNodeId,
+            structName: "MapOptions",
+            associationField: "LayerGroupUses",
+            associatedStructName: "LayerGroupUse",
+            children: new Array<GongNode>()
+          }
+          nonInstanceNodeId = nonInstanceNodeId + 1
+          mapoptionsGongNodeInstance.children.push(LayerGroupUsesGongNodeAssociation)
+
+          mapoptionsDB.LayerGroupUses?.forEach(layergroupuseDB => {
+            let layergroupuseNode: GongNode = {
+              name: layergroupuseDB.Name,
+              type: GongNodeType.INSTANCE,
+              id: layergroupuseDB.ID,
+              uniqueIdPerStack: // godel numbering (thank you kurt)
+                7 * getMapOptionsUniqueID(mapoptionsDB.ID)
+                + 11 * getLayerGroupUseUniqueID(layergroupuseDB.ID),
+              structName: "LayerGroupUse",
+              associationField: "",
+              associatedStructName: "",
+              children: new Array<GongNode>()
+            }
+            LayerGroupUsesGongNodeAssociation.children.push(layergroupuseNode)
+          })
+
         }
       )
 

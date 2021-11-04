@@ -522,6 +522,19 @@ export class FrontRepoService {
                 }
 
                 // insertion point for redeeming ONE-MANY associations
+                // insertion point for slice of pointer field MapOptions.LayerGroupUses redeeming
+                {
+                  let _mapoptions = FrontRepoSingloton.MapOptionss.get(layergroupuse.MapOptions_LayerGroupUsesDBID.Int64)
+                  if (_mapoptions) {
+                    if (_mapoptions.LayerGroupUses == undefined) {
+                      _mapoptions.LayerGroupUses = new Array<LayerGroupUseDB>()
+                    }
+                    _mapoptions.LayerGroupUses.push(layergroupuse)
+                    if (layergroupuse.MapOptions_LayerGroupUses_reverse == undefined) {
+                      layergroupuse.MapOptions_LayerGroupUses_reverse = _mapoptions
+                    }
+                  }
+                }
               }
             )
             lines.forEach(
@@ -792,6 +805,19 @@ export class FrontRepoService {
                 }
 
                 // insertion point for redeeming ONE-MANY associations
+                // insertion point for slice of pointer field MapOptions.LayerGroupUses redeeming
+                {
+                  let _mapoptions = FrontRepoSingloton.MapOptionss.get(layergroupuse.MapOptions_LayerGroupUsesDBID.Int64)
+                  if (_mapoptions) {
+                    if (_mapoptions.LayerGroupUses == undefined) {
+                      _mapoptions.LayerGroupUses = new Array<LayerGroupUseDB>()
+                    }
+                    _mapoptions.LayerGroupUses.push(layergroupuse)
+                    if (layergroupuse.MapOptions_LayerGroupUses_reverse == undefined) {
+                      layergroupuse.MapOptions_LayerGroupUses_reverse = _mapoptions
+                    }
+                  }
+                }
               }
             )
 

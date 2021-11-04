@@ -18,6 +18,9 @@ type MapOptions struct {
 	// swagger:ignore
 	// access to the models instance that contains the original information
 	VisualMapInterface VisualMapInterface `gorm:"-"`
+
+	// List of LayerGroups that can be displayed for this map
+	LayerGroupUses []*LayerGroupUse
 }
 
 type VisualMapInterface interface {
