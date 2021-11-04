@@ -38,6 +38,11 @@ import { SplitterComponent } from './splitter/splitter.component'
 import { SidebarComponent } from './sidebar/sidebar.component';
 
 // insertion point for imports 
+import { CirclesTableComponent } from './circles-table/circles-table.component'
+import { CircleSortingComponent } from './circle-sorting/circle-sorting.component'
+import { CircleDetailComponent } from './circle-detail/circle-detail.component'
+import { CirclePresentationComponent } from './circle-presentation/circle-presentation.component'
+
 import { DivIconsTableComponent } from './divicons-table/divicons-table.component'
 import { DivIconSortingComponent } from './divicon-sorting/divicon-sorting.component'
 import { DivIconDetailComponent } from './divicon-detail/divicon-detail.component'
@@ -63,11 +68,6 @@ import { MarkerSortingComponent } from './marker-sorting/marker-sorting.componen
 import { MarkerDetailComponent } from './marker-detail/marker-detail.component'
 import { MarkerPresentationComponent } from './marker-presentation/marker-presentation.component'
 
-import { VisualCirclesTableComponent } from './visualcircles-table/visualcircles-table.component'
-import { VisualCircleSortingComponent } from './visualcircle-sorting/visualcircle-sorting.component'
-import { VisualCircleDetailComponent } from './visualcircle-detail/visualcircle-detail.component'
-import { VisualCirclePresentationComponent } from './visualcircle-presentation/visualcircle-presentation.component'
-
 import { VisualLinesTableComponent } from './visuallines-table/visuallines-table.component'
 import { VisualLineSortingComponent } from './visualline-sorting/visualline-sorting.component'
 import { VisualLineDetailComponent } from './visualline-detail/visualline-detail.component'
@@ -82,6 +82,11 @@ import { VisualTrackPresentationComponent } from './visualtrack-presentation/vis
 @NgModule({
 	declarations: [
 		// insertion point for declarations 
+		CirclesTableComponent,
+		CircleSortingComponent,
+		CircleDetailComponent,
+		CirclePresentationComponent,
+
 		DivIconsTableComponent,
 		DivIconSortingComponent,
 		DivIconDetailComponent,
@@ -106,11 +111,6 @@ import { VisualTrackPresentationComponent } from './visualtrack-presentation/vis
 		MarkerSortingComponent,
 		MarkerDetailComponent,
 		MarkerPresentationComponent,
-
-		VisualCirclesTableComponent,
-		VisualCircleSortingComponent,
-		VisualCircleDetailComponent,
-		VisualCirclePresentationComponent,
 
 		VisualLinesTableComponent,
 		VisualLineSortingComponent,
@@ -161,6 +161,11 @@ import { VisualTrackPresentationComponent } from './visualtrack-presentation/vis
 	],
 	exports: [
 		// insertion point for declarations 
+		CirclesTableComponent,
+		CircleSortingComponent,
+		CircleDetailComponent,
+		CirclePresentationComponent,
+
 		DivIconsTableComponent,
 		DivIconSortingComponent,
 		DivIconDetailComponent,
@@ -185,11 +190,6 @@ import { VisualTrackPresentationComponent } from './visualtrack-presentation/vis
 		MarkerSortingComponent,
 		MarkerDetailComponent,
 		MarkerPresentationComponent,
-
-		VisualCirclesTableComponent,
-		VisualCircleSortingComponent,
-		VisualCircleDetailComponent,
-		VisualCirclePresentationComponent,
 
 		VisualLinesTableComponent,
 		VisualLineSortingComponent,

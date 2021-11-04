@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { VisualCircleService } from 'gongleaflet';
+import * as gongleaflet from 'gongleaflet';
 
 import * as L from 'leaflet';
 
@@ -14,14 +14,14 @@ export class CartoatcCirclesComponent implements OnInit {
   render: Array<L.Layer> = [];
 
   constructor(
-    private visualCircleService: VisualCircleService,
+    private circleService: gongleaflet.CircleService,
   ) { }
 
   ngOnInit(): void {
-    this.visualCircleService.getVisualCircles().subscribe(
-      (visualCircles) => {
-        visualCircles.forEach(visualCircle => {
-          this.render.push(manageLeafletItems.newCircle(visualCircle));
+    this.circleService.getCircles().subscribe(
+      (circles) => {
+        circles.forEach(circle => {
+          this.render.push(manageLeafletItems.newCircle(circle));
         })
       }
     );

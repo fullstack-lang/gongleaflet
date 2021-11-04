@@ -2,6 +2,10 @@ import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
 // insertion point for imports
+import { CirclesTableComponent } from './circles-table/circles-table.component'
+import { CircleDetailComponent } from './circle-detail/circle-detail.component'
+import { CirclePresentationComponent } from './circle-presentation/circle-presentation.component'
+
 import { DivIconsTableComponent } from './divicons-table/divicons-table.component'
 import { DivIconDetailComponent } from './divicon-detail/divicon-detail.component'
 import { DivIconPresentationComponent } from './divicon-presentation/divicon-presentation.component'
@@ -22,10 +26,6 @@ import { MarkersTableComponent } from './markers-table/markers-table.component'
 import { MarkerDetailComponent } from './marker-detail/marker-detail.component'
 import { MarkerPresentationComponent } from './marker-presentation/marker-presentation.component'
 
-import { VisualCirclesTableComponent } from './visualcircles-table/visualcircles-table.component'
-import { VisualCircleDetailComponent } from './visualcircle-detail/visualcircle-detail.component'
-import { VisualCirclePresentationComponent } from './visualcircle-presentation/visualcircle-presentation.component'
-
 import { VisualLinesTableComponent } from './visuallines-table/visuallines-table.component'
 import { VisualLineDetailComponent } from './visualline-detail/visualline-detail.component'
 import { VisualLinePresentationComponent } from './visualline-presentation/visualline-presentation.component'
@@ -36,6 +36,13 @@ import { VisualTrackPresentationComponent } from './visualtrack-presentation/vis
 
 
 const routes: Routes = [ // insertion point for routes declarations
+	{ path: 'github_com_fullstack_lang_gongleaflet_go-circles', component: CirclesTableComponent, outlet: 'github_com_fullstack_lang_gongleaflet_go_table' },
+	{ path: 'github_com_fullstack_lang_gongleaflet_go-circle-adder', component: CircleDetailComponent, outlet: 'github_com_fullstack_lang_gongleaflet_go_editor' },
+	{ path: 'github_com_fullstack_lang_gongleaflet_go-circle-adder/:id/:originStruct/:originStructFieldName', component: CircleDetailComponent, outlet: 'github_com_fullstack_lang_gongleaflet_go_editor' },
+	{ path: 'github_com_fullstack_lang_gongleaflet_go-circle-detail/:id', component: CircleDetailComponent, outlet: 'github_com_fullstack_lang_gongleaflet_go_editor' },
+	{ path: 'github_com_fullstack_lang_gongleaflet_go-circle-presentation/:id', component: CirclePresentationComponent, outlet: 'github_com_fullstack_lang_gongleaflet_go_presentation' },
+	{ path: 'github_com_fullstack_lang_gongleaflet_go-circle-presentation-special/:id', component: CirclePresentationComponent, outlet: 'github_com_fullstack_lang_gongleaflet_gocirclepres' },
+
 	{ path: 'github_com_fullstack_lang_gongleaflet_go-divicons', component: DivIconsTableComponent, outlet: 'github_com_fullstack_lang_gongleaflet_go_table' },
 	{ path: 'github_com_fullstack_lang_gongleaflet_go-divicon-adder', component: DivIconDetailComponent, outlet: 'github_com_fullstack_lang_gongleaflet_go_editor' },
 	{ path: 'github_com_fullstack_lang_gongleaflet_go-divicon-adder/:id/:originStruct/:originStructFieldName', component: DivIconDetailComponent, outlet: 'github_com_fullstack_lang_gongleaflet_go_editor' },
@@ -70,13 +77,6 @@ const routes: Routes = [ // insertion point for routes declarations
 	{ path: 'github_com_fullstack_lang_gongleaflet_go-marker-detail/:id', component: MarkerDetailComponent, outlet: 'github_com_fullstack_lang_gongleaflet_go_editor' },
 	{ path: 'github_com_fullstack_lang_gongleaflet_go-marker-presentation/:id', component: MarkerPresentationComponent, outlet: 'github_com_fullstack_lang_gongleaflet_go_presentation' },
 	{ path: 'github_com_fullstack_lang_gongleaflet_go-marker-presentation-special/:id', component: MarkerPresentationComponent, outlet: 'github_com_fullstack_lang_gongleaflet_gomarkerpres' },
-
-	{ path: 'github_com_fullstack_lang_gongleaflet_go-visualcircles', component: VisualCirclesTableComponent, outlet: 'github_com_fullstack_lang_gongleaflet_go_table' },
-	{ path: 'github_com_fullstack_lang_gongleaflet_go-visualcircle-adder', component: VisualCircleDetailComponent, outlet: 'github_com_fullstack_lang_gongleaflet_go_editor' },
-	{ path: 'github_com_fullstack_lang_gongleaflet_go-visualcircle-adder/:id/:originStruct/:originStructFieldName', component: VisualCircleDetailComponent, outlet: 'github_com_fullstack_lang_gongleaflet_go_editor' },
-	{ path: 'github_com_fullstack_lang_gongleaflet_go-visualcircle-detail/:id', component: VisualCircleDetailComponent, outlet: 'github_com_fullstack_lang_gongleaflet_go_editor' },
-	{ path: 'github_com_fullstack_lang_gongleaflet_go-visualcircle-presentation/:id', component: VisualCirclePresentationComponent, outlet: 'github_com_fullstack_lang_gongleaflet_go_presentation' },
-	{ path: 'github_com_fullstack_lang_gongleaflet_go-visualcircle-presentation-special/:id', component: VisualCirclePresentationComponent, outlet: 'github_com_fullstack_lang_gongleaflet_govisualcirclepres' },
 
 	{ path: 'github_com_fullstack_lang_gongleaflet_go-visuallines', component: VisualLinesTableComponent, outlet: 'github_com_fullstack_lang_gongleaflet_go_table' },
 	{ path: 'github_com_fullstack_lang_gongleaflet_go-visualline-adder', component: VisualLineDetailComponent, outlet: 'github_com_fullstack_lang_gongleaflet_go_editor' },

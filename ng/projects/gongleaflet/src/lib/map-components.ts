@@ -1,4 +1,6 @@
 // insertion point sub template for components imports 
+  import { CirclesTableComponent } from './circles-table/circles-table.component'
+  import { CircleSortingComponent } from './circle-sorting/circle-sorting.component'
   import { DivIconsTableComponent } from './divicons-table/divicons-table.component'
   import { DivIconSortingComponent } from './divicon-sorting/divicon-sorting.component'
   import { LayerGroupsTableComponent } from './layergroups-table/layergroups-table.component'
@@ -9,14 +11,14 @@
   import { MapOptionsSortingComponent } from './mapoptions-sorting/mapoptions-sorting.component'
   import { MarkersTableComponent } from './markers-table/markers-table.component'
   import { MarkerSortingComponent } from './marker-sorting/marker-sorting.component'
-  import { VisualCirclesTableComponent } from './visualcircles-table/visualcircles-table.component'
-  import { VisualCircleSortingComponent } from './visualcircle-sorting/visualcircle-sorting.component'
   import { VisualLinesTableComponent } from './visuallines-table/visuallines-table.component'
   import { VisualLineSortingComponent } from './visualline-sorting/visualline-sorting.component'
   import { VisualTracksTableComponent } from './visualtracks-table/visualtracks-table.component'
   import { VisualTrackSortingComponent } from './visualtrack-sorting/visualtrack-sorting.component'
 
 // insertion point sub template for map of components per struct 
+  export const MapOfCirclesComponents: Map<string, any> = new Map([["CirclesTableComponent", CirclesTableComponent],])
+  export const MapOfCircleSortingComponents: Map<string, any> = new Map([["CircleSortingComponent", CircleSortingComponent],])
   export const MapOfDivIconsComponents: Map<string, any> = new Map([["DivIconsTableComponent", DivIconsTableComponent],])
   export const MapOfDivIconSortingComponents: Map<string, any> = new Map([["DivIconSortingComponent", DivIconSortingComponent],])
   export const MapOfLayerGroupsComponents: Map<string, any> = new Map([["LayerGroupsTableComponent", LayerGroupsTableComponent],])
@@ -27,8 +29,6 @@
   export const MapOfMapOptionsSortingComponents: Map<string, any> = new Map([["MapOptionsSortingComponent", MapOptionsSortingComponent],])
   export const MapOfMarkersComponents: Map<string, any> = new Map([["MarkersTableComponent", MarkersTableComponent],])
   export const MapOfMarkerSortingComponents: Map<string, any> = new Map([["MarkerSortingComponent", MarkerSortingComponent],])
-  export const MapOfVisualCirclesComponents: Map<string, any> = new Map([["VisualCirclesTableComponent", VisualCirclesTableComponent],])
-  export const MapOfVisualCircleSortingComponents: Map<string, any> = new Map([["VisualCircleSortingComponent", VisualCircleSortingComponent],])
   export const MapOfVisualLinesComponents: Map<string, any> = new Map([["VisualLinesTableComponent", VisualLinesTableComponent],])
   export const MapOfVisualLineSortingComponents: Map<string, any> = new Map([["VisualLineSortingComponent", VisualLineSortingComponent],])
   export const MapOfVisualTracksComponents: Map<string, any> = new Map([["VisualTracksTableComponent", VisualTracksTableComponent],])
@@ -39,12 +39,12 @@ export const MapOfComponents: Map<string, any> =
   new Map(
     [
       // insertion point sub template for map of components 
+      ["Circle", MapOfCirclesComponents],
       ["DivIcon", MapOfDivIconsComponents],
       ["LayerGroup", MapOfLayerGroupsComponents],
       ["LayerGroupUse", MapOfLayerGroupUsesComponents],
       ["MapOptions", MapOfMapOptionssComponents],
       ["Marker", MapOfMarkersComponents],
-      ["VisualCircle", MapOfVisualCirclesComponents],
       ["VisualLine", MapOfVisualLinesComponents],
       ["VisualTrack", MapOfVisualTracksComponents],
     ]
@@ -55,12 +55,12 @@ export const MapOfSortingComponents: Map<string, any> =
   new Map(
     [
     // insertion point sub template for map of sorting components 
+      ["Circle", MapOfCircleSortingComponents],
       ["DivIcon", MapOfDivIconSortingComponents],
       ["LayerGroup", MapOfLayerGroupSortingComponents],
       ["LayerGroupUse", MapOfLayerGroupUseSortingComponents],
       ["MapOptions", MapOfMapOptionsSortingComponents],
       ["Marker", MapOfMarkerSortingComponents],
-      ["VisualCircle", MapOfVisualCircleSortingComponents],
       ["VisualLine", MapOfVisualLineSortingComponents],
       ["VisualTrack", MapOfVisualTrackSortingComponents],
     ]

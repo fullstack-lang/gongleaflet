@@ -12,6 +12,9 @@ var __member __void
 // StageStruct enables storage of staged instances
 // swagger:ignore
 type StageStruct struct { // insertion point for definition of arrays registering instances
+	Circles           map[*Circle]struct{}
+	Circles_mapString map[string]*Circle
+
 	DivIcons           map[*DivIcon]struct{}
 	DivIcons_mapString map[string]*DivIcon
 
@@ -26,9 +29,6 @@ type StageStruct struct { // insertion point for definition of arrays registerin
 
 	Markers           map[*Marker]struct{}
 	Markers_mapString map[string]*Marker
-
-	VisualCircles           map[*VisualCircle]struct{}
-	VisualCircles_mapString map[string]*VisualCircle
 
 	VisualLines           map[*VisualLine]struct{}
 	VisualLines_mapString map[string]*VisualLine
@@ -58,6 +58,8 @@ type BackRepoInterface interface {
 	BackupXL(stage *StageStruct, dirPath string)
 	RestoreXL(stage *StageStruct, dirPath string)
 	// insertion point for Commit and Checkout signatures
+	CommitCircle(circle *Circle)
+	CheckoutCircle(circle *Circle)
 	CommitDivIcon(divicon *DivIcon)
 	CheckoutDivIcon(divicon *DivIcon)
 	CommitLayerGroup(layergroup *LayerGroup)
@@ -68,8 +70,6 @@ type BackRepoInterface interface {
 	CheckoutMapOptions(mapoptions *MapOptions)
 	CommitMarker(marker *Marker)
 	CheckoutMarker(marker *Marker)
-	CommitVisualCircle(visualcircle *VisualCircle)
-	CheckoutVisualCircle(visualcircle *VisualCircle)
 	CommitVisualLine(visualline *VisualLine)
 	CheckoutVisualLine(visualline *VisualLine)
 	CommitVisualTrack(visualtrack *VisualTrack)
@@ -80,6 +80,9 @@ type BackRepoInterface interface {
 
 // swagger:ignore instructs the gong compiler (gongc) to avoid this particular struct
 var Stage StageStruct = StageStruct{ // insertion point for array initiatialisation
+	Circles:           make(map[*Circle]struct{}),
+	Circles_mapString: make(map[string]*Circle),
+
 	DivIcons:           make(map[*DivIcon]struct{}),
 	DivIcons_mapString: make(map[string]*DivIcon),
 
@@ -94,9 +97,6 @@ var Stage StageStruct = StageStruct{ // insertion point for array initiatialisat
 
 	Markers:           make(map[*Marker]struct{}),
 	Markers_mapString: make(map[string]*Marker),
-
-	VisualCircles:           make(map[*VisualCircle]struct{}),
-	VisualCircles_mapString: make(map[string]*VisualCircle),
 
 	VisualLines:           make(map[*VisualLine]struct{}),
 	VisualLines_mapString: make(map[string]*VisualLine),
@@ -148,6 +148,108 @@ func (stage *StageStruct) RestoreXL(dirPath string) {
 }
 
 // insertion point for cumulative sub template with model space calls
+func (stage *StageStruct) getCircleOrderedStructWithNameField() []*Circle {
+	// have alphabetical order generation
+	circleOrdered := []*Circle{}
+	for circle := range stage.Circles {
+		circleOrdered = append(circleOrdered, circle)
+	}
+	sort.Slice(circleOrdered[:], func(i, j int) bool {
+		return circleOrdered[i].Name < circleOrdered[j].Name
+	})
+	return circleOrdered
+}
+
+// Stage puts circle to the model stage
+func (circle *Circle) Stage() *Circle {
+	Stage.Circles[circle] = __member
+	Stage.Circles_mapString[circle.Name] = circle
+
+	return circle
+}
+
+// Unstage removes circle off the model stage
+func (circle *Circle) Unstage() *Circle {
+	delete(Stage.Circles, circle)
+	delete(Stage.Circles_mapString, circle.Name)
+	return circle
+}
+
+// commit circle to the back repo (if it is already staged)
+func (circle *Circle) Commit() *Circle {
+	if _, ok := Stage.Circles[circle]; ok {
+		if Stage.BackRepo != nil {
+			Stage.BackRepo.CommitCircle(circle)
+		}
+	}
+	return circle
+}
+
+// Checkout circle to the back repo (if it is already staged)
+func (circle *Circle) Checkout() *Circle {
+	if _, ok := Stage.Circles[circle]; ok {
+		if Stage.BackRepo != nil {
+			Stage.BackRepo.CheckoutCircle(circle)
+		}
+	}
+	return circle
+}
+
+//
+// Legacy, to be deleted
+//
+
+// StageCopy appends a copy of circle to the model stage
+func (circle *Circle) StageCopy() *Circle {
+	_circle := new(Circle)
+	*_circle = *circle
+	_circle.Stage()
+	return _circle
+}
+
+// StageAndCommit appends circle to the model stage and commit to the orm repo
+func (circle *Circle) StageAndCommit() *Circle {
+	circle.Stage()
+	if Stage.AllModelsStructCreateCallback != nil {
+		Stage.AllModelsStructCreateCallback.CreateORMCircle(circle)
+	}
+	return circle
+}
+
+// DeleteStageAndCommit appends circle to the model stage and commit to the orm repo
+func (circle *Circle) DeleteStageAndCommit() *Circle {
+	circle.Unstage()
+	DeleteORMCircle(circle)
+	return circle
+}
+
+// StageCopyAndCommit appends a copy of circle to the model stage and commit to the orm repo
+func (circle *Circle) StageCopyAndCommit() *Circle {
+	_circle := new(Circle)
+	*_circle = *circle
+	_circle.Stage()
+	if Stage.AllModelsStructCreateCallback != nil {
+		Stage.AllModelsStructCreateCallback.CreateORMCircle(circle)
+	}
+	return _circle
+}
+
+// CreateORMCircle enables dynamic staging of a Circle instance
+func CreateORMCircle(circle *Circle) {
+	circle.Stage()
+	if Stage.AllModelsStructCreateCallback != nil {
+		Stage.AllModelsStructCreateCallback.CreateORMCircle(circle)
+	}
+}
+
+// DeleteORMCircle enables dynamic staging of a Circle instance
+func DeleteORMCircle(circle *Circle) {
+	circle.Unstage()
+	if Stage.AllModelsStructDeleteCallback != nil {
+		Stage.AllModelsStructDeleteCallback.DeleteORMCircle(circle)
+	}
+}
+
 func (stage *StageStruct) getDivIconOrderedStructWithNameField() []*DivIcon {
 	// have alphabetical order generation
 	diviconOrdered := []*DivIcon{}
@@ -658,108 +760,6 @@ func DeleteORMMarker(marker *Marker) {
 	}
 }
 
-func (stage *StageStruct) getVisualCircleOrderedStructWithNameField() []*VisualCircle {
-	// have alphabetical order generation
-	visualcircleOrdered := []*VisualCircle{}
-	for visualcircle := range stage.VisualCircles {
-		visualcircleOrdered = append(visualcircleOrdered, visualcircle)
-	}
-	sort.Slice(visualcircleOrdered[:], func(i, j int) bool {
-		return visualcircleOrdered[i].Name < visualcircleOrdered[j].Name
-	})
-	return visualcircleOrdered
-}
-
-// Stage puts visualcircle to the model stage
-func (visualcircle *VisualCircle) Stage() *VisualCircle {
-	Stage.VisualCircles[visualcircle] = __member
-	Stage.VisualCircles_mapString[visualcircle.Name] = visualcircle
-
-	return visualcircle
-}
-
-// Unstage removes visualcircle off the model stage
-func (visualcircle *VisualCircle) Unstage() *VisualCircle {
-	delete(Stage.VisualCircles, visualcircle)
-	delete(Stage.VisualCircles_mapString, visualcircle.Name)
-	return visualcircle
-}
-
-// commit visualcircle to the back repo (if it is already staged)
-func (visualcircle *VisualCircle) Commit() *VisualCircle {
-	if _, ok := Stage.VisualCircles[visualcircle]; ok {
-		if Stage.BackRepo != nil {
-			Stage.BackRepo.CommitVisualCircle(visualcircle)
-		}
-	}
-	return visualcircle
-}
-
-// Checkout visualcircle to the back repo (if it is already staged)
-func (visualcircle *VisualCircle) Checkout() *VisualCircle {
-	if _, ok := Stage.VisualCircles[visualcircle]; ok {
-		if Stage.BackRepo != nil {
-			Stage.BackRepo.CheckoutVisualCircle(visualcircle)
-		}
-	}
-	return visualcircle
-}
-
-//
-// Legacy, to be deleted
-//
-
-// StageCopy appends a copy of visualcircle to the model stage
-func (visualcircle *VisualCircle) StageCopy() *VisualCircle {
-	_visualcircle := new(VisualCircle)
-	*_visualcircle = *visualcircle
-	_visualcircle.Stage()
-	return _visualcircle
-}
-
-// StageAndCommit appends visualcircle to the model stage and commit to the orm repo
-func (visualcircle *VisualCircle) StageAndCommit() *VisualCircle {
-	visualcircle.Stage()
-	if Stage.AllModelsStructCreateCallback != nil {
-		Stage.AllModelsStructCreateCallback.CreateORMVisualCircle(visualcircle)
-	}
-	return visualcircle
-}
-
-// DeleteStageAndCommit appends visualcircle to the model stage and commit to the orm repo
-func (visualcircle *VisualCircle) DeleteStageAndCommit() *VisualCircle {
-	visualcircle.Unstage()
-	DeleteORMVisualCircle(visualcircle)
-	return visualcircle
-}
-
-// StageCopyAndCommit appends a copy of visualcircle to the model stage and commit to the orm repo
-func (visualcircle *VisualCircle) StageCopyAndCommit() *VisualCircle {
-	_visualcircle := new(VisualCircle)
-	*_visualcircle = *visualcircle
-	_visualcircle.Stage()
-	if Stage.AllModelsStructCreateCallback != nil {
-		Stage.AllModelsStructCreateCallback.CreateORMVisualCircle(visualcircle)
-	}
-	return _visualcircle
-}
-
-// CreateORMVisualCircle enables dynamic staging of a VisualCircle instance
-func CreateORMVisualCircle(visualcircle *VisualCircle) {
-	visualcircle.Stage()
-	if Stage.AllModelsStructCreateCallback != nil {
-		Stage.AllModelsStructCreateCallback.CreateORMVisualCircle(visualcircle)
-	}
-}
-
-// DeleteORMVisualCircle enables dynamic staging of a VisualCircle instance
-func DeleteORMVisualCircle(visualcircle *VisualCircle) {
-	visualcircle.Unstage()
-	if Stage.AllModelsStructDeleteCallback != nil {
-		Stage.AllModelsStructDeleteCallback.DeleteORMVisualCircle(visualcircle)
-	}
-}
-
 func (stage *StageStruct) getVisualLineOrderedStructWithNameField() []*VisualLine {
 	// have alphabetical order generation
 	visuallineOrdered := []*VisualLine{}
@@ -966,28 +966,31 @@ func DeleteORMVisualTrack(visualtrack *VisualTrack) {
 
 // swagger:ignore
 type AllModelsStructCreateInterface interface { // insertion point for Callbacks on creation
+	CreateORMCircle(Circle *Circle)
 	CreateORMDivIcon(DivIcon *DivIcon)
 	CreateORMLayerGroup(LayerGroup *LayerGroup)
 	CreateORMLayerGroupUse(LayerGroupUse *LayerGroupUse)
 	CreateORMMapOptions(MapOptions *MapOptions)
 	CreateORMMarker(Marker *Marker)
-	CreateORMVisualCircle(VisualCircle *VisualCircle)
 	CreateORMVisualLine(VisualLine *VisualLine)
 	CreateORMVisualTrack(VisualTrack *VisualTrack)
 }
 
 type AllModelsStructDeleteInterface interface { // insertion point for Callbacks on deletion
+	DeleteORMCircle(Circle *Circle)
 	DeleteORMDivIcon(DivIcon *DivIcon)
 	DeleteORMLayerGroup(LayerGroup *LayerGroup)
 	DeleteORMLayerGroupUse(LayerGroupUse *LayerGroupUse)
 	DeleteORMMapOptions(MapOptions *MapOptions)
 	DeleteORMMarker(Marker *Marker)
-	DeleteORMVisualCircle(VisualCircle *VisualCircle)
 	DeleteORMVisualLine(VisualLine *VisualLine)
 	DeleteORMVisualTrack(VisualTrack *VisualTrack)
 }
 
 func (stage *StageStruct) Reset() { // insertion point for array reset
+	stage.Circles = make(map[*Circle]struct{})
+	stage.Circles_mapString = make(map[string]*Circle)
+
 	stage.DivIcons = make(map[*DivIcon]struct{})
 	stage.DivIcons_mapString = make(map[string]*DivIcon)
 
@@ -1003,9 +1006,6 @@ func (stage *StageStruct) Reset() { // insertion point for array reset
 	stage.Markers = make(map[*Marker]struct{})
 	stage.Markers_mapString = make(map[string]*Marker)
 
-	stage.VisualCircles = make(map[*VisualCircle]struct{})
-	stage.VisualCircles_mapString = make(map[string]*VisualCircle)
-
 	stage.VisualLines = make(map[*VisualLine]struct{})
 	stage.VisualLines_mapString = make(map[string]*VisualLine)
 
@@ -1015,6 +1015,9 @@ func (stage *StageStruct) Reset() { // insertion point for array reset
 }
 
 func (stage *StageStruct) Nil() { // insertion point for array nil
+	stage.Circles = nil
+	stage.Circles_mapString = nil
+
 	stage.DivIcons = nil
 	stage.DivIcons_mapString = nil
 
@@ -1029,9 +1032,6 @@ func (stage *StageStruct) Nil() { // insertion point for array nil
 
 	stage.Markers = nil
 	stage.Markers_mapString = nil
-
-	stage.VisualCircles = nil
-	stage.VisualCircles_mapString = nil
 
 	stage.VisualLines = nil
 	stage.VisualLines_mapString = nil

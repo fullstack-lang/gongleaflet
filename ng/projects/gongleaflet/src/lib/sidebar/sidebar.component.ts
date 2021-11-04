@@ -8,6 +8,8 @@ import { FrontRepoService, FrontRepo } from '../front-repo.service'
 import { CommitNbService } from '../commitnb.service'
 
 // insertion point for per struct import code
+import { CircleService } from '../circle.service'
+import { getCircleUniqueID } from '../front-repo.service'
 import { DivIconService } from '../divicon.service'
 import { getDivIconUniqueID } from '../front-repo.service'
 import { LayerGroupService } from '../layergroup.service'
@@ -18,8 +20,6 @@ import { MapOptionsService } from '../mapoptions.service'
 import { getMapOptionsUniqueID } from '../front-repo.service'
 import { MarkerService } from '../marker.service'
 import { getMarkerUniqueID } from '../front-repo.service'
-import { VisualCircleService } from '../visualcircle.service'
-import { getVisualCircleUniqueID } from '../front-repo.service'
 import { VisualLineService } from '../visualline.service'
 import { getVisualLineUniqueID } from '../front-repo.service'
 import { VisualTrackService } from '../visualtrack.service'
@@ -159,12 +159,12 @@ export class SidebarComponent implements OnInit {
     private commitNbService: CommitNbService,
 
     // insertion point for per struct service declaration
+    private circleService: CircleService,
     private diviconService: DivIconService,
     private layergroupService: LayerGroupService,
     private layergroupuseService: LayerGroupUseService,
     private mapoptionsService: MapOptionsService,
     private markerService: MarkerService,
-    private visualcircleService: VisualCircleService,
     private visuallineService: VisualLineService,
     private visualtrackService: VisualTrackService,
   ) { }
@@ -173,6 +173,14 @@ export class SidebarComponent implements OnInit {
     this.refresh()
 
     // insertion point for per struct observable for refresh trigger
+    // observable for changes in structs
+    this.circleService.CircleServiceChanged.subscribe(
+      message => {
+        if (message == "post" || message == "update" || message == "delete") {
+          this.refresh()
+        }
+      }
+    )
     // observable for changes in structs
     this.diviconService.DivIconServiceChanged.subscribe(
       message => {
@@ -207,14 +215,6 @@ export class SidebarComponent implements OnInit {
     )
     // observable for changes in structs
     this.markerService.MarkerServiceChanged.subscribe(
-      message => {
-        if (message == "post" || message == "update" || message == "delete") {
-          this.refresh()
-        }
-      }
-    )
-    // observable for changes in structs
-    this.visualcircleService.VisualCircleServiceChanged.subscribe(
       message => {
         if (message == "post" || message == "update" || message == "delete") {
           this.refresh()
@@ -261,6 +261,85 @@ export class SidebarComponent implements OnInit {
       this.gongNodeTree = new Array<GongNode>();
       
       // insertion point for per struct tree construction
+      /**
+      * fill up the Circle part of the mat tree
+      */
+      let circleGongNodeStruct: GongNode = {
+        name: "Circle",
+        type: GongNodeType.STRUCT,
+        id: 0,
+        uniqueIdPerStack: 13 * nonInstanceNodeId,
+        structName: "Circle",
+        associationField: "",
+        associatedStructName: "",
+        children: new Array<GongNode>()
+      }
+      nonInstanceNodeId = nonInstanceNodeId + 1
+      this.gongNodeTree.push(circleGongNodeStruct)
+
+      this.frontRepo.Circles_array.sort((t1, t2) => {
+        if (t1.Name > t2.Name) {
+          return 1;
+        }
+        if (t1.Name < t2.Name) {
+          return -1;
+        }
+        return 0;
+      });
+
+      this.frontRepo.Circles_array.forEach(
+        circleDB => {
+          let circleGongNodeInstance: GongNode = {
+            name: circleDB.Name,
+            type: GongNodeType.INSTANCE,
+            id: circleDB.ID,
+            uniqueIdPerStack: getCircleUniqueID(circleDB.ID),
+            structName: "Circle",
+            associationField: "",
+            associatedStructName: "",
+            children: new Array<GongNode>()
+          }
+          circleGongNodeStruct.children!.push(circleGongNodeInstance)
+
+          // insertion point for per field code
+          /**
+          * let append a node for the association LayerGroup
+          */
+          let LayerGroupGongNodeAssociation: GongNode = {
+            name: "(LayerGroup) LayerGroup",
+            type: GongNodeType.ONE__ZERO_ONE_ASSOCIATION,
+            id: circleDB.ID,
+            uniqueIdPerStack: 17 * nonInstanceNodeId,
+            structName: "Circle",
+            associationField: "LayerGroup",
+            associatedStructName: "LayerGroup",
+            children: new Array<GongNode>()
+          }
+          nonInstanceNodeId = nonInstanceNodeId + 1
+          circleGongNodeInstance.children!.push(LayerGroupGongNodeAssociation)
+
+          /**
+            * let append a node for the instance behind the asssociation LayerGroup
+            */
+          if (circleDB.LayerGroup != undefined) {
+            let circleGongNodeInstance_LayerGroup: GongNode = {
+              name: circleDB.LayerGroup.Name,
+              type: GongNodeType.INSTANCE,
+              id: circleDB.LayerGroup.ID,
+              uniqueIdPerStack: // godel numbering (thank you kurt)
+                3 * getCircleUniqueID(circleDB.ID)
+                + 5 * getLayerGroupUniqueID(circleDB.LayerGroup.ID),
+              structName: "LayerGroup",
+              associationField: "",
+              associatedStructName: "",
+              children: new Array<GongNode>()
+            }
+            LayerGroupGongNodeAssociation.children.push(circleGongNodeInstance_LayerGroup)
+          }
+
+        }
+      )
+
       /**
       * fill up the DivIcon part of the mat tree
       */
@@ -581,85 +660,6 @@ export class SidebarComponent implements OnInit {
               children: new Array<GongNode>()
             }
             DivIconGongNodeAssociation.children.push(markerGongNodeInstance_DivIcon)
-          }
-
-        }
-      )
-
-      /**
-      * fill up the VisualCircle part of the mat tree
-      */
-      let visualcircleGongNodeStruct: GongNode = {
-        name: "VisualCircle",
-        type: GongNodeType.STRUCT,
-        id: 0,
-        uniqueIdPerStack: 13 * nonInstanceNodeId,
-        structName: "VisualCircle",
-        associationField: "",
-        associatedStructName: "",
-        children: new Array<GongNode>()
-      }
-      nonInstanceNodeId = nonInstanceNodeId + 1
-      this.gongNodeTree.push(visualcircleGongNodeStruct)
-
-      this.frontRepo.VisualCircles_array.sort((t1, t2) => {
-        if (t1.Name > t2.Name) {
-          return 1;
-        }
-        if (t1.Name < t2.Name) {
-          return -1;
-        }
-        return 0;
-      });
-
-      this.frontRepo.VisualCircles_array.forEach(
-        visualcircleDB => {
-          let visualcircleGongNodeInstance: GongNode = {
-            name: visualcircleDB.Name,
-            type: GongNodeType.INSTANCE,
-            id: visualcircleDB.ID,
-            uniqueIdPerStack: getVisualCircleUniqueID(visualcircleDB.ID),
-            structName: "VisualCircle",
-            associationField: "",
-            associatedStructName: "",
-            children: new Array<GongNode>()
-          }
-          visualcircleGongNodeStruct.children!.push(visualcircleGongNodeInstance)
-
-          // insertion point for per field code
-          /**
-          * let append a node for the association LayerGroup
-          */
-          let LayerGroupGongNodeAssociation: GongNode = {
-            name: "(LayerGroup) LayerGroup",
-            type: GongNodeType.ONE__ZERO_ONE_ASSOCIATION,
-            id: visualcircleDB.ID,
-            uniqueIdPerStack: 17 * nonInstanceNodeId,
-            structName: "VisualCircle",
-            associationField: "LayerGroup",
-            associatedStructName: "LayerGroup",
-            children: new Array<GongNode>()
-          }
-          nonInstanceNodeId = nonInstanceNodeId + 1
-          visualcircleGongNodeInstance.children!.push(LayerGroupGongNodeAssociation)
-
-          /**
-            * let append a node for the instance behind the asssociation LayerGroup
-            */
-          if (visualcircleDB.LayerGroup != undefined) {
-            let visualcircleGongNodeInstance_LayerGroup: GongNode = {
-              name: visualcircleDB.LayerGroup.Name,
-              type: GongNodeType.INSTANCE,
-              id: visualcircleDB.LayerGroup.ID,
-              uniqueIdPerStack: // godel numbering (thank you kurt)
-                3 * getVisualCircleUniqueID(visualcircleDB.ID)
-                + 5 * getLayerGroupUniqueID(visualcircleDB.LayerGroup.ID),
-              structName: "LayerGroup",
-              associationField: "",
-              associatedStructName: "",
-              children: new Array<GongNode>()
-            }
-            LayerGroupGongNodeAssociation.children.push(visualcircleGongNodeInstance_LayerGroup)
           }
 
         }

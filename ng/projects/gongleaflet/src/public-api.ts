@@ -14,6 +14,13 @@ export * from './lib/commitnb.service'
 export * from './lib/push_from_front_nb.service'
 
 
+export * from './lib/circle-detail/circle-detail.component'
+export * from './lib/circle-presentation/circle-presentation.component'
+export * from './lib/circle-sorting/circle-sorting.component'
+export * from './lib/circles-table/circles-table.component'
+export * from './lib/circle-db'
+export * from './lib/circle.service'
+
 export * from './lib/divicon-detail/divicon-detail.component'
 export * from './lib/divicon-presentation/divicon-presentation.component'
 export * from './lib/divicon-sorting/divicon-sorting.component'
@@ -48,13 +55,6 @@ export * from './lib/marker-sorting/marker-sorting.component'
 export * from './lib/markers-table/markers-table.component'
 export * from './lib/marker-db'
 export * from './lib/marker.service'
-
-export * from './lib/visualcircle-detail/visualcircle-detail.component'
-export * from './lib/visualcircle-presentation/visualcircle-presentation.component'
-export * from './lib/visualcircle-sorting/visualcircle-sorting.component'
-export * from './lib/visualcircles-table/visualcircles-table.component'
-export * from './lib/visualcircle-db'
-export * from './lib/visualcircle.service'
 
 export * from './lib/visualline-detail/visualline-detail.component'
 export * from './lib/visualline-presentation/visualline-presentation.component'

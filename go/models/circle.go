@@ -1,9 +1,9 @@
 package models
 
-// VisualCircle provides all necessary elements to the front to display a track
+// Circle provides all necessary elements to the front to display a track
 //
-// swagger:model VisualCircle
-type VisualCircle struct {
+// swagger:model Circle
+type Circle struct {
 	Lat, Lng float64
 	Name     string
 
@@ -28,7 +28,7 @@ type VisualCircleInterface interface {
 	GetName() (name string)
 }
 
-func (VisualCircle *VisualCircle) UpdateCircle() {
+func (VisualCircle *Circle) UpdateCircle() {
 	if VisualCircle.Circle != nil {
 		VisualCircle.Name = VisualCircle.Circle.GetName()
 

@@ -1,17 +1,12 @@
 import { Type } from '@angular/core';
-import {
-  VisualCircleDB,
-  ColorEnum,
-  VisualLineDB,
-  MapOptionsDB,
-} from 'gongleaflet';
+import * as gongleaflet from 'gongleaflet';
 
 import * as L from 'leaflet';
 import { map } from 'rxjs/operators';
 
 // return the mapOptions that is passed to the 
 // creation of the map
-const visualMapToLeafletMapOptions = (vMap: MapOptionsDB): L.MapOptions => {
+const visualMapToLeafletMapOptions = (vMap: gongleaflet.MapOptionsDB): L.MapOptions => {
 
   let mapOptions: L.MapOptions = {}
 
@@ -101,19 +96,19 @@ function newMarkerWithIcon(lat: number, lng: number, icon: L.DivIcon): L.Marker 
   return L.marker([lat, lng], { icon });
 };
 
-const newCircle = (visualCircle: VisualCircleDB): L.Circle => {
-  return L.circle([visualCircle.Lat, visualCircle.Lng], {
-    className: 'layer-' + visualCircle.LayerGroupID.Int64,
-    radius: visualCircle.Radius * 1000,
-    color: getColor(visualCircle.ColorEnum),
+const newCircle = (circle: gongleaflet.CircleDB): L.Circle => {
+  return L.circle([circle.Lat, circle.Lng], {
+    className: 'layer-' + circle.LayerGroupID.Int64,
+    radius: circle.Radius * 1000,
+    color: getColor(circle.ColorEnum),
     opacity: 0.2,
-    dashArray: getDashStyle(visualCircle.DashStyleEnum),
+    dashArray: getDashStyle(circle.DashStyleEnum),
     dashOffset: '0',
     fill: false,
   });
 };
 
-const setLine = (newVisualLineData: VisualLineDB): L.Polyline => {
+const setLine = (newVisualLineData: gongleaflet.VisualLineDB): L.Polyline => {
   return new L.Polyline([])
     .setLatLngs([
       L.latLng(newVisualLineData.StartLat, newVisualLineData.StartLng),
@@ -131,19 +126,19 @@ const setLine = (newVisualLineData: VisualLineDB): L.Polyline => {
 const getColor = (visualColorEnum: string): string => {
   var color = 'grey';
   switch (visualColorEnum) {
-    case ColorEnum.RED:
+    case gongleaflet.ColorEnum.RED:
       color = 'red';
       break;
-    case ColorEnum.GREY:
+    case gongleaflet.ColorEnum.GREY:
       color = 'grey';
       break;
-    case ColorEnum.GREEN:
+    case gongleaflet.ColorEnum.GREEN:
       color = 'green';
       break;
-    case ColorEnum.BLUE:
+    case gongleaflet.ColorEnum.BLUE:
       color = 'blue';
       break;
-    case ColorEnum.LIGHT_BROWN_8D6E63:
+    case gongleaflet.ColorEnum.LIGHT_BROWN_8D6E63:
       color = '#8D6E63';
       break;
   }

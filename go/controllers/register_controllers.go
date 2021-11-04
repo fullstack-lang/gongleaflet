@@ -43,6 +43,13 @@ type ValidationError struct {
 func RegisterControllers(r *gin.Engine) {
 	v1 := r.Group("/api/github.com/fullstack-lang/gongleaflet/go")
 	{ // insertion point for registrations
+		v1.GET("/v1/circles", GetCircles)
+		v1.GET("/v1/circles/:id", GetCircle)
+		v1.POST("/v1/circles", PostCircle)
+		v1.PATCH("/v1/circles/:id", UpdateCircle)
+		v1.PUT("/v1/circles/:id", UpdateCircle)
+		v1.DELETE("/v1/circles/:id", DeleteCircle)
+
 		v1.GET("/v1/divicons", GetDivIcons)
 		v1.GET("/v1/divicons/:id", GetDivIcon)
 		v1.POST("/v1/divicons", PostDivIcon)
@@ -77,13 +84,6 @@ func RegisterControllers(r *gin.Engine) {
 		v1.PATCH("/v1/markers/:id", UpdateMarker)
 		v1.PUT("/v1/markers/:id", UpdateMarker)
 		v1.DELETE("/v1/markers/:id", DeleteMarker)
-
-		v1.GET("/v1/visualcircles", GetVisualCircles)
-		v1.GET("/v1/visualcircles/:id", GetVisualCircle)
-		v1.POST("/v1/visualcircles", PostVisualCircle)
-		v1.PATCH("/v1/visualcircles/:id", UpdateVisualCircle)
-		v1.PUT("/v1/visualcircles/:id", UpdateVisualCircle)
-		v1.DELETE("/v1/visualcircles/:id", DeleteVisualCircle)
 
 		v1.GET("/v1/visuallines", GetVisualLines)
 		v1.GET("/v1/visuallines/:id", GetVisualLine)

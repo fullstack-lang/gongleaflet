@@ -176,7 +176,7 @@ func main() {
 	//
 	// Set up Circles
 	//
-	LyonRadarRange := new(gongleaflet_models.VisualCircle).Stage()
+	LyonRadarRange := new(gongleaflet_models.Circle).Stage()
 	LyonRadarRange.Lat = 46
 	LyonRadarRange.Lng = 5
 	LyonRadarRange.Name = "Lyon's Radar Range"
