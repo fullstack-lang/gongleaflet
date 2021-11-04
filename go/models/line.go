@@ -22,7 +22,7 @@ type Line struct {
 
 	// swagger:ignore
 	// access to the models instance that contains the original information
-	VisualLineInterface LineInterface `gorm:"-"`
+	LineInterface LineInterface `gorm:"-"`
 }
 
 // for the moment, the angular front end does not get booleans, therefore, we translate the
@@ -69,33 +69,33 @@ type LineInterface interface {
 }
 
 func (visualLine *Line) UpdateLine() {
-	if visualLine.VisualLineInterface != nil {
-		visualLine.Name = visualLine.VisualLineInterface.GetName()
+	if visualLine.LineInterface != nil {
+		visualLine.Name = visualLine.LineInterface.GetName()
 
-		visualLine.StartLat = visualLine.VisualLineInterface.GetStartLat()
-		visualLine.StartLng = visualLine.VisualLineInterface.GetStartLng()
+		visualLine.StartLat = visualLine.LineInterface.GetStartLat()
+		visualLine.StartLng = visualLine.LineInterface.GetStartLng()
 
-		visualLine.EndLat = visualLine.VisualLineInterface.GetEndLat()
-		visualLine.EndLng = visualLine.VisualLineInterface.GetEndLng()
+		visualLine.EndLat = visualLine.LineInterface.GetEndLat()
+		visualLine.EndLng = visualLine.LineInterface.GetEndLng()
 
 		visualLine.LayerGroup =
-			computeLayerGroupFromLayerGroupName(visualLine.VisualLineInterface.GetLayerGroupName())
+			computeLayerGroupFromLayerGroupName(visualLine.LineInterface.GetLayerGroupName())
 
 		// transmission status
-		if visualLine.VisualLineInterface.GetIsTransmitting() {
+		if visualLine.LineInterface.GetIsTransmitting() {
 			visualLine.IsTransmitting = IS_TRANSMITTING
 		} else {
 			visualLine.IsTransmitting = IS_NOT_TRANSMITTING
 		}
-		visualLine.Message = visualLine.VisualLineInterface.GetMessage()
+		visualLine.Message = visualLine.LineInterface.GetMessage()
 
 		// transmission status
-		if visualLine.VisualLineInterface.GetIsTransmittingBackward() {
+		if visualLine.LineInterface.GetIsTransmittingBackward() {
 			visualLine.IsTransmittingBackward = IS_TRANSMITTING
 		} else {
 			visualLine.IsTransmittingBackward = IS_NOT_TRANSMITTING
 		}
-		visualLine.MessageBackward = visualLine.VisualLineInterface.GetMessageBackward()
+		visualLine.MessageBackward = visualLine.LineInterface.GetMessageBackward()
 
 	}
 }
