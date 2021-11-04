@@ -36,7 +36,7 @@ export class CartoatcComponent implements OnInit {
   // [leafletOptions]="mapOptions" is passed to the leaflet map in the html
   mapOptions?: L.MapOptions // stangely, impossible to type without ?
 
-  // [leafletLayers]="layerGroups" is passed to one div in the html
+  // [leafletLayers]="rootOfLayerGroups" is passed to one div in the html
   rootOfLayerGroups: L.Layer[] = [];
 
   // map between a gong layerGroup ID and a leaflet L.LayerGroup
@@ -120,17 +120,16 @@ export class CartoatcComponent implements OnInit {
               this.rootOfLayerGroups.push(leafletLayerGroup)
               this.mapGongLayerGroupID_LayerGroup.set(gongLayerGroup.ID, leafletLayerGroup)
             }
+
             // update marker from visual track
-            this.frontRepo.VisualTracks.forEach(
-              (vTrack: gongleaflet.VisualTrackDB) => {
-                let _currentMarker: L.Marker<any> = this.mapVisualTrackID_VisualMarker.get(vTrack.ID)!
-                if (!_currentMarker) {
-                  this.manageNewVisualTrackMarker(vTrack);
-                } else {
-                  this.manageUpdateVisualTrackMarker(vTrack, _currentMarker);
-                }
+            for (let vTrack of frontRepo.VisualTracks_array) {
+              let _currentMarker: L.Marker<any> = this.mapVisualTrackID_VisualMarker.get(vTrack.ID)!
+              if (!_currentMarker) {
+                this.manageNewVisualTrackMarker(vTrack);
+              } else {
+                this.manageUpdateVisualTrackMarker(vTrack, _currentMarker);
               }
-            );
+            }
 
             // remove markers tat have no visual tracks
             this.mapVisualMarker_VisualTrackID.forEach((visualTrackID) => {
