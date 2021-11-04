@@ -1,6 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { MatSlideToggleChange } from '@angular/material/slide-toggle';
-import { LayerGroupService } from 'gongleaflet';
 import { setVisibilityHTMLElement } from '../manage-leaflet-items';
 
 import * as gongleaflet from 'gongleaflet'
@@ -23,25 +22,55 @@ export class CartoatcControlSettingsComponent implements OnInit {
   // mapMap
   @Input() mapName!: string
 
-  layerGroups: gongleaflet.LayerGroupDB[] = []
+  // the gong front repo
+  frontRepo?: gongleaflet.FrontRepo
+  gongleafletMapOptions?: gongleaflet.MapOptionsDB
+
   list: Array<LayerItem> = [];
   open: boolean = false;
 
-  constructor(private layerGroupService: LayerGroupService) { }
+  // map between the layerGroup ID and the LayerGroupUse
+  mapLayerGroupID_LayerItem = new Map<number, gongleaflet.LayerGroupUseDB>()
+
+  constructor(
+    private frontRepoService: gongleaflet.FrontRepoService,
+    private layerGroupUseService: gongleaflet.LayerGroupUseService) {
+
+  }
 
   ngOnInit(): void {
-    this.layerGroupService.getLayerGroups().subscribe(
-      layerGroups => {
-        this.layerGroups = layerGroups
 
-        for (let layerGroup of this.layerGroups) {
-          let layerItem = new LayerItem
-          layerItem.id = layerGroup.ID
-          layerItem.name = layerGroup.Name
-          layerItem.display = layerGroup.DisplayName || layerGroup.Name
-          layerItem.status = true
+    this.frontRepoService.pull().subscribe(
+      frontRepo => {
+        this.frontRepo = frontRepo
 
-          this.list.push(layerItem);
+        let gongleafletMapOptions = Array.from(this.frontRepo.MapOptionss.values())[0]
+        this.gongleafletMapOptions = gongleafletMapOptions
+
+        // if the map name is set, then map options might differ
+        if (this.mapName != "") {
+          for (let gongleafletMapOptions of this.frontRepo.MapOptionss.values()) {
+            if (gongleafletMapOptions.Name == this.mapName) {
+              this.gongleafletMapOptions = gongleafletMapOptions
+            }
+          }
+        }
+
+        if (this.gongleafletMapOptions.LayerGroupUses) {
+          for (let layerGroupUse of this.gongleafletMapOptions.LayerGroupUses) {
+            let layerGroup = layerGroupUse.LayerGroup
+            if (layerGroup) {
+              let layerItem = new LayerItem
+              layerItem.id = layerGroup.ID
+              layerItem.name = layerGroup.Name
+              layerItem.display = layerGroup.DisplayName || layerGroup.Name
+              layerItem.status = layerGroupUse.Display
+
+              this.list.push(layerItem)
+
+              this.mapLayerGroupID_LayerItem.set(layerGroup.ID, layerGroupUse)
+            }
+          }
         }
       }
     )
@@ -55,7 +84,17 @@ export class CartoatcControlSettingsComponent implements OnInit {
 
     console.log("Toggling layer " + id)
 
+    let layerGroupUse = this.mapLayerGroupID_LayerItem.get(id)
+    if (layerGroupUse) {
+      layerGroupUse.Display = !layerGroupUse.Display
 
+      this.layerGroupUseService.updateLayerGroupUse(layerGroupUse).subscribe(
+        (value) => {
+          console.log("layer group use updated")
+          this.layerGroupUseService.LayerGroupUseServiceChanged.next("update")
+        }
+      )
+    }
 
     let layerItems = document.getElementsByClassName('layer-' + id);
     for (let index = 0; index < layerItems.length; index++) {

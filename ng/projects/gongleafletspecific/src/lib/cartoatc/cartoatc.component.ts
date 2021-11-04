@@ -95,7 +95,6 @@ export class CartoatcComponent implements OnInit {
               mapOptions = gongleafletMapOptions
             }
           }
-
         }
 
         this.mapOptions = manageLeafletItems.visualMapToLeafletMapOptions(
