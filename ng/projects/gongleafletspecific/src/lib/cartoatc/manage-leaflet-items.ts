@@ -6,7 +6,7 @@ import { map } from 'rxjs/operators';
 
 // return the mapOptions that is passed to the 
 // creation of the map
-const visualMapToLeafletMapOptions = (vMap: gongleaflet.MapOptionsDB): L.MapOptions => {
+export function visualMapToLeafletMapOptions(vMap: gongleaflet.MapOptionsDB): L.MapOptions {
 
   let mapOptions: L.MapOptions = {}
 
@@ -23,7 +23,7 @@ const visualMapToLeafletMapOptions = (vMap: gongleaflet.MapOptionsDB): L.MapOpti
   mapOptions.zoomSnap = vMap.ZoomSnap
 
   return mapOptions
-};
+}
 
 // newIcon return a new leaflet DivIcon
 //
@@ -31,7 +31,7 @@ const visualMapToLeafletMapOptions = (vMap: gongleaflet.MapOptionsDB): L.MapOpti
 // <div> element instead of an image. 
 // Inherits from Icon but ignores the iconUrl and shadow options.
 
-const newIcon = (
+export function newIcon(
   id: number | string,
   className: string,
   svg: string,
@@ -39,7 +39,7 @@ const newIcon = (
   color: string,
   label?: string,
   opacity?: number
-) => {
+) {
 
   let divIconOptions: L.DivIconOptions = {}
 
@@ -73,14 +73,14 @@ const newIcon = (
   return L.divIcon(divIconOptions);
 };
 
-const rotateIcon = (targetID: string | number, orientation: number) => {
+export function rotateIcon(targetID: string | number, orientation: number) {
   let target = document.getElementById(`${targetID}--icon`);
   if (target) {
     target.style.transform = `rotate(${orientation}deg)`;
   }
 };
 
-const setIconLabel = (targetID: string | number, newLabel: string) => {
+export function setIconLabel(targetID: string | number, newLabel: string) {
   let target = document.getElementById(`${targetID}--label`);
   if (target) {
     target.innerHTML = newLabel;
@@ -88,7 +88,7 @@ const setIconLabel = (targetID: string | number, newLabel: string) => {
 };
 
 // add a leaflet marker with an icon
-function newMarkerWithIcon(lat: number, lng: number, icon: L.DivIcon): L.Marker {
+export function newMarkerWithIcon(lat: number, lng: number, icon: L.DivIcon): L.Marker {
 
   let markerOptions: L.MarkerOptions = {}
   markerOptions.icon = icon
@@ -96,7 +96,7 @@ function newMarkerWithIcon(lat: number, lng: number, icon: L.DivIcon): L.Marker 
   return L.marker([lat, lng], { icon });
 };
 
-const newCircle = (circle: gongleaflet.CircleDB): L.Circle => {
+export function newCircle(circle: gongleaflet.CircleDB): L.Circle {
   return L.circle([circle.Lat, circle.Lng], {
     className: 'layer-' + circle.LayerGroupID.Int64,
     radius: circle.Radius * 1000,
@@ -108,7 +108,7 @@ const newCircle = (circle: gongleaflet.CircleDB): L.Circle => {
   });
 };
 
-const setLine = (newLineData: gongleaflet.VLineDB): L.Polyline => {
+export function setLine(newLineData: gongleaflet.VLineDB): L.Polyline {
   return new L.Polyline([])
     .setLatLngs([
       L.latLng(newLineData.StartLat, newLineData.StartLng),
@@ -123,7 +123,7 @@ const setLine = (newLineData: gongleaflet.VLineDB): L.Polyline => {
     });
 };
 
-const getColor = (visualColorEnum: string): string => {
+export function getColor(visualColorEnum: string): string {
   var color = 'grey';
   switch (visualColorEnum) {
     case gongleaflet.ColorEnum.RED:
@@ -146,7 +146,7 @@ const getColor = (visualColorEnum: string): string => {
 };
 
 
-const getDashStyle = (dashStyleEnumValue: string): string => {
+export function getDashStyle(dashStyleEnumValue: string): string {
   const types = {
     FIVE_TWENTY: '5 20',
     FIVE_TEN: '5 10',
@@ -154,10 +154,10 @@ const getDashStyle = (dashStyleEnumValue: string): string => {
   return types[dashStyleEnumValue as keyof typeof types];
 };
 
-const setVisibilityHTMLElement = (
+export function setVisibilityHTMLElement(
   htmlElement: HTMLElement | any,
   visible: boolean
-) => {
+) {
   if (!htmlElement) {
     return;
   }
@@ -166,17 +166,4 @@ const setVisibilityHTMLElement = (
   } catch {
     htmlElement.setAttribute('display', visible ? '' : 'none');
   }
-};
-
-export {
-  visualMapToLeafletMapOptions,
-  newIcon,
-  rotateIcon,
-  setIconLabel,
-  newMarkerWithIcon,
-  newCircle,
-  setLine,
-  getColor,
-  getDashStyle,
-  setVisibilityHTMLElement,
-};
+}

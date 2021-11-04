@@ -85,21 +85,19 @@ export class CartoatcComponent implements OnInit {
       frontRepo => {
         this.frontRepo = frontRepo
 
-        let mapOptions = Array.from(this.frontRepo.MapOptionss.values())[0]
+        let gongMapOptions = Array.from(this.frontRepo.MapOptionss.values())[0]
 
         // if the map name is set, then map options might differ
         if (this.mapName != "") {
           for (let gongleafletMapOptions of this.frontRepo.MapOptionss.values()) {
             if (gongleafletMapOptions.Name == this.mapName) {
               this.gongleafletMapOptions = gongleafletMapOptions
-              mapOptions = gongleafletMapOptions
+              gongMapOptions = gongleafletMapOptions
             }
           }
         }
 
-        this.mapOptions = manageLeafletItems.visualMapToLeafletMapOptions(
-          mapOptions
-        );
+        this.mapOptions = manageLeafletItems.visualMapToLeafletMapOptions(gongMapOptions)
       }
     )
 
