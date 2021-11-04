@@ -98,6 +98,12 @@ export class MapoptionsComponent implements OnInit {
         }
 
         this.mapOptions = manageLeafletItems.visualMapToLeafletMapOptions(gongMapOptions)
+
+        // display circles
+        for (let circle of this.frontRepo.Circles_array) {
+          let leafletCircle = manageLeafletItems.newCircle(circle)
+          this.rootOfLayerGroups.push(leafletCircle)
+        }
       }
     )
 
