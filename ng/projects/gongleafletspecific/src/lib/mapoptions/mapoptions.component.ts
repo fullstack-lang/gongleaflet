@@ -6,10 +6,9 @@ import * as L from 'leaflet';
 import 'leaflet-rotatedmarker';
 
 import * as gongleaflet from 'gongleaflet';
-
 import * as manageLeafletItems from './manage-leaflet-items';
-
 import { dotBlur } from '../../assets/icons/dot_blur';
+import { refreshMapWithMarkers } from './refreshMapWithMarkers'
 
 export const DEFAULT_ICON_SIZE = 60
 
@@ -39,9 +38,6 @@ export class MapoptionsComponent implements OnInit {
   // [leafletLayers]="rootOfLayerGroups" is passed to one div in the html
   rootOfLayerGroups: L.Layer[] = [];
 
-  // map between a gong layerGroup ID and a leaflet L.LayerGroup
-  mapGongLayerGroupID_LayerGroup = new Map<number, L.Layer>();
-
   // passed to the html as layers [leafletLayers]="visualTracksHistory"
   visualTracksHistory: L.Layer[] = [];
 
@@ -57,22 +53,17 @@ export class MapoptionsComponent implements OnInit {
   // mapVisualTrackName_positionsHistory stores tracks histories
   mapVisualTrackName_positionsHistory: Map<string, Array<L.LatLng>> = new Map();
 
-
-  // map that store leaflet polylines according to the gong line
+  // map that store leaflet object according to the gong object ID
+  mapGongLayerGroupID_LayerGroup = new Map<number, L.Layer>();
   mapVLineID_LeafletPolyline = new Map<number, L.Polyline>();
-
-
-  // store relation between the Markers & the markers
   mapMarkerID_LeafletMarker = new Map<number, L.Marker>();
-
-  // map that stores relation between the div icon ID and the svg content 
   map_divIconID_divIconSVG = new Map<number, string>();
 
   // the gong front repo
   frontRepo?: gongleaflet.FrontRepo
 
   constructor(
-    private frontRepoService: gongleaflet.FrontRepoService,
+    public frontRepoService: gongleaflet.FrontRepoService,
     private visualTrackService: gongleaflet.VisualTrackService,
     private lineService: gongleaflet.VLineService,
     private markerService: gongleaflet.MarkerService,
@@ -90,8 +81,6 @@ export class MapoptionsComponent implements OnInit {
   // }
 
   ngOnInit(): void {
-
-    // this.currentMap = L.map('atcmapid')
 
     console.log("layers name " + this.initialLayers)
 
@@ -204,19 +193,19 @@ export class MapoptionsComponent implements OnInit {
     })
 
     
-    this.refreshMapWithMarkers()
+    refreshMapWithMarkers(this)
 
     this.markerService.MarkerServiceChanged.subscribe(
       message => {
         if (message == "post" || message == "update" || message == "delete") {
-          this.refreshMapWithMarkers()
+          refreshMapWithMarkers(this)
         }
       }
     )
     this.layerGroupUseService.LayerGroupUseServiceChanged.subscribe(
       message => {
         if (message == "post" || message == "update" || message == "delete") {
-          this.refreshMapWithMarkers()
+          refreshMapWithMarkers(this)
         }
       }
     )
@@ -367,70 +356,9 @@ export class MapoptionsComponent implements OnInit {
     return label;
   };
 
-  refreshMapWithMarkers() {
-    this.frontRepoService.pull().subscribe(
-      frontRepo => {
-        this.frontRepo = frontRepo
-
-        // get layers of the map
-        // get all gong LayerGroups, and add them to the "layerGroup"
-        for (let gongLayerGroup of this.frontRepo.LayerGroups_array) {
-
-          // if not present, create a leaflet layer group and add it to the root
-          let leafletLayerGroup = this.mapGongLayerGroupID_LayerGroup.get(gongLayerGroup.ID)
-          if (!leafletLayerGroup) {
-            leafletLayerGroup = new L.LayerGroup<L.Marker>()
-            this.rootOfLayerGroups.push(leafletLayerGroup)
-            this.mapGongLayerGroupID_LayerGroup.set(gongLayerGroup.ID, leafletLayerGroup)
-          }
-        }
-
-        this.frontRepo.DivIcons.forEach((divIcon) => {
-          if (!this.map_divIconID_divIconSVG.has(divIcon.ID)) {
-            this.map_divIconID_divIconSVG.set(divIcon.ID, divIcon.SVG);
-          }
-        });
-
-        this.frontRepo.Markers.forEach((marker) => {
-
-          if (!this.mapMarkerID_LeafletMarker.has(marker.ID)) {
-            var color = manageLeafletItems.getColor(marker.ColorEnum);
-
-            var icon: L.DivIcon = manageLeafletItems.newIcon(
-              marker.ID,
-              'layer-' + marker.LayerGroupID.Int64,
-              this.map_divIconID_divIconSVG.get(marker.DivIconID.Int64)!,
-              DEFAULT_ICON_SIZE,
-              color,
-              marker.Name
-            );
-            var leafletMarker: L.Marker
-            leafletMarker = manageLeafletItems.newMarkerWithIcon(
-              marker.Lat,
-              marker.Lng,
-              icon
-            )
-
-            // this.markersRootLayer.push(leafletMarker)
-
-            // get the GroupLayer of the marker and add it to the layer
-            let groupLayerID = marker.LayerGroup?.ID
-            if (groupLayerID) {
-              let leafletLayer = this.mapGongLayerGroupID_LayerGroup.get(groupLayerID)
-              if (leafletLayer) {
-                this.rootOfLayerGroups.push(leafletMarker)
-              }
-            }
-
-            this.mapMarkerID_LeafletMarker.set(marker.ID, leafletMarker)
-          }
-        })
-      }
-    )
-  }
 }
 
-const LIMIT_HISTORY_LENGTH = 10;
+export const LIMIT_HISTORY_LENGTH = 10;
 
 const addNewCoordToFIFO = (
   list: Array<L.LatLng>,
