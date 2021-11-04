@@ -2,7 +2,7 @@ import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/cor
 
 import * as gongleaflet from 'gongleaflet';
 
-import { DEFAULT_ICON_SIZE } from '../cartoatc.component'
+import { DEFAULT_ICON_SIZE } from '../mapoptions.component'
 
 import * as manageLeafletItems from '../manage-leaflet-items';
 import * as L from 'leaflet';

@@ -13,15 +13,15 @@ import { dotBlur } from '../../assets/icons/dot_blur';
 
 export const DEFAULT_ICON_SIZE = 60
 
-// CartoatcComponent is an angular component that is
+// MapoptionsComponent is an angular component that is
 // - the component that displays tracks
 // - the root component of other components that display other elements (centers, lines, ...)
 @Component({
-  selector: 'app-cartoatc',
-  templateUrl: './cartoatc.component.html',
-  styleUrls: ['./cartoatc.component.scss'],
+  selector: 'app-mapoptions',
+  templateUrl: './mapoptions.component.html',
+  styleUrls: ['./mapoptions.component.scss'],
 })
-export class CartoatcComponent implements OnInit {
+export class MapoptionsComponent implements OnInit {
 
   // list of initial layers
   @Input() initialLayers!: string
