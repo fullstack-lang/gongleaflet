@@ -47,17 +47,20 @@ export class MapoptionsComponent implements OnInit {
   // map of visualTrackMarker to visualTrack ID in order to delete deleted visualTrack
   mapVisualMarker_VisualTrackID = new Map<L.Marker, number>();
 
-  // TO BE REMOVED. currently, the tracks are managed as an attribute in the html object
-  trackLayerID: number = 0
+  // // TO BE REMOVED. currently, the tracks are managed as an attribute in the html object
+  // trackLayerID: number = 0
 
   // mapVisualTrackName_positionsHistory stores tracks histories
   mapVisualTrackName_positionsHistory: Map<string, Array<L.LatLng>> = new Map();
 
   // map that store leaflet object according to the gong object ID
-  mapGongLayerGroupID_LayerGroup = new Map<number, L.Layer>();
-  mapVLineID_LeafletPolyline = new Map<number, L.Polyline>();
-  mapMarkerID_LeafletMarker = new Map<number, L.Marker>();
-  map_divIconID_divIconSVG = new Map<number, string>();
+  mapGongLayerGroupID_LayerGroup = new Map<number, L.LayerGroup<L.Layer>>()
+  mapVLineID_LeafletPolyline = new Map<number, L.Polyline>()
+  mapMarkerID_LeafletMarker = new Map<number, L.Marker>()
+  map_divIconID_divIconSVG = new Map<number, string>()
+
+  // map that allows direct access from the Gong LayerGroupID to the LayerGroupUse of the map
+  mapGongLayerGroupID_LayerGroupUse = new Map<number, gongleaflet.LayerGroupUseDB>()
 
   // the gong front repo
   frontRepo?: gongleaflet.FrontRepo
@@ -102,48 +105,84 @@ export class MapoptionsComponent implements OnInit {
 
         this.mapOptions = manageLeafletItems.visualMapToLeafletMapOptions(gongMapOptions)
 
+        // parse all layerGroupUse of the current mapOptions
+        // create a leaflet LayerGroup for each
+        if (this.gongleafletMapOptions?.LayerGroupUses) {
+          for (let gongLayerGroupUse of this.gongleafletMapOptions.LayerGroupUses) {
+            let gongLayerGroup = gongLayerGroupUse.LayerGroup
+
+            if (gongLayerGroup) {
+              let leafletLayerGroup = L.layerGroup()
+              this.rootOfLayerGroups.push(leafletLayerGroup)
+              this.mapGongLayerGroupID_LayerGroup.set(gongLayerGroup.ID, leafletLayerGroup)
+              this.mapGongLayerGroupID_LayerGroupUse.set( gongLayerGroup.ID, gongLayerGroupUse)
+            }
+          }
+        }
+
         // display circles
         for (let circle of this.frontRepo.Circles_array) {
-          let leafletCircle = manageLeafletItems.newCircle(circle)
-          this.rootOfLayerGroups.push(leafletCircle)
+
+          // get layer of the circle
+          let gongLayerGroup = circle.LayerGroup
+          if (gongLayerGroup) {
+            // is this layer present in the current map ?
+            let leafletLayerGroup = this.mapGongLayerGroupID_LayerGroup.get(gongLayerGroup.ID)
+
+            if (leafletLayerGroup) {
+              let leafletCircle = manageLeafletItems.newCircle(circle)
+              leafletCircle?.addTo(leafletLayerGroup)
+            }
+          }
         }
 
-        // display vlines
-        for (let line of this.frontRepo.VLines_array) {
-          var polyline: L.Polyline = new L.Polyline([]);
-          polyline = manageLeafletItems.setLine(line);
-
-          this.rootOfLayerGroups.push(polyline);
-          this.mapVLineID_LeafletPolyline.set(line.ID, polyline);
-        }
 
         this.lineService.VLineServiceChanged.subscribe(
           message => {
             if (message == "post" || message == "update" || message == "delete") {
               // update line positions
-              this.lineService.getVLines().subscribe((lines) => {
-                lines.forEach((line) => {
-                  var visualLineMarker = this.mapVLineID_LeafletPolyline.get(
-                    line.ID
-                  );
+              for (let gongVLine of this.frontRepo?.VLines_array!) {
 
-                  if (visualLineMarker) {
-                    // update position
-                    visualLineMarker.setLatLngs([
-                      [line.StartLat, line.StartLng],
-                      [line.EndLat, line.EndLng],
-                    ]);
-                    visualLineMarker.options.color = manageLeafletItems.getColor(
-                      line.ColorEnum
-                    );
-                    visualLineMarker.setStyle(visualLineMarker.options);
+                var leafletPolyline = this.mapVLineID_LeafletPolyline.get(gongVLine.ID)
+
+                //
+                // if lealet has no sister element of the VLine, then create one
+                //
+                if (!leafletPolyline) {
+                  // get layer of the circle
+                  let gongLayerGroup = gongVLine.LayerGroup
+                  if (gongLayerGroup) {
+                    // is this layer present in the current map ?
+                    let leafletLayerGroup = this.mapGongLayerGroupID_LayerGroup.get(gongLayerGroup.ID)
+
+                    if (leafletLayerGroup) {
+
+                      leafletPolyline = new L.Polyline([]);
+                      leafletPolyline = manageLeafletItems.setLine(gongVLine);
+
+                      leafletPolyline.addTo(leafletLayerGroup)
+                      this.mapVLineID_LeafletPolyline.set(gongVLine.ID, leafletPolyline);
+                    }
                   }
-                });
-              });
+                }
+
+                if (leafletPolyline) {
+                  // update position
+                  leafletPolyline.setLatLngs([
+                    [gongVLine.StartLat, gongVLine.StartLng],
+                    [gongVLine.EndLat, gongVLine.EndLng],
+                  ]);
+                  leafletPolyline.options.color = manageLeafletItems.getColor(
+                    gongVLine.ColorEnum
+                  );
+                  leafletPolyline.setStyle(leafletPolyline.options);
+                }
+              }
             }
           })
       })
 
+    this.lineService.VLineServiceChanged.next('post')
     this.visualTrackService.VisualTrackServiceChanged.next('update');
 
     // update visual line when the data has changed
@@ -156,13 +195,6 @@ export class MapoptionsComponent implements OnInit {
           frontRepo => {
 
             this.frontRepo = frontRepo
-
-            // get all LayerGroups and add them to the "layerGroup"
-            for (let gongLayerGroup of this.frontRepo.LayerGroups_array) {
-              let leafletLayerGroup = L.layerGroup()
-              this.rootOfLayerGroups.push(leafletLayerGroup)
-              this.mapGongLayerGroupID_LayerGroup.set(gongLayerGroup.ID, leafletLayerGroup)
-            }
 
             // update marker from visual track
             for (let vTrack of frontRepo.VisualTracks_array) {
@@ -192,7 +224,7 @@ export class MapoptionsComponent implements OnInit {
       }
     })
 
-    
+
     refreshMapWithMarkers(this)
 
     this.markerService.MarkerServiceChanged.subscribe(
@@ -240,7 +272,6 @@ export class MapoptionsComponent implements OnInit {
         visualTrack.ID + '-track',
         visualTrack.Heading
       );
-      this.trackLayerID = visualTrack.LayerGroupID.Int64;
 
       this.mapVisualTrackID_VisualMarker.set(visualTrack.ID, marker);
       this.mapVisualMarker_VisualTrackID.set(marker, visualTrack.ID);
@@ -306,7 +337,7 @@ export class MapoptionsComponent implements OnInit {
     let render: L.Layer[] = [];
     let icon = manageLeafletItems.newIcon(
       'icon',
-      'layer-' + this.trackLayerID,
+      'layer-',
       dotBlur,
       5,
       '#004E92'

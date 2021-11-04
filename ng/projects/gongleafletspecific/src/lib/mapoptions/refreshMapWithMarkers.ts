@@ -4,6 +4,7 @@ import 'leaflet-rotatedmarker';
 import * as gongleaflet from 'gongleaflet';
 import * as manageLeafletItems from './manage-leaflet-items';
 import * as L from 'leaflet';
+import { of } from 'rxjs';
 
 
 export function refreshMapWithMarkers(mapOptions: MapoptionsComponent) {
@@ -30,7 +31,24 @@ export function refreshMapWithMarkers(mapOptions: MapoptionsComponent) {
           }
         });
 
-        mapOptions.frontRepo.Markers.forEach((marker) => {
+        //
+        // parse all markers
+        //
+        for( let marker of mapOptions.frontRepo.Markers_array) {
+
+          // check wether the layer of the marker is part of the map
+          let markerLayerGroup = marker.LayerGroup
+          if( markerLayerGroup) {
+            let markerLayerGroupUse = mapOptions.mapGongLayerGroupID_LayerGroupUse.get(markerLayerGroup.ID)
+
+            if (!markerLayerGroupUse) {
+              continue
+            } else {
+              if (markerLayerGroupUse.Display == false) {
+                continue
+              }
+            }
+          }
 
           if (!mapOptions.mapMarkerID_LeafletMarker.has(marker.ID)) {
             var color = manageLeafletItems.getColor(marker.ColorEnum);
@@ -57,13 +75,13 @@ export function refreshMapWithMarkers(mapOptions: MapoptionsComponent) {
             if (groupLayerID) {
               let leafletLayer = mapOptions.mapGongLayerGroupID_LayerGroup.get(groupLayerID)
               if (leafletLayer) {
-                mapOptions.rootOfLayerGroups.push(leafletMarker)
+                leafletMarker.addTo(leafletLayer)
               }
             }
 
             mapOptions.mapMarkerID_LeafletMarker.set(marker.ID, leafletMarker)
           }
-        })
+        }
       }
     )
   }
