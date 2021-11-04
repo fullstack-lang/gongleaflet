@@ -62,6 +62,12 @@ export class MapoptionsComponent implements OnInit {
   mapVLineID_LeafletPolyline = new Map<number, L.Polyline>();
 
 
+  // store relation between the Markers & the markers
+  mapMarkerID_LeafletMarker = new Map<number, L.Marker>();
+
+  // map that stores relation between the div icon ID and the svg content 
+  map_divIconID_divIconSVG = new Map<number, string>();
+
   // the gong front repo
   frontRepo?: gongleaflet.FrontRepo
 
@@ -69,6 +75,8 @@ export class MapoptionsComponent implements OnInit {
     private frontRepoService: gongleaflet.FrontRepoService,
     private visualTrackService: gongleaflet.VisualTrackService,
     private lineService: gongleaflet.VLineService,
+    private markerService: gongleaflet.MarkerService,
+    private layerGroupUseService: gongleaflet.LayerGroupUseService,
     private router: Router
   ) {
     this.router.routeReuseStrategy.shouldReuseRoute = () => false;
@@ -190,10 +198,27 @@ export class MapoptionsComponent implements OnInit {
                 this.mapVisualTrackID_VisualMarker.delete(visualTrackID);
                 this.mapVisualMarker_VisualTrackID.delete(marker!);
               }
-            });
-          });
+            })
+          })
       }
-    }
+    })
+
+    
+    this.refreshMapWithMarkers()
+
+    this.markerService.MarkerServiceChanged.subscribe(
+      message => {
+        if (message == "post" || message == "update" || message == "delete") {
+          this.refreshMapWithMarkers()
+        }
+      }
+    )
+    this.layerGroupUseService.LayerGroupUseServiceChanged.subscribe(
+      message => {
+        if (message == "post" || message == "update" || message == "delete") {
+          this.refreshMapWithMarkers()
+        }
+      }
     )
   }
 
@@ -341,6 +366,68 @@ export class MapoptionsComponent implements OnInit {
     }
     return label;
   };
+
+  refreshMapWithMarkers() {
+    this.frontRepoService.pull().subscribe(
+      frontRepo => {
+        this.frontRepo = frontRepo
+
+        // get layers of the map
+        // get all gong LayerGroups, and add them to the "layerGroup"
+        for (let gongLayerGroup of this.frontRepo.LayerGroups_array) {
+
+          // if not present, create a leaflet layer group and add it to the root
+          let leafletLayerGroup = this.mapGongLayerGroupID_LayerGroup.get(gongLayerGroup.ID)
+          if (!leafletLayerGroup) {
+            leafletLayerGroup = new L.LayerGroup<L.Marker>()
+            this.rootOfLayerGroups.push(leafletLayerGroup)
+            this.mapGongLayerGroupID_LayerGroup.set(gongLayerGroup.ID, leafletLayerGroup)
+          }
+        }
+
+        this.frontRepo.DivIcons.forEach((divIcon) => {
+          if (!this.map_divIconID_divIconSVG.has(divIcon.ID)) {
+            this.map_divIconID_divIconSVG.set(divIcon.ID, divIcon.SVG);
+          }
+        });
+
+        this.frontRepo.Markers.forEach((marker) => {
+
+          if (!this.mapMarkerID_LeafletMarker.has(marker.ID)) {
+            var color = manageLeafletItems.getColor(marker.ColorEnum);
+
+            var icon: L.DivIcon = manageLeafletItems.newIcon(
+              marker.ID,
+              'layer-' + marker.LayerGroupID.Int64,
+              this.map_divIconID_divIconSVG.get(marker.DivIconID.Int64)!,
+              DEFAULT_ICON_SIZE,
+              color,
+              marker.Name
+            );
+            var leafletMarker: L.Marker
+            leafletMarker = manageLeafletItems.newMarkerWithIcon(
+              marker.Lat,
+              marker.Lng,
+              icon
+            )
+
+            // this.markersRootLayer.push(leafletMarker)
+
+            // get the GroupLayer of the marker and add it to the layer
+            let groupLayerID = marker.LayerGroup?.ID
+            if (groupLayerID) {
+              let leafletLayer = this.mapGongLayerGroupID_LayerGroup.get(groupLayerID)
+              if (leafletLayer) {
+                this.rootOfLayerGroups.push(leafletMarker)
+              }
+            }
+
+            this.mapMarkerID_LeafletMarker.set(marker.ID, leafletMarker)
+          }
+        })
+      }
+    )
+  }
 }
 
 const LIMIT_HISTORY_LENGTH = 10;

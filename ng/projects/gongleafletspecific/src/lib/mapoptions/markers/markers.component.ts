@@ -33,22 +33,6 @@ export class MarkersComponent implements OnInit {
   // map between a gong layerGroup ID and a leaflet L.LayerGroup
   mapGongLayerGroupID_LayerGroup = new Map<number, L.LayerGroup<L.Marker>>();
 
-  // ngOnChanges(changes: SimpleChanges) {
-  //   const log: string[] = [];
-  //   for (const propName in changes) {
-  //     const changedProp = changes[propName];
-  //     const to = JSON.stringify(changedProp.currentValue);
-  //     if (changedProp.isFirstChange()) {
-  //       console.log(`Initial value of ${propName} set to ${to}`)
-  //       log.push(`Initial value of ${propName} set to ${to}`);
-  //     } else {
-  //       const from = JSON.stringify(changedProp.previousValue);
-  //       console.log(`${propName} changed from ${from} to ${to}`)
-  //       log.push(`${propName} changed from ${from} to ${to}`);
-  //     }
-  //   }
-  // }
-
   constructor(
     private gongleafletFrontRepoService: gongleaflet.FrontRepoService,
     private markerService: gongleaflet.MarkerService,
