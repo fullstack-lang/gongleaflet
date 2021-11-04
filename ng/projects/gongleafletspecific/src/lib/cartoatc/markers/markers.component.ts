@@ -82,13 +82,14 @@ export class MarkersComponent implements OnInit {
       gongleafletFrontRepo => {
         this.gongleafletFrontRepo = gongleafletFrontRepo
 
-        // get layers
+        // get layers of the map
         // get all gong LayerGroups, and add them to the "layerGroup"
         for (let gongLayerGroup of this.gongleafletFrontRepo.LayerGroups_array) {
 
           // if not present, create a leaflet layer group and add it to the root
-          if (!this.mapGongLayerGroupID_LayerGroup.has(gongLayerGroup.ID)) {
-            let leafletLayerGroup = new L.LayerGroup<L.Marker>()
+          let leafletLayerGroup = this.mapGongLayerGroupID_LayerGroup.get(gongLayerGroup.ID)
+          if (!leafletLayerGroup) {
+            leafletLayerGroup = new L.LayerGroup<L.Marker>()
             this.markersRootLayer.push(leafletLayerGroup)
             this.mapGongLayerGroupID_LayerGroup.set(gongLayerGroup.ID, leafletLayerGroup)
           }
