@@ -2,7 +2,7 @@ package models
 
 // MapOptions provides all necessary elements to the front to display a track
 //
-// swagger:model visualmap
+// swagger:model MapOptions
 type MapOptions struct {
 	Lat, Lng  float64 // map center
 	Name      string

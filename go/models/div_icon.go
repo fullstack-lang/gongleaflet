@@ -2,7 +2,7 @@ package models
 
 // DivIcon is the go implementation of the leaflet DivIcon object
 //
-// swagger:model visualicon
+// swagger:model DivIcon
 type DivIcon struct {
 	Name string
 

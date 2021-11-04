@@ -4,7 +4,7 @@ import "log"
 
 // LayerGroup is the gong version of the leaflet LayerGroup
 //
-// swagger:model visuallayer
+// swagger:model LayerGroup
 type LayerGroup struct {
 	Name string
 

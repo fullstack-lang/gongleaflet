@@ -4,7 +4,7 @@ package models
 //
 // In leaflet, it is translated into a MovingMarker
 //
-// swagger:model visualtrack
+// swagger:model VisualTrack
 type VisualTrack struct {
 	Lat, Lng, Heading, Level, Speed, VerticalSpeed float64
 	Name                                           string

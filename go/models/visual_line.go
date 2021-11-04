@@ -1,8 +1,8 @@
 package models
 
-// VisualLine provides all necessary elements to the front to display a track
+// VisualLine provides all necessary elements to the front to display a line in leaflet
 //
-// swagger:model visualcenter
+// swagger:model VisualLine
 type VisualLine struct {
 	StartLat, StartLng float64
 	EndLat, EndLng     float64

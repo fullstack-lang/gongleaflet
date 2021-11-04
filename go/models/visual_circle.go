@@ -2,7 +2,7 @@ package models
 
 // VisualCircle provides all necessary elements to the front to display a track
 //
-// swagger:model visualcenter
+// swagger:model VisualCircle
 type VisualCircle struct {
 	Lat, Lng float64
 	Name     string

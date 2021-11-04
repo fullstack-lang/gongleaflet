@@ -4,7 +4,7 @@ package models
 //
 // L.Marker is used to display clickable/draggable icons on the map. Extends Layer.
 //
-// swagger:model visualcenter
+// swagger:model Marker
 type Marker struct {
 	Lat, Lng float64
 	Name     string
