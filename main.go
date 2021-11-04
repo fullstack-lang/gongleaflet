@@ -214,6 +214,7 @@ func main() {
 	Map1MarkersLayer1Use := new(gongleaflet_models.LayerGroupUse).Stage()
 	Map1MarkersLayer1Use.Name = "Map1MarkersLayer1Use"
 	Map1MarkersLayer1Use.LayerGroup = MarkersLayer1
+	Map1MarkersLayer1Use.Display = true
 	Map1.LayerGroupUses = append(Map1.LayerGroupUses, Map1MarkersLayer1Use)
 
 	Map1MarkersLayer2Use := new(gongleaflet_models.LayerGroupUse).Stage()

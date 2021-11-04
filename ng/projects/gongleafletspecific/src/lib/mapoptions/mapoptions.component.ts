@@ -54,12 +54,16 @@ export class MapoptionsComponent implements OnInit {
   mapVisualTrackName_positionsHistory: Map<string, Array<L.LatLng>> = new Map();
 
   // map that store leaflet object according to the gong object ID
-  mapGongLayerGroupID_LayerGroup = new Map<number, L.LayerGroup<L.Layer>>()
+  mapGongLayerGroupID_LeafletLayerGroup = new Map<number, L.LayerGroup<L.Layer>>()
   mapVLineID_LeafletPolyline = new Map<number, L.Polyline>()
   mapMarkerID_LeafletMarker = new Map<number, L.Marker>()
   map_divIconID_divIconSVG = new Map<number, string>()
 
+  // // map that stores which 
+  // mapGongLayerGroupUseID_GongLayerGroupID = new Map<number, number>()
+
   // map that allows direct access from the Gong LayerGroupID to the LayerGroupUse of the map
+  // if a gong layerGroup is present, it means the layer is is to be displayed on this map
   mapGongLayerGroupID_LayerGroupUse = new Map<number, gongleaflet.LayerGroupUseDB>()
 
   // the gong front repo
@@ -105,20 +109,22 @@ export class MapoptionsComponent implements OnInit {
 
         this.mapOptions = manageLeafletItems.visualMapToLeafletMapOptions(gongMapOptions)
 
-        // parse all layerGroupUse of the current mapOptions
-        // create a leaflet LayerGroup for each
-        if (this.gongleafletMapOptions?.LayerGroupUses) {
-          for (let gongLayerGroupUse of this.gongleafletMapOptions.LayerGroupUses) {
-            let gongLayerGroup = gongLayerGroupUse.LayerGroup
+        refreshMapWithMarkers(this)
 
-            if (gongLayerGroup) {
-              let leafletLayerGroup = L.layerGroup()
-              this.rootOfLayerGroups.push(leafletLayerGroup)
-              this.mapGongLayerGroupID_LayerGroup.set(gongLayerGroup.ID, leafletLayerGroup)
-              this.mapGongLayerGroupID_LayerGroupUse.set( gongLayerGroup.ID, gongLayerGroupUse)
-            }
-          }
-        }
+        // // parse all layerGroupUse of the current mapOptions
+        // // create a leaflet LayerGroup for each
+        // if (this.gongleafletMapOptions?.LayerGroupUses) {
+        //   for (let gongLayerGroupUse of this.gongleafletMapOptions.LayerGroupUses) {
+        //     let gongLayerGroup = gongLayerGroupUse.LayerGroup
+
+        //     if (gongLayerGroup) {
+        //       let leafletLayerGroup = L.layerGroup()
+        //       this.rootOfLayerGroups.push(leafletLayerGroup)
+        //       this.mapGongLayerGroupID_LeafletLayerGroup.set(gongLayerGroup.ID, leafletLayerGroup)
+        //       this.mapGongLayerGroupID_LayerGroupUse.set( gongLayerGroup.ID, gongLayerGroupUse)
+        //     }
+        //   }
+        // }
 
         // display circles
         for (let circle of this.frontRepo.Circles_array) {
@@ -127,7 +133,7 @@ export class MapoptionsComponent implements OnInit {
           let gongLayerGroup = circle.LayerGroup
           if (gongLayerGroup) {
             // is this layer present in the current map ?
-            let leafletLayerGroup = this.mapGongLayerGroupID_LayerGroup.get(gongLayerGroup.ID)
+            let leafletLayerGroup = this.mapGongLayerGroupID_LeafletLayerGroup.get(gongLayerGroup.ID)
 
             if (leafletLayerGroup) {
               let leafletCircle = manageLeafletItems.newCircle(circle)
@@ -153,7 +159,7 @@ export class MapoptionsComponent implements OnInit {
                   let gongLayerGroup = gongVLine.LayerGroup
                   if (gongLayerGroup) {
                     // is this layer present in the current map ?
-                    let leafletLayerGroup = this.mapGongLayerGroupID_LayerGroup.get(gongLayerGroup.ID)
+                    let leafletLayerGroup = this.mapGongLayerGroupID_LeafletLayerGroup.get(gongLayerGroup.ID)
 
                     if (leafletLayerGroup) {
 
@@ -223,9 +229,6 @@ export class MapoptionsComponent implements OnInit {
           })
       }
     })
-
-
-    refreshMapWithMarkers(this)
 
     this.markerService.MarkerServiceChanged.subscribe(
       message => {
