@@ -77,10 +77,12 @@ export class MarkersComponent implements OnInit {
         // get all gong LayerGroups, and add them to the "layerGroup"
         for (let gongLayerGroup of this.gongleafletFrontRepo.LayerGroups_array) {
 
-          // create a leaflet layer group
-          let leafletLayerGroup = new L.LayerGroup<L.Marker>()
-          this.markersRootLayer.push(leafletLayerGroup)
-          this.mapGongLayerGroupID_LayerGroup.set(gongLayerGroup.ID, leafletLayerGroup)
+          // if not present, create a leaflet layer group
+          if (!this.mapGongLayerGroupID_LayerGroup.has(gongLayerGroup.ID)) {
+            let leafletLayerGroup = new L.LayerGroup<L.Marker>()
+            this.markersRootLayer.push(leafletLayerGroup)
+            this.mapGongLayerGroupID_LayerGroup.set(gongLayerGroup.ID, leafletLayerGroup)
+          }
         }
 
         this.gongleafletFrontRepo.DivIcons.forEach((divIcon) => {
@@ -107,7 +109,8 @@ export class MarkersComponent implements OnInit {
               marker.Lat,
               marker.Lng,
               icon
-            );
+            )
+
             // this.markersRootLayer.push(leafletMarker)
 
             // get the GroupLayer of the marker and add it to the layer
