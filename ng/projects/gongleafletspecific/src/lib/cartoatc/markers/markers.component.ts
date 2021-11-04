@@ -52,6 +52,7 @@ export class MarkersComponent implements OnInit {
   constructor(
     private gongleafletFrontRepoService: gongleaflet.FrontRepoService,
     private markerService: gongleaflet.MarkerService,
+    private layerGroupUseService: gongleaflet.LayerGroupUseService,
   ) { }
 
   ngOnInit(): void {
@@ -65,7 +66,15 @@ export class MarkersComponent implements OnInit {
         if (message == "post" || message == "update" || message == "delete") {
           this.refreshMapWithMarkers()
         }
-      })
+      }
+    )
+    this.layerGroupUseService.LayerGroupUseServiceChanged.subscribe(
+      message => {
+        if (message == "post" || message == "update" || message == "delete") {
+          this.refreshMapWithMarkers()
+        }
+      }
+    )
   }
 
   refreshMapWithMarkers() {
@@ -77,7 +86,7 @@ export class MarkersComponent implements OnInit {
         // get all gong LayerGroups, and add them to the "layerGroup"
         for (let gongLayerGroup of this.gongleafletFrontRepo.LayerGroups_array) {
 
-          // if not present, create a leaflet layer group
+          // if not present, create a leaflet layer group and add it to the root
           if (!this.mapGongLayerGroupID_LayerGroup.has(gongLayerGroup.ID)) {
             let leafletLayerGroup = new L.LayerGroup<L.Marker>()
             this.markersRootLayer.push(leafletLayerGroup)
