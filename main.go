@@ -47,7 +47,6 @@ var AirplaneIcon *gongleaflet_models.DivIcon = (&gongleaflet_models.DivIcon{
 var (
 	logDBFlag  = flag.Bool("logDB", false, "log mode for db")
 	logGINFlag = flag.Bool("logGIN", false, "log mode for gin")
-	apiFlag    = flag.Bool("api", false, "it true, use api controllers instead of default controllers")
 
 	backupFlag  = flag.Bool("backup", false, "read database file, generate backup and exits")
 	restoreFlag = flag.Bool("restore", false, "generate restore and exits")
@@ -222,50 +221,50 @@ func main() {
 	Map1RadarLayerUse.LayerGroup = RadarLayer
 	Map1.LayerGroupUses = append(Map1.LayerGroupUses, Map1RadarLayerUse)
 
-	Map1TracksLayerUse := new(gongleaflet_models.LayerGroupUse).Stage()
-	Map1TracksLayerUse.Name = "Map1TracksLayerUse"
-	Map1TracksLayerUse.LayerGroup = TracksLayer
-	Map1.LayerGroupUses = append(Map1.LayerGroupUses, Map1TracksLayerUse)
+	// Map1TracksLayerUse := new(gongleaflet_models.LayerGroupUse).Stage()
+	// Map1TracksLayerUse.Name = "Map1TracksLayerUse"
+	// Map1TracksLayerUse.LayerGroup = TracksLayer
+	// Map1.LayerGroupUses = append(Map1.LayerGroupUses, Map1TracksLayerUse)
 
-	Map2 := new(gongleaflet_models.MapOptions).Stage()
-	Map2.Name = "Map2"
-	Map2.UrlTemplate = "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
-	Map2.Attribution = "osm"
-	Map2.ZoomLevel = 5.0
-	Map2.ZoomSnap = 1.0
-	Map2.MaxZoom = 18.0
-	Map2.Lat = 45
-	Map2.Lng = 3
+	// Map2 := new(gongleaflet_models.MapOptions).Stage()
+	// Map2.Name = "Map2"
+	// Map2.UrlTemplate = "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+	// Map2.Attribution = "osm"
+	// Map2.ZoomLevel = 5.0
+	// Map2.ZoomSnap = 1.0
+	// Map2.MaxZoom = 18.0
+	// Map2.Lat = 45
+	// Map2.Lng = 3
 
-	Map2AirportLayerUse := new(gongleaflet_models.LayerGroupUse).Stage()
-	Map2AirportLayerUse.Name = "Map2RadarLayerUse"
-	Map2AirportLayerUse.LayerGroup = AirportLayer
-	Map2.LayerGroupUses = append(Map2.LayerGroupUses, Map2AirportLayerUse)
+	// Map2AirportLayerUse := new(gongleaflet_models.LayerGroupUse).Stage()
+	// Map2AirportLayerUse.Name = "Map2RadarLayerUse"
+	// Map2AirportLayerUse.LayerGroup = AirportLayer
+	// Map2.LayerGroupUses = append(Map2.LayerGroupUses, Map2AirportLayerUse)
 
-	Map2RadarLayerUse := new(gongleaflet_models.LayerGroupUse).Stage()
-	Map2RadarLayerUse.Name = "Map2RadarLayerUse"
-	Map2RadarLayerUse.LayerGroup = RadarLayer
-	Map2.LayerGroupUses = append(Map2.LayerGroupUses, Map2RadarLayerUse)
+	// Map2RadarLayerUse := new(gongleaflet_models.LayerGroupUse).Stage()
+	// Map2RadarLayerUse.Name = "Map2RadarLayerUse"
+	// Map2RadarLayerUse.LayerGroup = RadarLayer
+	// Map2.LayerGroupUses = append(Map2.LayerGroupUses, Map2RadarLayerUse)
 
-	Map2TracksLayerUse := new(gongleaflet_models.LayerGroupUse).Stage()
-	Map2TracksLayerUse.Name = "Map2TracksLayerUse"
-	Map2TracksLayerUse.LayerGroup = TracksLayer
-	Map2.LayerGroupUses = append(Map2.LayerGroupUses, Map2TracksLayerUse)
+	// Map2TracksLayerUse := new(gongleaflet_models.LayerGroupUse).Stage()
+	// Map2TracksLayerUse.Name = "Map2TracksLayerUse"
+	// Map2TracksLayerUse.LayerGroup = TracksLayer
+	// Map2.LayerGroupUses = append(Map2.LayerGroupUses, Map2TracksLayerUse)
 
 	//
 	// Tracks
 	//
-	Plane := new(gongleaflet_models.VisualTrack).Stage()
-	Plane.Lat = 46
-	Plane.Lng = 4
-	Plane.Name = "Plane Track"
-	Plane.LayerGroup = TracksLayer
-	Plane.DivIcon = AirplaneIcon
-	Plane.ColorEnum = gongleaflet_models.GREEN
-	Plane.Heading = 130
-	Plane.Level = 220
-	Plane.Speed = 300
-	Plane.VerticalSpeed = 30
+	// Plane := new(gongleaflet_models.VisualTrack).Stage()
+	// Plane.Lat = 46
+	// Plane.Lng = 4
+	// Plane.Name = "Plane Track"
+	// Plane.LayerGroup = TracksLayer
+	// Plane.DivIcon = AirplaneIcon
+	// Plane.ColorEnum = gongleaflet_models.GREEN
+	// Plane.Heading = 130
+	// Plane.Level = 220
+	// Plane.Speed = 300
+	// Plane.VerticalSpeed = 30
 
 	gongleaflet_models.Stage.Commit()
 
