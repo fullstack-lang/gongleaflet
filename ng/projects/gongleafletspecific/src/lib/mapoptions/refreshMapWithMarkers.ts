@@ -163,16 +163,25 @@ export function refreshMapWithMarkers(mapOptions: MapoptionsComponent) {
         let markerLayerGroup = gongMarker.LayerGroup
         if (markerLayerGroup) {
           leafletLayerGroup = mapOptions.mapGongLayerGroupID_LeafletLayerGroup.get(markerLayerGroup.ID)
-          if(leafletLayerGroup) {
+          if (leafletLayerGroup) {
             leafletMarker.addTo(leafletLayerGroup)
           }
         }
 
         // add the kin to the map
         mapOptions.mapMarkerID_LeafletMarker.set(gongMarker.ID, leafletMarker)
-       } else {
+      } else {
         console.log("Gong Marker " + gongMarker.Name + " has already a leaflet kin")
-       }
+      }
     }
   }
+
+  // But, we can run stuff inside of Angular's zone by calling NgZone.run()
+  // everything inside the arrow function body happens inside of Angular's zone, where changes will be detected
+  mapOptions.zone.run(() => {
+    if( mapOptions.leafletMapOptions) {
+      mapOptions.leafletMapOptions.center = mapOptions.leafletMapOptions.center 
+    }
+    console.log("after angular zone run")
+  });
 }

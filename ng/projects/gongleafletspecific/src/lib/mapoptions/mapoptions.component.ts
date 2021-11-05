@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, NgZone, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { combineLatest, timer, Observable } from 'rxjs';
 
@@ -27,7 +27,7 @@ export class MapoptionsComponent implements OnInit {
   // 3. the corresponding [leafletOptions]="mapOptions" that is passed to the leaflet map in the html
   @Input() mapName: string = ""
   gongleafletMapOptions?: gongleaflet.MapOptionsDB
-  mapOptions?: L.MapOptions // stangely, impossible to type without ?
+  leafletMapOptions?: L.MapOptions // stangely, impossible to type without ?
 
   // [leafletLayers]="rootOfLayerGroups" that is passed to one div in the html
   rootOfLayerGroups: L.Layer[] = [];
@@ -79,7 +79,8 @@ export class MapoptionsComponent implements OnInit {
     private lineService: gongleaflet.VLineService,
     private markerService: gongleaflet.MarkerService,
     private layerGroupUseService: gongleaflet.LayerGroupUseService,
-    private router: Router
+    private router: Router,
+    public zone: NgZone
   ) {
     this.router.routeReuseStrategy.shouldReuseRoute = () => false;
   }
@@ -112,7 +113,7 @@ export class MapoptionsComponent implements OnInit {
           }
         }
 
-        this.mapOptions = manageLeafletItems.visualMapToLeafletMapOptions(gongMapOptions)
+        this.leafletMapOptions = manageLeafletItems.visualMapToLeafletMapOptions(gongMapOptions)
 
         refreshMapWithMarkers(this)
 

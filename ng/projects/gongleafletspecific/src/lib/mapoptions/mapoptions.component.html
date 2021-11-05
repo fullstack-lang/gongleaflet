@@ -1,13 +1,13 @@
 <div id="atcmapid">
-    <ng-container *ngIf="mapOptions">
-        <div style="height:100%;width:100%;" leaflet [leafletOptions]="mapOptions">
+    <ng-container *ngIf="leafletMapOptions">
+        <div style="height:100%;width:100%;" leaflet [leafletOptions]="leafletMapOptions">
             <!-- <markers-component [mapName]="mapName"></markers-component> -->
             <div [leafletLayers]="rootOfLayerGroups"></div>
             <div [leafletLayers]="visualTracksHistory"></div>
         </div>
         <app-cartoatc-control-settings [mapName]="mapName"></app-cartoatc-control-settings>
     </ng-container>
-    <ng-container *ngIf="!mapOptions">
+    <ng-container *ngIf="!leafletMapOptions">
         <div class="cartoatc--empty">
             <p>Map options not yet loaded</p>
         </div>
