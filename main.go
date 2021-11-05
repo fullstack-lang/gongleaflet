@@ -142,13 +142,13 @@ func main() {
 	//
 	// Set up LayerGroup
 	//
-	MarkersLayer1 := new(gongleaflet_models.LayerGroup).Stage()
-	MarkersLayer1.Name = "Markers Layer 1"
-	MarkersLayer1.DisplayName = "Markers Layer 1"
+	AirportLayer := new(gongleaflet_models.LayerGroup).Stage()
+	AirportLayer.Name = "Airport Layer"
+	AirportLayer.DisplayName = "Airport Layer"
 
-	MarkersLayer2 := new(gongleaflet_models.LayerGroup).Stage()
-	MarkersLayer2.Name = "Markers Layer 2"
-	MarkersLayer2.DisplayName = "Markers Layer 2"
+	RadarLayer := new(gongleaflet_models.LayerGroup).Stage()
+	RadarLayer.Name = "Radar Layer"
+	RadarLayer.DisplayName = "Radar Layer"
 
 	TracksLayer := new(gongleaflet_models.LayerGroup).Stage()
 	TracksLayer.Name = "Tracks Layer"
@@ -161,7 +161,7 @@ func main() {
 	LyonAirport.Lat = 46
 	LyonAirport.Lng = 5.5
 	LyonAirport.Name = "Lyon's Airport"
-	LyonAirport.LayerGroup = MarkersLayer1
+	LyonAirport.LayerGroup = AirportLayer
 	LyonAirport.DivIcon = AirTrafficControlerIcon
 	LyonAirport.ColorEnum = gongleaflet_models.GREEN
 
@@ -169,7 +169,7 @@ func main() {
 	LyonRadar.Lat = 46
 	LyonRadar.Lng = 5
 	LyonRadar.Name = "Lyon's Radar"
-	LyonRadar.LayerGroup = MarkersLayer2
+	LyonRadar.LayerGroup = RadarLayer
 	LyonRadar.DivIcon = RadarIcon
 	LyonRadar.ColorEnum = gongleaflet_models.BLUE
 
@@ -180,7 +180,7 @@ func main() {
 	LyonRadarRange.Lat = 46
 	LyonRadarRange.Lng = 5
 	LyonRadarRange.Name = "Lyon's Radar Range"
-	LyonRadarRange.LayerGroup = MarkersLayer2
+	LyonRadarRange.LayerGroup = RadarLayer
 	LyonRadarRange.Radius = 100
 	LyonRadarRange.ColorEnum = gongleaflet_models.LIGHT_BROWN_8D6E63
 	LyonRadarRange.DashStyleEnum = gongleaflet_models.FIVE_TWENTY
@@ -194,7 +194,7 @@ func main() {
 	TestLine.EndLat = 42
 	TestLine.EndLng = 6
 	TestLine.Name = "Test line"
-	TestLine.LayerGroup = MarkersLayer2
+	TestLine.LayerGroup = RadarLayer
 	TestLine.ColorEnum = gongleaflet_models.RED
 	TestLine.DashStyleEnum = gongleaflet_models.FIVE_TWENTY
 
@@ -211,16 +211,16 @@ func main() {
 	Map1.Lat = 45
 	Map1.Lng = 5
 
-	Map1MarkersLayer1Use := new(gongleaflet_models.LayerGroupUse).Stage()
-	Map1MarkersLayer1Use.Name = "Map1MarkersLayer1Use"
-	Map1MarkersLayer1Use.LayerGroup = MarkersLayer1
-	Map1MarkersLayer1Use.Display = true
-	Map1.LayerGroupUses = append(Map1.LayerGroupUses, Map1MarkersLayer1Use)
+	Map1AirportLayerUse := new(gongleaflet_models.LayerGroupUse).Stage()
+	Map1AirportLayerUse.Name = "Map1AirportLayerUse"
+	Map1AirportLayerUse.LayerGroup = AirportLayer
+	Map1AirportLayerUse.Display = true
+	Map1.LayerGroupUses = append(Map1.LayerGroupUses, Map1AirportLayerUse)
 
-	Map1MarkersLayer2Use := new(gongleaflet_models.LayerGroupUse).Stage()
-	Map1MarkersLayer2Use.Name = "Map1MarkersLayer2Use"
-	Map1MarkersLayer2Use.LayerGroup = MarkersLayer2
-	Map1.LayerGroupUses = append(Map1.LayerGroupUses, Map1MarkersLayer2Use)
+	Map1RadarLayerUse := new(gongleaflet_models.LayerGroupUse).Stage()
+	Map1RadarLayerUse.Name = "Map1RadarLayerUse"
+	Map1RadarLayerUse.LayerGroup = RadarLayer
+	Map1.LayerGroupUses = append(Map1.LayerGroupUses, Map1RadarLayerUse)
 
 	Map1TracksLayerUse := new(gongleaflet_models.LayerGroupUse).Stage()
 	Map1TracksLayerUse.Name = "Map1TracksLayerUse"
@@ -237,15 +237,15 @@ func main() {
 	Map2.Lat = 45
 	Map2.Lng = 3
 
-	Map2MarkersLayer1Use := new(gongleaflet_models.LayerGroupUse).Stage()
-	Map2MarkersLayer1Use.Name = "Map2MarkersLayer1Use"
-	Map2MarkersLayer1Use.LayerGroup = MarkersLayer1
-	Map2.LayerGroupUses = append(Map2.LayerGroupUses, Map2MarkersLayer1Use)
+	Map2AirportLayerUse := new(gongleaflet_models.LayerGroupUse).Stage()
+	Map2AirportLayerUse.Name = "Map2RadarLayerUse"
+	Map2AirportLayerUse.LayerGroup = AirportLayer
+	Map2.LayerGroupUses = append(Map2.LayerGroupUses, Map2AirportLayerUse)
 
-	Map2MarkersLayer2Use := new(gongleaflet_models.LayerGroupUse).Stage()
-	Map2MarkersLayer2Use.Name = "Map2MarkersLayer2Use"
-	Map2MarkersLayer2Use.LayerGroup = MarkersLayer2
-	Map2.LayerGroupUses = append(Map2.LayerGroupUses, Map2MarkersLayer2Use)
+	Map2RadarLayerUse := new(gongleaflet_models.LayerGroupUse).Stage()
+	Map2RadarLayerUse.Name = "Map2RadarLayerUse"
+	Map2RadarLayerUse.LayerGroup = RadarLayer
+	Map2.LayerGroupUses = append(Map2.LayerGroupUses, Map2RadarLayerUse)
 
 	Map2TracksLayerUse := new(gongleaflet_models.LayerGroupUse).Stage()
 	Map2TracksLayerUse.Name = "Map2TracksLayerUse"
