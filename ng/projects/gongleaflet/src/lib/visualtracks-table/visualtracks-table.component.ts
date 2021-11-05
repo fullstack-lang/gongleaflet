@@ -96,9 +96,6 @@ export class VisualTracksTableComponent implements OnInit {
         case 'DivIcon':
           return (visualtrackDB.DivIcon ? visualtrackDB.DivIcon.Name : '');
 
-        case 'Display':
-          return visualtrackDB.Display?"true":"false";
-
         case 'DisplayTrackHistory':
           return visualtrackDB.DisplayTrackHistory?"true":"false";
 
@@ -193,7 +190,6 @@ export class VisualTracksTableComponent implements OnInit {
         "ColorEnum",
         "LayerGroup",
         "DivIcon",
-        "Display",
         "DisplayTrackHistory",
         "DisplayLevelAndSpeed",
       ]
@@ -209,7 +205,6 @@ export class VisualTracksTableComponent implements OnInit {
         "ColorEnum",
         "LayerGroup",
         "DivIcon",
-        "Display",
         "DisplayTrackHistory",
         "DisplayLevelAndSpeed",
       ]

@@ -1,14 +1,13 @@
-import { Component, Input, NgZone, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
-import { combineLatest, timer, Observable } from 'rxjs';
+import { Component, Input, NgZone, OnInit } from '@angular/core'
+import { Router } from '@angular/router'
+import { combineLatest, timer, Observable } from 'rxjs'
 
-import * as L from 'leaflet';
-import 'leaflet-rotatedmarker';
+import * as L from 'leaflet'
+import 'leaflet-rotatedmarker'
 
 import * as gongleaflet from 'gongleaflet';
-import * as manageLeafletItems from './manage-leaflet-items';
-import { dotBlur } from '../../assets/icons/dot_blur';
-import { refreshMapWithMarkers } from './refreshMapWithMarkers'
+import * as manageLeafletItems from './manage-leaflet-items'
+import { dotBlur } from '../../assets/icons/dot_blur'
 
 export const DEFAULT_ICON_SIZE = 60
 
@@ -150,7 +149,7 @@ export class MapoptionsComponent implements OnInit {
                   }
                 }
 
-                // remove markers tat have no visual tracks
+                // remove markers that have no visual tracks
                 this.mapVisualMarker_VisualTrackID.forEach((visualTrackID) => {
                   if (frontRepo.VisualTracks.get(visualTrackID) == undefined) {
                     var marker = this.mapVisualTrackID_VisualMarker.get(
@@ -231,7 +230,7 @@ export class MapoptionsComponent implements OnInit {
         color,
         visualTrack.Name
       );
-      var marker = manageLeafletItems.newMarkerWithIcon(
+      var leafletTrackMarker = manageLeafletItems.newMarkerWithIcon(
         visualTrack.Lat,
         visualTrack.Lng,
         icon
@@ -239,7 +238,7 @@ export class MapoptionsComponent implements OnInit {
 
       {
         // @ts-ignore: Unreachable code error
-        marker.setRotationOrigin('center center');
+        leafletTrackMarker.setRotationOrigin('center center');
       }
 
       manageLeafletItems.rotateIcon(
@@ -247,9 +246,20 @@ export class MapoptionsComponent implements OnInit {
         visualTrack.Heading
       );
 
-      this.mapVisualTrackID_VisualMarker.set(visualTrack.ID, marker);
-      this.mapVisualMarker_VisualTrackID.set(marker, visualTrack.ID);
-      this.rootOfLayerGroups.push(marker);
+      this.mapVisualTrackID_VisualMarker.set(visualTrack.ID, leafletTrackMarker);
+      this.mapVisualMarker_VisualTrackID.set(leafletTrackMarker, visualTrack.ID);
+
+      // get layer of visual track
+      let gongLayerGroup = visualTrack.LayerGroup
+      if (gongLayerGroup) {
+        let leafletLayer = this.mapGongLayerGroupID_LeafletLayerGroup.get(gongLayerGroup.ID)
+
+        if( leafletLayer) {
+          leafletTrackMarker.addTo(leafletLayer)
+        }
+      }
+
+      //      this.rootOfLayerGroups.push(leafletTrackMarker);
     }
   }
 
@@ -257,10 +267,6 @@ export class MapoptionsComponent implements OnInit {
     visualTrack: gongleaflet.VisualTrackDB,
     marker: L.Marker<any>
   ) {
-    if (!visualTrack.Display) {
-      marker.remove();
-      return;
-    }
     marker.setLatLng([visualTrack.Lat, visualTrack.Lng]);
     manageLeafletItems.setIconLabel(
       visualTrack.ID + '-track',

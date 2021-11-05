@@ -19,7 +19,6 @@ export class VisualTrackDB {
 	VerticalSpeed: number = 0
 	Name: string = ""
 	ColorEnum: string = ""
-	Display: boolean = false
 	DisplayTrackHistory: boolean = false
 	DisplayLevelAndSpeed: boolean = false
 

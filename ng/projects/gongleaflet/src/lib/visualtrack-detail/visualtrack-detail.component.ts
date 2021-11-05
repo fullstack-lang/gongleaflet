@@ -35,7 +35,6 @@ export class VisualTrackDetailComponent implements OnInit {
 
 	// insertion point for declarations
 	ColorEnumList: ColorEnumSelect[] = []
-	DisplayFormControl = new FormControl(false);
 	DisplayTrackHistoryFormControl = new FormControl(false);
 	DisplayLevelAndSpeedFormControl = new FormControl(false);
 
@@ -128,7 +127,6 @@ export class VisualTrackDetailComponent implements OnInit {
 				}
 
 				// insertion point for recovery of form controls value for bool fields
-				this.DisplayFormControl.setValue(this.visualtrack.Display)
 				this.DisplayTrackHistoryFormControl.setValue(this.visualtrack.DisplayTrackHistory)
 				this.DisplayLevelAndSpeedFormControl.setValue(this.visualtrack.DisplayLevelAndSpeed)
 			}
@@ -163,7 +161,6 @@ export class VisualTrackDetailComponent implements OnInit {
 			this.visualtrack.DivIconID.Int64 = 0
 			this.visualtrack.DivIconID.Valid = true
 		}
-		this.visualtrack.Display = this.DisplayFormControl.value
 		this.visualtrack.DisplayTrackHistory = this.DisplayTrackHistoryFormControl.value
 		this.visualtrack.DisplayLevelAndSpeed = this.DisplayLevelAndSpeedFormControl.value
 

@@ -20,8 +20,6 @@ type VisualTrack struct {
 
 	DivIcon *DivIcon
 
-	Display bool
-
 	// if true display dots from the trajectory
 	DisplayTrackHistory bool
 
@@ -42,9 +40,6 @@ type VisualTrackInterface interface {
 	GetLevel() (level float64)
 
 	GetName() (name string)
-
-	// the models name knows wether it has to be displayed
-	GetDisplay() bool
 	GetLayerGroupName() string
 }
 
@@ -58,7 +53,6 @@ func (visualTrack *VisualTrack) UpdateTrack() {
 		visualTrack.Level = visualTrack.VisualTrackInterface.GetLevel()
 		visualTrack.Speed = visualTrack.VisualTrackInterface.GetSpeed()
 		visualTrack.VerticalSpeed = visualTrack.VisualTrackInterface.GetVerticalSpeed()
-		visualTrack.Display = visualTrack.VisualTrackInterface.GetDisplay()
 
 		visualTrack.LayerGroup = computeLayerGroupFromLayerGroupName(visualTrack.VisualTrackInterface.GetLayerGroupName())
 	}

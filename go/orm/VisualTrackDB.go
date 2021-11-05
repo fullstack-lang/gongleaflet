@@ -90,10 +90,6 @@ type VisualTrackDB struct {
 	// Declation for basic field visualtrackDB.ColorEnum {{BasicKind}} (to be completed)
 	ColorEnum_Data sql.NullString
 
-	// Declation for basic field visualtrackDB.Display bool (to be completed)
-	// provide the sql storage for the boolan
-	Display_Data sql.NullBool
-
 	// Declation for basic field visualtrackDB.DisplayTrackHistory bool (to be completed)
 	// provide the sql storage for the boolan
 	DisplayTrackHistory_Data sql.NullBool
@@ -138,11 +134,9 @@ type VisualTrackWOP struct {
 
 	ColorEnum models.ColorEnum `xlsx:"8"`
 
-	Display bool `xlsx:"9"`
+	DisplayTrackHistory bool `xlsx:"9"`
 
-	DisplayTrackHistory bool `xlsx:"10"`
-
-	DisplayLevelAndSpeed bool `xlsx:"11"`
+	DisplayLevelAndSpeed bool `xlsx:"10"`
 	// insertion for WOP pointer fields
 }
 
@@ -157,7 +151,6 @@ var VisualTrack_Fields = []string{
 	"VerticalSpeed",
 	"Name",
 	"ColorEnum",
-	"Display",
 	"DisplayTrackHistory",
 	"DisplayLevelAndSpeed",
 }
@@ -491,9 +484,6 @@ func (visualtrackDB *VisualTrackDB) CopyBasicFieldsFromVisualTrack(visualtrack *
 	visualtrackDB.ColorEnum_Data.String = string(visualtrack.ColorEnum)
 	visualtrackDB.ColorEnum_Data.Valid = true
 
-	visualtrackDB.Display_Data.Bool = visualtrack.Display
-	visualtrackDB.Display_Data.Valid = true
-
 	visualtrackDB.DisplayTrackHistory_Data.Bool = visualtrack.DisplayTrackHistory
 	visualtrackDB.DisplayTrackHistory_Data.Valid = true
 
@@ -529,9 +519,6 @@ func (visualtrackDB *VisualTrackDB) CopyBasicFieldsFromVisualTrackWOP(visualtrac
 	visualtrackDB.ColorEnum_Data.String = string(visualtrack.ColorEnum)
 	visualtrackDB.ColorEnum_Data.Valid = true
 
-	visualtrackDB.Display_Data.Bool = visualtrack.Display
-	visualtrackDB.Display_Data.Valid = true
-
 	visualtrackDB.DisplayTrackHistory_Data.Bool = visualtrack.DisplayTrackHistory
 	visualtrackDB.DisplayTrackHistory_Data.Valid = true
 
@@ -550,7 +537,6 @@ func (visualtrackDB *VisualTrackDB) CopyBasicFieldsToVisualTrack(visualtrack *mo
 	visualtrack.VerticalSpeed = visualtrackDB.VerticalSpeed_Data.Float64
 	visualtrack.Name = visualtrackDB.Name_Data.String
 	visualtrack.ColorEnum = models.ColorEnum(visualtrackDB.ColorEnum_Data.String)
-	visualtrack.Display = visualtrackDB.Display_Data.Bool
 	visualtrack.DisplayTrackHistory = visualtrackDB.DisplayTrackHistory_Data.Bool
 	visualtrack.DisplayLevelAndSpeed = visualtrackDB.DisplayLevelAndSpeed_Data.Bool
 }
@@ -567,7 +553,6 @@ func (visualtrackDB *VisualTrackDB) CopyBasicFieldsToVisualTrackWOP(visualtrack 
 	visualtrack.VerticalSpeed = visualtrackDB.VerticalSpeed_Data.Float64
 	visualtrack.Name = visualtrackDB.Name_Data.String
 	visualtrack.ColorEnum = models.ColorEnum(visualtrackDB.ColorEnum_Data.String)
-	visualtrack.Display = visualtrackDB.Display_Data.Bool
 	visualtrack.DisplayTrackHistory = visualtrackDB.DisplayTrackHistory_Data.Bool
 	visualtrack.DisplayLevelAndSpeed = visualtrackDB.DisplayLevelAndSpeed_Data.Bool
 }
