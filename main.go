@@ -3,6 +3,8 @@ package main
 import (
 	"embed"
 	"io/fs"
+	"math"
+	"time"
 
 	"flag"
 	"fmt"
@@ -219,11 +221,13 @@ func main() {
 	Map1RadarLayerUse := new(gongleaflet_models.LayerGroupUse).Stage()
 	Map1RadarLayerUse.Name = "Map1RadarLayerUse"
 	Map1RadarLayerUse.LayerGroup = RadarLayer
+	Map1RadarLayerUse.Display = true
 	Map1.LayerGroupUses = append(Map1.LayerGroupUses, Map1RadarLayerUse)
 
 	Map1TracksLayerUse := new(gongleaflet_models.LayerGroupUse).Stage()
 	Map1TracksLayerUse.Name = "Map1TracksLayerUse"
 	Map1TracksLayerUse.LayerGroup = TracksLayer
+	Map1TracksLayerUse.Display = true
 	Map1.LayerGroupUses = append(Map1.LayerGroupUses, Map1TracksLayerUse)
 
 	Map2 := new(gongleaflet_models.MapOptions).Stage()
@@ -254,9 +258,13 @@ func main() {
 	//
 	// Tracks
 	//
+	InitialLat := 44.0
+	InitialLng := 4.0
+	Radius := 1.0
+
 	Plane := new(gongleaflet_models.VisualTrack).Stage()
-	Plane.Lat = 46
-	Plane.Lng = 4
+	Plane.Lat = InitialLat + Radius
+	Plane.Lng = InitialLng
 	Plane.Name = "Plane Track"
 	Plane.LayerGroup = TracksLayer
 	Plane.DivIcon = AirplaneIcon
@@ -269,6 +277,39 @@ func main() {
 	gongleaflet_models.Stage.Commit()
 
 	log.Printf("Server ready serve on localhost:8080")
+
+	ticker := time.NewTicker(500 * time.Millisecond)
+	done := make(chan bool)
+
+	go func() {
+
+		lastCommitNbFromFront := gongleaflet_models.Stage.BackRepo.GetLastPushFromFrontNb()
+		for {
+			select {
+			case <-done:
+				return
+			case t := <-ticker.C:
+				fmt.Println("Tick at", t.Second(), " Plane lat ", Plane.Lat,
+					" commit from the front ", gongleaflet_models.Stage.BackRepo.GetLastPushFromFrontNb())
+
+				// check out modifications initiated by the front
+				if lastCommitNbFromFront < gongleaflet_models.Stage.BackRepo.GetLastPushFromFrontNb() {
+
+					gongleaflet_models.Stage.Checkout()
+					fmt.Println("Checking out")
+					lastCommitNbFromFront = gongleaflet_models.Stage.BackRepo.GetLastPushFromFrontNb()
+				}
+
+				// let's make a circle
+				Plane.Lat = InitialLat + Radius*math.Cos(float64(t.Second())/15.0*math.Pi)
+				Plane.Lng = InitialLng + Radius*math.Sin(float64(t.Second())/15.0*math.Pi)
+				Plane.Heading = 180.0*(float64(t.Second())/15.0) + 90
+
+				Plane.Lat = Plane.Lat + 0.01
+				gongleaflet_models.Stage.Commit()
+			}
+		}
+	}()
 
 	r.Run()
 }

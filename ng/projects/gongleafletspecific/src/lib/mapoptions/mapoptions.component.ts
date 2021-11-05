@@ -73,12 +73,18 @@ export class MapoptionsComponent implements OnInit {
   // for debug purpose
   leafletMap?: L.Map
 
+  currTime: number = 0
+
+  // commitNb stores the number of commit on the backend
+  commitNb: number = 0
+
   constructor(
     public frontRepoService: gongleaflet.FrontRepoService,
     private visualTrackService: gongleaflet.VisualTrackService,
     private lineService: gongleaflet.VLineService,
     private markerService: gongleaflet.MarkerService,
     private layerGroupUseService: gongleaflet.LayerGroupUseService,
+    private commitNbService: gongleaflet.CommitNbService,
     private router: Router,
     public zone: NgZone
   ) {
@@ -185,6 +191,22 @@ export class MapoptionsComponent implements OnInit {
           })
 
         this.refreshMapWithMarkers()
+
+        //
+        // timer to refresh the map if something has changed in the back
+        this.obsTimer.subscribe(
+          () => {
+            this.commitNbService.getCommitNb().subscribe(
+              commitNb => {
+                console.log("commit nb in the back " + commitNb + " local commit nb " + this.commitNb)
+                if (commitNb > this.commitNb) {
+                  this.refreshMapWithMarkers()
+                  this.commitNb = commitNb
+                }
+              }
+            )
+          }
+        )
       }
     )
   }
@@ -520,7 +542,7 @@ export class MapoptionsComponent implements OnInit {
               }
             })
           })
-        console.log("Map : " + this.mapName + ", length of root of leaflet layers: " + this.rootOfLayerGroups.length)
+        // console.log("Map : " + this.mapName + ", length of root of leaflet layers: " + this.rootOfLayerGroups.length)
       }
     )
   }
