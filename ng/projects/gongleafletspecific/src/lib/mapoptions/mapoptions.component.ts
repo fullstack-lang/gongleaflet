@@ -25,7 +25,7 @@ export class MapoptionsComponent implements OnInit {
   // 2. the corresponding gong MapOptions object
   // 3. the corresponding [leafletOptions]="mapOptions" that is passed to the leaflet map in the html
   @Input() mapName: string = ""
-  gongleafletMapOptions?: gongleaflet.MapOptionsDB
+  mapOptionsID: number = 0
   leafletMapOptions?: L.MapOptions // stangely, impossible to type without ?
 
   // [leafletLayers]="rootOfLayerGroups" that is passed to one div in the html, ngx-asymetrix
@@ -106,7 +106,7 @@ export class MapoptionsComponent implements OnInit {
         if (this.mapName != "") {
           for (let gongleafletMapOptions of this.frontRepo.MapOptionss.values()) {
             if (gongleafletMapOptions.Name == this.mapName) {
-              this.gongleafletMapOptions = gongleafletMapOptions
+              this.mapOptionsID = gongleafletMapOptions.ID
               gongMapOptions = gongleafletMapOptions
             }
           }
@@ -387,7 +387,8 @@ export class MapoptionsComponent implements OnInit {
         this.mapGongLayerGroupID_LayerGroupUse.clear()
 
         // populate the map with information from layerGroupUse of this map
-        for (let gongLayerGroupUse of this.gongleafletMapOptions?.LayerGroupUses!) {
+        let gongleafletMapOptions = this.frontRepo.MapOptionss.get(this.mapOptionsID)
+        for (let gongLayerGroupUse of gongleafletMapOptions?.LayerGroupUses!) {
           let gongLayerGroup = gongLayerGroupUse.LayerGroup
           if (gongLayerGroup) {
             this.mapGongLayerGroupID_LayerGroupUse.set(gongLayerGroup.ID, gongLayerGroupUse)
