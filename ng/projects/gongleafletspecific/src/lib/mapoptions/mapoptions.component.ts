@@ -11,9 +11,9 @@ import { dotBlur } from '../../assets/icons/dot_blur'
 
 export const DEFAULT_ICON_SIZE = 60
 
-// MapoptionsComponent is an angular component that is
-// - the component that displays tracks
-// - the root component of other components that display other elements (centers, lines, ...)
+// MapoptionsComponent is an ngx-asymterix angular component (itself based in leaflet) that is
+// - the component that displays all layers
+// A gong stack can handle multiple Mapoptions and therefore display more than one map.
 @Component({
   selector: 'app-mapoptions',
   templateUrl: './mapoptions.component.html',
@@ -21,7 +21,7 @@ export const DEFAULT_ICON_SIZE = 60
 })
 export class MapoptionsComponent implements OnInit {
 
-  // 1. name of the initial map
+  // 1. name of the initial map (must match the name in the backend)
   // 2. the corresponding gong MapOptions object
   // 3. the corresponding [leafletOptions]="mapOptions" that is passed to the leaflet map in the html
   @Input() mapName: string = ""
@@ -29,6 +29,7 @@ export class MapoptionsComponent implements OnInit {
   leafletMapOptions?: L.MapOptions // stangely, impossible to type without ?
 
   // [leafletLayers]="rootOfLayerGroups" that is passed to one div in the html, ngx-asymetrix
+  // https://github.com/Asymmetrik/ngx-leaflet#add-custom-layers-base-layers-markers-shapes-etc
   rootOfLayerGroups: L.Layer[] = [];
 
   //
@@ -85,6 +86,8 @@ export class MapoptionsComponent implements OnInit {
   }
 
   // not yet clear what those lines mean
+  // anyway, the is a paramter in ngx-asymetrix
+  // https://github.com/Asymmetrik/ngx-leaflet#leafletmapready-map
   onMapReady(leafletMap: L.Map) {
 
     this.leafletMap = leafletMap
@@ -112,6 +115,7 @@ export class MapoptionsComponent implements OnInit {
           }
         }
 
+        // set the map options that will set up the angular component
         this.leafletMapOptions = manageLeafletItems.visualMapToLeafletMapOptions(gongMapOptions)
 
         this.markerService.MarkerServiceChanged.subscribe(
@@ -132,38 +136,7 @@ export class MapoptionsComponent implements OnInit {
         // observable for changes in structs
         this.visualTrackService.VisualTrackServiceChanged.subscribe((message) => {
           if (message == 'post' || message == 'update' || message == 'delete') {
-
-            // update track position by using the front repo
-            this.frontRepoService.VisualTrackPull().subscribe(
-              frontRepo => {
-
-                this.frontRepo = frontRepo
-
-                // update marker from visual track
-                for (let vTrack of frontRepo.VisualTracks_array) {
-                  let _currentMarker: L.Marker<any> = this.mapVisualTrackID_VisualMarker.get(vTrack.ID)!
-                  if (!_currentMarker) {
-                    this.manageNewVisualTrackMarker(vTrack);
-                  } else {
-                    this.manageUpdateVisualTrackMarker(vTrack, _currentMarker);
-                  }
-                }
-
-                // remove markers that have no visual tracks
-                this.mapVisualMarker_VisualTrackID.forEach((visualTrackID) => {
-                  if (frontRepo.VisualTracks.get(visualTrackID) == undefined) {
-                    var marker = this.mapVisualTrackID_VisualMarker.get(
-                      visualTrackID
-                    );
-
-                    // remove marker from the visual layer
-                    marker?.remove();
-
-                    this.mapVisualTrackID_VisualMarker.delete(visualTrackID);
-                    this.mapVisualMarker_VisualTrackID.delete(marker!);
-                  }
-                })
-              })
+            this.refreshMapWithMarkers()
           }
         })
 
@@ -281,7 +254,6 @@ export class MapoptionsComponent implements OnInit {
         visualTrack.Name,
         L.latLng(visualTrack.Lat, visualTrack.Lng)
       );
-      this.visualTracksHistory = this.renderTracksLayer;
     }
   }
 
@@ -378,9 +350,7 @@ export class MapoptionsComponent implements OnInit {
         //
         // 1. get all layerGroupUse by the mapOption and store them in the map "mapGongLayerGroupID_LayerGroup"
         // of layers that have to be displayed
-        //
-        // 2. parse all layersGroup of the front. 
-        // If the LayerGroupID is present and to be displayed, add it to the root of LayersGroup
+        // If the LayerGroupID is in not in the layer group and to be displayed, add it to the root of LayersGroup
         // If not, remove it from the root of LayersGroup if it is present
 
         // reset the map of layers that have to be displayed on this map
@@ -518,9 +488,38 @@ export class MapoptionsComponent implements OnInit {
             }
           }
         }
-        this.lineService.VLineServiceChanged.next('post')
-        this.visualTrackService.VisualTrackServiceChanged.next('update');
 
+        // update track position by using the front repo
+        this.frontRepoService.VisualTrackPull().subscribe(
+          frontRepo => {
+
+            this.frontRepo = frontRepo
+
+            // update marker from visual track
+            for (let vTrack of frontRepo.VisualTracks_array) {
+              let _currentMarker: L.Marker<any> = this.mapVisualTrackID_VisualMarker.get(vTrack.ID)!
+              if (!_currentMarker) {
+                this.manageNewVisualTrackMarker(vTrack);
+              } else {
+                this.manageUpdateVisualTrackMarker(vTrack, _currentMarker);
+              }
+            }
+
+            // remove markers that have no visual tracks
+            this.mapVisualMarker_VisualTrackID.forEach((visualTrackID) => {
+              if (frontRepo.VisualTracks.get(visualTrackID) == undefined) {
+                var marker = this.mapVisualTrackID_VisualMarker.get(
+                  visualTrackID
+                );
+
+                // remove marker from the visual layer
+                marker?.remove();
+
+                this.mapVisualTrackID_VisualMarker.delete(visualTrackID);
+                this.mapVisualMarker_VisualTrackID.delete(marker!);
+              }
+            })
+          })
         console.log("Map : " + this.mapName + ", length of root of leaflet layers: " + this.rootOfLayerGroups.length)
       }
     )

@@ -36,7 +36,6 @@ export class CartoatcControlSettingsComponent implements OnInit {
   constructor(
     private frontRepoService: gongleaflet.FrontRepoService,
     private layerGroupUseService: gongleaflet.LayerGroupUseService) {
-
   }
 
   ngOnInit(): void {
@@ -57,6 +56,7 @@ export class CartoatcControlSettingsComponent implements OnInit {
           }
         }
 
+        // prepare entries for the mat-slide-toggle
         if (this.gongleafletMapOptions.LayerGroupUses) {
           for (let gongLayerGroupUse of this.gongleafletMapOptions.LayerGroupUses) {
             let gongLayerGroup = gongLayerGroupUse.LayerGroup
@@ -90,17 +90,13 @@ export class CartoatcControlSettingsComponent implements OnInit {
       layerGroupUse.Display = !layerGroupUse.Display
 
       this.layerGroupUseService.updateLayerGroupUse(layerGroupUse).subscribe(
-        (value) => {
+        () => {
           console.log("layer group use " + layerGroupUse?.Name + " display value updated to " + layerGroupUse?.Display)
+
+          // warn anyone interested
           this.layerGroupUseService.LayerGroupUseServiceChanged.next("update")
         }
       )
-    }
-
-    let layerItems = document.getElementsByClassName('layer-');
-    for (let index = 0; index < layerItems.length; index++) {
-      let htmlElement: Element | any = layerItems[index];
-      setVisibilityHTMLElement(htmlElement, change.checked);
     }
   }
 }
