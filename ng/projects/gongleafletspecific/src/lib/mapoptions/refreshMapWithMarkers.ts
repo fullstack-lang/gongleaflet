@@ -28,13 +28,18 @@ export function refreshMapWithMarkers(mapOptions: MapoptionsComponent) {
     }
 
     // Management of layers.
-    // 1. get all layerGroupUse by the mapOption and store them in the map mapGongLayerGroupID_LayerGroup with the ID of the layerGroup that is referenced by the layer group
-    // 2. parse all layersGroup in mapGongLayerGroupID_LayerGroup. If the LayerGroupID is present and to be displayed, add it to the root of LayersGroup
+    //
+    // 1. get all layerGroupUse by the mapOption and store them in the map "mapGongLayerGroupID_LayerGroup"
+    // of layers that have to be displayed
+    //
+    // 2. parse all layersGroup of the front. 
+    // If the LayerGroupID is present and to be displayed, add it to the root of LayersGroup
+    // If not, remove it from the root of LayersGroup if it is present
 
     // reset the map of layers that have to be displayed on this map
     mapOptions.mapGongLayerGroupID_LayerGroupUse.clear()
 
-    // populate the map
+    // populate the map with information from layerGroupUse of the mapOptions with display==true
     for (let gongLayerGroupUse of mapOptions.frontRepo.LayerGroupUses_array) {
 
       if (gongLayerGroupUse.Display) {
@@ -52,38 +57,69 @@ export function refreshMapWithMarkers(mapOptions: MapoptionsComponent) {
       // get the leaflet layer group
       let leafletLayerGroup = mapOptions.mapGongLayerGroupID_LeafletLayerGroup.get(gongLayerGroup.ID)
 
-      if (leafletLayerGroup) {
-        let leafletLayerGroupAlreadyPresent = mapOptions.rootOfLayerGroups.find(present => present == leafletLayerGroup)
+      // the gong layerGroup is not present in the map
+      if (!leafletLayerGroup) {
+        console.log("map " + mapOptions.mapName + " gong layer group named " + gongLayerGroup.Name + " has no leaflet layer group ")
 
-        let gongLayerGroupUse = mapOptions.mapGongLayerGroupID_LayerGroupUse.get(gongLayerGroup.ID)
+        // We supppose that the association MapOptions-->LayerGroupUse-->LayerGroup is set at init and
+        // will not change
+        // TO BE DONE. manage evolving association
+        /// Check if the leaflet layerGroup is in the root of layers groups. In this case, remove it
+        continue
+      }
 
-        // does the LayerGroup has to be displayed ?
-        if (gongLayerGroupUse?.Display) {
-          // The layer group has to be displayed
+      //
+      // for each leaflet layerGroup, the algo can do three things
+      // 1. Nothing
+      //   a. because it is not present and it has to be hidden
+      //   b. because it is present and it has to be added
+      // 2. Add it to the root of layer groups
+      //   a. because it is not present and it has to be added
+      // 3. Remove it from the root of layer groups
+      //   a. because it is present and it has to be removed
 
-          // if the leaflet layer already in the root of all LayerGroup ? 
-          if (!leafletLayerGroupAlreadyPresent) {
+      // is the leaflet layerGroup in the root of layer groups ?
+      // if it is there, no need to add it if it has to be displayed
+      // but there is a need to remove it if it has not to be displayed
+      let layerAlreadyDisplayed = mapOptions.rootOfLayerGroups.find(present => present == leafletLayerGroup)
 
-            // the gong layerGroup is not present, it has to be add
-            console.log("map " + mapOptions.mapName + " has to add layer group named " + gongLayerGroup.Name)
-            mapOptions.rootOfLayerGroups.push(leafletLayerGroup)
-          }
-        } else {
-          // the layer has to be hidden
+      let hasToBeRemoved: boolean = false
+      let hasToBeAdded: boolean = false
 
-          // remove layer
-          if (leafletLayerGroupAlreadyPresent) {
-            mapOptions.rootOfLayerGroups.forEach((element, index) => {
-              if (element == leafletLayerGroupAlreadyPresent) mapOptions.rootOfLayerGroups.splice(index, 1);
-            });
-          }
+      // 
+      let gongLayerGroupUse = mapOptions.mapGongLayerGroupID_LayerGroupUse.get(gongLayerGroup.ID)
 
+      // does the LayerGroup has to be displayed ?
+      if (gongLayerGroupUse?.Display) {
+        // The layer group has to be displayed
+
+        // if the leaflet not layer already in the root of all LayerGroup, add it
+        if (!layerAlreadyDisplayed) {
+          hasToBeAdded = true
         }
       } else {
-        // the gong layerGroup is not present
-        console.log("map " + mapOptions.mapName + " gong layer group named " + gongLayerGroup.Name + " has no leaflet layer group ")
+        // the layer has to be hidden
+        // is it present ?
+        if (layerAlreadyDisplayed) {
+          hasToBeRemoved = true
+        }
+      }
+
+      // performed computed operation
+      if (hasToBeAdded) {
+        console.log("map " + mapOptions.mapName + " has to add layer group named " + gongLayerGroup.Name)
+        mapOptions.rootOfLayerGroups.push(leafletLayerGroup)
+      }
+
+      if (hasToBeRemoved) {
+        console.log("map " + mapOptions.mapName + " has to remove layer group named " + gongLayerGroup.Name)
+        mapOptions.rootOfLayerGroups.forEach((element, index) => {
+          if (element == layerAlreadyDisplayed) mapOptions.rootOfLayerGroups.splice(index, 1);
+        });
       }
     }
+
+
 
     mapOptions.frontRepo.DivIcons.forEach((divIcon) => {
       if (!mapOptions.map_divIconID_divIconSVG.has(divIcon.ID)) {

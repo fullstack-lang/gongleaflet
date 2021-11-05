@@ -25,20 +25,21 @@ export class MapoptionsComponent implements OnInit {
   // list of initial layers
   @Input() initialLayers!: string
 
-  // name of the initial map
+  // 1. name of the initial map
+  // 2. the corresponding gong MapOptions object
+  // 3. the corresponding [leafletOptions]="mapOptions" that is passed to the leaflet map in the html
   @Input() mapName: string = ""
   gongleafletMapOptions?: gongleaflet.MapOptionsDB
-
-  // current map
-  currentMap?: L.Map
-
-  // [leafletOptions]="mapOptions" is passed to the leaflet map in the html
   mapOptions?: L.MapOptions // stangely, impossible to type without ?
 
-  // [leafletLayers]="rootOfLayerGroups" is passed to one div in the html
+  // [leafletLayers]="rootOfLayerGroups" that is passed to one div in the html
   rootOfLayerGroups: L.Layer[] = [];
 
-  // passed to the html as layers [leafletLayers]="visualTracksHistory"
+  //
+  // Visual Track stuff
+  //
+
+  // idem for [leafletLayers]="visualTracksHistory"
   visualTracksHistory: L.Layer[] = [];
 
   // map of visualTrack ID to visualTrackMarker in order to perform updates
@@ -47,12 +48,12 @@ export class MapoptionsComponent implements OnInit {
   // map of visualTrackMarker to visualTrack ID in order to delete deleted visualTrack
   mapVisualMarker_VisualTrackID = new Map<L.Marker, number>();
 
-  // // TO BE REMOVED. currently, the tracks are managed as an attribute in the html object
-  // trackLayerID: number = 0
-
   // mapVisualTrackName_positionsHistory stores tracks histories
   mapVisualTrackName_positionsHistory: Map<string, Array<L.LatLng>> = new Map();
 
+  //
+  // Other objets
+  //
   // map that store leaflet object according to the gong object ID
   mapGongLayerGroupID_LeafletLayerGroup = new Map<number, L.LayerGroup<L.Layer>>()
   mapVLineID_LeafletPolyline = new Map<number, L.Polyline>()
@@ -68,6 +69,9 @@ export class MapoptionsComponent implements OnInit {
 
   // the gong front repo
   frontRepo?: gongleaflet.FrontRepo
+
+  // autonmatic refresh of maps
+  obsTimer: Observable<number> = timer(1000, 500) // due time 1', period 0.5'
 
   constructor(
     public frontRepoService: gongleaflet.FrontRepoService,
