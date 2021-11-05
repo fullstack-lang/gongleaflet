@@ -119,64 +119,60 @@ export function refreshMapWithMarkers(mapOptions: MapoptionsComponent) {
       }
     }
 
-
-
-    mapOptions.frontRepo.DivIcons.forEach((divIcon) => {
+    // pair gong divIcon with leaflet divIcon
+    for (let divIcon of mapOptions.frontRepo.DivIcons_array) {
       if (!mapOptions.map_divIconID_divIconSVG.has(divIcon.ID)) {
         mapOptions.map_divIconID_divIconSVG.set(divIcon.ID, divIcon.SVG);
       }
-    });
+    }
 
     //
     // parse all markers
     //
-    for (let marker of mapOptions.frontRepo.Markers_array) {
+    for (let gongMarker of mapOptions.frontRepo.Markers_array) {
 
-      // check wether the layer of the marker is part of the map
-      let markerLayerGroup = marker.LayerGroup
-      if (markerLayerGroup) {
-        let markerLayerGroupUse = mapOptions.mapGongLayerGroupID_LayerGroupUse.get(markerLayerGroup.ID)
+      // get the leaflet kin of the gong Marker
+      let leafletMarker: L.Marker | undefined
+      leafletMarker = mapOptions.mapMarkerID_LeafletMarker.get(gongMarker.ID)
 
-        if (!markerLayerGroupUse) {
-          continue
-        } else {
-          if (markerLayerGroupUse.Display == false) {
-            continue
-          }
-        }
-      }
+      // if absent, create the kin
+      if (!leafletMarker) {
 
-      if (!mapOptions.mapMarkerID_LeafletMarker.has(marker.ID)) {
-        var color = manageLeafletItems.getColor(marker.ColorEnum);
+        console.log("Gong Marker " + gongMarker.Name + " has no leaflet kin")
+
+        var color = manageLeafletItems.getColor(gongMarker.ColorEnum);
 
         var icon: L.DivIcon = manageLeafletItems.newIcon(
-          marker.ID,
-          'layer-' + marker.LayerGroupID.Int64,
-          mapOptions.map_divIconID_divIconSVG.get(marker.DivIconID.Int64)!,
+          gongMarker.ID,
+          'layer-' + gongMarker.LayerGroupID.Int64,
+          mapOptions.map_divIconID_divIconSVG.get(gongMarker.DivIconID.Int64)!,
           DEFAULT_ICON_SIZE,
           color,
-          marker.Name
+          gongMarker.Name
         );
-        var leafletMarker: L.Marker
+
+        // creation
         leafletMarker = manageLeafletItems.newMarkerWithIcon(
-          marker.Lat,
-          marker.Lng,
+          gongMarker.Lat,
+          gongMarker.Lng,
           icon
         )
 
-        // mapOptions.markersRootLayer.push(leafletMarker)
-
-        // get the GroupLayer of the marker and add it to the layer
-        let groupLayerID = marker.LayerGroup?.ID
-        if (groupLayerID) {
-          let leafletLayer = mapOptions.mapGongLayerGroupID_LeafletLayerGroup.get(groupLayerID)
-          if (leafletLayer) {
-            leafletMarker.addTo(leafletLayer)
+        // get the leallet layerGroup of the marker
+        let leafletLayerGroup: L.LayerGroup<L.Layer> | undefined
+        let markerLayerGroup = gongMarker.LayerGroup
+        if (markerLayerGroup) {
+          leafletLayerGroup = mapOptions.mapGongLayerGroupID_LeafletLayerGroup.get(markerLayerGroup.ID)
+          if(leafletLayerGroup) {
+            leafletMarker.addTo(leafletLayerGroup)
           }
         }
 
-        mapOptions.mapMarkerID_LeafletMarker.set(marker.ID, leafletMarker)
-      }
+        // add the kin to the map
+        mapOptions.mapMarkerID_LeafletMarker.set(gongMarker.ID, leafletMarker)
+       } else {
+        console.log("Gong Marker " + gongMarker.Name + " has already a leaflet kin")
+       }
     }
   }
 }
