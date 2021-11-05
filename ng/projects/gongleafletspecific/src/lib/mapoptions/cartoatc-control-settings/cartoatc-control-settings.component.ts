@@ -30,7 +30,8 @@ export class CartoatcControlSettingsComponent implements OnInit {
   open: boolean = false;
 
   // map between the layerGroup ID and the LayerGroupUse
-  mapLayerGroupID_LayerItem = new Map<number, gongleaflet.LayerGroupUseDB>()
+  // this is used to toggle the Display field of LayerGroupUse
+  mapLayerGroupID_gongLayerGroupUse = new Map<number, gongleaflet.LayerGroupUseDB>()
 
   constructor(
     private frontRepoService: gongleaflet.FrontRepoService,
@@ -57,18 +58,18 @@ export class CartoatcControlSettingsComponent implements OnInit {
         }
 
         if (this.gongleafletMapOptions.LayerGroupUses) {
-          for (let layerGroupUse of this.gongleafletMapOptions.LayerGroupUses) {
-            let layerGroup = layerGroupUse.LayerGroup
-            if (layerGroup) {
+          for (let gongLayerGroupUse of this.gongleafletMapOptions.LayerGroupUses) {
+            let gongLayerGroup = gongLayerGroupUse.LayerGroup
+            if (gongLayerGroup) {
               let layerItem = new LayerItem
-              layerItem.id = layerGroup.ID
-              layerItem.name = layerGroup.Name
-              layerItem.display = layerGroup.DisplayName || layerGroup.Name
-              layerItem.status = layerGroupUse.Display
+              layerItem.id = gongLayerGroup.ID
+              layerItem.name = gongLayerGroup.Name
+              layerItem.display = gongLayerGroup.DisplayName || gongLayerGroup.Name
+              layerItem.status = gongLayerGroupUse.Display
 
               this.list.push(layerItem)
 
-              this.mapLayerGroupID_LayerItem.set(layerGroup.ID, layerGroupUse)
+              this.mapLayerGroupID_gongLayerGroupUse.set(gongLayerGroup.ID, gongLayerGroupUse)
             }
           }
         }
@@ -84,7 +85,7 @@ export class CartoatcControlSettingsComponent implements OnInit {
 
     console.log("Toggling layer " + id)
 
-    let layerGroupUse = this.mapLayerGroupID_LayerItem.get(id)
+    let layerGroupUse = this.mapLayerGroupID_gongLayerGroupUse.get(id)
     if (layerGroupUse) {
       layerGroupUse.Display = !layerGroupUse.Display
 

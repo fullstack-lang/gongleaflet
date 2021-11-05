@@ -22,9 +22,6 @@ export const DEFAULT_ICON_SIZE = 60
 })
 export class MapoptionsComponent implements OnInit {
 
-  // list of initial layers
-  @Input() initialLayers!: string
-
   // 1. name of the initial map
   // 2. the corresponding gong MapOptions object
   // 3. the corresponding [leafletOptions]="mapOptions" that is passed to the leaflet map in the html
@@ -73,6 +70,9 @@ export class MapoptionsComponent implements OnInit {
   // autonmatic refresh of maps
   obsTimer: Observable<number> = timer(1000, 500) // due time 1', period 0.5'
 
+  // for debug purpose
+  leafletMap?: L.Map
+
   constructor(
     public frontRepoService: gongleaflet.FrontRepoService,
     private visualTrackService: gongleaflet.VisualTrackService,
@@ -85,15 +85,16 @@ export class MapoptionsComponent implements OnInit {
   }
 
   // not yet clear what those lines mean
-  // onMapReady(map: L.Map) {
-  //   setTimeout(() => {
-  //     map.invalidateSize();
-  //   }, 0);
-  // }
+  onMapReady(leafletMap: L.Map) {
+
+    this.leafletMap = leafletMap
+
+    setTimeout(() => {
+      leafletMap.invalidateSize();
+    }, 0);
+  }
 
   ngOnInit(): void {
-
-    console.log("layers name " + this.initialLayers)
 
     this.frontRepoService.pull().subscribe(
       frontRepo => {
