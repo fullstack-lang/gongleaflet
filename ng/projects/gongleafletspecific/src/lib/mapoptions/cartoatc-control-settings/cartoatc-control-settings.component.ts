@@ -97,10 +97,10 @@ export class CartoatcControlSettingsComponent implements OnInit {
       )
     }
 
-    // let layerItems = document.getElementsByClassName('layer-' + id);
-    // for (let index = 0; index < layerItems.length; index++) {
-    //   let htmlElement: Element | any = layerItems[index];
-    //   setVisibilityHTMLElement(htmlElement, change.checked);
-    // }
+    let layerItems = document.getElementsByClassName('layer-');
+    for (let index = 0; index < layerItems.length; index++) {
+      let htmlElement: Element | any = layerItems[index];
+      setVisibilityHTMLElement(htmlElement, change.checked);
+    }
   }
 }

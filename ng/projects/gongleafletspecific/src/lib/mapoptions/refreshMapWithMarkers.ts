@@ -176,12 +176,20 @@ export function refreshMapWithMarkers(mapOptions: MapoptionsComponent) {
     }
   }
 
-  // But, we can run stuff inside of Angular's zone by calling NgZone.run()
-  // everything inside the arrow function body happens inside of Angular's zone, where changes will be detected
-  mapOptions.zone.run(() => {
-    if( mapOptions.leafletMapOptions) {
-      mapOptions.leafletMapOptions.center = mapOptions.leafletMapOptions.center 
-    }
-    console.log("after angular zone run")
-  });
+  // // But, we can run stuff inside of Angular's zone by calling NgZone.run()
+  // // everything inside the arrow function body happens inside of Angular's zone, where changes will be detected
+  // mapOptions.zone.run(() => {
+  //   setTimeout(() => {
+  //     mapOptions.leafletMap?.invalidateSize();
+  //     mapOptions.leafletMap?.panTo( mapOptions.leafletMapOptions?.center!)
+  //     console.log("running invalidateSize after angular zone run")
+  //   }, 0);
+  //   console.log("after angular zone run")
+  // });
+
+  let layerItems = document.getElementsByClassName('layer-');
+  for (let index = 0; index < layerItems.length; index++) {
+    let htmlElement: Element | any = layerItems[index];
+    manageLeafletItems.setVisibilityHTMLElement(htmlElement, true);
+  }
 }
