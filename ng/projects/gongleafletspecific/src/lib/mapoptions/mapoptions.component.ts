@@ -198,7 +198,7 @@ export class MapoptionsComponent implements OnInit {
           () => {
             this.commitNbService.getCommitNb().subscribe(
               commitNb => {
-                console.log("commit nb in the back " + commitNb + " local commit nb " + this.commitNb)
+                // console.log("commit nb in the back " + commitNb + " local commit nb " + this.commitNb)
                 if (commitNb > this.commitNb) {
                   this.refreshMapWithMarkers()
                   this.commitNb = commitNb
@@ -428,12 +428,12 @@ export class MapoptionsComponent implements OnInit {
 
             // performed computed operation
             if (hasToBeAdded) {
-              console.log("map " + this.mapName + " has to add layer group named " + gongLayerGroup.Name)
+              // console.log("map " + this.mapName + " has to add layer group named " + gongLayerGroup.Name)
               this.rootOfLayerGroups.push(leafletLayerGroup)
             }
 
             if (hasToBeRemoved) {
-              console.log("map " + this.mapName + " has to remove layer group named " + gongLayerGroup.Name)
+              // console.log("map " + this.mapName + " has to remove layer group named " + gongLayerGroup.Name)
               this.rootOfLayerGroups.forEach((element, index) => {
                 if (element == layerAlreadyDisplayed) this.rootOfLayerGroups.splice(index, 1);
               });

@@ -273,6 +273,8 @@ func main() {
 	Plane.Level = 220
 	Plane.Speed = 300
 	Plane.VerticalSpeed = 30
+	Plane.DisplayTrackHistory = true
+	Plane.DisplayLevelAndSpeed = true
 
 	gongleaflet_models.Stage.Commit()
 
@@ -289,8 +291,8 @@ func main() {
 			case <-done:
 				return
 			case t := <-ticker.C:
-				fmt.Println("Tick at", t.Second(), " Plane lat ", Plane.Lat,
-					" commit from the front ", gongleaflet_models.Stage.BackRepo.GetLastPushFromFrontNb())
+				// fmt.Println("Tick at", t.Second(), " Plane lat ", Plane.Lat,
+				// 	" commit from the front ", gongleaflet_models.Stage.BackRepo.GetLastPushFromFrontNb())
 
 				// check out modifications initiated by the front
 				if lastCommitNbFromFront < gongleaflet_models.Stage.BackRepo.GetLastPushFromFrontNb() {
