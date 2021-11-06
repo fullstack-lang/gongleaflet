@@ -36,9 +36,6 @@ export class MapoptionsComponent implements OnInit {
   // Visual Track stuff
   //
 
-  // idem for [leafletLayers]="visualTracksHistory"
-  visualTracksHistory: L.Layer[] = [];
-
   // map of visualTrack ID to visualTrackMarker in order to perform updates
   mapVisualTrackID_LeafletTrackMarker = new Map<number, L.Marker>();
 
@@ -46,7 +43,8 @@ export class MapoptionsComponent implements OnInit {
   mapLeafletTrackMarker_VisualTrackID = new Map<L.Marker, number>();
 
   // mapVisualTrackName_positionsHistory stores tracks histories
-  mapVisualTrackID_positionsHistory: Map<number, Array<L.LatLng>> = new Map();
+  mapVisualTrackID_positionsHistory = new Map<number, Array<L.LatLng>>()
+  mapVisualTrackID_LeafletHistoryTrackMarker = new Map<number, L.Marker[]>();
 
   //
   // Other objets
@@ -78,6 +76,14 @@ export class MapoptionsComponent implements OnInit {
 
   // commitNb stores the number of commit on the backend
   commitNb: number = 0
+
+  DotLeafletDivIcon = manageLeafletItems.newIcon(
+    'icon',
+    'layer-',
+    dotBlur,
+    5,
+    '#004E92'
+  );
 
   constructor(
     public frontRepoService: gongleaflet.FrontRepoService,
@@ -211,16 +217,16 @@ export class MapoptionsComponent implements OnInit {
       visualTrack.Heading
     );
     if (visualTrack.DisplayTrackHistory) {
-      this.generateVisualTracksHistory(
-        visualTrack,
-        L.latLng(visualTrack.Lat, visualTrack.Lng)
-      );
+      let trackHistory = this.generateVisualTracksHistory(visualTrack)
+      this.renderTrackHistory(visualTrack, trackHistory)
     }
   }
 
   // generateVisualTracksHistory adds dots to the track
-  generateVisualTracksHistory(visualTrack: gongleaflet.VisualTrackDB, coordinates: L.LatLng) {
+  generateVisualTracksHistory(visualTrack: gongleaflet.VisualTrackDB): L.LatLng[] {
     let trackHistory: L.LatLng[] = []
+
+    let coordinates: L.LatLng = new L.LatLng(visualTrack.Lat, visualTrack.Lng)
 
     // get the track pas positions
     trackHistory = this.mapVisualTrackID_positionsHistory.get(visualTrack.ID)!
@@ -243,20 +249,15 @@ export class MapoptionsComponent implements OnInit {
       trackHistory.push(coordinates);
     }
     this.mapVisualTrackID_positionsHistory.set(visualTrack.ID, trackHistory)
-    this.renderTrackHistory(visualTrack, trackHistory)
+
+    return trackHistory
   }
 
   // renderTrackHistory update the layer of the visual track
   // with dots along the track history
+  //
+  // remove the former dot history
   renderTrackHistory(visualTrack: gongleaflet.VisualTrackDB, trackHistory: L.LatLng[]) {
-
-    let icon = manageLeafletItems.newIcon(
-      'icon',
-      'layer-',
-      dotBlur,
-      5,
-      '#004E92'
-    );
 
     // get the leaflet layer of the visual track
     let leafletGroupLayer: L.LayerGroup<L.Layer> | undefined
@@ -264,15 +265,31 @@ export class MapoptionsComponent implements OnInit {
       leafletGroupLayer = this.mapGongLayerGroupID_LeafletLayerGroup.get(visualTrack.LayerGroup.ID)
     }
 
+    // remove the ancient history
+    let arrayOfDotIcons = this.mapVisualTrackID_LeafletHistoryTrackMarker.get(visualTrack.ID)
+
+    if (arrayOfDotIcons) {
+      for (let dotIcon of arrayOfDotIcons) {
+        dotIcon.remove()
+      }
+    }
+
+    // display the new history
     if (leafletGroupLayer) {
+      let arrayOfDotIcons = new Array<L.Marker>()
+
       for (let coordinates of trackHistory) {
         let dotIcon = manageLeafletItems.newMarkerWithIcon(
           coordinates.lat,
           coordinates.lng,
-          icon
+          this.DotLeafletDivIcon
         )
         dotIcon.addTo(leafletGroupLayer)
+        arrayOfDotIcons.push(dotIcon)
       }
+
+      // store the array in the map
+      this.mapVisualTrackID_LeafletHistoryTrackMarker.set(visualTrack.ID, arrayOfDotIcons)
     }
   }
 
