@@ -40,13 +40,13 @@ export class MapoptionsComponent implements OnInit {
   visualTracksHistory: L.Layer[] = [];
 
   // map of visualTrack ID to visualTrackMarker in order to perform updates
-  mapVisualTrackID_VisualMarker = new Map<number, L.Marker>();
+  mapVisualTrackID_LeafletTrackMarker = new Map<number, L.Marker>();
 
   // map of visualTrackMarker to visualTrack ID in order to delete deleted visualTrack
-  mapVisualMarker_VisualTrackID = new Map<L.Marker, number>();
+  mapLeafletTrackMarker_VisualTrackID = new Map<L.Marker, number>();
 
   // mapVisualTrackName_positionsHistory stores tracks histories
-  mapVisualTrackName_positionsHistory: Map<string, Array<L.LatLng>> = new Map();
+  mapVisualTrackID_positionsHistory: Map<number, Array<L.LatLng>> = new Map();
 
   //
   // Other objets
@@ -145,9 +145,8 @@ export class MapoptionsComponent implements OnInit {
     )
   }
 
-  // manageNewVisualTrackMarker takes a visualTrack and 
-  // add a L.DivIcon to the 
-  manageNewVisualTrackMarker(visualTrack: gongleaflet.VisualTrackDB) {
+  // generate a new leaflet marker and store it in the mapVisualTrackID_VisualMarker
+  newVisualTrackMarker(visualTrack: gongleaflet.VisualTrackDB) {
     var color = manageLeafletItems.getColor(visualTrack.ColorEnum);
 
     if (visualTrack.DivIcon) {
@@ -175,8 +174,8 @@ export class MapoptionsComponent implements OnInit {
         visualTrack.Heading
       );
 
-      this.mapVisualTrackID_VisualMarker.set(visualTrack.ID, leafletTrackMarker);
-      this.mapVisualMarker_VisualTrackID.set(leafletTrackMarker, visualTrack.ID);
+      this.mapVisualTrackID_LeafletTrackMarker.set(visualTrack.ID, leafletTrackMarker);
+      this.mapLeafletTrackMarker_VisualTrackID.set(leafletTrackMarker, visualTrack.ID);
 
       // get layer of visual track
       let gongLayerGroup = visualTrack.LayerGroup
@@ -192,7 +191,13 @@ export class MapoptionsComponent implements OnInit {
     }
   }
 
-  manageUpdateVisualTrackMarker(
+  // update the leaflet track marker with the gong VisualTrack info
+  //
+  // - position
+  // - information on the label
+  // - heading
+  // - track history
+  updateVisualTrackMarker(
     visualTrack: gongleaflet.VisualTrackDB,
     marker: L.Marker<any>
   ) {
@@ -207,42 +212,44 @@ export class MapoptionsComponent implements OnInit {
     );
     if (visualTrack.DisplayTrackHistory) {
       this.generateVisualTracksHistory(
-        visualTrack.Name,
+        visualTrack,
         L.latLng(visualTrack.Lat, visualTrack.Lng)
       );
     }
   }
 
   // generateVisualTracksHistory adds dots to the track
-  generateVisualTracksHistory(trackName: string, coordinates: L.LatLng) {
-    let trackHistory: L.LatLng[] = [];
+  generateVisualTracksHistory(visualTrack: gongleaflet.VisualTrackDB, coordinates: L.LatLng) {
+    let trackHistory: L.LatLng[] = []
 
     // get the track pas positions
-    trackHistory = this.mapVisualTrackName_positionsHistory.get(trackName)!
+    trackHistory = this.mapVisualTrackID_positionsHistory.get(visualTrack.ID)!
 
     if (!trackHistory) {
-      trackHistory = [];
+      trackHistory = []
     }
     if (trackHistory.length) {
       if (
         trackHistory[trackHistory.length - 1].lat !== coordinates.lat &&
         trackHistory[trackHistory.length - 1].lng !== coordinates.lng
       ) {
-        trackHistory = addNewCoordToFIFO(trackHistory, coordinates);
+        trackHistory = addNewCoordToFIFO(trackHistory, coordinates)
       } else {
         if (trackHistory.length < LIMIT_HISTORY_LENGTH) {
-          trackHistory.push(coordinates);
+          trackHistory.push(coordinates)
         }
       }
     } else {
       trackHistory.push(coordinates);
     }
-    this.mapVisualTrackName_positionsHistory.set(trackName, trackHistory);
+    this.mapVisualTrackID_positionsHistory.set(visualTrack.ID, trackHistory)
+    this.renderTrackHistory(visualTrack, trackHistory)
   }
 
-  // renderTracksLayer computes 
-  get renderTracksLayer(): Array<L.Layer> {
-    let render: L.Layer[] = [];
+  // renderTrackHistory update the layer of the visual track
+  // with dots along the track history
+  renderTrackHistory(visualTrack: gongleaflet.VisualTrackDB, trackHistory: L.LatLng[]) {
+
     let icon = manageLeafletItems.newIcon(
       'icon',
       'layer-',
@@ -251,39 +258,22 @@ export class MapoptionsComponent implements OnInit {
       '#004E92'
     );
 
-    let trackNames = this.mapVisualTrackName_positionsHistory.values
-    for (let trackName in trackNames) {
-      let positionsHistory = this.mapVisualTrackName_positionsHistory.get(trackName)!
+    // get the leaflet layer of the visual track
+    let leafletGroupLayer: L.LayerGroup<L.Layer> | undefined
+    if (visualTrack.LayerGroup) {
+      leafletGroupLayer = this.mapGongLayerGroupID_LeafletLayerGroup.get(visualTrack.LayerGroup.ID)
+    }
 
-      for (let coordinates of positionsHistory) {
+    if (leafletGroupLayer) {
+      for (let coordinates of trackHistory) {
         let dotIcon = manageLeafletItems.newMarkerWithIcon(
           coordinates.lat,
           coordinates.lng,
           icon
         )
-        render.push(
-          manageLeafletItems.newMarkerWithIcon(
-            coordinates.lat,
-            coordinates.lng,
-            icon
-          )
-        )
+        dotIcon.addTo(leafletGroupLayer)
       }
     }
-    // for (let latLng in trackHistory)
-
-    this.mapVisualTrackName_positionsHistory.forEach((trackHistory) => {
-      trackHistory.map((coordinates: L.LatLng) => {
-        render.push(
-          manageLeafletItems.newMarkerWithIcon(
-            coordinates.lat,
-            coordinates.lng,
-            icon
-          )
-        );
-      });
-    });
-    return render;
   }
 
   formatTrackLabel = (track: gongleaflet.VisualTrackDB): string => {
@@ -501,26 +491,26 @@ export class MapoptionsComponent implements OnInit {
   manageTracks() {
     // update marker from visual track
     for (let vTrack of this.frontRepo!.VisualTracks_array) {
-      let _currentMarker: L.Marker<any> = this.mapVisualTrackID_VisualMarker.get(vTrack.ID)!
+      let _currentMarker: L.Marker<any> = this.mapVisualTrackID_LeafletTrackMarker.get(vTrack.ID)!
       if (!_currentMarker) {
-        this.manageNewVisualTrackMarker(vTrack);
+        this.newVisualTrackMarker(vTrack);
       } else {
-        this.manageUpdateVisualTrackMarker(vTrack, _currentMarker);
+        this.updateVisualTrackMarker(vTrack, _currentMarker);
       }
     }
 
     // remove markers that have no visual tracks
-    this.mapVisualMarker_VisualTrackID.forEach((visualTrackID) => {
+    this.mapLeafletTrackMarker_VisualTrackID.forEach((visualTrackID) => {
       if (this.frontRepo!.VisualTracks.get(visualTrackID) == undefined) {
-        var marker = this.mapVisualTrackID_VisualMarker.get(
+        var marker = this.mapVisualTrackID_LeafletTrackMarker.get(
           visualTrackID
         );
 
         // remove marker from the visual layer
         marker?.remove();
 
-        this.mapVisualTrackID_VisualMarker.delete(visualTrackID);
-        this.mapVisualMarker_VisualTrackID.delete(marker!);
+        this.mapVisualTrackID_LeafletTrackMarker.delete(visualTrackID);
+        this.mapLeafletTrackMarker_VisualTrackID.delete(marker!);
       }
     })
   }

@@ -43,7 +43,6 @@ export function newIcon(
 
   let divIconOptions: L.DivIconOptions = {}
 
-
   let content = '';
   if (!opacity) {
     opacity = 0.8;
