@@ -54,8 +54,9 @@ export class MapoptionsComponent implements OnInit {
   // map that store leaflet object according to the gong object ID
   mapGongLayerGroupID_LeafletLayerGroup = new Map<number, L.LayerGroup<L.Layer>>()
   mapVLineID_LeafletPolyline = new Map<number, L.Polyline>()
+  mapCircleID_LeafletCircle = new Map<number, L.Circle>()
   mapMarkerID_LeafletMarker = new Map<number, L.Marker>()
-  map_divIconID_divIconSVG = new Map<number, string>()
+  mapGongDivIconID_divIconSVG = new Map<number, string>()
 
   // // map that stores which 
   // mapGongLayerGroupUseID_GongLayerGroupID = new Map<number, number>()
@@ -123,73 +124,6 @@ export class MapoptionsComponent implements OnInit {
 
         // set the map options that will set up the angular component
         this.leafletMapOptions = manageLeafletItems.visualMapToLeafletMapOptions(gongMapOptions)
-
-        this.markerService.MarkerServiceChanged.subscribe(
-          message => {
-            if (message == "post" || message == "update" || message == "delete") {
-              this.refreshMapWithMarkers()
-            }
-          }
-        )
-        this.layerGroupUseService.LayerGroupUseServiceChanged.subscribe(
-          message => {
-            if (message == "post" || message == "update" || message == "delete") {
-              this.refreshMapWithMarkers()
-            }
-          }
-        )
-        // update visual line when the data has changed
-        // observable for changes in structs
-        this.visualTrackService.VisualTrackServiceChanged.subscribe((message) => {
-          if (message == 'post' || message == 'update' || message == 'delete') {
-            this.refreshMapWithMarkers()
-          }
-        })
-
-        this.lineService.VLineServiceChanged.subscribe(
-          message => {
-            if (message == "post" || message == "update" || message == "delete") {
-              // update line positions
-              for (let gongVLine of this.frontRepo?.VLines_array!) {
-
-                var leafletPolyline = this.mapVLineID_LeafletPolyline.get(gongVLine.ID)
-
-                //
-                // if lealet has no sister element of the VLine, then create one
-                //
-                if (!leafletPolyline) {
-                  // get layer of the circle
-                  let gongLayerGroup = gongVLine.LayerGroup
-                  if (gongLayerGroup) {
-                    // is this layer present in the current map ?
-                    let leafletLayerGroup = this.mapGongLayerGroupID_LeafletLayerGroup.get(gongLayerGroup.ID)
-
-                    if (leafletLayerGroup) {
-
-                      leafletPolyline = new L.Polyline([]);
-                      leafletPolyline = manageLeafletItems.setLine(gongVLine);
-
-                      leafletPolyline.addTo(leafletLayerGroup)
-                      this.mapVLineID_LeafletPolyline.set(gongVLine.ID, leafletPolyline);
-                    }
-                  }
-                }
-
-                if (leafletPolyline) {
-                  // update position
-                  leafletPolyline.setLatLngs([
-                    [gongVLine.StartLat, gongVLine.StartLng],
-                    [gongVLine.EndLat, gongVLine.EndLng],
-                  ]);
-                  leafletPolyline.options.color = manageLeafletItems.getColor(
-                    gongVLine.ColorEnum
-                  );
-                  leafletPolyline.setStyle(leafletPolyline.options);
-                }
-              }
-            }
-          })
-
         this.refreshMapWithMarkers()
 
         //
@@ -361,6 +295,235 @@ export class MapoptionsComponent implements OnInit {
     return label;
   };
 
+  //
+  // manage layers
+  manageLayers() {
+    // Management of layers.
+    //
+    // 1. get all layerGroupUse by the mapOption and store them in the map "mapGongLayerGroupID_LayerGroup"
+    // of layers that have to be displayed
+    // If the LayerGroupID is in not in the layer group and to be displayed, add it to the root of LayersGroup
+    // If not, remove it from the root of LayersGroup if it is present
+
+    // reset the map of layers that have to be displayed on this map
+    this.mapGongLayerGroupID_LayerGroupUse.clear()
+
+    // populate the map with information from layerGroupUse of this map
+    let gongleafletMapOptions = this.frontRepo!.MapOptionss.get(this.mapOptionsID)
+    for (let gongLayerGroupUse of gongleafletMapOptions?.LayerGroupUses!) {
+      let gongLayerGroup = gongLayerGroupUse.LayerGroup
+      if (gongLayerGroup) {
+        this.mapGongLayerGroupID_LayerGroupUse.set(gongLayerGroup.ID, gongLayerGroupUse)
+
+        // if not present, create a leaflet layer group and add it to the root
+        let leafletLayerGroup = this.mapGongLayerGroupID_LeafletLayerGroup.get(gongLayerGroup.ID)
+        if (!leafletLayerGroup) {
+          leafletLayerGroup = new L.LayerGroup<L.Marker>()
+          this.mapGongLayerGroupID_LeafletLayerGroup.set(gongLayerGroup.ID, leafletLayerGroup)
+        }
+
+        //
+        // for each leaflet layerGroup, the algo can do three things
+        // 1. Nothing
+        //   a. because it is not present and it has to be hidden
+        //   b. because it is present and it has to be added
+        // 2. Add it to the root of layer groups
+        //   a. because it is not present and it has to be added
+        // 3. Remove it from the root of layer groups
+        //   a. because it is present and it has to be removed
+
+        // is the leaflet layerGroup in the root of layer groups ?
+        // if it is there, no need to add it if it has to be displayed
+        // but there is a need to remove it if it has not to be displayed
+        let layerAlreadyDisplayed = this.rootOfLayerGroups.find(present => present == leafletLayerGroup)
+
+        let hasToBeRemoved: boolean = false
+        let hasToBeAdded: boolean = false
+
+        // does the LayerGroup has to be displayed ?
+        if (gongLayerGroupUse?.Display) {
+          // The layer group has to be displayed
+
+          // if the leaflet not layer already in the root of all LayerGroup, add it
+          if (!layerAlreadyDisplayed) {
+            hasToBeAdded = true
+          }
+        } else {
+          // the layer has to be hidden
+          // is it present ?
+          if (layerAlreadyDisplayed) {
+            hasToBeRemoved = true
+          }
+        }
+
+        // performed computed operation
+        if (hasToBeAdded) {
+          // console.log("map " + this.mapName + " has to add layer group named " + gongLayerGroup.Name)
+          this.rootOfLayerGroups.push(leafletLayerGroup)
+        }
+
+        if (hasToBeRemoved) {
+          // console.log("map " + this.mapName + " has to remove layer group named " + gongLayerGroup.Name)
+          this.rootOfLayerGroups.forEach((element, index) => {
+            if (element == layerAlreadyDisplayed) this.rootOfLayerGroups.splice(index, 1);
+          });
+        }
+      }
+    }
+  }
+
+  // icons
+  manageDivIcons() {
+    // pair gong divIcon with leaflet divIcon
+    for (let divIcon of this.frontRepo!.DivIcons_array) {
+      if (!this.mapGongDivIconID_divIconSVG.has(divIcon.ID)) {
+        this.mapGongDivIconID_divIconSVG.set(divIcon.ID, divIcon.SVG);
+      }
+    }
+  }
+
+  // markers
+  manageMakers() {
+
+    for (let gongMarker of this.frontRepo!.Markers_array) {
+
+      // get the leaflet kin of the gong Marker
+      let leafletMarker: L.Marker | undefined
+      leafletMarker = this.mapMarkerID_LeafletMarker.get(gongMarker.ID)
+
+      // if absent, create the kin
+      if (!leafletMarker) {
+        // console.log("Gong Marker " + gongMarker.Name + " has no leaflet kin")
+        var color = manageLeafletItems.getColor(gongMarker.ColorEnum);
+
+        var icon: L.DivIcon = manageLeafletItems.newIcon(
+          gongMarker.ID,
+          'layer-' + gongMarker.LayerGroupID.Int64,
+          this.mapGongDivIconID_divIconSVG.get(gongMarker.DivIconID.Int64)!,
+          DEFAULT_ICON_SIZE,
+          color,
+          gongMarker.Name
+        );
+
+        // creation
+        leafletMarker = manageLeafletItems.newMarkerWithIcon(
+          gongMarker.Lat,
+          gongMarker.Lng,
+          icon
+        )
+
+        // get the leallet layerGroup of the marker
+        let leafletLayerGroup: L.LayerGroup<L.Layer> | undefined
+        let markerLayerGroup = gongMarker.LayerGroup
+        if (markerLayerGroup) {
+          leafletLayerGroup = this.mapGongLayerGroupID_LeafletLayerGroup.get(markerLayerGroup.ID)
+          if (leafletLayerGroup) {
+            leafletMarker.addTo(leafletLayerGroup)
+          }
+        }
+
+        // add the kin to the map
+        this.mapMarkerID_LeafletMarker.set(gongMarker.ID, leafletMarker)
+      } else {
+        // console.log("Gong Marker " + gongMarker.Name + " has already a leaflet kin")
+      }
+    }
+  }
+
+  manageCircles() {
+
+    // display circles
+    for (let gongCircle of this.frontRepo!.Circles_array) {
+
+      var leafletCircle = this.mapCircleID_LeafletCircle.get(gongCircle.ID)
+
+      if (!leafletCircle) {
+        // get layer of the circle
+        let gongLayerGroup = gongCircle.LayerGroup
+        if (gongLayerGroup) {
+          // is this layer present in the current map ?
+          let leafletLayerGroup = this.mapGongLayerGroupID_LeafletLayerGroup.get(gongLayerGroup.ID)
+
+          if (leafletLayerGroup) {
+            let leafletCircle = manageLeafletItems.newCircle(gongCircle)
+            leafletCircle?.addTo(leafletLayerGroup)
+
+            this.mapCircleID_LeafletCircle.set(gongCircle.ID, leafletCircle);
+          }
+        }
+      } else {
+
+      }
+    }
+  }
+
+  manageVLines() {
+
+    for (let gongVLine of this.frontRepo?.VLines_array!) {
+
+      var leafletPolyline = this.mapVLineID_LeafletPolyline.get(gongVLine.ID)
+
+      //
+      // if lealet has no sister element of the VLine, then create one
+      //
+      if (!leafletPolyline) {
+        // get layer of the circle
+        let gongLayerGroup = gongVLine.LayerGroup
+        if (gongLayerGroup) {
+          // is this layer present in the current map ?
+          let leafletLayerGroup = this.mapGongLayerGroupID_LeafletLayerGroup.get(gongLayerGroup.ID)
+
+          if (leafletLayerGroup) {
+
+            leafletPolyline = new L.Polyline([]);
+            leafletPolyline = manageLeafletItems.newLine(gongVLine);
+
+            leafletPolyline.addTo(leafletLayerGroup)
+            this.mapVLineID_LeafletPolyline.set(gongVLine.ID, leafletPolyline);
+          }
+        }
+      }
+
+      if (leafletPolyline) {
+        // update position
+        leafletPolyline.setLatLngs([
+          [gongVLine.StartLat, gongVLine.StartLng],
+          [gongVLine.EndLat, gongVLine.EndLng],
+        ]);
+        leafletPolyline.options.color = manageLeafletItems.getColor(
+          gongVLine.ColorEnum
+        );
+        leafletPolyline.setStyle(leafletPolyline.options);
+      }
+    }
+  }
+
+  manageTracks() {
+    // update marker from visual track
+    for (let vTrack of this.frontRepo!.VisualTracks_array) {
+      let _currentMarker: L.Marker<any> = this.mapVisualTrackID_VisualMarker.get(vTrack.ID)!
+      if (!_currentMarker) {
+        this.manageNewVisualTrackMarker(vTrack);
+      } else {
+        this.manageUpdateVisualTrackMarker(vTrack, _currentMarker);
+      }
+    }
+
+    // remove markers that have no visual tracks
+    this.mapVisualMarker_VisualTrackID.forEach((visualTrackID) => {
+      if (this.frontRepo!.VisualTracks.get(visualTrackID) == undefined) {
+        var marker = this.mapVisualTrackID_VisualMarker.get(
+          visualTrackID
+        );
+
+        // remove marker from the visual layer
+        marker?.remove();
+
+        this.mapVisualTrackID_VisualMarker.delete(visualTrackID);
+        this.mapVisualMarker_VisualTrackID.delete(marker!);
+      }
+    })
+  }
 
   refreshMapWithMarkers() {
 
@@ -368,180 +531,13 @@ export class MapoptionsComponent implements OnInit {
       frontRepo => {
         this.frontRepo = frontRepo
 
-        // Management of layers.
-        //
-        // 1. get all layerGroupUse by the mapOption and store them in the map "mapGongLayerGroupID_LayerGroup"
-        // of layers that have to be displayed
-        // If the LayerGroupID is in not in the layer group and to be displayed, add it to the root of LayersGroup
-        // If not, remove it from the root of LayersGroup if it is present
+        this.manageLayers()
+        this.manageDivIcons()
+        this.manageMakers()
+        this.manageCircles()
+        this.manageVLines()
+        this.manageTracks()
 
-        // reset the map of layers that have to be displayed on this map
-        this.mapGongLayerGroupID_LayerGroupUse.clear()
-
-        // populate the map with information from layerGroupUse of this map
-        let gongleafletMapOptions = this.frontRepo.MapOptionss.get(this.mapOptionsID)
-        for (let gongLayerGroupUse of gongleafletMapOptions?.LayerGroupUses!) {
-          let gongLayerGroup = gongLayerGroupUse.LayerGroup
-          if (gongLayerGroup) {
-            this.mapGongLayerGroupID_LayerGroupUse.set(gongLayerGroup.ID, gongLayerGroupUse)
-
-            // if not present, create a leaflet layer group and add it to the root
-            let leafletLayerGroup = this.mapGongLayerGroupID_LeafletLayerGroup.get(gongLayerGroup.ID)
-            if (!leafletLayerGroup) {
-              leafletLayerGroup = new L.LayerGroup<L.Marker>()
-              this.mapGongLayerGroupID_LeafletLayerGroup.set(gongLayerGroup.ID, leafletLayerGroup)
-            }
-
-            //
-            // for each leaflet layerGroup, the algo can do three things
-            // 1. Nothing
-            //   a. because it is not present and it has to be hidden
-            //   b. because it is present and it has to be added
-            // 2. Add it to the root of layer groups
-            //   a. because it is not present and it has to be added
-            // 3. Remove it from the root of layer groups
-            //   a. because it is present and it has to be removed
-
-            // is the leaflet layerGroup in the root of layer groups ?
-            // if it is there, no need to add it if it has to be displayed
-            // but there is a need to remove it if it has not to be displayed
-            let layerAlreadyDisplayed = this.rootOfLayerGroups.find(present => present == leafletLayerGroup)
-
-            let hasToBeRemoved: boolean = false
-            let hasToBeAdded: boolean = false
-
-            // does the LayerGroup has to be displayed ?
-            if (gongLayerGroupUse?.Display) {
-              // The layer group has to be displayed
-
-              // if the leaflet not layer already in the root of all LayerGroup, add it
-              if (!layerAlreadyDisplayed) {
-                hasToBeAdded = true
-              }
-            } else {
-              // the layer has to be hidden
-              // is it present ?
-              if (layerAlreadyDisplayed) {
-                hasToBeRemoved = true
-              }
-            }
-
-            // performed computed operation
-            if (hasToBeAdded) {
-              // console.log("map " + this.mapName + " has to add layer group named " + gongLayerGroup.Name)
-              this.rootOfLayerGroups.push(leafletLayerGroup)
-            }
-
-            if (hasToBeRemoved) {
-              // console.log("map " + this.mapName + " has to remove layer group named " + gongLayerGroup.Name)
-              this.rootOfLayerGroups.forEach((element, index) => {
-                if (element == layerAlreadyDisplayed) this.rootOfLayerGroups.splice(index, 1);
-              });
-            }
-          }
-        }
-
-        // pair gong divIcon with leaflet divIcon
-        for (let divIcon of this.frontRepo.DivIcons_array) {
-          if (!this.map_divIconID_divIconSVG.has(divIcon.ID)) {
-            this.map_divIconID_divIconSVG.set(divIcon.ID, divIcon.SVG);
-          }
-        }
-
-        //
-        // parse all markers
-        //
-        for (let gongMarker of this.frontRepo.Markers_array) {
-
-          // get the leaflet kin of the gong Marker
-          let leafletMarker: L.Marker | undefined
-          leafletMarker = this.mapMarkerID_LeafletMarker.get(gongMarker.ID)
-
-          // if absent, create the kin
-          if (!leafletMarker) {
-            // console.log("Gong Marker " + gongMarker.Name + " has no leaflet kin")
-            var color = manageLeafletItems.getColor(gongMarker.ColorEnum);
-
-            var icon: L.DivIcon = manageLeafletItems.newIcon(
-              gongMarker.ID,
-              'layer-' + gongMarker.LayerGroupID.Int64,
-              this.map_divIconID_divIconSVG.get(gongMarker.DivIconID.Int64)!,
-              DEFAULT_ICON_SIZE,
-              color,
-              gongMarker.Name
-            );
-
-            // creation
-            leafletMarker = manageLeafletItems.newMarkerWithIcon(
-              gongMarker.Lat,
-              gongMarker.Lng,
-              icon
-            )
-
-            // get the leallet layerGroup of the marker
-            let leafletLayerGroup: L.LayerGroup<L.Layer> | undefined
-            let markerLayerGroup = gongMarker.LayerGroup
-            if (markerLayerGroup) {
-              leafletLayerGroup = this.mapGongLayerGroupID_LeafletLayerGroup.get(markerLayerGroup.ID)
-              if (leafletLayerGroup) {
-                leafletMarker.addTo(leafletLayerGroup)
-              }
-            }
-
-            // add the kin to the map
-            this.mapMarkerID_LeafletMarker.set(gongMarker.ID, leafletMarker)
-          } else {
-            // console.log("Gong Marker " + gongMarker.Name + " has already a leaflet kin")
-          }
-        }
-
-        // display circles
-        for (let circle of this.frontRepo.Circles_array) {
-
-          // get layer of the circle
-          let gongLayerGroup = circle.LayerGroup
-          if (gongLayerGroup) {
-            // is this layer present in the current map ?
-            let leafletLayerGroup = this.mapGongLayerGroupID_LeafletLayerGroup.get(gongLayerGroup.ID)
-
-            if (leafletLayerGroup) {
-              let leafletCircle = manageLeafletItems.newCircle(circle)
-              leafletCircle?.addTo(leafletLayerGroup)
-            }
-          }
-        }
-
-        // update track position by using the front repo
-        this.frontRepoService.VisualTrackPull().subscribe(
-          frontRepo => {
-
-            this.frontRepo = frontRepo
-
-            // update marker from visual track
-            for (let vTrack of frontRepo.VisualTracks_array) {
-              let _currentMarker: L.Marker<any> = this.mapVisualTrackID_VisualMarker.get(vTrack.ID)!
-              if (!_currentMarker) {
-                this.manageNewVisualTrackMarker(vTrack);
-              } else {
-                this.manageUpdateVisualTrackMarker(vTrack, _currentMarker);
-              }
-            }
-
-            // remove markers that have no visual tracks
-            this.mapVisualMarker_VisualTrackID.forEach((visualTrackID) => {
-              if (frontRepo.VisualTracks.get(visualTrackID) == undefined) {
-                var marker = this.mapVisualTrackID_VisualMarker.get(
-                  visualTrackID
-                );
-
-                // remove marker from the visual layer
-                marker?.remove();
-
-                this.mapVisualTrackID_VisualMarker.delete(visualTrackID);
-                this.mapVisualMarker_VisualTrackID.delete(marker!);
-              }
-            })
-          })
         // console.log("Map : " + this.mapName + ", length of root of leaflet layers: " + this.rootOfLayerGroups.length)
       }
     )

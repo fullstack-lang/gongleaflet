@@ -108,7 +108,7 @@ export function newCircle(circle: gongleaflet.CircleDB): L.Circle {
   });
 };
 
-export function setLine(newLineData: gongleaflet.VLineDB): L.Polyline {
+export function newLine(newLineData: gongleaflet.VLineDB): L.Polyline {
   return new L.Polyline([])
     .setLatLngs([
       L.latLng(newLineData.StartLat, newLineData.StartLng),
