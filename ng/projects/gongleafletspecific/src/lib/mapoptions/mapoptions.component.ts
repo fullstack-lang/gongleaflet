@@ -261,36 +261,44 @@ export class MapoptionsComponent implements OnInit {
 
     // get the leaflet layer of the visual track
     let leafletGroupLayer: L.LayerGroup<L.Layer> | undefined
+    let groupLayerUse: gongleaflet.LayerGroupUseDB | undefined
     if (visualTrack.LayerGroup) {
       leafletGroupLayer = this.mapGongLayerGroupID_LeafletLayerGroup.get(visualTrack.LayerGroup.ID)
+      groupLayerUse = this.mapGongLayerGroupID_LayerGroupUse.get(visualTrack.LayerGroup.ID)
+    } else {
+      return
     }
 
     // remove the ancient history
-    let arrayOfDotIcons = this.mapVisualTrackID_LeafletHistoryTrackMarker.get(visualTrack.ID)
+    let arrayOfDotMarkers = this.mapVisualTrackID_LeafletHistoryTrackMarker.get(visualTrack.ID)
 
-    if (arrayOfDotIcons) {
-      for (let dotIcon of arrayOfDotIcons) {
-        dotIcon.remove()
+    if (arrayOfDotMarkers) {
+      for (let dotMarker of arrayOfDotMarkers) {
+        dotMarker.removeFrom(this.leafletMap!)
+
       }
     }
 
-    // display the new history
-    if (leafletGroupLayer) {
-      let arrayOfDotIcons = new Array<L.Marker>()
-
-      for (let coordinates of trackHistory) {
-        let dotIcon = manageLeafletItems.newMarkerWithIcon(
-          coordinates.lat,
-          coordinates.lng,
-          this.DotLeafletDivIcon
-        )
-        dotIcon.addTo(leafletGroupLayer)
-        arrayOfDotIcons.push(dotIcon)
-      }
-
-      // store the array in the map
-      this.mapVisualTrackID_LeafletHistoryTrackMarker.set(visualTrack.ID, arrayOfDotIcons)
+    // workaround to an issue. If the layer is not part of the root of the layers, the dot icon is
+    // not removed properly. Therefore, it is important NOT to add dotIcon is the layer is not set
+    if (groupLayerUse?.Display == false) {
+      return
     }
+
+    arrayOfDotMarkers = new Array<L.Marker>()
+
+    for (let coordinates of trackHistory) {
+      let dotIcon = manageLeafletItems.newMarkerWithIcon(
+        coordinates.lat,
+        coordinates.lng,
+        this.DotLeafletDivIcon
+      )
+      dotIcon.addTo(leafletGroupLayer!)
+      arrayOfDotMarkers.push(dotIcon)
+    }
+
+    // store the array in the map
+    this.mapVisualTrackID_LeafletHistoryTrackMarker.set(visualTrack.ID, arrayOfDotMarkers)
   }
 
   formatTrackLabel = (track: gongleaflet.VisualTrackDB): string => {

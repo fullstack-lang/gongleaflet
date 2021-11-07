@@ -228,6 +228,7 @@ func main() {
 	Map1TracksLayerUse.Name = "Map1TracksLayerUse"
 	Map1TracksLayerUse.LayerGroup = TracksLayer
 	Map1TracksLayerUse.Display = true
+	Map1TracksLayerUse.Display = false
 	Map1.LayerGroupUses = append(Map1.LayerGroupUses, Map1TracksLayerUse)
 
 	Map2 := new(gongleaflet_models.MapOptions).Stage()
