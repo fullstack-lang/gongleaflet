@@ -14,10 +14,8 @@ func TestGongLeaflet(t *testing.T) {
 	orm.SetupModels(true, ":memory:")
 
 	displayTrackHistory := true
-	DisplayLevelAndSpeed := true
 	visualTrack := (&models.VisualTrack{
-		DisplayTrackHistory:  displayTrackHistory,
-		DisplayLevelAndSpeed: DisplayLevelAndSpeed,
+		DisplayTrackHistory: displayTrackHistory,
 	})
 
 	visualTrack.Stage()
