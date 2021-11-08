@@ -262,6 +262,8 @@ func main() {
 	InitialLat := 44.0
 	InitialLng := 4.0
 	Radius := 1.0
+	Speed := 300.0
+	Level := 200.0
 
 	Plane := new(gongleaflet_models.VisualTrack).Stage()
 	Plane.Lat = InitialLat + Radius
@@ -271,8 +273,8 @@ func main() {
 	Plane.DivIcon = AirplaneIcon
 	Plane.ColorEnum = gongleaflet_models.GREEN
 	Plane.Heading = 130
-	Plane.Level = 220
-	Plane.Speed = 300
+	Plane.Level = Level
+	Plane.Speed = Speed
 	Plane.VerticalSpeed = 30
 	Plane.DisplayTrackHistory = true
 	Plane.DisplayLevelAndSpeed = true
@@ -307,6 +309,8 @@ func main() {
 				Plane.Lat = InitialLat + Radius*math.Cos(float64(t.Second())/15.0*math.Pi)
 				Plane.Lng = InitialLng + Radius*math.Sin(float64(t.Second())/15.0*math.Pi)
 				Plane.Heading = 180.0*(float64(t.Second())/15.0) + 90
+				Plane.Speed = Speed + 20*math.Sin(float64(t.Second())/15.0*math.Pi)
+				Plane.Level = Level + 20*math.Sin(float64(t.Second())/15.0*math.Pi)
 
 				Plane.Lat = Plane.Lat + 0.01
 				gongleaflet_models.Stage.Commit()
