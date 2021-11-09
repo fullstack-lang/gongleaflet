@@ -1,3 +1,4 @@
+
 # gongleaflet
 
 gongleaflet is a gong stack for a displaying object on a cartographic background.
@@ -5,6 +6,7 @@ gongleaflet is a gong stack for a displaying object on a cartographic background
 It uses the angular component [ngx-leaflet](https://github.com/Asymmetrik/ngx-leaflet) which is based on html/javascript [leaflet](https://leafletjs.com/) component.
 
 ## instalation
+
 
 > cd ng; npm install; ng build
 > go run main.go
@@ -15,3 +17,30 @@ It uses the angular component [ngx-leaflet](https://github.com/Asymmetrik/ngx-le
 
 ![gongleaflet_example](gongleaflet_example.png)
 
+
+![gongleaflet_example](gongleaflet_example.png)
+
+# Import this stack
+
+add to dev dependencies of your package.json
+```json
+        "backbone": "^1.4.0",
+        "jointjs": "^3.2.0",
+        "jquery": "^3.5.1",
+        "lodash": "^4.17.20",
+        "@types/backbone": "^1.4.5",
+        "@types/jointjs": "^2.0.0",
+        "@types/jquery": "^3.5.3",
+        "@types/lodash": "^4.14.162"
+```
+
+and add the following path in your tsconfig.json
+
+```json
+      "jointjs": [
+        "./node_modules/jointjs"
+      ],
+      "@types/jointjs": [
+        "./node_modules/@types/jointjs"
+      ],
+```
