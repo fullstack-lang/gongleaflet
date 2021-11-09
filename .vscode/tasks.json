@@ -23,7 +23,7 @@
 			"label": "02 - go run",
 			"type": "shell",
 			"options": {
-				"cwd": "."
+				"cwd": "./go/cmd/gongleaflet"
 			},
 			"command": "go",
 			"args": [

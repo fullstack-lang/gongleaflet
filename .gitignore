@@ -6,3 +6,4 @@ gongleaflet.exe
 go/.DS_Store
 test.db
 test.db-journal
+go/cmd/gongleaflet/gongleaflet

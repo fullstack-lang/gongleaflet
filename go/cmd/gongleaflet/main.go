@@ -19,6 +19,8 @@ import (
 	gongleaflet_controllers "github.com/fullstack-lang/gongleaflet/go/controllers"
 	gongleaflet_models "github.com/fullstack-lang/gongleaflet/go/models"
 	gongleaflet_orm "github.com/fullstack-lang/gongleaflet/go/orm"
+
+	gongleaflet "github.com/fullstack-lang/gongleaflet"
 )
 
 //
@@ -53,9 +55,6 @@ var (
 	backupFlag  = flag.Bool("backup", false, "read database file, generate backup and exits")
 	restoreFlag = flag.Bool("restore", false, "generate restore and exits")
 )
-
-//go:embed ng/dist/ng
-var ng embed.FS
 
 type embedFileSystem struct {
 	http.FileSystem
@@ -120,7 +119,7 @@ func main() {
 	r.Use(cors.Default())
 
 	gongleaflet_controllers.RegisterControllers(r)
-	r.Use(static.Serve("/", EmbedFolder(ng, "ng/dist/ng")))
+	r.Use(static.Serve("/", EmbedFolder(gongleaflet.NgDistNg, "ng/dist/ng")))
 	r.NoRoute(func(c *gin.Context) {
 		fmt.Println(c.Request.URL.Path, "doesn't exists, redirect on /")
 		c.Redirect(http.StatusMovedPermanently, "/")
@@ -287,8 +286,6 @@ func main() {
 	done := make(chan bool)
 
 	go func() {
-
-		lastCommitNbFromFront := gongleaflet_models.Stage.BackRepo.GetLastPushFromFrontNb()
 		for {
 			select {
 			case <-done:
@@ -296,14 +293,6 @@ func main() {
 			case t := <-ticker.C:
 				// fmt.Println("Tick at", t.Second(), " Plane lat ", Plane.Lat,
 				// 	" commit from the front ", gongleaflet_models.Stage.BackRepo.GetLastPushFromFrontNb())
-
-				// check out modifications initiated by the front
-				if lastCommitNbFromFront < gongleaflet_models.Stage.BackRepo.GetLastPushFromFrontNb() {
-
-					gongleaflet_models.Stage.Checkout()
-					fmt.Println("Checking out")
-					lastCommitNbFromFront = gongleaflet_models.Stage.BackRepo.GetLastPushFromFrontNb()
-				}
 
 				// let's make a circle
 				Plane.Lat = InitialLat + Radius*math.Cos(float64(t.Second())/15.0*math.Pi)
