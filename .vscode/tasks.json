@@ -11,6 +11,15 @@
 			"group": "build"
 		},
 		{
+			"label": "03 - ng build",
+			"type": "shell",
+			"options": {
+				"cwd": "ng"
+			},
+			"command": "ng build",
+			"group": "build"
+		},
+		{
 			"label": "02 - go run",
 			"type": "shell",
 			"options": {
@@ -60,6 +69,18 @@
 				"--memory=512Mi",
 			],
 			"group": "build"
+		},
+		{
+			"label": "00 - go get -d github.com/fullstack-lang/gongdoc@HEAD",
+			"type": "shell",
+			"group": "build",
+			"command": "go get -d github.com/fullstack-lang/gongdoc@HEAD"
+		},
+		{
+			"label": "00 - go get -d github.com/fullstack-lang/gong@HEAD",
+			"type": "shell",
+			"group": "build",
+			"command": "go get -d github.com/fullstack-lang/gong@HEAD"
 		},
 	]
 }

@@ -1,0 +1,44 @@
+[
+ {
+  "ID": 1,
+  "CreatedAt": "2021-10-29T09:37:52.633837+02:00",
+  "UpdatedAt": "2021-10-29T09:37:52.648872+02:00",
+  "DeletedAt": null,
+  "Name_Data": {
+   "String": "Default",
+   "Valid": true
+  },
+  "DisplayName_Data": {
+   "String": "",
+   "Valid": true
+  }
+ },
+ {
+  "ID": 2,
+  "CreatedAt": "2021-06-01T04:05:42.277686+02:00",
+  "UpdatedAt": "2021-10-29T09:39:30.994074+02:00",
+  "DeletedAt": null,
+  "Name_Data": {
+   "String": "Markers",
+   "Valid": true
+  },
+  "DisplayName_Data": {
+   "String": "Markers",
+   "Valid": true
+  }
+ },
+ {
+  "ID": 3,
+  "CreatedAt": "2021-10-29T09:39:54.149226+02:00",
+  "UpdatedAt": "2021-10-29T09:39:54.149226+02:00",
+  "DeletedAt": null,
+  "Name_Data": {
+   "String": "Visual Tracks",
+   "Valid": true
+  },
+  "DisplayName_Data": {
+   "String": "Visual Tracks",
+   "Valid": true
+  }
+ }
+]
