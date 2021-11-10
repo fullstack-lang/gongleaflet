@@ -16,4 +16,8 @@ export class AppComponent {
   data = 'Data view'
   diagrams = 'Diagrams view'
   views: string[] = [this.carto, this.data];
+
+  userClick(lat: number, lng: number): void {
+    console.log("user clicked on lat: " + lat + " lng: " + lng)
+  }
 }

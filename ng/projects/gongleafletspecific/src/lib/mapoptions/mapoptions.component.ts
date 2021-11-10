@@ -28,6 +28,10 @@ export class MapoptionsComponent implements OnInit {
   mapOptionsID: number = 0
   leafletMapOptions?: L.MapOptions // stangely, impossible to type without ?
 
+  // callback function called on user click 
+  @Input() userInterfactionCallbackFunction?: (lat: number, lng: number) => void
+
+
   // [leafletLayers]="rootOfLayerGroups" that is passed to one div in the html, ngx-asymetrix
   // https://github.com/Asymmetrik/ngx-leaflet#add-custom-layers-base-layers-markers-shapes-etc
   rootOfLayerGroups: L.Layer[] = [];
@@ -108,6 +112,21 @@ export class MapoptionsComponent implements OnInit {
     setTimeout(() => {
       leafletMap.invalidateSize();
     }, 0);
+  }
+
+
+  onMapClick(e: L.LeafletMouseEvent) {
+
+    if (this.leafletMap) {
+      // let popup = new L.Popup()
+      // popup.setLatLng(e.latlng)
+      // popup.setContent("You clicked the map at " + e.latlng.toString())
+      // popup.openOn(this.leafletMap)
+
+      if (this.userInterfactionCallbackFunction) {
+        this.userInterfactionCallbackFunction(e.latlng.lat, e.latlng.lng)
+      }
+    }
   }
 
   ngOnInit(): void {
