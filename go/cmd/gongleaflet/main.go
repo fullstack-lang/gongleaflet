@@ -48,6 +48,13 @@ var AirplaneIcon *gongleaflet_models.DivIcon = (&gongleaflet_models.DivIcon{
 	SVG:  airplane,
 })
 
+//go:embed icons/dot_10.svg
+var dot_10 string
+var Dot_10Icon *gongleaflet_models.DivIcon = (&gongleaflet_models.DivIcon{
+	Name: "Dot10",
+	SVG:  dot_10,
+})
+
 var (
 	logDBFlag  = flag.Bool("logDB", false, "log mode for db")
 	logGINFlag = flag.Bool("logGIN", false, "log mode for gin")
@@ -136,6 +143,7 @@ func main() {
 	// restage the 3 icons
 	//
 	AirplaneIcon.Stage()
+	Dot_10Icon.Stage()
 	RadarIcon.Stage()
 	AirTrafficControlerIcon.Stage()
 
@@ -172,6 +180,14 @@ func main() {
 	LyonRadar.LayerGroup = RadarLayer
 	LyonRadar.DivIcon = RadarIcon
 	LyonRadar.ColorEnum = gongleaflet_models.BLUE
+
+	LyonRadarDot := new(gongleaflet_models.Marker).Stage()
+	LyonRadarDot.Lat = 45.5
+	LyonRadarDot.Lng = 3.7
+	LyonRadarDot.Name = "Dot"
+	LyonRadarDot.LayerGroup = RadarLayer
+	LyonRadarDot.DivIcon = Dot_10Icon
+	LyonRadarDot.ColorEnum = gongleaflet_models.BLUE
 
 	//
 	// Set up Circles
