@@ -20,6 +20,8 @@ import (
 	gongleaflet_models "github.com/fullstack-lang/gongleaflet/go/models"
 	gongleaflet_orm "github.com/fullstack-lang/gongleaflet/go/orm"
 
+	gongleaflet_icons "github.com/fullstack-lang/gongleaflet/go/icons"
+
 	gongleaflet "github.com/fullstack-lang/gongleaflet"
 )
 
@@ -27,33 +29,26 @@ import (
 // Set up Icons
 //
 
-//go:embed icons/radar.svg
-var radar string
-var RadarIcon *gongleaflet_models.DivIcon = (&gongleaflet_models.DivIcon{
-	Name: "Radar",
-	SVG:  radar,
-})
+// //go:embed icons/radar.svg
+// var radar string
+// var RadarIcon *gongleaflet_models.DivIcon = (&gongleaflet_models.DivIcon{
+// 	Name: "Radar",
+// 	SVG:  radar,
+// })
 
-//go:embed icons/air_traffic_controler.svg
-var air_traffic_controler string
-var AirTrafficControlerIcon *gongleaflet_models.DivIcon = (&gongleaflet_models.DivIcon{
-	Name: "AirTrafficControler",
-	SVG:  air_traffic_controler,
-})
+// //go:embed icons/air_traffic_controler.svg
+// var air_traffic_controler string
+// var AirTrafficControlerIcon *gongleaflet_models.DivIcon = (&gongleaflet_models.DivIcon{
+// 	Name: "AirTrafficControler",
+// 	SVG:  air_traffic_controler,
+// })
 
-//go:embed icons/airplane.svg
-var airplane string
-var AirplaneIcon *gongleaflet_models.DivIcon = (&gongleaflet_models.DivIcon{
-	Name: "Airplane",
-	SVG:  airplane,
-})
-
-//go:embed icons/dot_10.svg
-var dot_10 string
-var Dot_10Icon *gongleaflet_models.DivIcon = (&gongleaflet_models.DivIcon{
-	Name: "Dot10",
-	SVG:  dot_10,
-})
+// //go:embed icons/airplane.svg
+// var airplane string
+// var AirplaneIcon *gongleaflet_models.DivIcon = (&gongleaflet_models.DivIcon{
+// 	Name: "Airplane",
+// 	SVG:  airplane,
+// })
 
 var (
 	logDBFlag  = flag.Bool("logDB", false, "log mode for db")
@@ -115,7 +110,14 @@ func main() {
 	}
 
 	// setup GORM
-	gongleaflet_orm.SetupModels(*logDBFlag, "./test.db")
+	db := gongleaflet_orm.SetupModels(*logDBFlag, ":memory:")
+	// since gongsim is a multi threaded application. It is important to set up
+	// only one open connexion at a time
+	dbDB, err := db.DB()
+	if err != nil {
+		panic("cannot access DB of db" + err.Error())
+	}
+	dbDB.SetMaxOpenConns(1)
 
 	// setup controlers
 	if !*logGINFlag {
@@ -132,20 +134,6 @@ func main() {
 		c.Redirect(http.StatusMovedPermanently, "/")
 		c.Abort()
 	})
-
-	// setup test dataset
-	// reset the database
-	gongleaflet_models.Stage.Checkout()
-	gongleaflet_models.Stage.Reset()
-	gongleaflet_models.Stage.Commit()
-
-	//
-	// restage the 3 icons
-	//
-	AirplaneIcon.Stage()
-	Dot_10Icon.Stage()
-	RadarIcon.Stage()
-	AirTrafficControlerIcon.Stage()
 
 	//
 	// Set up LayerGroup
@@ -170,7 +158,7 @@ func main() {
 	LyonAirport.Lng = 5.5
 	LyonAirport.Name = "Lyon's Airport"
 	LyonAirport.LayerGroup = AirportLayer
-	LyonAirport.DivIcon = AirTrafficControlerIcon
+	LyonAirport.DivIcon = gongleaflet_icons.AirTrafficControler
 	LyonAirport.ColorEnum = gongleaflet_models.GREEN
 
 	LyonRadar := new(gongleaflet_models.Marker).Stage()
@@ -178,7 +166,7 @@ func main() {
 	LyonRadar.Lng = 5
 	LyonRadar.Name = "Lyon's Radar"
 	LyonRadar.LayerGroup = RadarLayer
-	LyonRadar.DivIcon = RadarIcon
+	LyonRadar.DivIcon = gongleaflet_icons.Radar
 	LyonRadar.ColorEnum = gongleaflet_models.BLUE
 
 	LyonRadarDot := new(gongleaflet_models.Marker).Stage()
@@ -186,7 +174,7 @@ func main() {
 	LyonRadarDot.Lng = 3.7
 	LyonRadarDot.Name = "Dot"
 	LyonRadarDot.LayerGroup = RadarLayer
-	LyonRadarDot.DivIcon = Dot_10Icon
+	LyonRadarDot.DivIcon = gongleaflet_icons.Dot_10Icon
 	LyonRadarDot.ColorEnum = gongleaflet_models.BLUE
 
 	//
@@ -284,7 +272,7 @@ func main() {
 	Plane.Lng = InitialLng
 	Plane.Name = "Plane Track"
 	Plane.LayerGroup = TracksLayer
-	Plane.DivIcon = AirplaneIcon
+	Plane.DivIcon = gongleaflet_icons.Airplane
 	Plane.ColorEnum = gongleaflet_models.GREEN
 	Plane.Heading = 130
 	Plane.Level = Level
