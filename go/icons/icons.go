@@ -27,6 +27,13 @@ var Airplane *gongleaflet_models.DivIcon = (&gongleaflet_models.DivIcon{
 	SVG:  airplane,
 }).Stage()
 
+//go:embed satellite.svg
+var satellite string
+var Satellite *gongleaflet_models.DivIcon = (&gongleaflet_models.DivIcon{
+	Name: "Satellite",
+	SVG:  satellite,
+}).Stage()
+
 //go:embed radar.svg
 var radar string
 var Radar *gongleaflet_models.DivIcon = (&gongleaflet_models.DivIcon{
