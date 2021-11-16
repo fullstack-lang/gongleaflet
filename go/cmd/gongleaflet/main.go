@@ -25,31 +25,6 @@ import (
 	gongleaflet "github.com/fullstack-lang/gongleaflet"
 )
 
-//
-// Set up Icons
-//
-
-// //go:embed icons/radar.svg
-// var radar string
-// var RadarIcon *gongleaflet_models.DivIcon = (&gongleaflet_models.DivIcon{
-// 	Name: "Radar",
-// 	SVG:  radar,
-// })
-
-// //go:embed icons/air_traffic_controler.svg
-// var air_traffic_controler string
-// var AirTrafficControlerIcon *gongleaflet_models.DivIcon = (&gongleaflet_models.DivIcon{
-// 	Name: "AirTrafficControler",
-// 	SVG:  air_traffic_controler,
-// })
-
-// //go:embed icons/airplane.svg
-// var airplane string
-// var AirplaneIcon *gongleaflet_models.DivIcon = (&gongleaflet_models.DivIcon{
-// 	Name: "Airplane",
-// 	SVG:  airplane,
-// })
-
 var (
 	logDBFlag  = flag.Bool("logDB", false, "log mode for db")
 	logGINFlag = flag.Bool("logGIN", false, "log mode for gin")
@@ -280,6 +255,24 @@ func main() {
 	Plane.VerticalSpeed = 30
 	Plane.DisplayTrackHistory = true
 	Plane.DisplayLevelAndSpeed = true
+
+	//
+	// Tracks
+	//
+
+	Sat := new(gongleaflet_models.VisualTrack).Stage()
+	Sat.Lat = InitialLat + 1.0
+	Sat.Lng = InitialLng + 1.0
+	Sat.Name = "Sat Track"
+	Sat.LayerGroup = TracksLayer
+	Sat.DivIcon = gongleaflet_icons.Satellite
+	Sat.ColorEnum = gongleaflet_models.GREEN
+	Sat.Heading = 130
+	Sat.Level = Level
+	Sat.Speed = Speed
+	Sat.VerticalSpeed = 30
+	Sat.DisplayTrackHistory = true
+	Sat.DisplayLevelAndSpeed = true
 
 	gongleaflet_models.Stage.Commit()
 
