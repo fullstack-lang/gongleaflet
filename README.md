@@ -18,8 +18,6 @@ It uses the angular component [ngx-leaflet](https://github.com/Asymmetrik/ngx-le
 ![gongleaflet_example](gongleaflet_example.png)
 
 
-![gongleaflet_example](gongleaflet_example.png)
-
 # Import this stack
 
 add to dev dependencies of your package.json
