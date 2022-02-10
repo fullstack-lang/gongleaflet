@@ -208,6 +208,9 @@ func main() {
 	Map1 := new(gongleaflet_models.MapOptions).Stage()
 	Map1.Name = "Map1"
 	Map1.UrlTemplate = "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+
+	// inspiration from https://github.com/consbio/mbtileserver
+	Map1.UrlTemplate = "http://localhost:3650/api/tiles/2017-07-03_europe/{z}/{x}/{y}.pbf"
 	Map1.Attribution = "osm"
 	Map1.ZoomLevel = 7.0
 	Map1.ZoomSnap = 1.0
