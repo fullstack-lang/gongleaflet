@@ -12,7 +12,7 @@ import (
 )
 
 // swagger:ignore
-type __void struct{}
+type __void any
 
 // needed for creating set of instances in the stage
 var __member __void
@@ -28,34 +28,34 @@ type GongStructInterface interface {
 // StageStruct enables storage of staged instances
 // swagger:ignore
 type StageStruct struct { // insertion point for definition of arrays registering instances
-	CheckoutSchedulers           map[*CheckoutScheduler]struct{}
+	CheckoutSchedulers           map[*CheckoutScheduler]any
 	CheckoutSchedulers_mapString map[string]*CheckoutScheduler
 
-	Circles           map[*Circle]struct{}
+	Circles           map[*Circle]any
 	Circles_mapString map[string]*Circle
 
-	DivIcons           map[*DivIcon]struct{}
+	DivIcons           map[*DivIcon]any
 	DivIcons_mapString map[string]*DivIcon
 
-	LayerGroups           map[*LayerGroup]struct{}
+	LayerGroups           map[*LayerGroup]any
 	LayerGroups_mapString map[string]*LayerGroup
 
-	LayerGroupUses           map[*LayerGroupUse]struct{}
+	LayerGroupUses           map[*LayerGroupUse]any
 	LayerGroupUses_mapString map[string]*LayerGroupUse
 
-	MapOptionss           map[*MapOptions]struct{}
+	MapOptionss           map[*MapOptions]any
 	MapOptionss_mapString map[string]*MapOptions
 
-	Markers           map[*Marker]struct{}
+	Markers           map[*Marker]any
 	Markers_mapString map[string]*Marker
 
-	UserClicks           map[*UserClick]struct{}
+	UserClicks           map[*UserClick]any
 	UserClicks_mapString map[string]*UserClick
 
-	VLines           map[*VLine]struct{}
+	VLines           map[*VLine]any
 	VLines_mapString map[string]*VLine
 
-	VisualTracks           map[*VisualTrack]struct{}
+	VisualTracks           map[*VisualTrack]any
 	VisualTracks_mapString map[string]*VisualTrack
 
 	AllModelsStructCreateCallback AllModelsStructCreateInterface
@@ -111,34 +111,34 @@ type BackRepoInterface interface {
 
 // swagger:ignore instructs the gong compiler (gongc) to avoid this particular struct
 var Stage StageStruct = StageStruct{ // insertion point for array initiatialisation
-	CheckoutSchedulers:           make(map[*CheckoutScheduler]struct{}),
+	CheckoutSchedulers:           make(map[*CheckoutScheduler]any),
 	CheckoutSchedulers_mapString: make(map[string]*CheckoutScheduler),
 
-	Circles:           make(map[*Circle]struct{}),
+	Circles:           make(map[*Circle]any),
 	Circles_mapString: make(map[string]*Circle),
 
-	DivIcons:           make(map[*DivIcon]struct{}),
+	DivIcons:           make(map[*DivIcon]any),
 	DivIcons_mapString: make(map[string]*DivIcon),
 
-	LayerGroups:           make(map[*LayerGroup]struct{}),
+	LayerGroups:           make(map[*LayerGroup]any),
 	LayerGroups_mapString: make(map[string]*LayerGroup),
 
-	LayerGroupUses:           make(map[*LayerGroupUse]struct{}),
+	LayerGroupUses:           make(map[*LayerGroupUse]any),
 	LayerGroupUses_mapString: make(map[string]*LayerGroupUse),
 
-	MapOptionss:           make(map[*MapOptions]struct{}),
+	MapOptionss:           make(map[*MapOptions]any),
 	MapOptionss_mapString: make(map[string]*MapOptions),
 
-	Markers:           make(map[*Marker]struct{}),
+	Markers:           make(map[*Marker]any),
 	Markers_mapString: make(map[string]*Marker),
 
-	UserClicks:           make(map[*UserClick]struct{}),
+	UserClicks:           make(map[*UserClick]any),
 	UserClicks_mapString: make(map[string]*UserClick),
 
-	VLines:           make(map[*VLine]struct{}),
+	VLines:           make(map[*VLine]any),
 	VLines_mapString: make(map[string]*VLine),
 
-	VisualTracks:           make(map[*VisualTrack]struct{}),
+	VisualTracks:           make(map[*VisualTrack]any),
 	VisualTracks_mapString: make(map[string]*VisualTrack),
 
 	// end of insertion point
@@ -1568,34 +1568,34 @@ type AllModelsStructDeleteInterface interface { // insertion point for Callbacks
 }
 
 func (stage *StageStruct) Reset() { // insertion point for array reset
-	stage.CheckoutSchedulers = make(map[*CheckoutScheduler]struct{})
+	stage.CheckoutSchedulers = make(map[*CheckoutScheduler]any)
 	stage.CheckoutSchedulers_mapString = make(map[string]*CheckoutScheduler)
 
-	stage.Circles = make(map[*Circle]struct{})
+	stage.Circles = make(map[*Circle]any)
 	stage.Circles_mapString = make(map[string]*Circle)
 
-	stage.DivIcons = make(map[*DivIcon]struct{})
+	stage.DivIcons = make(map[*DivIcon]any)
 	stage.DivIcons_mapString = make(map[string]*DivIcon)
 
-	stage.LayerGroups = make(map[*LayerGroup]struct{})
+	stage.LayerGroups = make(map[*LayerGroup]any)
 	stage.LayerGroups_mapString = make(map[string]*LayerGroup)
 
-	stage.LayerGroupUses = make(map[*LayerGroupUse]struct{})
+	stage.LayerGroupUses = make(map[*LayerGroupUse]any)
 	stage.LayerGroupUses_mapString = make(map[string]*LayerGroupUse)
 
-	stage.MapOptionss = make(map[*MapOptions]struct{})
+	stage.MapOptionss = make(map[*MapOptions]any)
 	stage.MapOptionss_mapString = make(map[string]*MapOptions)
 
-	stage.Markers = make(map[*Marker]struct{})
+	stage.Markers = make(map[*Marker]any)
 	stage.Markers_mapString = make(map[string]*Marker)
 
-	stage.UserClicks = make(map[*UserClick]struct{})
+	stage.UserClicks = make(map[*UserClick]any)
 	stage.UserClicks_mapString = make(map[string]*UserClick)
 
-	stage.VLines = make(map[*VLine]struct{})
+	stage.VLines = make(map[*VLine]any)
 	stage.VLines_mapString = make(map[string]*VLine)
 
-	stage.VisualTracks = make(map[*VisualTrack]struct{})
+	stage.VisualTracks = make(map[*VisualTrack]any)
 	stage.VisualTracks_mapString = make(map[string]*VisualTrack)
 
 }
@@ -2490,7 +2490,9 @@ func generatesIdentifier(gongStructName string, idx int, instanceName string) (i
 }
 
 // insertion point of functions that provide maps for reverse associations
+
 // generate function for reverse association maps of CheckoutScheduler
+
 // generate function for reverse association maps of Circle
 func (stageStruct *StageStruct) CreateReverseMap_Circle_LayerGroup() (res map[*LayerGroup][]*Circle) {
 	res = make(map[*LayerGroup][]*Circle)
@@ -2514,7 +2516,9 @@ func (stageStruct *StageStruct) CreateReverseMap_Circle_LayerGroup() (res map[*L
 }
 
 // generate function for reverse association maps of DivIcon
+
 // generate function for reverse association maps of LayerGroup
+
 // generate function for reverse association maps of LayerGroupUse
 func (stageStruct *StageStruct) CreateReverseMap_LayerGroupUse_LayerGroup() (res map[*LayerGroup][]*LayerGroupUse) {
 	res = make(map[*LayerGroup][]*LayerGroupUse)
@@ -2550,6 +2554,7 @@ func (stageStruct *StageStruct) CreateReverseMap_MapOptions_LayerGroupUses() (re
 	return
 }
 
+
 // generate function for reverse association maps of Marker
 func (stageStruct *StageStruct) CreateReverseMap_Marker_LayerGroup() (res map[*LayerGroup][]*Marker) {
 	res = make(map[*LayerGroup][]*Marker)
@@ -2571,7 +2576,6 @@ func (stageStruct *StageStruct) CreateReverseMap_Marker_LayerGroup() (res map[*L
 
 	return
 }
-
 func (stageStruct *StageStruct) CreateReverseMap_Marker_DivIcon() (res map[*DivIcon][]*Marker) {
 	res = make(map[*DivIcon][]*Marker)
 
@@ -2594,6 +2598,7 @@ func (stageStruct *StageStruct) CreateReverseMap_Marker_DivIcon() (res map[*DivI
 }
 
 // generate function for reverse association maps of UserClick
+
 // generate function for reverse association maps of VLine
 func (stageStruct *StageStruct) CreateReverseMap_VLine_LayerGroup() (res map[*LayerGroup][]*VLine) {
 	res = make(map[*LayerGroup][]*VLine)
@@ -2637,7 +2642,6 @@ func (stageStruct *StageStruct) CreateReverseMap_VisualTrack_LayerGroup() (res m
 
 	return
 }
-
 func (stageStruct *StageStruct) CreateReverseMap_VisualTrack_DivIcon() (res map[*DivIcon][]*VisualTrack) {
 	res = make(map[*DivIcon][]*VisualTrack)
 
@@ -2659,6 +2663,101 @@ func (stageStruct *StageStruct) CreateReverseMap_VisualTrack_DivIcon() (res map[
 	return
 }
 
+type GongstructSet interface {
+	map[any]any |
+		// insertion point for generic types
+		map[*CheckoutScheduler]any |
+		map[*Circle]any |
+		map[*DivIcon]any |
+		map[*LayerGroup]any |
+		map[*LayerGroupUse]any |
+		map[*MapOptions]any |
+		map[*Marker]any |
+		map[*UserClick]any |
+		map[*VLine]any |
+		map[*VisualTrack]any |
+		map[*any]any // because go does not support an extra "|" at the end of type specifications
+}
+
+type GongstructMapString interface {
+	map[any]any |
+		// insertion point for generic types
+		map[string]*CheckoutScheduler |
+		map[string]*Circle |
+		map[string]*DivIcon |
+		map[string]*LayerGroup |
+		map[string]*LayerGroupUse |
+		map[string]*MapOptions |
+		map[string]*Marker |
+		map[string]*UserClick |
+		map[string]*VLine |
+		map[string]*VisualTrack |
+		map[*any]any // because go does not support an extra "|" at the end of type specifications
+}
+
+// GongGetSet returns the set staged GongstructType instances
+// it is usefull because it allows refactoring of gong struct identifier
+func GongGetSet[Type GongstructSet]() *Type {
+	var ret Type
+
+	switch any(ret).(type) {
+	// insertion point for generic get functions
+	case map[*CheckoutScheduler]any:
+		return any(&Stage.CheckoutSchedulers).(*Type)
+	case map[*Circle]any:
+		return any(&Stage.Circles).(*Type)
+	case map[*DivIcon]any:
+		return any(&Stage.DivIcons).(*Type)
+	case map[*LayerGroup]any:
+		return any(&Stage.LayerGroups).(*Type)
+	case map[*LayerGroupUse]any:
+		return any(&Stage.LayerGroupUses).(*Type)
+	case map[*MapOptions]any:
+		return any(&Stage.MapOptionss).(*Type)
+	case map[*Marker]any:
+		return any(&Stage.Markers).(*Type)
+	case map[*UserClick]any:
+		return any(&Stage.UserClicks).(*Type)
+	case map[*VLine]any:
+		return any(&Stage.VLines).(*Type)
+	case map[*VisualTrack]any:
+		return any(&Stage.VisualTracks).(*Type)
+	default:
+		return nil
+	}
+}
+
+// GongGetMap returns the map of staged GongstructType instances
+// it is usefull because it allows refactoring of gong struct identifier
+func GongGetMap[Type GongstructMapString]() *Type {
+	var ret Type
+
+	switch any(ret).(type) {
+	// insertion point for generic get functions
+	case map[string]*CheckoutScheduler:
+		return any(&Stage.CheckoutSchedulers_mapString).(*Type)
+	case map[string]*Circle:
+		return any(&Stage.Circles_mapString).(*Type)
+	case map[string]*DivIcon:
+		return any(&Stage.DivIcons_mapString).(*Type)
+	case map[string]*LayerGroup:
+		return any(&Stage.LayerGroups_mapString).(*Type)
+	case map[string]*LayerGroupUse:
+		return any(&Stage.LayerGroupUses_mapString).(*Type)
+	case map[string]*MapOptions:
+		return any(&Stage.MapOptionss_mapString).(*Type)
+	case map[string]*Marker:
+		return any(&Stage.Markers_mapString).(*Type)
+	case map[string]*UserClick:
+		return any(&Stage.UserClicks_mapString).(*Type)
+	case map[string]*VLine:
+		return any(&Stage.VLines_mapString).(*Type)
+	case map[string]*VisualTrack:
+		return any(&Stage.VisualTracks_mapString).(*Type)
+	default:
+		return nil
+	}
+}
 
 // insertion point of enum utility functions
 // Utility function for ColorEnum

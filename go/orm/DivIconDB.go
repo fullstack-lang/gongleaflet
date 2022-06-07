@@ -267,7 +267,7 @@ func (backRepoDivIcon *BackRepoDivIconStruct) CheckoutPhaseOne() (Error error) {
 
 	// list of instances to be removed
 	// start from the initial map on the stage and remove instances that have been checked out
-	diviconInstancesToBeRemovedFromTheStage := make(map[*models.DivIcon]struct{})
+	diviconInstancesToBeRemovedFromTheStage := make(map[*models.DivIcon]any)
 	for key, value := range models.Stage.DivIcons {
 		diviconInstancesToBeRemovedFromTheStage[key] = value
 	}

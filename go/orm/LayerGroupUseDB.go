@@ -287,7 +287,7 @@ func (backRepoLayerGroupUse *BackRepoLayerGroupUseStruct) CheckoutPhaseOne() (Er
 
 	// list of instances to be removed
 	// start from the initial map on the stage and remove instances that have been checked out
-	layergroupuseInstancesToBeRemovedFromTheStage := make(map[*models.LayerGroupUse]struct{})
+	layergroupuseInstancesToBeRemovedFromTheStage := make(map[*models.LayerGroupUse]any)
 	for key, value := range models.Stage.LayerGroupUses {
 		layergroupuseInstancesToBeRemovedFromTheStage[key] = value
 	}

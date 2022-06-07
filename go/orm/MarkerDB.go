@@ -305,7 +305,7 @@ func (backRepoMarker *BackRepoMarkerStruct) CheckoutPhaseOne() (Error error) {
 
 	// list of instances to be removed
 	// start from the initial map on the stage and remove instances that have been checked out
-	markerInstancesToBeRemovedFromTheStage := make(map[*models.Marker]struct{})
+	markerInstancesToBeRemovedFromTheStage := make(map[*models.Marker]any)
 	for key, value := range models.Stage.Markers {
 		markerInstancesToBeRemovedFromTheStage[key] = value
 	}

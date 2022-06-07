@@ -343,7 +343,7 @@ func (backRepoVisualTrack *BackRepoVisualTrackStruct) CheckoutPhaseOne() (Error 
 
 	// list of instances to be removed
 	// start from the initial map on the stage and remove instances that have been checked out
-	visualtrackInstancesToBeRemovedFromTheStage := make(map[*models.VisualTrack]struct{})
+	visualtrackInstancesToBeRemovedFromTheStage := make(map[*models.VisualTrack]any)
 	for key, value := range models.Stage.VisualTracks {
 		visualtrackInstancesToBeRemovedFromTheStage[key] = value
 	}

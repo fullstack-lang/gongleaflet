@@ -304,7 +304,7 @@ func (backRepoCircle *BackRepoCircleStruct) CheckoutPhaseOne() (Error error) {
 
 	// list of instances to be removed
 	// start from the initial map on the stage and remove instances that have been checked out
-	circleInstancesToBeRemovedFromTheStage := make(map[*models.Circle]struct{})
+	circleInstancesToBeRemovedFromTheStage := make(map[*models.Circle]any)
 	for key, value := range models.Stage.Circles {
 		circleInstancesToBeRemovedFromTheStage[key] = value
 	}

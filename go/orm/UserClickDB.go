@@ -279,7 +279,7 @@ func (backRepoUserClick *BackRepoUserClickStruct) CheckoutPhaseOne() (Error erro
 
 	// list of instances to be removed
 	// start from the initial map on the stage and remove instances that have been checked out
-	userclickInstancesToBeRemovedFromTheStage := make(map[*models.UserClick]struct{})
+	userclickInstancesToBeRemovedFromTheStage := make(map[*models.UserClick]any)
 	for key, value := range models.Stage.UserClicks {
 		userclickInstancesToBeRemovedFromTheStage[key] = value
 	}
