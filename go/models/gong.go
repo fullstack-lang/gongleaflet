@@ -2663,6 +2663,15 @@ func (stageStruct *StageStruct) CreateReverseMap_VisualTrack_DivIcon() (res map[
 	return
 }
 
+// Gongstruct is the type paramter for generated generic function that allows 
+// - access to staged instances
+// - navigation between staged instances by going backward association links between gongstruct
+// - full refactoring of Gongstruct identifiers / fields
+type Gongstruct interface {
+	// insertion point for generic types
+	CheckoutScheduler | Circle | DivIcon | LayerGroup | LayerGroupUse | MapOptions | Marker | UserClick | VLine | VisualTrack
+}
+
 type GongstructSet interface {
 	map[any]any |
 		// insertion point for generic types
@@ -2758,6 +2767,399 @@ func GongGetMap[Type GongstructMapString]() *Type {
 		return nil
 	}
 }
+
+// GetGongstructInstancesSet returns the set staged GongstructType instances
+// it is usefull because it allows refactoring of gongstruct identifier
+func GetGongstructInstancesSet[Type Gongstruct]() *map[*Type]any {
+	var ret Type
+
+	switch any(ret).(type) {
+	// insertion point for generic get functions
+	case CheckoutScheduler:
+		return any(&Stage.CheckoutSchedulers).(*map[*Type]any)
+	case Circle:
+		return any(&Stage.Circles).(*map[*Type]any)
+	case DivIcon:
+		return any(&Stage.DivIcons).(*map[*Type]any)
+	case LayerGroup:
+		return any(&Stage.LayerGroups).(*map[*Type]any)
+	case LayerGroupUse:
+		return any(&Stage.LayerGroupUses).(*map[*Type]any)
+	case MapOptions:
+		return any(&Stage.MapOptionss).(*map[*Type]any)
+	case Marker:
+		return any(&Stage.Markers).(*map[*Type]any)
+	case UserClick:
+		return any(&Stage.UserClicks).(*map[*Type]any)
+	case VLine:
+		return any(&Stage.VLines).(*map[*Type]any)
+	case VisualTrack:
+		return any(&Stage.VisualTracks).(*map[*Type]any)
+	default:
+		return nil
+	}
+}
+
+// GetGongstructInstancesMap returns the map of staged GongstructType instances
+// it is usefull because it allows refactoring of gong struct identifier
+func GetGongstructInstancesMap[Type Gongstruct]() *map[string]*Type {
+	var ret Type
+
+	switch any(ret).(type) {
+	// insertion point for generic get functions
+	case CheckoutScheduler:
+		return any(&Stage.CheckoutSchedulers_mapString).(*map[string]*Type)
+	case Circle:
+		return any(&Stage.Circles_mapString).(*map[string]*Type)
+	case DivIcon:
+		return any(&Stage.DivIcons_mapString).(*map[string]*Type)
+	case LayerGroup:
+		return any(&Stage.LayerGroups_mapString).(*map[string]*Type)
+	case LayerGroupUse:
+		return any(&Stage.LayerGroupUses_mapString).(*map[string]*Type)
+	case MapOptions:
+		return any(&Stage.MapOptionss_mapString).(*map[string]*Type)
+	case Marker:
+		return any(&Stage.Markers_mapString).(*map[string]*Type)
+	case UserClick:
+		return any(&Stage.UserClicks_mapString).(*map[string]*Type)
+	case VLine:
+		return any(&Stage.VLines_mapString).(*map[string]*Type)
+	case VisualTrack:
+		return any(&Stage.VisualTracks_mapString).(*map[string]*Type)
+	default:
+		return nil
+	}
+}
+
+// GetAssociationName is a generic function that returns an instance of Type
+// where each association is filled with an instance whose name is the name of the association
+//
+// This function can be handy for generating navigation function that are refactorable
+func GetAssociationName[Type Gongstruct]() *Type {
+	var ret Type
+
+	switch any(ret).(type) {
+	// insertion point for instance with special fields
+	case CheckoutScheduler:
+		return any(&CheckoutScheduler{
+			// Initialisation of associations
+		}).(*Type)
+	case Circle:
+		return any(&Circle{
+			// Initialisation of associations
+			// field is initialized with an instance of LayerGroup with the name of the field
+			LayerGroup: &LayerGroup{Name: "LayerGroup"},
+		}).(*Type)
+	case DivIcon:
+		return any(&DivIcon{
+			// Initialisation of associations
+		}).(*Type)
+	case LayerGroup:
+		return any(&LayerGroup{
+			// Initialisation of associations
+		}).(*Type)
+	case LayerGroupUse:
+		return any(&LayerGroupUse{
+			// Initialisation of associations
+			// field is initialized with an instance of LayerGroup with the name of the field
+			LayerGroup: &LayerGroup{Name: "LayerGroup"},
+		}).(*Type)
+	case MapOptions:
+		return any(&MapOptions{
+			// Initialisation of associations
+			// field is initialized with an instance of LayerGroupUse with the name of the field
+			LayerGroupUses: []*LayerGroupUse{{Name: "LayerGroupUses"}},
+		}).(*Type)
+	case Marker:
+		return any(&Marker{
+			// Initialisation of associations
+			// field is initialized with an instance of LayerGroup with the name of the field
+			LayerGroup: &LayerGroup{Name: "LayerGroup"},
+			// field is initialized with an instance of DivIcon with the name of the field
+			DivIcon: &DivIcon{Name: "DivIcon"},
+		}).(*Type)
+	case UserClick:
+		return any(&UserClick{
+			// Initialisation of associations
+		}).(*Type)
+	case VLine:
+		return any(&VLine{
+			// Initialisation of associations
+			// field is initialized with an instance of LayerGroup with the name of the field
+			LayerGroup: &LayerGroup{Name: "LayerGroup"},
+		}).(*Type)
+	case VisualTrack:
+		return any(&VisualTrack{
+			// Initialisation of associations
+			// field is initialized with an instance of LayerGroup with the name of the field
+			LayerGroup: &LayerGroup{Name: "LayerGroup"},
+			// field is initialized with an instance of DivIcon with the name of the field
+			DivIcon: &DivIcon{Name: "DivIcon"},
+		}).(*Type)
+	default:
+		return nil
+	}
+}
+
+// GetPointerReverseMap allows backtrack navigation of any Start.Fieldname
+// associations (0..1) that is a pointer from one staged Gongstruct (type Start)
+// instances to another (type End)
+//
+// The function provides a map with keys as instances of End and values to arrays of *Start
+// the map is construed by iterating over all Start instances and populationg keys with End instances
+// and values with slice of Start instances
+func GetPointerReverseMap[Start, End Gongstruct](fieldname string) map[*End][]*Start {
+	var ret Start
+
+	switch any(ret).(type) {
+	// insertion point of functions that provide maps for reverse associations
+	// reverse maps of direct associations of CheckoutScheduler
+	case CheckoutScheduler:
+		switch fieldname {
+		// insertion point for per direct association field
+		}
+	// reverse maps of direct associations of Circle
+	case Circle:
+		switch fieldname {
+		// insertion point for per direct association field
+		case "LayerGroup":
+			res := make(map[*LayerGroup][]*Circle)
+			for circle := range Stage.Circles {
+				if circle.LayerGroup != nil {
+					layergroup_ := circle.LayerGroup
+					var circles []*Circle
+					_, ok := res[layergroup_]
+					if ok {
+						circles = res[layergroup_]
+					} else {
+						circles = make([]*Circle, 0)
+					}
+					circles = append(circles, circle)
+					res[layergroup_] = circles
+				}
+			}
+			return any(res).(map[*End][]*Start)
+		}
+	// reverse maps of direct associations of DivIcon
+	case DivIcon:
+		switch fieldname {
+		// insertion point for per direct association field
+		}
+	// reverse maps of direct associations of LayerGroup
+	case LayerGroup:
+		switch fieldname {
+		// insertion point for per direct association field
+		}
+	// reverse maps of direct associations of LayerGroupUse
+	case LayerGroupUse:
+		switch fieldname {
+		// insertion point for per direct association field
+		case "LayerGroup":
+			res := make(map[*LayerGroup][]*LayerGroupUse)
+			for layergroupuse := range Stage.LayerGroupUses {
+				if layergroupuse.LayerGroup != nil {
+					layergroup_ := layergroupuse.LayerGroup
+					var layergroupuses []*LayerGroupUse
+					_, ok := res[layergroup_]
+					if ok {
+						layergroupuses = res[layergroup_]
+					} else {
+						layergroupuses = make([]*LayerGroupUse, 0)
+					}
+					layergroupuses = append(layergroupuses, layergroupuse)
+					res[layergroup_] = layergroupuses
+				}
+			}
+			return any(res).(map[*End][]*Start)
+		}
+	// reverse maps of direct associations of MapOptions
+	case MapOptions:
+		switch fieldname {
+		// insertion point for per direct association field
+		}
+	// reverse maps of direct associations of Marker
+	case Marker:
+		switch fieldname {
+		// insertion point for per direct association field
+		case "LayerGroup":
+			res := make(map[*LayerGroup][]*Marker)
+			for marker := range Stage.Markers {
+				if marker.LayerGroup != nil {
+					layergroup_ := marker.LayerGroup
+					var markers []*Marker
+					_, ok := res[layergroup_]
+					if ok {
+						markers = res[layergroup_]
+					} else {
+						markers = make([]*Marker, 0)
+					}
+					markers = append(markers, marker)
+					res[layergroup_] = markers
+				}
+			}
+			return any(res).(map[*End][]*Start)
+		case "DivIcon":
+			res := make(map[*DivIcon][]*Marker)
+			for marker := range Stage.Markers {
+				if marker.DivIcon != nil {
+					divicon_ := marker.DivIcon
+					var markers []*Marker
+					_, ok := res[divicon_]
+					if ok {
+						markers = res[divicon_]
+					} else {
+						markers = make([]*Marker, 0)
+					}
+					markers = append(markers, marker)
+					res[divicon_] = markers
+				}
+			}
+			return any(res).(map[*End][]*Start)
+		}
+	// reverse maps of direct associations of UserClick
+	case UserClick:
+		switch fieldname {
+		// insertion point for per direct association field
+		}
+	// reverse maps of direct associations of VLine
+	case VLine:
+		switch fieldname {
+		// insertion point for per direct association field
+		case "LayerGroup":
+			res := make(map[*LayerGroup][]*VLine)
+			for vline := range Stage.VLines {
+				if vline.LayerGroup != nil {
+					layergroup_ := vline.LayerGroup
+					var vlines []*VLine
+					_, ok := res[layergroup_]
+					if ok {
+						vlines = res[layergroup_]
+					} else {
+						vlines = make([]*VLine, 0)
+					}
+					vlines = append(vlines, vline)
+					res[layergroup_] = vlines
+				}
+			}
+			return any(res).(map[*End][]*Start)
+		}
+	// reverse maps of direct associations of VisualTrack
+	case VisualTrack:
+		switch fieldname {
+		// insertion point for per direct association field
+		case "LayerGroup":
+			res := make(map[*LayerGroup][]*VisualTrack)
+			for visualtrack := range Stage.VisualTracks {
+				if visualtrack.LayerGroup != nil {
+					layergroup_ := visualtrack.LayerGroup
+					var visualtracks []*VisualTrack
+					_, ok := res[layergroup_]
+					if ok {
+						visualtracks = res[layergroup_]
+					} else {
+						visualtracks = make([]*VisualTrack, 0)
+					}
+					visualtracks = append(visualtracks, visualtrack)
+					res[layergroup_] = visualtracks
+				}
+			}
+			return any(res).(map[*End][]*Start)
+		case "DivIcon":
+			res := make(map[*DivIcon][]*VisualTrack)
+			for visualtrack := range Stage.VisualTracks {
+				if visualtrack.DivIcon != nil {
+					divicon_ := visualtrack.DivIcon
+					var visualtracks []*VisualTrack
+					_, ok := res[divicon_]
+					if ok {
+						visualtracks = res[divicon_]
+					} else {
+						visualtracks = make([]*VisualTrack, 0)
+					}
+					visualtracks = append(visualtracks, visualtrack)
+					res[divicon_] = visualtracks
+				}
+			}
+			return any(res).(map[*End][]*Start)
+		}
+	}
+	return nil
+}
+
+// GetSliceOfPointersReverseMap allows backtrack navigation of any Start.Fieldname
+// associations (0..N) between one staged Gongstruct instances and many others
+//
+// The function provides a map with keys as instances of End and values to *Start instances
+// the map is construed by iterating over all Start instances and populating keys with End instances
+// and values with the Start instances
+func GetSliceOfPointersReverseMap[Start, End Gongstruct](fieldname string) map[*End]*Start {
+	var ret Start
+
+	switch any(ret).(type) {
+	// insertion point of functions that provide maps for reverse associations
+	// reverse maps of direct associations of CheckoutScheduler
+	case CheckoutScheduler:
+		switch fieldname {
+		// insertion point for per direct association field
+		}
+	// reverse maps of direct associations of Circle
+	case Circle:
+		switch fieldname {
+		// insertion point for per direct association field
+		}
+	// reverse maps of direct associations of DivIcon
+	case DivIcon:
+		switch fieldname {
+		// insertion point for per direct association field
+		}
+	// reverse maps of direct associations of LayerGroup
+	case LayerGroup:
+		switch fieldname {
+		// insertion point for per direct association field
+		}
+	// reverse maps of direct associations of LayerGroupUse
+	case LayerGroupUse:
+		switch fieldname {
+		// insertion point for per direct association field
+		}
+	// reverse maps of direct associations of MapOptions
+	case MapOptions:
+		switch fieldname {
+		// insertion point for per direct association field
+		case "LayerGroupUses":
+			res := make(map[*LayerGroupUse]*MapOptions)
+			for mapoptions := range Stage.MapOptionss {
+				for _, layergroupuse_ := range mapoptions.LayerGroupUses {
+					res[layergroupuse_] = mapoptions
+				}
+			}
+			return any(res).(map[*End]*Start)
+		}
+	// reverse maps of direct associations of Marker
+	case Marker:
+		switch fieldname {
+		// insertion point for per direct association field
+		}
+	// reverse maps of direct associations of UserClick
+	case UserClick:
+		switch fieldname {
+		// insertion point for per direct association field
+		}
+	// reverse maps of direct associations of VLine
+	case VLine:
+		switch fieldname {
+		// insertion point for per direct association field
+		}
+	// reverse maps of direct associations of VisualTrack
+	case VisualTrack:
+		switch fieldname {
+		// insertion point for per direct association field
+		}
+	}
+	return nil
+}
+
 
 // insertion point of enum utility functions
 // Utility function for ColorEnum
