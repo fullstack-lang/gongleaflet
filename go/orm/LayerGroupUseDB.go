@@ -68,10 +68,10 @@ type LayerGroupUseDB struct {
 
 	// insertion for basic fields declaration
 
-	// Declation for basic field layergroupuseDB.Name {{BasicKind}} (to be completed)
+	// Declation for basic field layergroupuseDB.Name
 	Name_Data sql.NullString
 
-	// Declation for basic field layergroupuseDB.Display bool (to be completed)
+	// Declation for basic field layergroupuseDB.Display
 	// provide the sql storage for the boolan
 	Display_Data sql.NullBool
 	// encoding of pointers

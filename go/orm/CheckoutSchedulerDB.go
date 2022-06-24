@@ -58,10 +58,10 @@ type CheckoutSchedulerDB struct {
 
 	// insertion for basic fields declaration
 
-	// Declation for basic field checkoutschedulerDB.Name {{BasicKind}} (to be completed)
+	// Declation for basic field checkoutschedulerDB.Name
 	Name_Data sql.NullString
 
-	// Declation for basic field checkoutschedulerDB.NbUpdatesFromFront {{BasicKind}} (to be completed)
+	// Declation for basic field checkoutschedulerDB.NbUpdatesFromFront
 	NbUpdatesFromFront_Data sql.NullInt64
 	// encoding of pointers
 	CheckoutSchedulerPointersEnconding

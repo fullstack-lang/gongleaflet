@@ -58,13 +58,13 @@ type UserClickDB struct {
 
 	// insertion for basic fields declaration
 
-	// Declation for basic field userclickDB.Name {{BasicKind}} (to be completed)
+	// Declation for basic field userclickDB.Name
 	Name_Data sql.NullString
 
-	// Declation for basic field userclickDB.Lat {{BasicKind}} (to be completed)
+	// Declation for basic field userclickDB.Lat
 	Lat_Data sql.NullFloat64
 
-	// Declation for basic field userclickDB.Lng {{BasicKind}} (to be completed)
+	// Declation for basic field userclickDB.Lng
 	Lng_Data sql.NullFloat64
 
 	// Declation for basic field userclickDB.TimeOfClick

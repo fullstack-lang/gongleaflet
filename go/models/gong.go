@@ -3159,18 +3159,18 @@ func (colorenum ColorEnum) ToString() (res string) {
 	// migration of former implementation of enum
 	switch colorenum {
 	// insertion code per enum code
-	case BLUE:
-		res = "BLUE"
-	case GREEN:
-		res = "GREEN"
-	case GREY:
-		res = "GREY"
 	case LIGHT_BROWN_8D6E63:
 		res = "LIGHT_BROWN_8D6E63"
-	case NONE:
-		res = "NONE"
 	case RED:
 		res = "RED"
+	case GREY:
+		res = "GREY"
+	case GREEN:
+		res = "GREEN"
+	case BLUE:
+		res = "BLUE"
+	case NONE:
+		res = "NONE"
 	}
 	return
 }
@@ -3179,18 +3179,18 @@ func (colorenum *ColorEnum) FromString(input string) {
 
 	switch input {
 	// insertion code per enum code
-	case "BLUE":
-		*colorenum = BLUE
-	case "GREEN":
-		*colorenum = GREEN
-	case "GREY":
-		*colorenum = GREY
 	case "LIGHT_BROWN_8D6E63":
 		*colorenum = LIGHT_BROWN_8D6E63
-	case "NONE":
-		*colorenum = NONE
 	case "RED":
 		*colorenum = RED
+	case "GREY":
+		*colorenum = GREY
+	case "GREEN":
+		*colorenum = GREEN
+	case "BLUE":
+		*colorenum = BLUE
+	case "NONE":
+		*colorenum = NONE
 	}
 }
 
@@ -3198,18 +3198,18 @@ func (colorenum *ColorEnum) ToCodeString() (res string) {
 
 	switch *colorenum {
 	// insertion code per enum code
-	case BLUE:
-		res = "BLUE"
-	case GREEN:
-		res = "GREEN"
-	case GREY:
-		res = "GREY"
 	case LIGHT_BROWN_8D6E63:
 		res = "LIGHT_BROWN_8D6E63"
-	case NONE:
-		res = "NONE"
 	case RED:
 		res = "RED"
+	case GREY:
+		res = "GREY"
+	case GREEN:
+		res = "GREEN"
+	case BLUE:
+		res = "BLUE"
+	case NONE:
+		res = "NONE"
 	}
 	return
 }
@@ -3261,10 +3261,10 @@ func (start_to_end_enum Start_To_End_Enum) ToString() (res string) {
 	// migration of former implementation of enum
 	switch start_to_end_enum {
 	// insertion code per enum code
-	case BACKWARD_END_TO_START:
-		res = "BACKWARD_START_TO_END"
 	case FORWARD_START_TO_END:
 		res = "FORWARD_START_TO_END"
+	case BACKWARD_END_TO_START:
+		res = "BACKWARD_START_TO_END"
 	}
 	return
 }
@@ -3273,10 +3273,10 @@ func (start_to_end_enum *Start_To_End_Enum) FromString(input string) {
 
 	switch input {
 	// insertion code per enum code
-	case "BACKWARD_START_TO_END":
-		*start_to_end_enum = BACKWARD_END_TO_START
 	case "FORWARD_START_TO_END":
 		*start_to_end_enum = FORWARD_START_TO_END
+	case "BACKWARD_START_TO_END":
+		*start_to_end_enum = BACKWARD_END_TO_START
 	}
 }
 
@@ -3284,10 +3284,10 @@ func (start_to_end_enum *Start_To_End_Enum) ToCodeString() (res string) {
 
 	switch *start_to_end_enum {
 	// insertion code per enum code
-	case BACKWARD_END_TO_START:
-		res = "BACKWARD_END_TO_START"
 	case FORWARD_START_TO_END:
 		res = "FORWARD_START_TO_END"
+	case BACKWARD_END_TO_START:
+		res = "BACKWARD_END_TO_START"
 	}
 	return
 }
@@ -3300,10 +3300,10 @@ func (transmittingenum TransmittingEnum) ToString() (res string) {
 	// migration of former implementation of enum
 	switch transmittingenum {
 	// insertion code per enum code
-	case IS_NOT_TRANSMITTING:
-		res = "IS_NOT_TRANSMITTING"
 	case IS_TRANSMITTING:
 		res = "IS_TRANSMITTING"
+	case IS_NOT_TRANSMITTING:
+		res = "IS_NOT_TRANSMITTING"
 	}
 	return
 }
@@ -3312,10 +3312,10 @@ func (transmittingenum *TransmittingEnum) FromString(input string) {
 
 	switch input {
 	// insertion code per enum code
-	case "IS_NOT_TRANSMITTING":
-		*transmittingenum = IS_NOT_TRANSMITTING
 	case "IS_TRANSMITTING":
 		*transmittingenum = IS_TRANSMITTING
+	case "IS_NOT_TRANSMITTING":
+		*transmittingenum = IS_NOT_TRANSMITTING
 	}
 }
 
@@ -3323,10 +3323,10 @@ func (transmittingenum *TransmittingEnum) ToCodeString() (res string) {
 
 	switch *transmittingenum {
 	// insertion code per enum code
-	case IS_NOT_TRANSMITTING:
-		res = "IS_NOT_TRANSMITTING"
 	case IS_TRANSMITTING:
 		res = "IS_TRANSMITTING"
+	case IS_NOT_TRANSMITTING:
+		res = "IS_NOT_TRANSMITTING"
 	}
 	return
 }

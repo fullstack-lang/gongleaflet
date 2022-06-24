@@ -58,10 +58,10 @@ type LayerGroupDB struct {
 
 	// insertion for basic fields declaration
 
-	// Declation for basic field layergroupDB.Name {{BasicKind}} (to be completed)
+	// Declation for basic field layergroupDB.Name
 	Name_Data sql.NullString
 
-	// Declation for basic field layergroupDB.DisplayName {{BasicKind}} (to be completed)
+	// Declation for basic field layergroupDB.DisplayName
 	DisplayName_Data sql.NullString
 	// encoding of pointers
 	LayerGroupPointersEnconding

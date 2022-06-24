@@ -66,16 +66,16 @@ type MarkerDB struct {
 
 	// insertion for basic fields declaration
 
-	// Declation for basic field markerDB.Lat {{BasicKind}} (to be completed)
+	// Declation for basic field markerDB.Lat
 	Lat_Data sql.NullFloat64
 
-	// Declation for basic field markerDB.Lng {{BasicKind}} (to be completed)
+	// Declation for basic field markerDB.Lng
 	Lng_Data sql.NullFloat64
 
-	// Declation for basic field markerDB.Name {{BasicKind}} (to be completed)
+	// Declation for basic field markerDB.Name
 	Name_Data sql.NullString
 
-	// Declation for basic field markerDB.ColorEnum {{BasicKind}} (to be completed)
+	// Declation for basic field markerDB.ColorEnum
 	ColorEnum_Data sql.NullString
 	// encoding of pointers
 	MarkerPointersEnconding
