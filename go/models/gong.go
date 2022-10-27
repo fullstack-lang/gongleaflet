@@ -2,6 +2,7 @@
 package models
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -10,6 +11,9 @@ import (
 	"sort"
 	"strings"
 )
+
+// errUnkownEnum is returns when a value cannot match enum values
+var errUnkownEnum = errors.New("unkown enum")
 
 // swagger:ignore
 type __void any
@@ -31,32 +35,92 @@ type StageStruct struct { // insertion point for definition of arrays registerin
 	CheckoutSchedulers           map[*CheckoutScheduler]any
 	CheckoutSchedulers_mapString map[string]*CheckoutScheduler
 
+	OnAfterCheckoutSchedulerCreateCallback OnAfterCreateInterface[CheckoutScheduler]
+	OnAfterCheckoutSchedulerUpdateCallback OnAfterUpdateInterface[CheckoutScheduler]
+	OnAfterCheckoutSchedulerDeleteCallback OnAfterDeleteInterface[CheckoutScheduler]
+	OnAfterCheckoutSchedulerReadCallback   OnAfterReadInterface[CheckoutScheduler]
+
+
 	Circles           map[*Circle]any
 	Circles_mapString map[string]*Circle
+
+	OnAfterCircleCreateCallback OnAfterCreateInterface[Circle]
+	OnAfterCircleUpdateCallback OnAfterUpdateInterface[Circle]
+	OnAfterCircleDeleteCallback OnAfterDeleteInterface[Circle]
+	OnAfterCircleReadCallback   OnAfterReadInterface[Circle]
+
 
 	DivIcons           map[*DivIcon]any
 	DivIcons_mapString map[string]*DivIcon
 
+	OnAfterDivIconCreateCallback OnAfterCreateInterface[DivIcon]
+	OnAfterDivIconUpdateCallback OnAfterUpdateInterface[DivIcon]
+	OnAfterDivIconDeleteCallback OnAfterDeleteInterface[DivIcon]
+	OnAfterDivIconReadCallback   OnAfterReadInterface[DivIcon]
+
+
 	LayerGroups           map[*LayerGroup]any
 	LayerGroups_mapString map[string]*LayerGroup
+
+	OnAfterLayerGroupCreateCallback OnAfterCreateInterface[LayerGroup]
+	OnAfterLayerGroupUpdateCallback OnAfterUpdateInterface[LayerGroup]
+	OnAfterLayerGroupDeleteCallback OnAfterDeleteInterface[LayerGroup]
+	OnAfterLayerGroupReadCallback   OnAfterReadInterface[LayerGroup]
+
 
 	LayerGroupUses           map[*LayerGroupUse]any
 	LayerGroupUses_mapString map[string]*LayerGroupUse
 
+	OnAfterLayerGroupUseCreateCallback OnAfterCreateInterface[LayerGroupUse]
+	OnAfterLayerGroupUseUpdateCallback OnAfterUpdateInterface[LayerGroupUse]
+	OnAfterLayerGroupUseDeleteCallback OnAfterDeleteInterface[LayerGroupUse]
+	OnAfterLayerGroupUseReadCallback   OnAfterReadInterface[LayerGroupUse]
+
+
 	MapOptionss           map[*MapOptions]any
 	MapOptionss_mapString map[string]*MapOptions
+
+	OnAfterMapOptionsCreateCallback OnAfterCreateInterface[MapOptions]
+	OnAfterMapOptionsUpdateCallback OnAfterUpdateInterface[MapOptions]
+	OnAfterMapOptionsDeleteCallback OnAfterDeleteInterface[MapOptions]
+	OnAfterMapOptionsReadCallback   OnAfterReadInterface[MapOptions]
+
 
 	Markers           map[*Marker]any
 	Markers_mapString map[string]*Marker
 
+	OnAfterMarkerCreateCallback OnAfterCreateInterface[Marker]
+	OnAfterMarkerUpdateCallback OnAfterUpdateInterface[Marker]
+	OnAfterMarkerDeleteCallback OnAfterDeleteInterface[Marker]
+	OnAfterMarkerReadCallback   OnAfterReadInterface[Marker]
+
+
 	UserClicks           map[*UserClick]any
 	UserClicks_mapString map[string]*UserClick
+
+	OnAfterUserClickCreateCallback OnAfterCreateInterface[UserClick]
+	OnAfterUserClickUpdateCallback OnAfterUpdateInterface[UserClick]
+	OnAfterUserClickDeleteCallback OnAfterDeleteInterface[UserClick]
+	OnAfterUserClickReadCallback   OnAfterReadInterface[UserClick]
+
 
 	VLines           map[*VLine]any
 	VLines_mapString map[string]*VLine
 
+	OnAfterVLineCreateCallback OnAfterCreateInterface[VLine]
+	OnAfterVLineUpdateCallback OnAfterUpdateInterface[VLine]
+	OnAfterVLineDeleteCallback OnAfterDeleteInterface[VLine]
+	OnAfterVLineReadCallback   OnAfterReadInterface[VLine]
+
+
 	VisualTracks           map[*VisualTrack]any
 	VisualTracks_mapString map[string]*VisualTrack
+
+	OnAfterVisualTrackCreateCallback OnAfterCreateInterface[VisualTrack]
+	OnAfterVisualTrackUpdateCallback OnAfterUpdateInterface[VisualTrack]
+	OnAfterVisualTrackDeleteCallback OnAfterDeleteInterface[VisualTrack]
+	OnAfterVisualTrackReadCallback   OnAfterReadInterface[VisualTrack]
+
 
 	AllModelsStructCreateCallback AllModelsStructCreateInterface
 
@@ -75,6 +139,29 @@ type StageStruct struct { // insertion point for definition of arrays registerin
 
 type OnInitCommitInterface interface {
 	BeforeCommit(stage *StageStruct)
+}
+
+// OnAfterCreateInterface callback when an instance is updated from the front
+type OnAfterCreateInterface[Type Gongstruct] interface {
+	OnAfterCreate(stage *StageStruct,
+		instance *Type)
+}
+
+// OnAfterReadInterface callback when an instance is updated from the front
+type OnAfterReadInterface[Type Gongstruct] interface {
+	OnAfterRead(stage *StageStruct,
+		instance *Type)
+}
+
+// OnAfterUpdateInterface callback when an instance is updated from the front
+type OnAfterUpdateInterface[Type Gongstruct] interface {
+	OnAfterUpdate(stage *StageStruct, old, new *Type)
+}
+
+// OnAfterDeleteInterface callback when an instance is updated from the front
+type OnAfterDeleteInterface[Type Gongstruct] interface {
+	OnAfterDelete(stage *StageStruct,
+		staged, front *Type)
 }
 
 type BackRepoInterface interface {
@@ -3078,7 +3165,7 @@ func (colorenum ColorEnum) ToString() (res string) {
 	return
 }
 
-func (colorenum *ColorEnum) FromString(input string) {
+func (colorenum *ColorEnum) FromString(input string) (err error) {
 
 	switch input {
 	// insertion code per enum code
@@ -3094,7 +3181,10 @@ func (colorenum *ColorEnum) FromString(input string) {
 		*colorenum = BLUE
 	case "NONE":
 		*colorenum = NONE
+	default:
+		return errUnkownEnum
 	}
+	return
 }
 
 func (colorenum *ColorEnum) ToCodeString() (res string) {
@@ -3133,7 +3223,7 @@ func (dashstyleenum DashStyleEnum) ToString() (res string) {
 	return
 }
 
-func (dashstyleenum *DashStyleEnum) FromString(input string) {
+func (dashstyleenum *DashStyleEnum) FromString(input string) (err error) {
 
 	switch input {
 	// insertion code per enum code
@@ -3141,7 +3231,10 @@ func (dashstyleenum *DashStyleEnum) FromString(input string) {
 		*dashstyleenum = FIVE_TEN
 	case "FIVE_TWENTY":
 		*dashstyleenum = FIVE_TWENTY
+	default:
+		return errUnkownEnum
 	}
+	return
 }
 
 func (dashstyleenum *DashStyleEnum) ToCodeString() (res string) {
@@ -3172,7 +3265,7 @@ func (start_to_end_enum Start_To_End_Enum) ToString() (res string) {
 	return
 }
 
-func (start_to_end_enum *Start_To_End_Enum) FromString(input string) {
+func (start_to_end_enum *Start_To_End_Enum) FromString(input string) (err error) {
 
 	switch input {
 	// insertion code per enum code
@@ -3180,7 +3273,10 @@ func (start_to_end_enum *Start_To_End_Enum) FromString(input string) {
 		*start_to_end_enum = FORWARD_START_TO_END
 	case "BACKWARD_START_TO_END":
 		*start_to_end_enum = BACKWARD_END_TO_START
+	default:
+		return errUnkownEnum
 	}
+	return
 }
 
 func (start_to_end_enum *Start_To_End_Enum) ToCodeString() (res string) {
@@ -3211,7 +3307,7 @@ func (transmittingenum TransmittingEnum) ToString() (res string) {
 	return
 }
 
-func (transmittingenum *TransmittingEnum) FromString(input string) {
+func (transmittingenum *TransmittingEnum) FromString(input string) (err error) {
 
 	switch input {
 	// insertion code per enum code
@@ -3219,7 +3315,10 @@ func (transmittingenum *TransmittingEnum) FromString(input string) {
 		*transmittingenum = IS_TRANSMITTING
 	case "IS_NOT_TRANSMITTING":
 		*transmittingenum = IS_NOT_TRANSMITTING
+	default:
+		return errUnkownEnum
 	}
+	return
 }
 
 func (transmittingenum *TransmittingEnum) ToCodeString() (res string) {
