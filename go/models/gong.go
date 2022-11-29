@@ -40,7 +40,6 @@ type StageStruct struct { // insertion point for definition of arrays registerin
 	OnAfterCheckoutSchedulerDeleteCallback OnAfterDeleteInterface[CheckoutScheduler]
 	OnAfterCheckoutSchedulerReadCallback   OnAfterReadInterface[CheckoutScheduler]
 
-
 	Circles           map[*Circle]any
 	Circles_mapString map[string]*Circle
 
@@ -48,7 +47,6 @@ type StageStruct struct { // insertion point for definition of arrays registerin
 	OnAfterCircleUpdateCallback OnAfterUpdateInterface[Circle]
 	OnAfterCircleDeleteCallback OnAfterDeleteInterface[Circle]
 	OnAfterCircleReadCallback   OnAfterReadInterface[Circle]
-
 
 	DivIcons           map[*DivIcon]any
 	DivIcons_mapString map[string]*DivIcon
@@ -58,7 +56,6 @@ type StageStruct struct { // insertion point for definition of arrays registerin
 	OnAfterDivIconDeleteCallback OnAfterDeleteInterface[DivIcon]
 	OnAfterDivIconReadCallback   OnAfterReadInterface[DivIcon]
 
-
 	LayerGroups           map[*LayerGroup]any
 	LayerGroups_mapString map[string]*LayerGroup
 
@@ -66,7 +63,6 @@ type StageStruct struct { // insertion point for definition of arrays registerin
 	OnAfterLayerGroupUpdateCallback OnAfterUpdateInterface[LayerGroup]
 	OnAfterLayerGroupDeleteCallback OnAfterDeleteInterface[LayerGroup]
 	OnAfterLayerGroupReadCallback   OnAfterReadInterface[LayerGroup]
-
 
 	LayerGroupUses           map[*LayerGroupUse]any
 	LayerGroupUses_mapString map[string]*LayerGroupUse
@@ -76,7 +72,6 @@ type StageStruct struct { // insertion point for definition of arrays registerin
 	OnAfterLayerGroupUseDeleteCallback OnAfterDeleteInterface[LayerGroupUse]
 	OnAfterLayerGroupUseReadCallback   OnAfterReadInterface[LayerGroupUse]
 
-
 	MapOptionss           map[*MapOptions]any
 	MapOptionss_mapString map[string]*MapOptions
 
@@ -84,7 +79,6 @@ type StageStruct struct { // insertion point for definition of arrays registerin
 	OnAfterMapOptionsUpdateCallback OnAfterUpdateInterface[MapOptions]
 	OnAfterMapOptionsDeleteCallback OnAfterDeleteInterface[MapOptions]
 	OnAfterMapOptionsReadCallback   OnAfterReadInterface[MapOptions]
-
 
 	Markers           map[*Marker]any
 	Markers_mapString map[string]*Marker
@@ -94,7 +88,6 @@ type StageStruct struct { // insertion point for definition of arrays registerin
 	OnAfterMarkerDeleteCallback OnAfterDeleteInterface[Marker]
 	OnAfterMarkerReadCallback   OnAfterReadInterface[Marker]
 
-
 	UserClicks           map[*UserClick]any
 	UserClicks_mapString map[string]*UserClick
 
@@ -102,7 +95,6 @@ type StageStruct struct { // insertion point for definition of arrays registerin
 	OnAfterUserClickUpdateCallback OnAfterUpdateInterface[UserClick]
 	OnAfterUserClickDeleteCallback OnAfterDeleteInterface[UserClick]
 	OnAfterUserClickReadCallback   OnAfterReadInterface[UserClick]
-
 
 	VLines           map[*VLine]any
 	VLines_mapString map[string]*VLine
@@ -112,7 +104,6 @@ type StageStruct struct { // insertion point for definition of arrays registerin
 	OnAfterVLineDeleteCallback OnAfterDeleteInterface[VLine]
 	OnAfterVLineReadCallback   OnAfterReadInterface[VLine]
 
-
 	VisualTracks           map[*VisualTrack]any
 	VisualTracks_mapString map[string]*VisualTrack
 
@@ -120,7 +111,6 @@ type StageStruct struct { // insertion point for definition of arrays registerin
 	OnAfterVisualTrackUpdateCallback OnAfterUpdateInterface[VisualTrack]
 	OnAfterVisualTrackDeleteCallback OnAfterDeleteInterface[VisualTrack]
 	OnAfterVisualTrackReadCallback   OnAfterReadInterface[VisualTrack]
-
 
 	AllModelsStructCreateCallback AllModelsStructCreateInterface
 
@@ -1350,6 +1340,10 @@ import (
 	"{{ModelsPackageName}}"
 )
 
+// generated in order to avoid error in the package import
+// if there are no elements in the stage to marshall
+var ___dummy__Stage models.StageStruct
+
 func init() {
 	var __Dummy_time_variable time.Time
 	_ = __Dummy_time_variable
@@ -1369,7 +1363,7 @@ func {{databaseName}}Injection() {
 `
 
 const IdentifiersDecls = `
-	{{Identifier}} := (&models.{{GeneratedStructName}}{Name: "{{GeneratedFieldNameValue}}"}).Stage()`
+	{{Identifier}} := (&models.{{GeneratedStructName}}{Name: ` + "`" + `{{GeneratedFieldNameValue}}` + "`" + `}).Stage()`
 
 const StringInitStatement = `
 	{{Identifier}}.{{GeneratedFieldName}} = ` + "`" + `{{GeneratedFieldNameValue}}` + "`"
@@ -1438,7 +1432,7 @@ func (stage *StageStruct) Marshall(file *os.File, modelsPackageName, packageName
 		decl = strings.ReplaceAll(decl, "{{GeneratedFieldNameValue}}", checkoutscheduler.Name)
 		identifiersDecl += decl
 
-		initializerStatements += fmt.Sprintf("\n\n	// CheckoutScheduler %s values setup", checkoutscheduler.Name)
+		initializerStatements += "\n\n	// CheckoutScheduler values setup"
 		// Initialisation of values
 		setValueField = StringInitStatement
 		setValueField = strings.ReplaceAll(setValueField, "{{Identifier}}", id)
@@ -1476,7 +1470,7 @@ func (stage *StageStruct) Marshall(file *os.File, modelsPackageName, packageName
 		decl = strings.ReplaceAll(decl, "{{GeneratedFieldNameValue}}", circle.Name)
 		identifiersDecl += decl
 
-		initializerStatements += fmt.Sprintf("\n\n	// Circle %s values setup", circle.Name)
+		initializerStatements += "\n\n	// Circle values setup"
 		// Initialisation of values
 		setValueField = NumberInitStatement
 		setValueField = strings.ReplaceAll(setValueField, "{{Identifier}}", id)
@@ -1542,7 +1536,7 @@ func (stage *StageStruct) Marshall(file *os.File, modelsPackageName, packageName
 		decl = strings.ReplaceAll(decl, "{{GeneratedFieldNameValue}}", divicon.Name)
 		identifiersDecl += decl
 
-		initializerStatements += fmt.Sprintf("\n\n	// DivIcon %s values setup", divicon.Name)
+		initializerStatements += "\n\n	// DivIcon values setup"
 		// Initialisation of values
 		setValueField = StringInitStatement
 		setValueField = strings.ReplaceAll(setValueField, "{{Identifier}}", id)
@@ -1580,7 +1574,7 @@ func (stage *StageStruct) Marshall(file *os.File, modelsPackageName, packageName
 		decl = strings.ReplaceAll(decl, "{{GeneratedFieldNameValue}}", layergroup.Name)
 		identifiersDecl += decl
 
-		initializerStatements += fmt.Sprintf("\n\n	// LayerGroup %s values setup", layergroup.Name)
+		initializerStatements += "\n\n	// LayerGroup values setup"
 		// Initialisation of values
 		setValueField = StringInitStatement
 		setValueField = strings.ReplaceAll(setValueField, "{{Identifier}}", id)
@@ -1618,7 +1612,7 @@ func (stage *StageStruct) Marshall(file *os.File, modelsPackageName, packageName
 		decl = strings.ReplaceAll(decl, "{{GeneratedFieldNameValue}}", layergroupuse.Name)
 		identifiersDecl += decl
 
-		initializerStatements += fmt.Sprintf("\n\n	// LayerGroupUse %s values setup", layergroupuse.Name)
+		initializerStatements += "\n\n	// LayerGroupUse values setup"
 		// Initialisation of values
 		setValueField = StringInitStatement
 		setValueField = strings.ReplaceAll(setValueField, "{{Identifier}}", id)
@@ -1656,7 +1650,7 @@ func (stage *StageStruct) Marshall(file *os.File, modelsPackageName, packageName
 		decl = strings.ReplaceAll(decl, "{{GeneratedFieldNameValue}}", mapoptions.Name)
 		identifiersDecl += decl
 
-		initializerStatements += fmt.Sprintf("\n\n	// MapOptions %s values setup", mapoptions.Name)
+		initializerStatements += "\n\n	// MapOptions values setup"
 		// Initialisation of values
 		setValueField = NumberInitStatement
 		setValueField = strings.ReplaceAll(setValueField, "{{Identifier}}", id)
@@ -1742,7 +1736,7 @@ func (stage *StageStruct) Marshall(file *os.File, modelsPackageName, packageName
 		decl = strings.ReplaceAll(decl, "{{GeneratedFieldNameValue}}", marker.Name)
 		identifiersDecl += decl
 
-		initializerStatements += fmt.Sprintf("\n\n	// Marker %s values setup", marker.Name)
+		initializerStatements += "\n\n	// Marker values setup"
 		// Initialisation of values
 		setValueField = NumberInitStatement
 		setValueField = strings.ReplaceAll(setValueField, "{{Identifier}}", id)
@@ -1794,7 +1788,7 @@ func (stage *StageStruct) Marshall(file *os.File, modelsPackageName, packageName
 		decl = strings.ReplaceAll(decl, "{{GeneratedFieldNameValue}}", userclick.Name)
 		identifiersDecl += decl
 
-		initializerStatements += fmt.Sprintf("\n\n	// UserClick %s values setup", userclick.Name)
+		initializerStatements += "\n\n	// UserClick values setup"
 		// Initialisation of values
 		setValueField = StringInitStatement
 		setValueField = strings.ReplaceAll(setValueField, "{{Identifier}}", id)
@@ -1844,7 +1838,7 @@ func (stage *StageStruct) Marshall(file *os.File, modelsPackageName, packageName
 		decl = strings.ReplaceAll(decl, "{{GeneratedFieldNameValue}}", vline.Name)
 		identifiersDecl += decl
 
-		initializerStatements += fmt.Sprintf("\n\n	// VLine %s values setup", vline.Name)
+		initializerStatements += "\n\n	// VLine values setup"
 		// Initialisation of values
 		setValueField = NumberInitStatement
 		setValueField = strings.ReplaceAll(setValueField, "{{Identifier}}", id)
@@ -1944,7 +1938,7 @@ func (stage *StageStruct) Marshall(file *os.File, modelsPackageName, packageName
 		decl = strings.ReplaceAll(decl, "{{GeneratedFieldNameValue}}", visualtrack.Name)
 		identifiersDecl += decl
 
-		initializerStatements += fmt.Sprintf("\n\n	// VisualTrack %s values setup", visualtrack.Name)
+		initializerStatements += "\n\n	// VisualTrack values setup"
 		// Initialisation of values
 		setValueField = NumberInitStatement
 		setValueField = strings.ReplaceAll(setValueField, "{{Identifier}}", id)
@@ -3187,6 +3181,28 @@ func (colorenum *ColorEnum) FromString(input string) (err error) {
 	return
 }
 
+func (colorenum *ColorEnum) FromCodeString(input string) (err error) {
+
+	switch input {
+	// insertion code per enum code
+	case "LIGHT_BROWN_8D6E63":
+		*colorenum = LIGHT_BROWN_8D6E63
+	case "RED":
+		*colorenum = RED
+	case "GREY":
+		*colorenum = GREY
+	case "GREEN":
+		*colorenum = GREEN
+	case "BLUE":
+		*colorenum = BLUE
+	case "NONE":
+		*colorenum = NONE
+	default:
+		return errUnkownEnum
+	}
+	return
+}
+
 func (colorenum *ColorEnum) ToCodeString() (res string) {
 
 	switch *colorenum {
@@ -3224,6 +3240,20 @@ func (dashstyleenum DashStyleEnum) ToString() (res string) {
 }
 
 func (dashstyleenum *DashStyleEnum) FromString(input string) (err error) {
+
+	switch input {
+	// insertion code per enum code
+	case "FIVE_TEN":
+		*dashstyleenum = FIVE_TEN
+	case "FIVE_TWENTY":
+		*dashstyleenum = FIVE_TWENTY
+	default:
+		return errUnkownEnum
+	}
+	return
+}
+
+func (dashstyleenum *DashStyleEnum) FromCodeString(input string) (err error) {
 
 	switch input {
 	// insertion code per enum code
@@ -3279,6 +3309,20 @@ func (start_to_end_enum *Start_To_End_Enum) FromString(input string) (err error)
 	return
 }
 
+func (start_to_end_enum *Start_To_End_Enum) FromCodeString(input string) (err error) {
+
+	switch input {
+	// insertion code per enum code
+	case "FORWARD_START_TO_END":
+		*start_to_end_enum = FORWARD_START_TO_END
+	case "BACKWARD_END_TO_START":
+		*start_to_end_enum = BACKWARD_END_TO_START
+	default:
+		return errUnkownEnum
+	}
+	return
+}
+
 func (start_to_end_enum *Start_To_End_Enum) ToCodeString() (res string) {
 
 	switch *start_to_end_enum {
@@ -3308,6 +3352,20 @@ func (transmittingenum TransmittingEnum) ToString() (res string) {
 }
 
 func (transmittingenum *TransmittingEnum) FromString(input string) (err error) {
+
+	switch input {
+	// insertion code per enum code
+	case "IS_TRANSMITTING":
+		*transmittingenum = IS_TRANSMITTING
+	case "IS_NOT_TRANSMITTING":
+		*transmittingenum = IS_NOT_TRANSMITTING
+	default:
+		return errUnkownEnum
+	}
+	return
+}
+
+func (transmittingenum *TransmittingEnum) FromCodeString(input string) (err error) {
 
 	switch input {
 	// insertion code per enum code
