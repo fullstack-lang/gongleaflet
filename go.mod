@@ -23,10 +23,12 @@ require (
 	gorm.io/gorm v1.22.5
 )
 
-require github.com/glebarez/sqlite v1.3.5
+require (
+	github.com/glebarez/sqlite v1.3.5
+	github.com/xuri/excelize/v2 v2.6.1
+)
 
 require (
-	github.com/fullstack-lang/gongdoc v0.0.0-20221006192736-652f930a70fc // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/glebarez/go-sqlite v1.14.7 // indirect
 	github.com/go-playground/locales v0.14.0 // indirect
@@ -40,12 +42,17 @@ require (
 	github.com/kr/text v0.2.0 // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
+	github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.5 // indirect
 	github.com/peterbourgon/diskv v2.0.1+incompatible // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20200410134404-eec4a21b6bb0 // indirect
+	github.com/richardlehane/mscfb v1.0.4 // indirect
+	github.com/richardlehane/msoleps v1.0.3 // indirect
 	github.com/rogpeppe/fastuuid v1.2.0 // indirect
 	github.com/rogpeppe/go-internal v1.8.0 // indirect
 	github.com/ugorji/go/codec v1.2.7 // indirect
+	github.com/xuri/efp v0.0.0-20220603152613-6918739fd470 // indirect
+	github.com/xuri/nfp v0.0.0-20220409054826-5e722a1d9e22 // indirect
 	golang.org/x/net v0.0.0-20220907135653-1e95f45603a7 // indirect
 	modernc.org/libc v1.14.3 // indirect
 	modernc.org/mathutil v1.4.1 // indirect
