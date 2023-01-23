@@ -293,8 +293,7 @@ func (backRepoMarker *BackRepoMarkerStruct) CommitPhaseTwoInstance(backRepo *Bac
 // BackRepoMarker.CheckoutPhaseOne Checkouts all BackRepo instances to the Stage
 //
 // Phase One will result in having instances on the stage aligned with the back repo
-// pointers are not initialized yet (this is for pahse two)
-//
+// pointers are not initialized yet (this is for phase two)
 func (backRepoMarker *BackRepoMarkerStruct) CheckoutPhaseOne() (Error error) {
 
 	markerDBArray := make([]MarkerDB, 0)
@@ -352,6 +351,9 @@ func (backRepoMarker *BackRepoMarkerStruct) CheckoutPhaseOneInstance(markerDB *M
 		marker.Stage()
 	}
 	markerDB.CopyBasicFieldsToMarker(marker)
+
+	// in some cases, the instance might have been unstaged. It is necessary to stage it again
+	marker.Stage()
 
 	// preserve pointer to markerDB. Otherwise, pointer will is recycled and the map of pointers
 	// Map_MarkerDBID_MarkerDB)[markerDB hold variable pointers

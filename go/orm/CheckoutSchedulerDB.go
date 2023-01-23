@@ -255,8 +255,7 @@ func (backRepoCheckoutScheduler *BackRepoCheckoutSchedulerStruct) CommitPhaseTwo
 // BackRepoCheckoutScheduler.CheckoutPhaseOne Checkouts all BackRepo instances to the Stage
 //
 // Phase One will result in having instances on the stage aligned with the back repo
-// pointers are not initialized yet (this is for pahse two)
-//
+// pointers are not initialized yet (this is for phase two)
 func (backRepoCheckoutScheduler *BackRepoCheckoutSchedulerStruct) CheckoutPhaseOne() (Error error) {
 
 	checkoutschedulerDBArray := make([]CheckoutSchedulerDB, 0)
@@ -314,6 +313,9 @@ func (backRepoCheckoutScheduler *BackRepoCheckoutSchedulerStruct) CheckoutPhaseO
 		checkoutscheduler.Stage()
 	}
 	checkoutschedulerDB.CopyBasicFieldsToCheckoutScheduler(checkoutscheduler)
+
+	// in some cases, the instance might have been unstaged. It is necessary to stage it again
+	checkoutscheduler.Stage()
 
 	// preserve pointer to checkoutschedulerDB. Otherwise, pointer will is recycled and the map of pointers
 	// Map_CheckoutSchedulerDBID_CheckoutSchedulerDB)[checkoutschedulerDB hold variable pointers

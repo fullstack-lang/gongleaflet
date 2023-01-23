@@ -322,8 +322,7 @@ func (backRepoVLine *BackRepoVLineStruct) CommitPhaseTwoInstance(backRepo *BackR
 // BackRepoVLine.CheckoutPhaseOne Checkouts all BackRepo instances to the Stage
 //
 // Phase One will result in having instances on the stage aligned with the back repo
-// pointers are not initialized yet (this is for pahse two)
-//
+// pointers are not initialized yet (this is for phase two)
 func (backRepoVLine *BackRepoVLineStruct) CheckoutPhaseOne() (Error error) {
 
 	vlineDBArray := make([]VLineDB, 0)
@@ -381,6 +380,9 @@ func (backRepoVLine *BackRepoVLineStruct) CheckoutPhaseOneInstance(vlineDB *VLin
 		vline.Stage()
 	}
 	vlineDB.CopyBasicFieldsToVLine(vline)
+
+	// in some cases, the instance might have been unstaged. It is necessary to stage it again
+	vline.Stage()
 
 	// preserve pointer to vlineDB. Otherwise, pointer will is recycled and the map of pointers
 	// Map_VLineDBID_VLineDB)[vlineDB hold variable pointers

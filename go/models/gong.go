@@ -126,7 +126,13 @@ type StageStruct struct { // insertion point for definition of arrays registerin
 	// store meta package import
 	MetaPackageImportPath  string
 	MetaPackageImportAlias string
-	Map_DocLink_Renaming   map[string]string
+	Map_DocLink_Renaming   map[string]GONG__Identifier
+}
+
+// swagger:ignore
+type GONG__Identifier struct {
+	Ident string
+	Type  GONG__ExpressionType
 }
 
 type OnInitCommitInterface interface {
@@ -1331,6 +1337,49 @@ func (stage *StageStruct) Nil() { // insertion point for array nil
 
 	stage.VisualTracks = nil
 	stage.VisualTracks_mapString = nil
+
+}
+
+func (stage *StageStruct) Unstage() { // insertion point for array nil
+	for checkoutscheduler := range stage.CheckoutSchedulers {
+		checkoutscheduler.Unstage()
+	}
+
+	for circle := range stage.Circles {
+		circle.Unstage()
+	}
+
+	for divicon := range stage.DivIcons {
+		divicon.Unstage()
+	}
+
+	for layergroup := range stage.LayerGroups {
+		layergroup.Unstage()
+	}
+
+	for layergroupuse := range stage.LayerGroupUses {
+		layergroupuse.Unstage()
+	}
+
+	for mapoptions := range stage.MapOptionss {
+		mapoptions.Unstage()
+	}
+
+	for marker := range stage.Markers {
+		marker.Unstage()
+	}
+
+	for userclick := range stage.UserClicks {
+		userclick.Unstage()
+	}
+
+	for vline := range stage.VLines {
+		vline.Unstage()
+	}
+
+	for visualtrack := range stage.VisualTracks {
+		visualtrack.Unstage()
+	}
 
 }
 

@@ -324,8 +324,7 @@ func (backRepoMapOptions *BackRepoMapOptionsStruct) CommitPhaseTwoInstance(backR
 // BackRepoMapOptions.CheckoutPhaseOne Checkouts all BackRepo instances to the Stage
 //
 // Phase One will result in having instances on the stage aligned with the back repo
-// pointers are not initialized yet (this is for pahse two)
-//
+// pointers are not initialized yet (this is for phase two)
 func (backRepoMapOptions *BackRepoMapOptionsStruct) CheckoutPhaseOne() (Error error) {
 
 	mapoptionsDBArray := make([]MapOptionsDB, 0)
@@ -383,6 +382,9 @@ func (backRepoMapOptions *BackRepoMapOptionsStruct) CheckoutPhaseOneInstance(map
 		mapoptions.Stage()
 	}
 	mapoptionsDB.CopyBasicFieldsToMapOptions(mapoptions)
+
+	// in some cases, the instance might have been unstaged. It is necessary to stage it again
+	mapoptions.Stage()
 
 	// preserve pointer to mapoptionsDB. Otherwise, pointer will is recycled and the map of pointers
 	// Map_MapOptionsDBID_MapOptionsDB)[mapoptionsDB hold variable pointers

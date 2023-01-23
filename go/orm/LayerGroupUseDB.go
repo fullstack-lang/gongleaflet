@@ -275,8 +275,7 @@ func (backRepoLayerGroupUse *BackRepoLayerGroupUseStruct) CommitPhaseTwoInstance
 // BackRepoLayerGroupUse.CheckoutPhaseOne Checkouts all BackRepo instances to the Stage
 //
 // Phase One will result in having instances on the stage aligned with the back repo
-// pointers are not initialized yet (this is for pahse two)
-//
+// pointers are not initialized yet (this is for phase two)
 func (backRepoLayerGroupUse *BackRepoLayerGroupUseStruct) CheckoutPhaseOne() (Error error) {
 
 	layergroupuseDBArray := make([]LayerGroupUseDB, 0)
@@ -334,6 +333,9 @@ func (backRepoLayerGroupUse *BackRepoLayerGroupUseStruct) CheckoutPhaseOneInstan
 		layergroupuse.Stage()
 	}
 	layergroupuseDB.CopyBasicFieldsToLayerGroupUse(layergroupuse)
+
+	// in some cases, the instance might have been unstaged. It is necessary to stage it again
+	layergroupuse.Stage()
 
 	// preserve pointer to layergroupuseDB. Otherwise, pointer will is recycled and the map of pointers
 	// Map_LayerGroupUseDBID_LayerGroupUseDB)[layergroupuseDB hold variable pointers

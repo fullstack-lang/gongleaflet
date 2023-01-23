@@ -292,8 +292,7 @@ func (backRepoCircle *BackRepoCircleStruct) CommitPhaseTwoInstance(backRepo *Bac
 // BackRepoCircle.CheckoutPhaseOne Checkouts all BackRepo instances to the Stage
 //
 // Phase One will result in having instances on the stage aligned with the back repo
-// pointers are not initialized yet (this is for pahse two)
-//
+// pointers are not initialized yet (this is for phase two)
 func (backRepoCircle *BackRepoCircleStruct) CheckoutPhaseOne() (Error error) {
 
 	circleDBArray := make([]CircleDB, 0)
@@ -351,6 +350,9 @@ func (backRepoCircle *BackRepoCircleStruct) CheckoutPhaseOneInstance(circleDB *C
 		circle.Stage()
 	}
 	circleDB.CopyBasicFieldsToCircle(circle)
+
+	// in some cases, the instance might have been unstaged. It is necessary to stage it again
+	circle.Stage()
 
 	// preserve pointer to circleDB. Otherwise, pointer will is recycled and the map of pointers
 	// Map_CircleDBID_CircleDB)[circleDB hold variable pointers
