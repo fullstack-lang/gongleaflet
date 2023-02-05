@@ -9,10 +9,10 @@
     "experimentalDecorators": true,
     "moduleResolution": "node",
     "importHelpers": true,
-    "target": "es2020",
+    "target": "ES2022",
     "module": "es2020",
     "strict": true,
-    "skipLibCheck": true, // for compiling jointjs
+    "skipLibCheck": true,
     "lib": [
       "es2018",
       "dom"
@@ -27,6 +27,7 @@
       "gongleafletspecific": [
         "./projects/gongleafletspecific/src/public-api.ts"
       ]
-    }
+    },
+    "useDefineForClassFields": false
   }
 }
