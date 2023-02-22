@@ -52,6 +52,19 @@ func GetVLines(c *gin.Context) {
 
 	// source slice
 	var vlineDBs []orm.VLineDB
+
+	// type Values map[string][]string
+	values := c.Request.URL.Query()
+	if len(values) == 1 {
+		value := values["GONG__StackPath"]
+		if len(value) == 1 {
+			// we have a single parameter
+			// we assume it is the stack
+			stackParam := value[0]
+			log.Println("GONG__StackPath", stackParam)
+		}
+	}
+
 	query := db.Find(&vlineDBs)
 	if query.Error != nil {
 		var returnError GenericError
@@ -96,7 +109,6 @@ func GetVLines(c *gin.Context) {
 //	Responses:
 //	  200: nodeDBResponse
 func PostVLine(c *gin.Context) {
-	db := orm.BackRepo.BackRepoVLine.GetDB()
 
 	// Validate input
 	var input orm.VLineAPI
@@ -116,6 +128,7 @@ func PostVLine(c *gin.Context) {
 	vlineDB.VLinePointersEnconding = input.VLinePointersEnconding
 	vlineDB.CopyBasicFieldsFromVLine(&input.VLine)
 
+	db := orm.BackRepo.BackRepoVLine.GetDB()
 	query := db.Create(&vlineDB)
 	if query.Error != nil {
 		var returnError GenericError
@@ -152,6 +165,19 @@ func PostVLine(c *gin.Context) {
 //
 //	200: vlineDBResponse
 func GetVLine(c *gin.Context) {
+
+	// type Values map[string][]string
+	values := c.Request.URL.Query()
+	if len(values) == 1 {
+		value := values["stack"]
+		if len(value) == 1 {
+			// we have a single parameter
+			// we assume it is the stack
+			stackParam := value[0]
+			log.Println("GET params", stackParam)
+		}
+	}
+
 	db := orm.BackRepo.BackRepoVLine.GetDB()
 
 	// Get vlineDB in DB
@@ -184,6 +210,15 @@ func GetVLine(c *gin.Context) {
 //
 //	200: vlineDBResponse
 func UpdateVLine(c *gin.Context) {
+
+	// Validate input
+	var input orm.VLineAPI
+	if err := c.ShouldBindJSON(&input); err != nil {
+		log.Println(err.Error())
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
 	db := orm.BackRepo.BackRepoVLine.GetDB()
 
 	// Get model if exist
@@ -198,14 +233,6 @@ func UpdateVLine(c *gin.Context) {
 		returnError.Body.Message = query.Error.Error()
 		log.Println(query.Error.Error())
 		c.JSON(http.StatusBadRequest, returnError.Body)
-		return
-	}
-
-	// Validate input
-	var input orm.VLineAPI
-	if err := c.ShouldBindJSON(&input); err != nil {
-		log.Println(err.Error())
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 

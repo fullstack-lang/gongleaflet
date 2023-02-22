@@ -78,6 +78,5 @@ export * from './lib/visualtrack.service'
 
 export * from './lib/ColorEnum'
 export * from './lib/DashStyleEnum'
-export * from './lib/GONG__ExpressionType'
 export * from './lib/Start_To_End_Enum'
 export * from './lib/TransmittingEnum'

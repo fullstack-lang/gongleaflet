@@ -1447,31 +1447,38 @@ type GongstructMapString interface {
 
 // GongGetSet returns the set staged GongstructType instances
 // it is usefull because it allows refactoring of gong struct identifier
-func GongGetSet[Type GongstructSet]() *Type {
+func GongGetSet[Type GongstructSet](stages ...*StageStruct) *Type {
 	var ret Type
+
+	var stage *StageStruct
+	if len(stages) > 0 {
+		stage = stages[0]
+	} else {
+		stage = &Stage
+	}
 
 	switch any(ret).(type) {
 	// insertion point for generic get functions
 	case map[*CheckoutScheduler]any:
-		return any(&Stage.CheckoutSchedulers).(*Type)
+		return any(&stage.CheckoutSchedulers).(*Type)
 	case map[*Circle]any:
-		return any(&Stage.Circles).(*Type)
+		return any(&stage.Circles).(*Type)
 	case map[*DivIcon]any:
-		return any(&Stage.DivIcons).(*Type)
+		return any(&stage.DivIcons).(*Type)
 	case map[*LayerGroup]any:
-		return any(&Stage.LayerGroups).(*Type)
+		return any(&stage.LayerGroups).(*Type)
 	case map[*LayerGroupUse]any:
-		return any(&Stage.LayerGroupUses).(*Type)
+		return any(&stage.LayerGroupUses).(*Type)
 	case map[*MapOptions]any:
-		return any(&Stage.MapOptionss).(*Type)
+		return any(&stage.MapOptionss).(*Type)
 	case map[*Marker]any:
-		return any(&Stage.Markers).(*Type)
+		return any(&stage.Markers).(*Type)
 	case map[*UserClick]any:
-		return any(&Stage.UserClicks).(*Type)
+		return any(&stage.UserClicks).(*Type)
 	case map[*VLine]any:
-		return any(&Stage.VLines).(*Type)
+		return any(&stage.VLines).(*Type)
 	case map[*VisualTrack]any:
-		return any(&Stage.VisualTracks).(*Type)
+		return any(&stage.VisualTracks).(*Type)
 	default:
 		return nil
 	}
@@ -1479,31 +1486,38 @@ func GongGetSet[Type GongstructSet]() *Type {
 
 // GongGetMap returns the map of staged GongstructType instances
 // it is usefull because it allows refactoring of gong struct identifier
-func GongGetMap[Type GongstructMapString]() *Type {
+func GongGetMap[Type GongstructMapString](stages ...*StageStruct) *Type {
 	var ret Type
+
+	var stage *StageStruct
+	if len(stages) > 0 {
+		stage = stages[0]
+	} else {
+		stage = &Stage
+	}
 
 	switch any(ret).(type) {
 	// insertion point for generic get functions
 	case map[string]*CheckoutScheduler:
-		return any(&Stage.CheckoutSchedulers_mapString).(*Type)
+		return any(&stage.CheckoutSchedulers_mapString).(*Type)
 	case map[string]*Circle:
-		return any(&Stage.Circles_mapString).(*Type)
+		return any(&stage.Circles_mapString).(*Type)
 	case map[string]*DivIcon:
-		return any(&Stage.DivIcons_mapString).(*Type)
+		return any(&stage.DivIcons_mapString).(*Type)
 	case map[string]*LayerGroup:
-		return any(&Stage.LayerGroups_mapString).(*Type)
+		return any(&stage.LayerGroups_mapString).(*Type)
 	case map[string]*LayerGroupUse:
-		return any(&Stage.LayerGroupUses_mapString).(*Type)
+		return any(&stage.LayerGroupUses_mapString).(*Type)
 	case map[string]*MapOptions:
-		return any(&Stage.MapOptionss_mapString).(*Type)
+		return any(&stage.MapOptionss_mapString).(*Type)
 	case map[string]*Marker:
-		return any(&Stage.Markers_mapString).(*Type)
+		return any(&stage.Markers_mapString).(*Type)
 	case map[string]*UserClick:
-		return any(&Stage.UserClicks_mapString).(*Type)
+		return any(&stage.UserClicks_mapString).(*Type)
 	case map[string]*VLine:
-		return any(&Stage.VLines_mapString).(*Type)
+		return any(&stage.VLines_mapString).(*Type)
 	case map[string]*VisualTrack:
-		return any(&Stage.VisualTracks_mapString).(*Type)
+		return any(&stage.VisualTracks_mapString).(*Type)
 	default:
 		return nil
 	}
@@ -1511,31 +1525,38 @@ func GongGetMap[Type GongstructMapString]() *Type {
 
 // GetGongstructInstancesSet returns the set staged GongstructType instances
 // it is usefull because it allows refactoring of gongstruct identifier
-func GetGongstructInstancesSet[Type Gongstruct]() *map[*Type]any {
+func GetGongstructInstancesSet[Type Gongstruct](stages ...*StageStruct) *map[*Type]any {
 	var ret Type
+
+	var stage *StageStruct
+	if len(stages) > 0 {
+		stage = stages[0]
+	} else {
+		stage = &Stage
+	}
 
 	switch any(ret).(type) {
 	// insertion point for generic get functions
 	case CheckoutScheduler:
-		return any(&Stage.CheckoutSchedulers).(*map[*Type]any)
+		return any(&stage.CheckoutSchedulers).(*map[*Type]any)
 	case Circle:
-		return any(&Stage.Circles).(*map[*Type]any)
+		return any(&stage.Circles).(*map[*Type]any)
 	case DivIcon:
-		return any(&Stage.DivIcons).(*map[*Type]any)
+		return any(&stage.DivIcons).(*map[*Type]any)
 	case LayerGroup:
-		return any(&Stage.LayerGroups).(*map[*Type]any)
+		return any(&stage.LayerGroups).(*map[*Type]any)
 	case LayerGroupUse:
-		return any(&Stage.LayerGroupUses).(*map[*Type]any)
+		return any(&stage.LayerGroupUses).(*map[*Type]any)
 	case MapOptions:
-		return any(&Stage.MapOptionss).(*map[*Type]any)
+		return any(&stage.MapOptionss).(*map[*Type]any)
 	case Marker:
-		return any(&Stage.Markers).(*map[*Type]any)
+		return any(&stage.Markers).(*map[*Type]any)
 	case UserClick:
-		return any(&Stage.UserClicks).(*map[*Type]any)
+		return any(&stage.UserClicks).(*map[*Type]any)
 	case VLine:
-		return any(&Stage.VLines).(*map[*Type]any)
+		return any(&stage.VLines).(*map[*Type]any)
 	case VisualTrack:
-		return any(&Stage.VisualTracks).(*map[*Type]any)
+		return any(&stage.VisualTracks).(*map[*Type]any)
 	default:
 		return nil
 	}
@@ -1543,31 +1564,38 @@ func GetGongstructInstancesSet[Type Gongstruct]() *map[*Type]any {
 
 // GetGongstructInstancesMap returns the map of staged GongstructType instances
 // it is usefull because it allows refactoring of gong struct identifier
-func GetGongstructInstancesMap[Type Gongstruct]() *map[string]*Type {
+func GetGongstructInstancesMap[Type Gongstruct](stages ...*StageStruct) *map[string]*Type {
 	var ret Type
+
+	var stage *StageStruct
+	if len(stages) > 0 {
+		stage = stages[0]
+	} else {
+		stage = &Stage
+	}
 
 	switch any(ret).(type) {
 	// insertion point for generic get functions
 	case CheckoutScheduler:
-		return any(&Stage.CheckoutSchedulers_mapString).(*map[string]*Type)
+		return any(&stage.CheckoutSchedulers_mapString).(*map[string]*Type)
 	case Circle:
-		return any(&Stage.Circles_mapString).(*map[string]*Type)
+		return any(&stage.Circles_mapString).(*map[string]*Type)
 	case DivIcon:
-		return any(&Stage.DivIcons_mapString).(*map[string]*Type)
+		return any(&stage.DivIcons_mapString).(*map[string]*Type)
 	case LayerGroup:
-		return any(&Stage.LayerGroups_mapString).(*map[string]*Type)
+		return any(&stage.LayerGroups_mapString).(*map[string]*Type)
 	case LayerGroupUse:
-		return any(&Stage.LayerGroupUses_mapString).(*map[string]*Type)
+		return any(&stage.LayerGroupUses_mapString).(*map[string]*Type)
 	case MapOptions:
-		return any(&Stage.MapOptionss_mapString).(*map[string]*Type)
+		return any(&stage.MapOptionss_mapString).(*map[string]*Type)
 	case Marker:
-		return any(&Stage.Markers_mapString).(*map[string]*Type)
+		return any(&stage.Markers_mapString).(*map[string]*Type)
 	case UserClick:
-		return any(&Stage.UserClicks_mapString).(*map[string]*Type)
+		return any(&stage.UserClicks_mapString).(*map[string]*Type)
 	case VLine:
-		return any(&Stage.VLines_mapString).(*map[string]*Type)
+		return any(&stage.VLines_mapString).(*map[string]*Type)
 	case VisualTrack:
-		return any(&Stage.VisualTracks_mapString).(*map[string]*Type)
+		return any(&stage.VisualTracks_mapString).(*map[string]*Type)
 	default:
 		return nil
 	}

@@ -52,6 +52,19 @@ func GetMapOptionss(c *gin.Context) {
 
 	// source slice
 	var mapoptionsDBs []orm.MapOptionsDB
+
+	// type Values map[string][]string
+	values := c.Request.URL.Query()
+	if len(values) == 1 {
+		value := values["GONG__StackPath"]
+		if len(value) == 1 {
+			// we have a single parameter
+			// we assume it is the stack
+			stackParam := value[0]
+			log.Println("GONG__StackPath", stackParam)
+		}
+	}
+
 	query := db.Find(&mapoptionsDBs)
 	if query.Error != nil {
 		var returnError GenericError
@@ -96,7 +109,6 @@ func GetMapOptionss(c *gin.Context) {
 //	Responses:
 //	  200: nodeDBResponse
 func PostMapOptions(c *gin.Context) {
-	db := orm.BackRepo.BackRepoMapOptions.GetDB()
 
 	// Validate input
 	var input orm.MapOptionsAPI
@@ -116,6 +128,7 @@ func PostMapOptions(c *gin.Context) {
 	mapoptionsDB.MapOptionsPointersEnconding = input.MapOptionsPointersEnconding
 	mapoptionsDB.CopyBasicFieldsFromMapOptions(&input.MapOptions)
 
+	db := orm.BackRepo.BackRepoMapOptions.GetDB()
 	query := db.Create(&mapoptionsDB)
 	if query.Error != nil {
 		var returnError GenericError
@@ -152,6 +165,19 @@ func PostMapOptions(c *gin.Context) {
 //
 //	200: mapoptionsDBResponse
 func GetMapOptions(c *gin.Context) {
+
+	// type Values map[string][]string
+	values := c.Request.URL.Query()
+	if len(values) == 1 {
+		value := values["stack"]
+		if len(value) == 1 {
+			// we have a single parameter
+			// we assume it is the stack
+			stackParam := value[0]
+			log.Println("GET params", stackParam)
+		}
+	}
+
 	db := orm.BackRepo.BackRepoMapOptions.GetDB()
 
 	// Get mapoptionsDB in DB
@@ -184,6 +210,15 @@ func GetMapOptions(c *gin.Context) {
 //
 //	200: mapoptionsDBResponse
 func UpdateMapOptions(c *gin.Context) {
+
+	// Validate input
+	var input orm.MapOptionsAPI
+	if err := c.ShouldBindJSON(&input); err != nil {
+		log.Println(err.Error())
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
 	db := orm.BackRepo.BackRepoMapOptions.GetDB()
 
 	// Get model if exist
@@ -198,14 +233,6 @@ func UpdateMapOptions(c *gin.Context) {
 		returnError.Body.Message = query.Error.Error()
 		log.Println(query.Error.Error())
 		c.JSON(http.StatusBadRequest, returnError.Body)
-		return
-	}
-
-	// Validate input
-	var input orm.MapOptionsAPI
-	if err := c.ShouldBindJSON(&input); err != nil {
-		log.Println(err.Error())
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
