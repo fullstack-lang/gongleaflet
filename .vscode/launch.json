@@ -48,5 +48,14 @@
                 "-marshallOnCommit=stage"
             ]
         },
+        {
+            "name": "go server",
+            "type": "go",
+            "request": "launch",
+            "mode": "debug",
+            "program": "${workspaceFolder}/go/cmd/gongleaflet",
+            "args": [
+            ]
+        },
     ]
 }

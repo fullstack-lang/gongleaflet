@@ -16,7 +16,6 @@ import (
 	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
 
-	gongleaflet_controllers "github.com/fullstack-lang/gongleaflet/go/controllers"
 	"github.com/fullstack-lang/gongleaflet/go/fullstack"
 	gongleaflet_models "github.com/fullstack-lang/gongleaflet/go/models"
 
@@ -72,7 +71,6 @@ func main() {
 
 	stage, _ := fullstack.NewStackInstance(r, "")
 
-	gongleaflet_controllers.RegisterControllers(r)
 	r.Use(static.Serve("/", EmbedFolder(gongleaflet.NgDistNg, "ng/dist/ng")))
 	r.NoRoute(func(c *gin.Context) {
 		fmt.Println(c.Request.URL.Path, "doesn't exists, redirect on /")
