@@ -100,7 +100,7 @@ export class MarkerSortingComponent implements OnInit {
 
     this.associatedMarkers.forEach(
       marker => {
-        this.markerService.updateMarker(marker)
+        this.markerService.updateMarker(marker, this.dialogData.GONG__StackPath)
           .subscribe(marker => {
             this.markerService.MarkerServiceChanged.next("update")
           });

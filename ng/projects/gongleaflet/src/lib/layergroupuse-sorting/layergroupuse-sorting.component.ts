@@ -100,7 +100,7 @@ export class LayerGroupUseSortingComponent implements OnInit {
 
     this.associatedLayerGroupUses.forEach(
       layergroupuse => {
-        this.layergroupuseService.updateLayerGroupUse(layergroupuse)
+        this.layergroupuseService.updateLayerGroupUse(layergroupuse, this.dialogData.GONG__StackPath)
           .subscribe(layergroupuse => {
             this.layergroupuseService.LayerGroupUseServiceChanged.next("update")
           });

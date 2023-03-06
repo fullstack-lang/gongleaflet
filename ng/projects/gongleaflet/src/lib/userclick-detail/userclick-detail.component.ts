@@ -152,13 +152,13 @@ export class UserClickDetailComponent implements OnInit {
 
 		switch (this.state) {
 			case UserClickDetailComponentState.UPDATE_INSTANCE:
-				this.userclickService.updateUserClick(this.userclick)
+				this.userclickService.updateUserClick(this.userclick, this.GONG__StackPath)
 					.subscribe(userclick => {
 						this.userclickService.UserClickServiceChanged.next("update")
 					});
 				break;
 			default:
-				this.userclickService.postUserClick(this.userclick).subscribe(userclick => {
+				this.userclickService.postUserClick(this.userclick, this.GONG__StackPath).subscribe(userclick => {
 					this.userclickService.UserClickServiceChanged.next("post")
 					this.userclick = new (UserClickDB) // reset fields
 				});

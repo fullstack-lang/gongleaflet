@@ -100,7 +100,7 @@ export class VLineSortingComponent implements OnInit {
 
     this.associatedVLines.forEach(
       vline => {
-        this.vlineService.updateVLine(vline)
+        this.vlineService.updateVLine(vline, this.dialogData.GONG__StackPath)
           .subscribe(vline => {
             this.vlineService.VLineServiceChanged.next("update")
           });

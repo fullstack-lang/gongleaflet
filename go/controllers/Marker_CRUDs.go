@@ -47,23 +47,22 @@ type MarkerInput struct {
 // default: genericError
 //
 //	200: markerDBResponse
-func GetMarkers(c *gin.Context) {
-	db := orm.BackRepo.BackRepoMarker.GetDB()
+func (controller *Controller) GetMarkers(c *gin.Context) {
 
 	// source slice
 	var markerDBs []orm.MarkerDB
 
-	// type Values map[string][]string
 	values := c.Request.URL.Query()
+	stackPath := ""
 	if len(values) == 1 {
 		value := values["GONG__StackPath"]
 		if len(value) == 1 {
-			// we have a single parameter
-			// we assume it is the stack
-			stackParam := value[0]
-			log.Println("GONG__StackPath", stackParam)
+			stackPath = value[0]
+			log.Println("GetMarkers", "GONG__StackPath", stackPath)
 		}
 	}
+	backRepo := controller.Map_BackRepos[stackPath]
+	db := backRepo.BackRepoMarker.GetDB()
 
 	query := db.Find(&markerDBs)
 	if query.Error != nil {
@@ -108,7 +107,19 @@ func GetMarkers(c *gin.Context) {
 //
 //	Responses:
 //	  200: nodeDBResponse
-func PostMarker(c *gin.Context) {
+func (controller *Controller) PostMarker(c *gin.Context) {
+
+	values := c.Request.URL.Query()
+	stackPath := ""
+	if len(values) == 1 {
+		value := values["GONG__StackPath"]
+		if len(value) == 1 {
+			stackPath = value[0]
+			log.Println("PostMarkers", "GONG__StackPath", stackPath)
+		}
+	}
+	backRepo := controller.Map_BackRepos[stackPath]
+	db := backRepo.BackRepoMarker.GetDB()
 
 	// Validate input
 	var input orm.MarkerAPI
@@ -128,7 +139,6 @@ func PostMarker(c *gin.Context) {
 	markerDB.MarkerPointersEnconding = input.MarkerPointersEnconding
 	markerDB.CopyBasicFieldsFromMarker(&input.Marker)
 
-	db := orm.BackRepo.BackRepoMarker.GetDB()
 	query := db.Create(&markerDB)
 	if query.Error != nil {
 		var returnError GenericError
@@ -140,16 +150,16 @@ func PostMarker(c *gin.Context) {
 	}
 
 	// get an instance (not staged) from DB instance, and call callback function
-	orm.BackRepo.BackRepoMarker.CheckoutPhaseOneInstance(&markerDB)
-	marker := (*orm.BackRepo.BackRepoMarker.Map_MarkerDBID_MarkerPtr)[markerDB.ID]
+	backRepo.BackRepoMarker.CheckoutPhaseOneInstance(&markerDB)
+	marker := (*backRepo.BackRepoMarker.Map_MarkerDBID_MarkerPtr)[markerDB.ID]
 
 	if marker != nil {
-		models.AfterCreateFromFront(&models.Stage, marker)
+		models.AfterCreateFromFront(backRepo.GetStage(), marker)
 	}
 
 	// a POST is equivalent to a back repo commit increase
 	// (this will be improved with implementation of unit of work design pattern)
-	orm.BackRepo.IncrementPushFromFrontNb()
+	backRepo.IncrementPushFromFrontNb()
 
 	c.JSON(http.StatusOK, markerDB)
 }
@@ -164,21 +174,19 @@ func PostMarker(c *gin.Context) {
 // default: genericError
 //
 //	200: markerDBResponse
-func GetMarker(c *gin.Context) {
+func (controller *Controller) GetMarker(c *gin.Context) {
 
-	// type Values map[string][]string
 	values := c.Request.URL.Query()
+	stackPath := ""
 	if len(values) == 1 {
-		value := values["stack"]
+		value := values["GONG__StackPath"]
 		if len(value) == 1 {
-			// we have a single parameter
-			// we assume it is the stack
-			stackParam := value[0]
-			log.Println("GET params", stackParam)
+			stackPath = value[0]
+			log.Println("GetMarker", "GONG__StackPath", stackPath)
 		}
 	}
-
-	db := orm.BackRepo.BackRepoMarker.GetDB()
+	backRepo := controller.Map_BackRepos[stackPath]
+	db := backRepo.BackRepoMarker.GetDB()
 
 	// Get markerDB in DB
 	var markerDB orm.MarkerDB
@@ -209,7 +217,19 @@ func GetMarker(c *gin.Context) {
 // default: genericError
 //
 //	200: markerDBResponse
-func UpdateMarker(c *gin.Context) {
+func (controller *Controller) UpdateMarker(c *gin.Context) {
+
+	values := c.Request.URL.Query()
+	stackPath := ""
+	if len(values) == 1 {
+		value := values["GONG__StackPath"]
+		if len(value) == 1 {
+			stackPath = value[0]
+			log.Println("UpdateMarker", "GONG__StackPath", stackPath)
+		}
+	}
+	backRepo := controller.Map_BackRepos[stackPath]
+	db := backRepo.BackRepoMarker.GetDB()
 
 	// Validate input
 	var input orm.MarkerAPI
@@ -218,8 +238,6 @@ func UpdateMarker(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-
-	db := orm.BackRepo.BackRepoMarker.GetDB()
 
 	// Get model if exist
 	var markerDB orm.MarkerDB
@@ -255,16 +273,16 @@ func UpdateMarker(c *gin.Context) {
 	markerDB.CopyBasicFieldsToMarker(markerNew)
 
 	// get stage instance from DB instance, and call callback function
-	markerOld := (*orm.BackRepo.BackRepoMarker.Map_MarkerDBID_MarkerPtr)[markerDB.ID]
+	markerOld := (*backRepo.BackRepoMarker.Map_MarkerDBID_MarkerPtr)[markerDB.ID]
 	if markerOld != nil {
-		models.AfterUpdateFromFront(&models.Stage, markerOld, markerNew)
+		models.AfterUpdateFromFront(backRepo.GetStage(), markerOld, markerNew)
 	}
 
 	// an UPDATE generates a back repo commit increase
 	// (this will be improved with implementation of unit of work design pattern)
 	// in some cases, with the marshalling of the stage, this operation might
 	// generates a checkout
-	orm.BackRepo.IncrementPushFromFrontNb()
+	backRepo.IncrementPushFromFrontNb()
 
 	// return status OK with the marshalling of the the markerDB
 	c.JSON(http.StatusOK, markerDB)
@@ -279,8 +297,19 @@ func UpdateMarker(c *gin.Context) {
 // default: genericError
 //
 //	200: markerDBResponse
-func DeleteMarker(c *gin.Context) {
-	db := orm.BackRepo.BackRepoMarker.GetDB()
+func (controller *Controller) DeleteMarker(c *gin.Context) {
+
+	values := c.Request.URL.Query()
+	stackPath := ""
+	if len(values) == 1 {
+		value := values["GONG__StackPath"]
+		if len(value) == 1 {
+			stackPath = value[0]
+			log.Println("DeleteMarker", "GONG__StackPath", stackPath)
+		}
+	}
+	backRepo := controller.Map_BackRepos[stackPath]
+	db := backRepo.BackRepoMarker.GetDB()
 
 	// Get model if exist
 	var markerDB orm.MarkerDB
@@ -301,14 +330,14 @@ func DeleteMarker(c *gin.Context) {
 	markerDB.CopyBasicFieldsToMarker(markerDeleted)
 
 	// get stage instance from DB instance, and call callback function
-	markerStaged := (*orm.BackRepo.BackRepoMarker.Map_MarkerDBID_MarkerPtr)[markerDB.ID]
+	markerStaged := (*backRepo.BackRepoMarker.Map_MarkerDBID_MarkerPtr)[markerDB.ID]
 	if markerStaged != nil {
-		models.AfterDeleteFromFront(&models.Stage, markerStaged, markerDeleted)
+		models.AfterDeleteFromFront(backRepo.GetStage(), markerStaged, markerDeleted)
 	}
 
 	// a DELETE generates a back repo commit increase
 	// (this will be improved with implementation of unit of work design pattern)
-	orm.BackRepo.IncrementPushFromFrontNb()
+	backRepo.IncrementPushFromFrontNb()
 
 	c.JSON(http.StatusOK, gin.H{"data": true})
 }

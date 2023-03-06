@@ -187,13 +187,13 @@ export class LayerGroupUseDetailComponent implements OnInit {
 
 		switch (this.state) {
 			case LayerGroupUseDetailComponentState.UPDATE_INSTANCE:
-				this.layergroupuseService.updateLayerGroupUse(this.layergroupuse)
+				this.layergroupuseService.updateLayerGroupUse(this.layergroupuse, this.GONG__StackPath)
 					.subscribe(layergroupuse => {
 						this.layergroupuseService.LayerGroupUseServiceChanged.next("update")
 					});
 				break;
 			default:
-				this.layergroupuseService.postLayerGroupUse(this.layergroupuse).subscribe(layergroupuse => {
+				this.layergroupuseService.postLayerGroupUse(this.layergroupuse, this.GONG__StackPath).subscribe(layergroupuse => {
 					this.layergroupuseService.LayerGroupUseServiceChanged.next("post")
 					this.layergroupuse = new (LayerGroupUseDB) // reset fields
 				});

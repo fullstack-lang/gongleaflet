@@ -100,7 +100,7 @@ export class UserClickSortingComponent implements OnInit {
 
     this.associatedUserClicks.forEach(
       userclick => {
-        this.userclickService.updateUserClick(userclick)
+        this.userclickService.updateUserClick(userclick, this.dialogData.GONG__StackPath)
           .subscribe(userclick => {
             this.userclickService.UserClickServiceChanged.next("update")
           });

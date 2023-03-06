@@ -120,6 +120,13 @@ type BackRepoUserClickStruct struct {
 	Map_UserClickDBID_UserClickPtr *map[uint]*models.UserClick
 
 	db *gorm.DB
+
+	stage *models.StageStruct
+}
+
+func (backRepoUserClick *BackRepoUserClickStruct) GetStage() (stage *models.StageStruct) {
+	stage = backRepoUserClick.stage
+	return
 }
 
 func (backRepoUserClick *BackRepoUserClickStruct) GetDB() *gorm.DB {
@@ -134,7 +141,7 @@ func (backRepoUserClick *BackRepoUserClickStruct) GetUserClickDBFromUserClickPtr
 }
 
 // BackRepoUserClick.Init set up the BackRepo of the UserClick
-func (backRepoUserClick *BackRepoUserClickStruct) Init(db *gorm.DB) (Error error) {
+func (backRepoUserClick *BackRepoUserClickStruct) Init(stage *models.StageStruct, db *gorm.DB) (Error error) {
 
 	if backRepoUserClick.Map_UserClickDBID_UserClickPtr != nil {
 		err := errors.New("In Init, backRepoUserClick.Map_UserClickDBID_UserClickPtr should be nil")
@@ -161,6 +168,7 @@ func (backRepoUserClick *BackRepoUserClickStruct) Init(db *gorm.DB) (Error error
 	backRepoUserClick.Map_UserClickPtr_UserClickDBID = &tmpID
 
 	backRepoUserClick.db = db
+	backRepoUserClick.stage = stage
 	return
 }
 
@@ -279,7 +287,7 @@ func (backRepoUserClick *BackRepoUserClickStruct) CheckoutPhaseOne() (Error erro
 	// list of instances to be removed
 	// start from the initial map on the stage and remove instances that have been checked out
 	userclickInstancesToBeRemovedFromTheStage := make(map[*models.UserClick]any)
-	for key, value := range models.Stage.UserClicks {
+	for key, value := range backRepoUserClick.stage.UserClicks {
 		userclickInstancesToBeRemovedFromTheStage[key] = value
 	}
 
@@ -297,7 +305,7 @@ func (backRepoUserClick *BackRepoUserClickStruct) CheckoutPhaseOne() (Error erro
 
 	// remove from stage and back repo's 3 maps all userclicks that are not in the checkout
 	for userclick := range userclickInstancesToBeRemovedFromTheStage {
-		userclick.Unstage()
+		userclick.Unstage(backRepoUserClick.GetStage())
 
 		// remove instance from the back repo 3 maps
 		userclickID := (*backRepoUserClick.Map_UserClickPtr_UserClickDBID)[userclick]
@@ -322,12 +330,12 @@ func (backRepoUserClick *BackRepoUserClickStruct) CheckoutPhaseOneInstance(userc
 
 		// append model store with the new element
 		userclick.Name = userclickDB.Name_Data.String
-		userclick.Stage()
+		userclick.Stage(backRepoUserClick.GetStage())
 	}
 	userclickDB.CopyBasicFieldsToUserClick(userclick)
 
 	// in some cases, the instance might have been unstaged. It is necessary to stage it again
-	userclick.Stage()
+	userclick.Stage(backRepoUserClick.GetStage())
 
 	// preserve pointer to userclickDB. Otherwise, pointer will is recycled and the map of pointers
 	// Map_UserClickDBID_UserClickDB)[userclickDB hold variable pointers

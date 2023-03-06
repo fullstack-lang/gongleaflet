@@ -111,7 +111,7 @@
         <ng-container matColumnDef="Delete" sticky>
             <th mat-header-cell *matHeaderCellDef> Delete </th>
             <td mat-cell *matCellDef="let visualtrack;  let j = index;">
-                <i class="material-icons" [ngStyle]="{'color':'rgba(0,0,0,.50)'}" (click)="deleteVisualTrack(visualtrack.ID, visualtrack)">delete</i>
+                <i class="material-icons my-delete-button" [ngStyle]="{'color':'rgba(0,0,0,.50)'}" (click)="deleteVisualTrack(visualtrack.ID, visualtrack); $event.stopPropagation()">delete</i>
             </td>
         </ng-container>
 

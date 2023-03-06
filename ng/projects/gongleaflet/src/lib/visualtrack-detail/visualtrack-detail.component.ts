@@ -181,13 +181,13 @@ export class VisualTrackDetailComponent implements OnInit {
 
 		switch (this.state) {
 			case VisualTrackDetailComponentState.UPDATE_INSTANCE:
-				this.visualtrackService.updateVisualTrack(this.visualtrack)
+				this.visualtrackService.updateVisualTrack(this.visualtrack, this.GONG__StackPath)
 					.subscribe(visualtrack => {
 						this.visualtrackService.VisualTrackServiceChanged.next("update")
 					});
 				break;
 			default:
-				this.visualtrackService.postVisualTrack(this.visualtrack).subscribe(visualtrack => {
+				this.visualtrackService.postVisualTrack(this.visualtrack, this.GONG__StackPath).subscribe(visualtrack => {
 					this.visualtrackService.VisualTrackServiceChanged.next("post")
 					this.visualtrack = new (VisualTrackDB) // reset fields
 				});

@@ -22,10 +22,6 @@ import { MapOptionsDB } from './mapoptions-db'
 })
 export class LayerGroupUseService {
 
-  httpOptions = {
-    headers: new HttpHeaders({ 'Content-Type': 'application/json' })
-  };
-
   // Kamar Raïmo: Adding a way to communicate between components that share information
   // so that they are notified of a change.
   LayerGroupUseServiceChanged: BehaviorSubject<string> = new BehaviorSubject("");
@@ -34,7 +30,6 @@ export class LayerGroupUseService {
 
   constructor(
     private http: HttpClient,
-    private location: Location,
     @Inject(DOCUMENT) private document: Document
   ) {
     // path to the service share the same origin with the path to the document
@@ -69,17 +64,21 @@ export class LayerGroupUseService {
     );
   }
 
-  //////// Save methods //////////
-
   /** POST: add a new layergroupuse to the server */
-  postLayerGroupUse(layergroupusedb: LayerGroupUseDB): Observable<LayerGroupUseDB> {
+  postLayerGroupUse(layergroupusedb: LayerGroupUseDB, GONG__StackPath: string): Observable<LayerGroupUseDB> {
 
     // insertion point for reset of pointers and reverse pointers (to avoid circular JSON)
     layergroupusedb.LayerGroup = new LayerGroupDB
     let _MapOptions_LayerGroupUses_reverse = layergroupusedb.MapOptions_LayerGroupUses_reverse
     layergroupusedb.MapOptions_LayerGroupUses_reverse = new MapOptionsDB
 
-    return this.http.post<LayerGroupUseDB>(this.layergroupusesUrl, layergroupusedb, this.httpOptions).pipe(
+    let params = new HttpParams().set("GONG__StackPath", GONG__StackPath)
+    let httpOptions = {
+      headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
+      params: params
+    }
+
+	return this.http.post<LayerGroupUseDB>(this.layergroupusesUrl, layergroupusedb, httpOptions).pipe(
       tap(_ => {
         // insertion point for restoration of reverse pointers
         layergroupusedb.MapOptions_LayerGroupUses_reverse = _MapOptions_LayerGroupUses_reverse
@@ -90,18 +89,24 @@ export class LayerGroupUseService {
   }
 
   /** DELETE: delete the layergroupusedb from the server */
-  deleteLayerGroupUse(layergroupusedb: LayerGroupUseDB | number): Observable<LayerGroupUseDB> {
+  deleteLayerGroupUse(layergroupusedb: LayerGroupUseDB | number, GONG__StackPath: string): Observable<LayerGroupUseDB> {
     const id = typeof layergroupusedb === 'number' ? layergroupusedb : layergroupusedb.ID;
     const url = `${this.layergroupusesUrl}/${id}`;
 
-    return this.http.delete<LayerGroupUseDB>(url, this.httpOptions).pipe(
+    let params = new HttpParams().set("GONG__StackPath", GONG__StackPath)
+    let httpOptions = {
+      headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
+      params: params
+    };
+
+    return this.http.delete<LayerGroupUseDB>(url, httpOptions).pipe(
       tap(_ => this.log(`deleted layergroupusedb id=${id}`)),
       catchError(this.handleError<LayerGroupUseDB>('deleteLayerGroupUse'))
     );
   }
 
   /** PUT: update the layergroupusedb on the server */
-  updateLayerGroupUse(layergroupusedb: LayerGroupUseDB): Observable<LayerGroupUseDB> {
+  updateLayerGroupUse(layergroupusedb: LayerGroupUseDB, GONG__StackPath: string): Observable<LayerGroupUseDB> {
     const id = typeof layergroupusedb === 'number' ? layergroupusedb : layergroupusedb.ID;
     const url = `${this.layergroupusesUrl}/${id}`;
 
@@ -110,7 +115,13 @@ export class LayerGroupUseService {
     let _MapOptions_LayerGroupUses_reverse = layergroupusedb.MapOptions_LayerGroupUses_reverse
     layergroupusedb.MapOptions_LayerGroupUses_reverse = new MapOptionsDB
 
-    return this.http.put<LayerGroupUseDB>(url, layergroupusedb, this.httpOptions).pipe(
+    let params = new HttpParams().set("GONG__StackPath", GONG__StackPath)
+    let httpOptions = {
+      headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
+      params: params
+    };
+
+    return this.http.put<LayerGroupUseDB>(url, layergroupusedb, httpOptions).pipe(
       tap(_ => {
         // insertion point for restoration of reverse pointers
         layergroupusedb.MapOptions_LayerGroupUses_reverse = _MapOptions_LayerGroupUses_reverse

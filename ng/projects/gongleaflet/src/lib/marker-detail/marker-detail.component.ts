@@ -175,13 +175,13 @@ export class MarkerDetailComponent implements OnInit {
 
 		switch (this.state) {
 			case MarkerDetailComponentState.UPDATE_INSTANCE:
-				this.markerService.updateMarker(this.marker)
+				this.markerService.updateMarker(this.marker, this.GONG__StackPath)
 					.subscribe(marker => {
 						this.markerService.MarkerServiceChanged.next("update")
 					});
 				break;
 			default:
-				this.markerService.postMarker(this.marker).subscribe(marker => {
+				this.markerService.postMarker(this.marker, this.GONG__StackPath).subscribe(marker => {
 					this.markerService.MarkerServiceChanged.next("post")
 					this.marker = new (MarkerDB) // reset fields
 				});

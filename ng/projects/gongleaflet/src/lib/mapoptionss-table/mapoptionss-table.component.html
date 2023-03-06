@@ -97,7 +97,7 @@
         <ng-container matColumnDef="Delete" sticky>
             <th mat-header-cell *matHeaderCellDef> Delete </th>
             <td mat-cell *matCellDef="let mapoptions;  let j = index;">
-                <i class="material-icons" [ngStyle]="{'color':'rgba(0,0,0,.50)'}" (click)="deleteMapOptions(mapoptions.ID, mapoptions)">delete</i>
+                <i class="material-icons my-delete-button" [ngStyle]="{'color':'rgba(0,0,0,.50)'}" (click)="deleteMapOptions(mapoptions.ID, mapoptions); $event.stopPropagation()">delete</i>
             </td>
         </ng-container>
 

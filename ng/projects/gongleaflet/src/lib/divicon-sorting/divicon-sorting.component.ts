@@ -100,7 +100,7 @@ export class DivIconSortingComponent implements OnInit {
 
     this.associatedDivIcons.forEach(
       divicon => {
-        this.diviconService.updateDivIcon(divicon)
+        this.diviconService.updateDivIcon(divicon, this.dialogData.GONG__StackPath)
           .subscribe(divicon => {
             this.diviconService.DivIconServiceChanged.next("update")
           });

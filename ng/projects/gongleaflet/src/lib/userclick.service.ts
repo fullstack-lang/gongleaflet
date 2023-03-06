@@ -20,10 +20,6 @@ import { UserClickDB } from './userclick-db';
 })
 export class UserClickService {
 
-  httpOptions = {
-    headers: new HttpHeaders({ 'Content-Type': 'application/json' })
-  };
-
   // Kamar Raïmo: Adding a way to communicate between components that share information
   // so that they are notified of a change.
   UserClickServiceChanged: BehaviorSubject<string> = new BehaviorSubject("");
@@ -32,7 +28,6 @@ export class UserClickService {
 
   constructor(
     private http: HttpClient,
-    private location: Location,
     @Inject(DOCUMENT) private document: Document
   ) {
     // path to the service share the same origin with the path to the document
@@ -67,14 +62,18 @@ export class UserClickService {
     );
   }
 
-  //////// Save methods //////////
-
   /** POST: add a new userclick to the server */
-  postUserClick(userclickdb: UserClickDB): Observable<UserClickDB> {
+  postUserClick(userclickdb: UserClickDB, GONG__StackPath: string): Observable<UserClickDB> {
 
     // insertion point for reset of pointers and reverse pointers (to avoid circular JSON)
 
-    return this.http.post<UserClickDB>(this.userclicksUrl, userclickdb, this.httpOptions).pipe(
+    let params = new HttpParams().set("GONG__StackPath", GONG__StackPath)
+    let httpOptions = {
+      headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
+      params: params
+    }
+
+	return this.http.post<UserClickDB>(this.userclicksUrl, userclickdb, httpOptions).pipe(
       tap(_ => {
         // insertion point for restoration of reverse pointers
         this.log(`posted userclickdb id=${userclickdb.ID}`)
@@ -84,24 +83,36 @@ export class UserClickService {
   }
 
   /** DELETE: delete the userclickdb from the server */
-  deleteUserClick(userclickdb: UserClickDB | number): Observable<UserClickDB> {
+  deleteUserClick(userclickdb: UserClickDB | number, GONG__StackPath: string): Observable<UserClickDB> {
     const id = typeof userclickdb === 'number' ? userclickdb : userclickdb.ID;
     const url = `${this.userclicksUrl}/${id}`;
 
-    return this.http.delete<UserClickDB>(url, this.httpOptions).pipe(
+    let params = new HttpParams().set("GONG__StackPath", GONG__StackPath)
+    let httpOptions = {
+      headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
+      params: params
+    };
+
+    return this.http.delete<UserClickDB>(url, httpOptions).pipe(
       tap(_ => this.log(`deleted userclickdb id=${id}`)),
       catchError(this.handleError<UserClickDB>('deleteUserClick'))
     );
   }
 
   /** PUT: update the userclickdb on the server */
-  updateUserClick(userclickdb: UserClickDB): Observable<UserClickDB> {
+  updateUserClick(userclickdb: UserClickDB, GONG__StackPath: string): Observable<UserClickDB> {
     const id = typeof userclickdb === 'number' ? userclickdb : userclickdb.ID;
     const url = `${this.userclicksUrl}/${id}`;
 
     // insertion point for reset of pointers and reverse pointers (to avoid circular JSON)
 
-    return this.http.put<UserClickDB>(url, userclickdb, this.httpOptions).pipe(
+    let params = new HttpParams().set("GONG__StackPath", GONG__StackPath)
+    let httpOptions = {
+      headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
+      params: params
+    };
+
+    return this.http.put<UserClickDB>(url, userclickdb, httpOptions).pipe(
       tap(_ => {
         // insertion point for restoration of reverse pointers
         this.log(`updated userclickdb id=${userclickdb.ID}`)

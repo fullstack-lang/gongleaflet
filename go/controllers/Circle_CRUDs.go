@@ -47,23 +47,22 @@ type CircleInput struct {
 // default: genericError
 //
 //	200: circleDBResponse
-func GetCircles(c *gin.Context) {
-	db := orm.BackRepo.BackRepoCircle.GetDB()
+func (controller *Controller) GetCircles(c *gin.Context) {
 
 	// source slice
 	var circleDBs []orm.CircleDB
 
-	// type Values map[string][]string
 	values := c.Request.URL.Query()
+	stackPath := ""
 	if len(values) == 1 {
 		value := values["GONG__StackPath"]
 		if len(value) == 1 {
-			// we have a single parameter
-			// we assume it is the stack
-			stackParam := value[0]
-			log.Println("GONG__StackPath", stackParam)
+			stackPath = value[0]
+			log.Println("GetCircles", "GONG__StackPath", stackPath)
 		}
 	}
+	backRepo := controller.Map_BackRepos[stackPath]
+	db := backRepo.BackRepoCircle.GetDB()
 
 	query := db.Find(&circleDBs)
 	if query.Error != nil {
@@ -108,7 +107,19 @@ func GetCircles(c *gin.Context) {
 //
 //	Responses:
 //	  200: nodeDBResponse
-func PostCircle(c *gin.Context) {
+func (controller *Controller) PostCircle(c *gin.Context) {
+
+	values := c.Request.URL.Query()
+	stackPath := ""
+	if len(values) == 1 {
+		value := values["GONG__StackPath"]
+		if len(value) == 1 {
+			stackPath = value[0]
+			log.Println("PostCircles", "GONG__StackPath", stackPath)
+		}
+	}
+	backRepo := controller.Map_BackRepos[stackPath]
+	db := backRepo.BackRepoCircle.GetDB()
 
 	// Validate input
 	var input orm.CircleAPI
@@ -128,7 +139,6 @@ func PostCircle(c *gin.Context) {
 	circleDB.CirclePointersEnconding = input.CirclePointersEnconding
 	circleDB.CopyBasicFieldsFromCircle(&input.Circle)
 
-	db := orm.BackRepo.BackRepoCircle.GetDB()
 	query := db.Create(&circleDB)
 	if query.Error != nil {
 		var returnError GenericError
@@ -140,16 +150,16 @@ func PostCircle(c *gin.Context) {
 	}
 
 	// get an instance (not staged) from DB instance, and call callback function
-	orm.BackRepo.BackRepoCircle.CheckoutPhaseOneInstance(&circleDB)
-	circle := (*orm.BackRepo.BackRepoCircle.Map_CircleDBID_CirclePtr)[circleDB.ID]
+	backRepo.BackRepoCircle.CheckoutPhaseOneInstance(&circleDB)
+	circle := (*backRepo.BackRepoCircle.Map_CircleDBID_CirclePtr)[circleDB.ID]
 
 	if circle != nil {
-		models.AfterCreateFromFront(&models.Stage, circle)
+		models.AfterCreateFromFront(backRepo.GetStage(), circle)
 	}
 
 	// a POST is equivalent to a back repo commit increase
 	// (this will be improved with implementation of unit of work design pattern)
-	orm.BackRepo.IncrementPushFromFrontNb()
+	backRepo.IncrementPushFromFrontNb()
 
 	c.JSON(http.StatusOK, circleDB)
 }
@@ -164,21 +174,19 @@ func PostCircle(c *gin.Context) {
 // default: genericError
 //
 //	200: circleDBResponse
-func GetCircle(c *gin.Context) {
+func (controller *Controller) GetCircle(c *gin.Context) {
 
-	// type Values map[string][]string
 	values := c.Request.URL.Query()
+	stackPath := ""
 	if len(values) == 1 {
-		value := values["stack"]
+		value := values["GONG__StackPath"]
 		if len(value) == 1 {
-			// we have a single parameter
-			// we assume it is the stack
-			stackParam := value[0]
-			log.Println("GET params", stackParam)
+			stackPath = value[0]
+			log.Println("GetCircle", "GONG__StackPath", stackPath)
 		}
 	}
-
-	db := orm.BackRepo.BackRepoCircle.GetDB()
+	backRepo := controller.Map_BackRepos[stackPath]
+	db := backRepo.BackRepoCircle.GetDB()
 
 	// Get circleDB in DB
 	var circleDB orm.CircleDB
@@ -209,7 +217,19 @@ func GetCircle(c *gin.Context) {
 // default: genericError
 //
 //	200: circleDBResponse
-func UpdateCircle(c *gin.Context) {
+func (controller *Controller) UpdateCircle(c *gin.Context) {
+
+	values := c.Request.URL.Query()
+	stackPath := ""
+	if len(values) == 1 {
+		value := values["GONG__StackPath"]
+		if len(value) == 1 {
+			stackPath = value[0]
+			log.Println("UpdateCircle", "GONG__StackPath", stackPath)
+		}
+	}
+	backRepo := controller.Map_BackRepos[stackPath]
+	db := backRepo.BackRepoCircle.GetDB()
 
 	// Validate input
 	var input orm.CircleAPI
@@ -218,8 +238,6 @@ func UpdateCircle(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-
-	db := orm.BackRepo.BackRepoCircle.GetDB()
 
 	// Get model if exist
 	var circleDB orm.CircleDB
@@ -255,16 +273,16 @@ func UpdateCircle(c *gin.Context) {
 	circleDB.CopyBasicFieldsToCircle(circleNew)
 
 	// get stage instance from DB instance, and call callback function
-	circleOld := (*orm.BackRepo.BackRepoCircle.Map_CircleDBID_CirclePtr)[circleDB.ID]
+	circleOld := (*backRepo.BackRepoCircle.Map_CircleDBID_CirclePtr)[circleDB.ID]
 	if circleOld != nil {
-		models.AfterUpdateFromFront(&models.Stage, circleOld, circleNew)
+		models.AfterUpdateFromFront(backRepo.GetStage(), circleOld, circleNew)
 	}
 
 	// an UPDATE generates a back repo commit increase
 	// (this will be improved with implementation of unit of work design pattern)
 	// in some cases, with the marshalling of the stage, this operation might
 	// generates a checkout
-	orm.BackRepo.IncrementPushFromFrontNb()
+	backRepo.IncrementPushFromFrontNb()
 
 	// return status OK with the marshalling of the the circleDB
 	c.JSON(http.StatusOK, circleDB)
@@ -279,8 +297,19 @@ func UpdateCircle(c *gin.Context) {
 // default: genericError
 //
 //	200: circleDBResponse
-func DeleteCircle(c *gin.Context) {
-	db := orm.BackRepo.BackRepoCircle.GetDB()
+func (controller *Controller) DeleteCircle(c *gin.Context) {
+
+	values := c.Request.URL.Query()
+	stackPath := ""
+	if len(values) == 1 {
+		value := values["GONG__StackPath"]
+		if len(value) == 1 {
+			stackPath = value[0]
+			log.Println("DeleteCircle", "GONG__StackPath", stackPath)
+		}
+	}
+	backRepo := controller.Map_BackRepos[stackPath]
+	db := backRepo.BackRepoCircle.GetDB()
 
 	// Get model if exist
 	var circleDB orm.CircleDB
@@ -301,14 +330,14 @@ func DeleteCircle(c *gin.Context) {
 	circleDB.CopyBasicFieldsToCircle(circleDeleted)
 
 	// get stage instance from DB instance, and call callback function
-	circleStaged := (*orm.BackRepo.BackRepoCircle.Map_CircleDBID_CirclePtr)[circleDB.ID]
+	circleStaged := (*backRepo.BackRepoCircle.Map_CircleDBID_CirclePtr)[circleDB.ID]
 	if circleStaged != nil {
-		models.AfterDeleteFromFront(&models.Stage, circleStaged, circleDeleted)
+		models.AfterDeleteFromFront(backRepo.GetStage(), circleStaged, circleDeleted)
 	}
 
 	// a DELETE generates a back repo commit increase
 	// (this will be improved with implementation of unit of work design pattern)
-	orm.BackRepo.IncrementPushFromFrontNb()
+	backRepo.IncrementPushFromFrontNb()
 
 	c.JSON(http.StatusOK, gin.H{"data": true})
 }

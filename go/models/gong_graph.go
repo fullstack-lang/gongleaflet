@@ -35,6 +35,8 @@ func IsStaged[Type Gongstruct](stage *StageStruct, instance *Type) (ok bool) {
 	case *VisualTrack:
 		ok = stage.IsStagedVisualTrack(target)
 
+	default:
+		_ = target
 	}
 	return
 }
@@ -149,6 +151,8 @@ func StageBranch[Type Gongstruct](stage *StageStruct, instance *Type) {
 	case *VisualTrack:
 		stage.StageBranchVisualTrack(target)
 
+	default:
+		_ = target
 	}
 }
 
@@ -160,7 +164,7 @@ func (stage *StageStruct) StageBranchCheckoutScheduler(checkoutscheduler *Checko
 		return
 	}
 
-	checkoutscheduler.Stage()
+	checkoutscheduler.Stage(stage)
 
 	//insertion point for the staging of instances referenced by pointers
 
@@ -175,7 +179,7 @@ func (stage *StageStruct) StageBranchCircle(circle *Circle) {
 		return
 	}
 
-	circle.Stage()
+	circle.Stage(stage)
 
 	//insertion point for the staging of instances referenced by pointers
 	if circle.LayerGroup != nil {
@@ -193,7 +197,7 @@ func (stage *StageStruct) StageBranchDivIcon(divicon *DivIcon) {
 		return
 	}
 
-	divicon.Stage()
+	divicon.Stage(stage)
 
 	//insertion point for the staging of instances referenced by pointers
 
@@ -208,7 +212,7 @@ func (stage *StageStruct) StageBranchLayerGroup(layergroup *LayerGroup) {
 		return
 	}
 
-	layergroup.Stage()
+	layergroup.Stage(stage)
 
 	//insertion point for the staging of instances referenced by pointers
 
@@ -223,7 +227,7 @@ func (stage *StageStruct) StageBranchLayerGroupUse(layergroupuse *LayerGroupUse)
 		return
 	}
 
-	layergroupuse.Stage()
+	layergroupuse.Stage(stage)
 
 	//insertion point for the staging of instances referenced by pointers
 	if layergroupuse.LayerGroup != nil {
@@ -241,7 +245,7 @@ func (stage *StageStruct) StageBranchMapOptions(mapoptions *MapOptions) {
 		return
 	}
 
-	mapoptions.Stage()
+	mapoptions.Stage(stage)
 
 	//insertion point for the staging of instances referenced by pointers
 
@@ -259,7 +263,7 @@ func (stage *StageStruct) StageBranchMarker(marker *Marker) {
 		return
 	}
 
-	marker.Stage()
+	marker.Stage(stage)
 
 	//insertion point for the staging of instances referenced by pointers
 	if marker.LayerGroup != nil {
@@ -280,7 +284,7 @@ func (stage *StageStruct) StageBranchUserClick(userclick *UserClick) {
 		return
 	}
 
-	userclick.Stage()
+	userclick.Stage(stage)
 
 	//insertion point for the staging of instances referenced by pointers
 
@@ -295,7 +299,7 @@ func (stage *StageStruct) StageBranchVLine(vline *VLine) {
 		return
 	}
 
-	vline.Stage()
+	vline.Stage(stage)
 
 	//insertion point for the staging of instances referenced by pointers
 	if vline.LayerGroup != nil {
@@ -313,7 +317,7 @@ func (stage *StageStruct) StageBranchVisualTrack(visualtrack *VisualTrack) {
 		return
 	}
 
-	visualtrack.Stage()
+	visualtrack.Stage(stage)
 
 	//insertion point for the staging of instances referenced by pointers
 	if visualtrack.LayerGroup != nil {
@@ -366,6 +370,8 @@ func UnstageBranch[Type Gongstruct](stage *StageStruct, instance *Type) {
 	case *VisualTrack:
 		stage.UnstageBranchVisualTrack(target)
 
+	default:
+		_ = target
 	}
 }
 
@@ -377,7 +383,7 @@ func (stage *StageStruct) UnstageBranchCheckoutScheduler(checkoutscheduler *Chec
 		return
 	}
 
-	checkoutscheduler.Unstage()
+	checkoutscheduler.Unstage(stage)
 
 	//insertion point for the staging of instances referenced by pointers
 
@@ -392,7 +398,7 @@ func (stage *StageStruct) UnstageBranchCircle(circle *Circle) {
 		return
 	}
 
-	circle.Unstage()
+	circle.Unstage(stage)
 
 	//insertion point for the staging of instances referenced by pointers
 	if circle.LayerGroup != nil {
@@ -410,7 +416,7 @@ func (stage *StageStruct) UnstageBranchDivIcon(divicon *DivIcon) {
 		return
 	}
 
-	divicon.Unstage()
+	divicon.Unstage(stage)
 
 	//insertion point for the staging of instances referenced by pointers
 
@@ -425,7 +431,7 @@ func (stage *StageStruct) UnstageBranchLayerGroup(layergroup *LayerGroup) {
 		return
 	}
 
-	layergroup.Unstage()
+	layergroup.Unstage(stage)
 
 	//insertion point for the staging of instances referenced by pointers
 
@@ -440,7 +446,7 @@ func (stage *StageStruct) UnstageBranchLayerGroupUse(layergroupuse *LayerGroupUs
 		return
 	}
 
-	layergroupuse.Unstage()
+	layergroupuse.Unstage(stage)
 
 	//insertion point for the staging of instances referenced by pointers
 	if layergroupuse.LayerGroup != nil {
@@ -458,7 +464,7 @@ func (stage *StageStruct) UnstageBranchMapOptions(mapoptions *MapOptions) {
 		return
 	}
 
-	mapoptions.Unstage()
+	mapoptions.Unstage(stage)
 
 	//insertion point for the staging of instances referenced by pointers
 
@@ -476,7 +482,7 @@ func (stage *StageStruct) UnstageBranchMarker(marker *Marker) {
 		return
 	}
 
-	marker.Unstage()
+	marker.Unstage(stage)
 
 	//insertion point for the staging of instances referenced by pointers
 	if marker.LayerGroup != nil {
@@ -497,7 +503,7 @@ func (stage *StageStruct) UnstageBranchUserClick(userclick *UserClick) {
 		return
 	}
 
-	userclick.Unstage()
+	userclick.Unstage(stage)
 
 	//insertion point for the staging of instances referenced by pointers
 
@@ -512,7 +518,7 @@ func (stage *StageStruct) UnstageBranchVLine(vline *VLine) {
 		return
 	}
 
-	vline.Unstage()
+	vline.Unstage(stage)
 
 	//insertion point for the staging of instances referenced by pointers
 	if vline.LayerGroup != nil {
@@ -530,7 +536,7 @@ func (stage *StageStruct) UnstageBranchVisualTrack(visualtrack *VisualTrack) {
 		return
 	}
 
-	visualtrack.Unstage()
+	visualtrack.Unstage(stage)
 
 	//insertion point for the staging of instances referenced by pointers
 	if visualtrack.LayerGroup != nil {

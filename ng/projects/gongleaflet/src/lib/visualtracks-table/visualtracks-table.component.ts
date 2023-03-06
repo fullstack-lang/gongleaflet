@@ -221,7 +221,7 @@ export class VisualTracksTableComponent implements OnInit {
 
   ngOnInit(): void {
     let stackPath = this.activatedRoute.snapshot.paramMap.get('GONG__StackPath')
-    if ( stackPath != undefined) {
+    if (stackPath != undefined) {
       this.GONG__StackPath = stackPath
     }
 
@@ -257,10 +257,14 @@ export class VisualTracksTableComponent implements OnInit {
           let mapOfSourceInstances = this.frontRepo[this.dialogData.SourceStruct + "s" as keyof FrontRepo] as Map<number, VisualTrackDB>
           let sourceInstance = mapOfSourceInstances.get(this.dialogData.ID)!
 
-          let sourceField = sourceInstance[this.dialogData.SourceField as keyof typeof sourceInstance]! as unknown as VisualTrackDB[]
-          for (let associationInstance of sourceField) {
-            let visualtrack = associationInstance[this.dialogData.IntermediateStructField as keyof typeof associationInstance] as unknown as VisualTrackDB
-            this.initialSelection.push(visualtrack)
+          // we associates on sourceInstance of type SourceStruct with a MANY MANY associations to VisualTrackDB
+          // the field name is sourceField
+          let sourceFieldArray = sourceInstance[this.dialogData.SourceField as keyof typeof sourceInstance]! as unknown as VisualTrackDB[]
+          if (sourceFieldArray != null) {
+            for (let associationInstance of sourceFieldArray) {
+              let visualtrack = associationInstance[this.dialogData.IntermediateStructField as keyof typeof associationInstance] as unknown as VisualTrackDB
+              this.initialSelection.push(visualtrack)
+            }
           }
 
           this.selection = new SelectionModel<VisualTrackDB>(allowMultiSelect, this.initialSelection);
@@ -281,7 +285,7 @@ export class VisualTracksTableComponent implements OnInit {
     // list of visualtracks is truncated of visualtrack before the delete
     this.visualtracks = this.visualtracks.filter(h => h !== visualtrack);
 
-    this.visualtrackService.deleteVisualTrack(visualtrackID).subscribe(
+    this.visualtrackService.deleteVisualTrack(visualtrackID, this.GONG__StackPath).subscribe(
       visualtrack => {
         this.visualtrackService.VisualTrackServiceChanged.next("delete")
       }
@@ -347,7 +351,7 @@ export class VisualTracksTableComponent implements OnInit {
 
       // update all visualtrack (only update selection & initial selection)
       for (let visualtrack of toUpdate) {
-        this.visualtrackService.updateVisualTrack(visualtrack)
+        this.visualtrackService.updateVisualTrack(visualtrack, this.GONG__StackPath)
           .subscribe(visualtrack => {
             this.visualtrackService.VisualTrackServiceChanged.next("update")
           });

@@ -3,27 +3,25 @@ package tests
 import (
 	"testing"
 
+	"github.com/fullstack-lang/gongleaflet/go/fullstack"
 	"github.com/fullstack-lang/gongleaflet/go/models"
-	"github.com/fullstack-lang/gongleaflet/go/orm"
 )
 
-//
 func TestGongLeaflet(t *testing.T) {
 
-	// setup GORM
-	orm.SetupModels(true, ":memory:")
+	stage, _ := fullstack.NewStackInstance(nil, "")
 
 	displayTrackHistory := true
 	visualTrack := (&models.VisualTrack{
 		DisplayTrackHistory: displayTrackHistory,
 	})
 
-	visualTrack.Stage()
+	visualTrack.Stage(stage)
 
-	models.Stage.Commit()
+	stage.Commit()
 
-	visualTrack.Unstage()
+	visualTrack.Unstage(stage)
 
-	models.Stage.Commit()
+	stage.Commit()
 
 }

@@ -100,7 +100,7 @@ export class CircleSortingComponent implements OnInit {
 
     this.associatedCircles.forEach(
       circle => {
-        this.circleService.updateCircle(circle)
+        this.circleService.updateCircle(circle, this.dialogData.GONG__StackPath)
           .subscribe(circle => {
             this.circleService.CircleServiceChanged.next("update")
           });

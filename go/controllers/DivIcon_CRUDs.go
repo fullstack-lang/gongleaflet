@@ -47,23 +47,22 @@ type DivIconInput struct {
 // default: genericError
 //
 //	200: diviconDBResponse
-func GetDivIcons(c *gin.Context) {
-	db := orm.BackRepo.BackRepoDivIcon.GetDB()
+func (controller *Controller) GetDivIcons(c *gin.Context) {
 
 	// source slice
 	var diviconDBs []orm.DivIconDB
 
-	// type Values map[string][]string
 	values := c.Request.URL.Query()
+	stackPath := ""
 	if len(values) == 1 {
 		value := values["GONG__StackPath"]
 		if len(value) == 1 {
-			// we have a single parameter
-			// we assume it is the stack
-			stackParam := value[0]
-			log.Println("GONG__StackPath", stackParam)
+			stackPath = value[0]
+			log.Println("GetDivIcons", "GONG__StackPath", stackPath)
 		}
 	}
+	backRepo := controller.Map_BackRepos[stackPath]
+	db := backRepo.BackRepoDivIcon.GetDB()
 
 	query := db.Find(&diviconDBs)
 	if query.Error != nil {
@@ -108,7 +107,19 @@ func GetDivIcons(c *gin.Context) {
 //
 //	Responses:
 //	  200: nodeDBResponse
-func PostDivIcon(c *gin.Context) {
+func (controller *Controller) PostDivIcon(c *gin.Context) {
+
+	values := c.Request.URL.Query()
+	stackPath := ""
+	if len(values) == 1 {
+		value := values["GONG__StackPath"]
+		if len(value) == 1 {
+			stackPath = value[0]
+			log.Println("PostDivIcons", "GONG__StackPath", stackPath)
+		}
+	}
+	backRepo := controller.Map_BackRepos[stackPath]
+	db := backRepo.BackRepoDivIcon.GetDB()
 
 	// Validate input
 	var input orm.DivIconAPI
@@ -128,7 +139,6 @@ func PostDivIcon(c *gin.Context) {
 	diviconDB.DivIconPointersEnconding = input.DivIconPointersEnconding
 	diviconDB.CopyBasicFieldsFromDivIcon(&input.DivIcon)
 
-	db := orm.BackRepo.BackRepoDivIcon.GetDB()
 	query := db.Create(&diviconDB)
 	if query.Error != nil {
 		var returnError GenericError
@@ -140,16 +150,16 @@ func PostDivIcon(c *gin.Context) {
 	}
 
 	// get an instance (not staged) from DB instance, and call callback function
-	orm.BackRepo.BackRepoDivIcon.CheckoutPhaseOneInstance(&diviconDB)
-	divicon := (*orm.BackRepo.BackRepoDivIcon.Map_DivIconDBID_DivIconPtr)[diviconDB.ID]
+	backRepo.BackRepoDivIcon.CheckoutPhaseOneInstance(&diviconDB)
+	divicon := (*backRepo.BackRepoDivIcon.Map_DivIconDBID_DivIconPtr)[diviconDB.ID]
 
 	if divicon != nil {
-		models.AfterCreateFromFront(&models.Stage, divicon)
+		models.AfterCreateFromFront(backRepo.GetStage(), divicon)
 	}
 
 	// a POST is equivalent to a back repo commit increase
 	// (this will be improved with implementation of unit of work design pattern)
-	orm.BackRepo.IncrementPushFromFrontNb()
+	backRepo.IncrementPushFromFrontNb()
 
 	c.JSON(http.StatusOK, diviconDB)
 }
@@ -164,21 +174,19 @@ func PostDivIcon(c *gin.Context) {
 // default: genericError
 //
 //	200: diviconDBResponse
-func GetDivIcon(c *gin.Context) {
+func (controller *Controller) GetDivIcon(c *gin.Context) {
 
-	// type Values map[string][]string
 	values := c.Request.URL.Query()
+	stackPath := ""
 	if len(values) == 1 {
-		value := values["stack"]
+		value := values["GONG__StackPath"]
 		if len(value) == 1 {
-			// we have a single parameter
-			// we assume it is the stack
-			stackParam := value[0]
-			log.Println("GET params", stackParam)
+			stackPath = value[0]
+			log.Println("GetDivIcon", "GONG__StackPath", stackPath)
 		}
 	}
-
-	db := orm.BackRepo.BackRepoDivIcon.GetDB()
+	backRepo := controller.Map_BackRepos[stackPath]
+	db := backRepo.BackRepoDivIcon.GetDB()
 
 	// Get diviconDB in DB
 	var diviconDB orm.DivIconDB
@@ -209,7 +217,19 @@ func GetDivIcon(c *gin.Context) {
 // default: genericError
 //
 //	200: diviconDBResponse
-func UpdateDivIcon(c *gin.Context) {
+func (controller *Controller) UpdateDivIcon(c *gin.Context) {
+
+	values := c.Request.URL.Query()
+	stackPath := ""
+	if len(values) == 1 {
+		value := values["GONG__StackPath"]
+		if len(value) == 1 {
+			stackPath = value[0]
+			log.Println("UpdateDivIcon", "GONG__StackPath", stackPath)
+		}
+	}
+	backRepo := controller.Map_BackRepos[stackPath]
+	db := backRepo.BackRepoDivIcon.GetDB()
 
 	// Validate input
 	var input orm.DivIconAPI
@@ -218,8 +238,6 @@ func UpdateDivIcon(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-
-	db := orm.BackRepo.BackRepoDivIcon.GetDB()
 
 	// Get model if exist
 	var diviconDB orm.DivIconDB
@@ -255,16 +273,16 @@ func UpdateDivIcon(c *gin.Context) {
 	diviconDB.CopyBasicFieldsToDivIcon(diviconNew)
 
 	// get stage instance from DB instance, and call callback function
-	diviconOld := (*orm.BackRepo.BackRepoDivIcon.Map_DivIconDBID_DivIconPtr)[diviconDB.ID]
+	diviconOld := (*backRepo.BackRepoDivIcon.Map_DivIconDBID_DivIconPtr)[diviconDB.ID]
 	if diviconOld != nil {
-		models.AfterUpdateFromFront(&models.Stage, diviconOld, diviconNew)
+		models.AfterUpdateFromFront(backRepo.GetStage(), diviconOld, diviconNew)
 	}
 
 	// an UPDATE generates a back repo commit increase
 	// (this will be improved with implementation of unit of work design pattern)
 	// in some cases, with the marshalling of the stage, this operation might
 	// generates a checkout
-	orm.BackRepo.IncrementPushFromFrontNb()
+	backRepo.IncrementPushFromFrontNb()
 
 	// return status OK with the marshalling of the the diviconDB
 	c.JSON(http.StatusOK, diviconDB)
@@ -279,8 +297,19 @@ func UpdateDivIcon(c *gin.Context) {
 // default: genericError
 //
 //	200: diviconDBResponse
-func DeleteDivIcon(c *gin.Context) {
-	db := orm.BackRepo.BackRepoDivIcon.GetDB()
+func (controller *Controller) DeleteDivIcon(c *gin.Context) {
+
+	values := c.Request.URL.Query()
+	stackPath := ""
+	if len(values) == 1 {
+		value := values["GONG__StackPath"]
+		if len(value) == 1 {
+			stackPath = value[0]
+			log.Println("DeleteDivIcon", "GONG__StackPath", stackPath)
+		}
+	}
+	backRepo := controller.Map_BackRepos[stackPath]
+	db := backRepo.BackRepoDivIcon.GetDB()
 
 	// Get model if exist
 	var diviconDB orm.DivIconDB
@@ -301,14 +330,14 @@ func DeleteDivIcon(c *gin.Context) {
 	diviconDB.CopyBasicFieldsToDivIcon(diviconDeleted)
 
 	// get stage instance from DB instance, and call callback function
-	diviconStaged := (*orm.BackRepo.BackRepoDivIcon.Map_DivIconDBID_DivIconPtr)[diviconDB.ID]
+	diviconStaged := (*backRepo.BackRepoDivIcon.Map_DivIconDBID_DivIconPtr)[diviconDB.ID]
 	if diviconStaged != nil {
-		models.AfterDeleteFromFront(&models.Stage, diviconStaged, diviconDeleted)
+		models.AfterDeleteFromFront(backRepo.GetStage(), diviconStaged, diviconDeleted)
 	}
 
 	// a DELETE generates a back repo commit increase
 	// (this will be improved with implementation of unit of work design pattern)
-	orm.BackRepo.IncrementPushFromFrontNb()
+	backRepo.IncrementPushFromFrontNb()
 
 	c.JSON(http.StatusOK, gin.H{"data": true})
 }

@@ -159,7 +159,7 @@ export class CheckoutSchedulersTableComponent implements OnInit {
 
   ngOnInit(): void {
     let stackPath = this.activatedRoute.snapshot.paramMap.get('GONG__StackPath')
-    if ( stackPath != undefined) {
+    if (stackPath != undefined) {
       this.GONG__StackPath = stackPath
     }
 
@@ -195,10 +195,14 @@ export class CheckoutSchedulersTableComponent implements OnInit {
           let mapOfSourceInstances = this.frontRepo[this.dialogData.SourceStruct + "s" as keyof FrontRepo] as Map<number, CheckoutSchedulerDB>
           let sourceInstance = mapOfSourceInstances.get(this.dialogData.ID)!
 
-          let sourceField = sourceInstance[this.dialogData.SourceField as keyof typeof sourceInstance]! as unknown as CheckoutSchedulerDB[]
-          for (let associationInstance of sourceField) {
-            let checkoutscheduler = associationInstance[this.dialogData.IntermediateStructField as keyof typeof associationInstance] as unknown as CheckoutSchedulerDB
-            this.initialSelection.push(checkoutscheduler)
+          // we associates on sourceInstance of type SourceStruct with a MANY MANY associations to CheckoutSchedulerDB
+          // the field name is sourceField
+          let sourceFieldArray = sourceInstance[this.dialogData.SourceField as keyof typeof sourceInstance]! as unknown as CheckoutSchedulerDB[]
+          if (sourceFieldArray != null) {
+            for (let associationInstance of sourceFieldArray) {
+              let checkoutscheduler = associationInstance[this.dialogData.IntermediateStructField as keyof typeof associationInstance] as unknown as CheckoutSchedulerDB
+              this.initialSelection.push(checkoutscheduler)
+            }
           }
 
           this.selection = new SelectionModel<CheckoutSchedulerDB>(allowMultiSelect, this.initialSelection);
@@ -219,7 +223,7 @@ export class CheckoutSchedulersTableComponent implements OnInit {
     // list of checkoutschedulers is truncated of checkoutscheduler before the delete
     this.checkoutschedulers = this.checkoutschedulers.filter(h => h !== checkoutscheduler);
 
-    this.checkoutschedulerService.deleteCheckoutScheduler(checkoutschedulerID).subscribe(
+    this.checkoutschedulerService.deleteCheckoutScheduler(checkoutschedulerID, this.GONG__StackPath).subscribe(
       checkoutscheduler => {
         this.checkoutschedulerService.CheckoutSchedulerServiceChanged.next("delete")
       }
@@ -285,7 +289,7 @@ export class CheckoutSchedulersTableComponent implements OnInit {
 
       // update all checkoutscheduler (only update selection & initial selection)
       for (let checkoutscheduler of toUpdate) {
-        this.checkoutschedulerService.updateCheckoutScheduler(checkoutscheduler)
+        this.checkoutschedulerService.updateCheckoutScheduler(checkoutscheduler, this.GONG__StackPath)
           .subscribe(checkoutscheduler => {
             this.checkoutschedulerService.CheckoutSchedulerServiceChanged.next("update")
           });

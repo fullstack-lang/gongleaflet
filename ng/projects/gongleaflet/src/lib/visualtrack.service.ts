@@ -22,10 +22,6 @@ import { DivIconDB } from './divicon-db'
 })
 export class VisualTrackService {
 
-  httpOptions = {
-    headers: new HttpHeaders({ 'Content-Type': 'application/json' })
-  };
-
   // Kamar Raïmo: Adding a way to communicate between components that share information
   // so that they are notified of a change.
   VisualTrackServiceChanged: BehaviorSubject<string> = new BehaviorSubject("");
@@ -34,7 +30,6 @@ export class VisualTrackService {
 
   constructor(
     private http: HttpClient,
-    private location: Location,
     @Inject(DOCUMENT) private document: Document
   ) {
     // path to the service share the same origin with the path to the document
@@ -69,16 +64,20 @@ export class VisualTrackService {
     );
   }
 
-  //////// Save methods //////////
-
   /** POST: add a new visualtrack to the server */
-  postVisualTrack(visualtrackdb: VisualTrackDB): Observable<VisualTrackDB> {
+  postVisualTrack(visualtrackdb: VisualTrackDB, GONG__StackPath: string): Observable<VisualTrackDB> {
 
     // insertion point for reset of pointers and reverse pointers (to avoid circular JSON)
     visualtrackdb.LayerGroup = new LayerGroupDB
     visualtrackdb.DivIcon = new DivIconDB
 
-    return this.http.post<VisualTrackDB>(this.visualtracksUrl, visualtrackdb, this.httpOptions).pipe(
+    let params = new HttpParams().set("GONG__StackPath", GONG__StackPath)
+    let httpOptions = {
+      headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
+      params: params
+    }
+
+	return this.http.post<VisualTrackDB>(this.visualtracksUrl, visualtrackdb, httpOptions).pipe(
       tap(_ => {
         // insertion point for restoration of reverse pointers
         this.log(`posted visualtrackdb id=${visualtrackdb.ID}`)
@@ -88,18 +87,24 @@ export class VisualTrackService {
   }
 
   /** DELETE: delete the visualtrackdb from the server */
-  deleteVisualTrack(visualtrackdb: VisualTrackDB | number): Observable<VisualTrackDB> {
+  deleteVisualTrack(visualtrackdb: VisualTrackDB | number, GONG__StackPath: string): Observable<VisualTrackDB> {
     const id = typeof visualtrackdb === 'number' ? visualtrackdb : visualtrackdb.ID;
     const url = `${this.visualtracksUrl}/${id}`;
 
-    return this.http.delete<VisualTrackDB>(url, this.httpOptions).pipe(
+    let params = new HttpParams().set("GONG__StackPath", GONG__StackPath)
+    let httpOptions = {
+      headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
+      params: params
+    };
+
+    return this.http.delete<VisualTrackDB>(url, httpOptions).pipe(
       tap(_ => this.log(`deleted visualtrackdb id=${id}`)),
       catchError(this.handleError<VisualTrackDB>('deleteVisualTrack'))
     );
   }
 
   /** PUT: update the visualtrackdb on the server */
-  updateVisualTrack(visualtrackdb: VisualTrackDB): Observable<VisualTrackDB> {
+  updateVisualTrack(visualtrackdb: VisualTrackDB, GONG__StackPath: string): Observable<VisualTrackDB> {
     const id = typeof visualtrackdb === 'number' ? visualtrackdb : visualtrackdb.ID;
     const url = `${this.visualtracksUrl}/${id}`;
 
@@ -107,7 +112,13 @@ export class VisualTrackService {
     visualtrackdb.LayerGroup = new LayerGroupDB
     visualtrackdb.DivIcon = new DivIconDB
 
-    return this.http.put<VisualTrackDB>(url, visualtrackdb, this.httpOptions).pipe(
+    let params = new HttpParams().set("GONG__StackPath", GONG__StackPath)
+    let httpOptions = {
+      headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
+      params: params
+    };
+
+    return this.http.put<VisualTrackDB>(url, visualtrackdb, httpOptions).pipe(
       tap(_ => {
         // insertion point for restoration of reverse pointers
         this.log(`updated visualtrackdb id=${visualtrackdb.ID}`)

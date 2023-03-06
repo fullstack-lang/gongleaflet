@@ -152,13 +152,13 @@ export class DivIconDetailComponent implements OnInit {
 
 		switch (this.state) {
 			case DivIconDetailComponentState.UPDATE_INSTANCE:
-				this.diviconService.updateDivIcon(this.divicon)
+				this.diviconService.updateDivIcon(this.divicon, this.GONG__StackPath)
 					.subscribe(divicon => {
 						this.diviconService.DivIconServiceChanged.next("update")
 					});
 				break;
 			default:
-				this.diviconService.postDivIcon(this.divicon).subscribe(divicon => {
+				this.diviconService.postDivIcon(this.divicon, this.GONG__StackPath).subscribe(divicon => {
 					this.diviconService.DivIconServiceChanged.next("post")
 					this.divicon = new (DivIconDB) // reset fields
 				});

@@ -47,23 +47,22 @@ type CheckoutSchedulerInput struct {
 // default: genericError
 //
 //	200: checkoutschedulerDBResponse
-func GetCheckoutSchedulers(c *gin.Context) {
-	db := orm.BackRepo.BackRepoCheckoutScheduler.GetDB()
+func (controller *Controller) GetCheckoutSchedulers(c *gin.Context) {
 
 	// source slice
 	var checkoutschedulerDBs []orm.CheckoutSchedulerDB
 
-	// type Values map[string][]string
 	values := c.Request.URL.Query()
+	stackPath := ""
 	if len(values) == 1 {
 		value := values["GONG__StackPath"]
 		if len(value) == 1 {
-			// we have a single parameter
-			// we assume it is the stack
-			stackParam := value[0]
-			log.Println("GONG__StackPath", stackParam)
+			stackPath = value[0]
+			log.Println("GetCheckoutSchedulers", "GONG__StackPath", stackPath)
 		}
 	}
+	backRepo := controller.Map_BackRepos[stackPath]
+	db := backRepo.BackRepoCheckoutScheduler.GetDB()
 
 	query := db.Find(&checkoutschedulerDBs)
 	if query.Error != nil {
@@ -108,7 +107,19 @@ func GetCheckoutSchedulers(c *gin.Context) {
 //
 //	Responses:
 //	  200: nodeDBResponse
-func PostCheckoutScheduler(c *gin.Context) {
+func (controller *Controller) PostCheckoutScheduler(c *gin.Context) {
+
+	values := c.Request.URL.Query()
+	stackPath := ""
+	if len(values) == 1 {
+		value := values["GONG__StackPath"]
+		if len(value) == 1 {
+			stackPath = value[0]
+			log.Println("PostCheckoutSchedulers", "GONG__StackPath", stackPath)
+		}
+	}
+	backRepo := controller.Map_BackRepos[stackPath]
+	db := backRepo.BackRepoCheckoutScheduler.GetDB()
 
 	// Validate input
 	var input orm.CheckoutSchedulerAPI
@@ -128,7 +139,6 @@ func PostCheckoutScheduler(c *gin.Context) {
 	checkoutschedulerDB.CheckoutSchedulerPointersEnconding = input.CheckoutSchedulerPointersEnconding
 	checkoutschedulerDB.CopyBasicFieldsFromCheckoutScheduler(&input.CheckoutScheduler)
 
-	db := orm.BackRepo.BackRepoCheckoutScheduler.GetDB()
 	query := db.Create(&checkoutschedulerDB)
 	if query.Error != nil {
 		var returnError GenericError
@@ -140,16 +150,16 @@ func PostCheckoutScheduler(c *gin.Context) {
 	}
 
 	// get an instance (not staged) from DB instance, and call callback function
-	orm.BackRepo.BackRepoCheckoutScheduler.CheckoutPhaseOneInstance(&checkoutschedulerDB)
-	checkoutscheduler := (*orm.BackRepo.BackRepoCheckoutScheduler.Map_CheckoutSchedulerDBID_CheckoutSchedulerPtr)[checkoutschedulerDB.ID]
+	backRepo.BackRepoCheckoutScheduler.CheckoutPhaseOneInstance(&checkoutschedulerDB)
+	checkoutscheduler := (*backRepo.BackRepoCheckoutScheduler.Map_CheckoutSchedulerDBID_CheckoutSchedulerPtr)[checkoutschedulerDB.ID]
 
 	if checkoutscheduler != nil {
-		models.AfterCreateFromFront(&models.Stage, checkoutscheduler)
+		models.AfterCreateFromFront(backRepo.GetStage(), checkoutscheduler)
 	}
 
 	// a POST is equivalent to a back repo commit increase
 	// (this will be improved with implementation of unit of work design pattern)
-	orm.BackRepo.IncrementPushFromFrontNb()
+	backRepo.IncrementPushFromFrontNb()
 
 	c.JSON(http.StatusOK, checkoutschedulerDB)
 }
@@ -164,21 +174,19 @@ func PostCheckoutScheduler(c *gin.Context) {
 // default: genericError
 //
 //	200: checkoutschedulerDBResponse
-func GetCheckoutScheduler(c *gin.Context) {
+func (controller *Controller) GetCheckoutScheduler(c *gin.Context) {
 
-	// type Values map[string][]string
 	values := c.Request.URL.Query()
+	stackPath := ""
 	if len(values) == 1 {
-		value := values["stack"]
+		value := values["GONG__StackPath"]
 		if len(value) == 1 {
-			// we have a single parameter
-			// we assume it is the stack
-			stackParam := value[0]
-			log.Println("GET params", stackParam)
+			stackPath = value[0]
+			log.Println("GetCheckoutScheduler", "GONG__StackPath", stackPath)
 		}
 	}
-
-	db := orm.BackRepo.BackRepoCheckoutScheduler.GetDB()
+	backRepo := controller.Map_BackRepos[stackPath]
+	db := backRepo.BackRepoCheckoutScheduler.GetDB()
 
 	// Get checkoutschedulerDB in DB
 	var checkoutschedulerDB orm.CheckoutSchedulerDB
@@ -209,7 +217,19 @@ func GetCheckoutScheduler(c *gin.Context) {
 // default: genericError
 //
 //	200: checkoutschedulerDBResponse
-func UpdateCheckoutScheduler(c *gin.Context) {
+func (controller *Controller) UpdateCheckoutScheduler(c *gin.Context) {
+
+	values := c.Request.URL.Query()
+	stackPath := ""
+	if len(values) == 1 {
+		value := values["GONG__StackPath"]
+		if len(value) == 1 {
+			stackPath = value[0]
+			log.Println("UpdateCheckoutScheduler", "GONG__StackPath", stackPath)
+		}
+	}
+	backRepo := controller.Map_BackRepos[stackPath]
+	db := backRepo.BackRepoCheckoutScheduler.GetDB()
 
 	// Validate input
 	var input orm.CheckoutSchedulerAPI
@@ -218,8 +238,6 @@ func UpdateCheckoutScheduler(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-
-	db := orm.BackRepo.BackRepoCheckoutScheduler.GetDB()
 
 	// Get model if exist
 	var checkoutschedulerDB orm.CheckoutSchedulerDB
@@ -255,16 +273,16 @@ func UpdateCheckoutScheduler(c *gin.Context) {
 	checkoutschedulerDB.CopyBasicFieldsToCheckoutScheduler(checkoutschedulerNew)
 
 	// get stage instance from DB instance, and call callback function
-	checkoutschedulerOld := (*orm.BackRepo.BackRepoCheckoutScheduler.Map_CheckoutSchedulerDBID_CheckoutSchedulerPtr)[checkoutschedulerDB.ID]
+	checkoutschedulerOld := (*backRepo.BackRepoCheckoutScheduler.Map_CheckoutSchedulerDBID_CheckoutSchedulerPtr)[checkoutschedulerDB.ID]
 	if checkoutschedulerOld != nil {
-		models.AfterUpdateFromFront(&models.Stage, checkoutschedulerOld, checkoutschedulerNew)
+		models.AfterUpdateFromFront(backRepo.GetStage(), checkoutschedulerOld, checkoutschedulerNew)
 	}
 
 	// an UPDATE generates a back repo commit increase
 	// (this will be improved with implementation of unit of work design pattern)
 	// in some cases, with the marshalling of the stage, this operation might
 	// generates a checkout
-	orm.BackRepo.IncrementPushFromFrontNb()
+	backRepo.IncrementPushFromFrontNb()
 
 	// return status OK with the marshalling of the the checkoutschedulerDB
 	c.JSON(http.StatusOK, checkoutschedulerDB)
@@ -279,8 +297,19 @@ func UpdateCheckoutScheduler(c *gin.Context) {
 // default: genericError
 //
 //	200: checkoutschedulerDBResponse
-func DeleteCheckoutScheduler(c *gin.Context) {
-	db := orm.BackRepo.BackRepoCheckoutScheduler.GetDB()
+func (controller *Controller) DeleteCheckoutScheduler(c *gin.Context) {
+
+	values := c.Request.URL.Query()
+	stackPath := ""
+	if len(values) == 1 {
+		value := values["GONG__StackPath"]
+		if len(value) == 1 {
+			stackPath = value[0]
+			log.Println("DeleteCheckoutScheduler", "GONG__StackPath", stackPath)
+		}
+	}
+	backRepo := controller.Map_BackRepos[stackPath]
+	db := backRepo.BackRepoCheckoutScheduler.GetDB()
 
 	// Get model if exist
 	var checkoutschedulerDB orm.CheckoutSchedulerDB
@@ -301,14 +330,14 @@ func DeleteCheckoutScheduler(c *gin.Context) {
 	checkoutschedulerDB.CopyBasicFieldsToCheckoutScheduler(checkoutschedulerDeleted)
 
 	// get stage instance from DB instance, and call callback function
-	checkoutschedulerStaged := (*orm.BackRepo.BackRepoCheckoutScheduler.Map_CheckoutSchedulerDBID_CheckoutSchedulerPtr)[checkoutschedulerDB.ID]
+	checkoutschedulerStaged := (*backRepo.BackRepoCheckoutScheduler.Map_CheckoutSchedulerDBID_CheckoutSchedulerPtr)[checkoutschedulerDB.ID]
 	if checkoutschedulerStaged != nil {
-		models.AfterDeleteFromFront(&models.Stage, checkoutschedulerStaged, checkoutschedulerDeleted)
+		models.AfterDeleteFromFront(backRepo.GetStage(), checkoutschedulerStaged, checkoutschedulerDeleted)
 	}
 
 	// a DELETE generates a back repo commit increase
 	// (this will be improved with implementation of unit of work design pattern)
-	orm.BackRepo.IncrementPushFromFrontNb()
+	backRepo.IncrementPushFromFrontNb()
 
 	c.JSON(http.StatusOK, gin.H{"data": true})
 }

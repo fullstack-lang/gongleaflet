@@ -170,7 +170,7 @@ export class UserClicksTableComponent implements OnInit {
 
   ngOnInit(): void {
     let stackPath = this.activatedRoute.snapshot.paramMap.get('GONG__StackPath')
-    if ( stackPath != undefined) {
+    if (stackPath != undefined) {
       this.GONG__StackPath = stackPath
     }
 
@@ -206,10 +206,14 @@ export class UserClicksTableComponent implements OnInit {
           let mapOfSourceInstances = this.frontRepo[this.dialogData.SourceStruct + "s" as keyof FrontRepo] as Map<number, UserClickDB>
           let sourceInstance = mapOfSourceInstances.get(this.dialogData.ID)!
 
-          let sourceField = sourceInstance[this.dialogData.SourceField as keyof typeof sourceInstance]! as unknown as UserClickDB[]
-          for (let associationInstance of sourceField) {
-            let userclick = associationInstance[this.dialogData.IntermediateStructField as keyof typeof associationInstance] as unknown as UserClickDB
-            this.initialSelection.push(userclick)
+          // we associates on sourceInstance of type SourceStruct with a MANY MANY associations to UserClickDB
+          // the field name is sourceField
+          let sourceFieldArray = sourceInstance[this.dialogData.SourceField as keyof typeof sourceInstance]! as unknown as UserClickDB[]
+          if (sourceFieldArray != null) {
+            for (let associationInstance of sourceFieldArray) {
+              let userclick = associationInstance[this.dialogData.IntermediateStructField as keyof typeof associationInstance] as unknown as UserClickDB
+              this.initialSelection.push(userclick)
+            }
           }
 
           this.selection = new SelectionModel<UserClickDB>(allowMultiSelect, this.initialSelection);
@@ -230,7 +234,7 @@ export class UserClicksTableComponent implements OnInit {
     // list of userclicks is truncated of userclick before the delete
     this.userclicks = this.userclicks.filter(h => h !== userclick);
 
-    this.userclickService.deleteUserClick(userclickID).subscribe(
+    this.userclickService.deleteUserClick(userclickID, this.GONG__StackPath).subscribe(
       userclick => {
         this.userclickService.UserClickServiceChanged.next("delete")
       }
@@ -296,7 +300,7 @@ export class UserClicksTableComponent implements OnInit {
 
       // update all userclick (only update selection & initial selection)
       for (let userclick of toUpdate) {
-        this.userclickService.updateUserClick(userclick)
+        this.userclickService.updateUserClick(userclick, this.GONG__StackPath)
           .subscribe(userclick => {
             this.userclickService.UserClickServiceChanged.next("update")
           });

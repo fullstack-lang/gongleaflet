@@ -29,10 +29,10 @@ const (
 
 // ParseAstFile Parse pathToFile and stages all instances
 // declared in the file
-func ParseAstFile(pathToFile string) error {
+func ParseAstFile(stage *StageStruct, pathToFile string) error {
 	// map to store renaming docLink
 	// to be removed after fix of [issue](https://github.com/golang/go/issues/57559)
-	Stage.Map_DocLink_Renaming = make(map[string]GONG__Identifier, 0)
+	stage.Map_DocLink_Renaming = make(map[string]GONG__Identifier, 0)
 
 	fileOfInterest, err := filepath.Abs(pathToFile)
 	if err != nil {
@@ -48,21 +48,19 @@ func ParseAstFile(pathToFile string) error {
 		return errors.New("Unable to parser " + errParser.Error())
 	}
 
-	return ParseAstFileFromAst(inFile, fset)
+	return ParseAstFileFromAst(stage, inFile, fset)
 }
 
 // ParseAstFile Parse pathToFile and stages all instances
 // declared in the file
-func ParseAstFileFromAst(inFile *ast.File, fset *token.FileSet) error {
+func ParseAstFileFromAst(stage *StageStruct, inFile *ast.File, fset *token.FileSet) error {
 	// if there is a meta package import, it is the third import
 	if len(inFile.Imports) > 3 {
 		log.Fatalln("Too many imports in file", inFile.Name)
 	}
-	stage := &Stage
-	_ = stage
 	if len(inFile.Imports) == 3 {
-		Stage.MetaPackageImportAlias = inFile.Imports[2].Name.Name
-		Stage.MetaPackageImportPath = inFile.Imports[2].Path.Value
+		stage.MetaPackageImportAlias = inFile.Imports[2].Name.Name
+		stage.MetaPackageImportPath = inFile.Imports[2].Path.Value
 	}
 
 	// astCoordinate := "File "
@@ -116,7 +114,7 @@ func ParseAstFileFromAst(inFile *ast.File, fset *token.FileSet) error {
 						assignStmt := stmt
 						instance, id, gongstruct, fieldName :=
 							UnmarshallGongstructStaging(
-								&cmap, assignStmt, astCoordinate)
+								stage, &cmap, assignStmt, astCoordinate)
 						_ = instance
 						_ = id
 						_ = gongstruct
@@ -294,7 +292,7 @@ func ParseAstFileFromAst(inFile *ast.File, fset *token.FileSet) error {
 							// otherwise, one stores the new ident (after renaming) in the
 							// renaming map
 							docLink.Type = expressionType
-							Stage.Map_DocLink_Renaming[key] = docLink
+							stage.Map_DocLink_Renaming[key] = docLink
 						}
 					}
 				}
@@ -324,10 +322,7 @@ var __gong__map_VisualTrack = make(map[string]*VisualTrack)
 // While this was introduced in go 1.19, it is not yet implemented in
 // gopls (see [issue](https://github.com/golang/go/issues/57559)
 func lookupPackage(name string) (importPath string, ok bool) {
-	if name == Stage.MetaPackageImportAlias {
-		return Stage.MetaPackageImportAlias, true
-	}
-	return comment.DefaultLookupPackage(name)
+	return name, true
 }
 func lookupSym(recv, name string) (ok bool) {
 	if recv == "" {
@@ -337,7 +332,7 @@ func lookupSym(recv, name string) (ok bool) {
 }
 
 // UnmarshallGoStaging unmarshall a go assign statement
-func UnmarshallGongstructStaging(cmap *ast.CommentMap, assignStmt *ast.AssignStmt, astCoordinate_ string) (
+func UnmarshallGongstructStaging(stage *StageStruct, cmap *ast.CommentMap, assignStmt *ast.AssignStmt, astCoordinate_ string) (
 	instance any,
 	identifier string,
 	gongstructName string,
@@ -388,7 +383,7 @@ func UnmarshallGongstructStaging(cmap *ast.CommentMap, assignStmt *ast.AssignStm
 
 						// we check wether the doc link has been renamed
 						// to be removed after fix of [issue](https://github.com/golang/go/issues/57559)
-						if renamed, ok := (Stage.Map_DocLink_Renaming)[docLinkText]; ok {
+						if renamed, ok := (stage.Map_DocLink_Renaming)[docLinkText]; ok {
 							docLinkText = renamed.Ident
 						}
 					}
@@ -494,43 +489,43 @@ func UnmarshallGongstructStaging(cmap *ast.CommentMap, assignStmt *ast.AssignStm
 									switch gongstructName {
 									// insertion point for identifiers
 									case "CheckoutScheduler":
-										instanceCheckoutScheduler := (&CheckoutScheduler{Name: instanceName}).Stage()
+										instanceCheckoutScheduler := (&CheckoutScheduler{Name: instanceName}).Stage(stage)
 										instance = any(instanceCheckoutScheduler)
 										__gong__map_CheckoutScheduler[identifier] = instanceCheckoutScheduler
 									case "Circle":
-										instanceCircle := (&Circle{Name: instanceName}).Stage()
+										instanceCircle := (&Circle{Name: instanceName}).Stage(stage)
 										instance = any(instanceCircle)
 										__gong__map_Circle[identifier] = instanceCircle
 									case "DivIcon":
-										instanceDivIcon := (&DivIcon{Name: instanceName}).Stage()
+										instanceDivIcon := (&DivIcon{Name: instanceName}).Stage(stage)
 										instance = any(instanceDivIcon)
 										__gong__map_DivIcon[identifier] = instanceDivIcon
 									case "LayerGroup":
-										instanceLayerGroup := (&LayerGroup{Name: instanceName}).Stage()
+										instanceLayerGroup := (&LayerGroup{Name: instanceName}).Stage(stage)
 										instance = any(instanceLayerGroup)
 										__gong__map_LayerGroup[identifier] = instanceLayerGroup
 									case "LayerGroupUse":
-										instanceLayerGroupUse := (&LayerGroupUse{Name: instanceName}).Stage()
+										instanceLayerGroupUse := (&LayerGroupUse{Name: instanceName}).Stage(stage)
 										instance = any(instanceLayerGroupUse)
 										__gong__map_LayerGroupUse[identifier] = instanceLayerGroupUse
 									case "MapOptions":
-										instanceMapOptions := (&MapOptions{Name: instanceName}).Stage()
+										instanceMapOptions := (&MapOptions{Name: instanceName}).Stage(stage)
 										instance = any(instanceMapOptions)
 										__gong__map_MapOptions[identifier] = instanceMapOptions
 									case "Marker":
-										instanceMarker := (&Marker{Name: instanceName}).Stage()
+										instanceMarker := (&Marker{Name: instanceName}).Stage(stage)
 										instance = any(instanceMarker)
 										__gong__map_Marker[identifier] = instanceMarker
 									case "UserClick":
-										instanceUserClick := (&UserClick{Name: instanceName}).Stage()
+										instanceUserClick := (&UserClick{Name: instanceName}).Stage(stage)
 										instance = any(instanceUserClick)
 										__gong__map_UserClick[identifier] = instanceUserClick
 									case "VLine":
-										instanceVLine := (&VLine{Name: instanceName}).Stage()
+										instanceVLine := (&VLine{Name: instanceName}).Stage(stage)
 										instance = any(instanceVLine)
 										__gong__map_VLine[identifier] = instanceVLine
 									case "VisualTrack":
-										instanceVisualTrack := (&VisualTrack{Name: instanceName}).Stage()
+										instanceVisualTrack := (&VisualTrack{Name: instanceName}).Stage(stage)
 										instance = any(instanceVisualTrack)
 										__gong__map_VisualTrack[identifier] = instanceVisualTrack
 									}

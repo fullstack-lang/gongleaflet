@@ -205,7 +205,7 @@ export class MapOptionssTableComponent implements OnInit {
 
   ngOnInit(): void {
     let stackPath = this.activatedRoute.snapshot.paramMap.get('GONG__StackPath')
-    if ( stackPath != undefined) {
+    if (stackPath != undefined) {
       this.GONG__StackPath = stackPath
     }
 
@@ -241,10 +241,14 @@ export class MapOptionssTableComponent implements OnInit {
           let mapOfSourceInstances = this.frontRepo[this.dialogData.SourceStruct + "s" as keyof FrontRepo] as Map<number, MapOptionsDB>
           let sourceInstance = mapOfSourceInstances.get(this.dialogData.ID)!
 
-          let sourceField = sourceInstance[this.dialogData.SourceField as keyof typeof sourceInstance]! as unknown as MapOptionsDB[]
-          for (let associationInstance of sourceField) {
-            let mapoptions = associationInstance[this.dialogData.IntermediateStructField as keyof typeof associationInstance] as unknown as MapOptionsDB
-            this.initialSelection.push(mapoptions)
+          // we associates on sourceInstance of type SourceStruct with a MANY MANY associations to MapOptionsDB
+          // the field name is sourceField
+          let sourceFieldArray = sourceInstance[this.dialogData.SourceField as keyof typeof sourceInstance]! as unknown as MapOptionsDB[]
+          if (sourceFieldArray != null) {
+            for (let associationInstance of sourceFieldArray) {
+              let mapoptions = associationInstance[this.dialogData.IntermediateStructField as keyof typeof associationInstance] as unknown as MapOptionsDB
+              this.initialSelection.push(mapoptions)
+            }
           }
 
           this.selection = new SelectionModel<MapOptionsDB>(allowMultiSelect, this.initialSelection);
@@ -265,7 +269,7 @@ export class MapOptionssTableComponent implements OnInit {
     // list of mapoptionss is truncated of mapoptions before the delete
     this.mapoptionss = this.mapoptionss.filter(h => h !== mapoptions);
 
-    this.mapoptionsService.deleteMapOptions(mapoptionsID).subscribe(
+    this.mapoptionsService.deleteMapOptions(mapoptionsID, this.GONG__StackPath).subscribe(
       mapoptions => {
         this.mapoptionsService.MapOptionsServiceChanged.next("delete")
       }
@@ -331,7 +335,7 @@ export class MapOptionssTableComponent implements OnInit {
 
       // update all mapoptions (only update selection & initial selection)
       for (let mapoptions of toUpdate) {
-        this.mapoptionsService.updateMapOptions(mapoptions)
+        this.mapoptionsService.updateMapOptions(mapoptions, this.GONG__StackPath)
           .subscribe(mapoptions => {
             this.mapoptionsService.MapOptionsServiceChanged.next("update")
           });

@@ -100,7 +100,7 @@ export class CheckoutSchedulerSortingComponent implements OnInit {
 
     this.associatedCheckoutSchedulers.forEach(
       checkoutscheduler => {
-        this.checkoutschedulerService.updateCheckoutScheduler(checkoutscheduler)
+        this.checkoutschedulerService.updateCheckoutScheduler(checkoutscheduler, this.dialogData.GONG__StackPath)
           .subscribe(checkoutscheduler => {
             this.checkoutschedulerService.CheckoutSchedulerServiceChanged.next("update")
           });

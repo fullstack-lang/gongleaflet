@@ -20,10 +20,6 @@ import { DivIconDB } from './divicon-db';
 })
 export class DivIconService {
 
-  httpOptions = {
-    headers: new HttpHeaders({ 'Content-Type': 'application/json' })
-  };
-
   // Kamar Raïmo: Adding a way to communicate between components that share information
   // so that they are notified of a change.
   DivIconServiceChanged: BehaviorSubject<string> = new BehaviorSubject("");
@@ -32,7 +28,6 @@ export class DivIconService {
 
   constructor(
     private http: HttpClient,
-    private location: Location,
     @Inject(DOCUMENT) private document: Document
   ) {
     // path to the service share the same origin with the path to the document
@@ -67,14 +62,18 @@ export class DivIconService {
     );
   }
 
-  //////// Save methods //////////
-
   /** POST: add a new divicon to the server */
-  postDivIcon(divicondb: DivIconDB): Observable<DivIconDB> {
+  postDivIcon(divicondb: DivIconDB, GONG__StackPath: string): Observable<DivIconDB> {
 
     // insertion point for reset of pointers and reverse pointers (to avoid circular JSON)
 
-    return this.http.post<DivIconDB>(this.diviconsUrl, divicondb, this.httpOptions).pipe(
+    let params = new HttpParams().set("GONG__StackPath", GONG__StackPath)
+    let httpOptions = {
+      headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
+      params: params
+    }
+
+	return this.http.post<DivIconDB>(this.diviconsUrl, divicondb, httpOptions).pipe(
       tap(_ => {
         // insertion point for restoration of reverse pointers
         this.log(`posted divicondb id=${divicondb.ID}`)
@@ -84,24 +83,36 @@ export class DivIconService {
   }
 
   /** DELETE: delete the divicondb from the server */
-  deleteDivIcon(divicondb: DivIconDB | number): Observable<DivIconDB> {
+  deleteDivIcon(divicondb: DivIconDB | number, GONG__StackPath: string): Observable<DivIconDB> {
     const id = typeof divicondb === 'number' ? divicondb : divicondb.ID;
     const url = `${this.diviconsUrl}/${id}`;
 
-    return this.http.delete<DivIconDB>(url, this.httpOptions).pipe(
+    let params = new HttpParams().set("GONG__StackPath", GONG__StackPath)
+    let httpOptions = {
+      headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
+      params: params
+    };
+
+    return this.http.delete<DivIconDB>(url, httpOptions).pipe(
       tap(_ => this.log(`deleted divicondb id=${id}`)),
       catchError(this.handleError<DivIconDB>('deleteDivIcon'))
     );
   }
 
   /** PUT: update the divicondb on the server */
-  updateDivIcon(divicondb: DivIconDB): Observable<DivIconDB> {
+  updateDivIcon(divicondb: DivIconDB, GONG__StackPath: string): Observable<DivIconDB> {
     const id = typeof divicondb === 'number' ? divicondb : divicondb.ID;
     const url = `${this.diviconsUrl}/${id}`;
 
     // insertion point for reset of pointers and reverse pointers (to avoid circular JSON)
 
-    return this.http.put<DivIconDB>(url, divicondb, this.httpOptions).pipe(
+    let params = new HttpParams().set("GONG__StackPath", GONG__StackPath)
+    let httpOptions = {
+      headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
+      params: params
+    };
+
+    return this.http.put<DivIconDB>(url, divicondb, httpOptions).pipe(
       tap(_ => {
         // insertion point for restoration of reverse pointers
         this.log(`updated divicondb id=${divicondb.ID}`)

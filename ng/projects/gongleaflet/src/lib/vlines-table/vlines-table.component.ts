@@ -221,7 +221,7 @@ export class VLinesTableComponent implements OnInit {
 
   ngOnInit(): void {
     let stackPath = this.activatedRoute.snapshot.paramMap.get('GONG__StackPath')
-    if ( stackPath != undefined) {
+    if (stackPath != undefined) {
       this.GONG__StackPath = stackPath
     }
 
@@ -257,10 +257,14 @@ export class VLinesTableComponent implements OnInit {
           let mapOfSourceInstances = this.frontRepo[this.dialogData.SourceStruct + "s" as keyof FrontRepo] as Map<number, VLineDB>
           let sourceInstance = mapOfSourceInstances.get(this.dialogData.ID)!
 
-          let sourceField = sourceInstance[this.dialogData.SourceField as keyof typeof sourceInstance]! as unknown as VLineDB[]
-          for (let associationInstance of sourceField) {
-            let vline = associationInstance[this.dialogData.IntermediateStructField as keyof typeof associationInstance] as unknown as VLineDB
-            this.initialSelection.push(vline)
+          // we associates on sourceInstance of type SourceStruct with a MANY MANY associations to VLineDB
+          // the field name is sourceField
+          let sourceFieldArray = sourceInstance[this.dialogData.SourceField as keyof typeof sourceInstance]! as unknown as VLineDB[]
+          if (sourceFieldArray != null) {
+            for (let associationInstance of sourceFieldArray) {
+              let vline = associationInstance[this.dialogData.IntermediateStructField as keyof typeof associationInstance] as unknown as VLineDB
+              this.initialSelection.push(vline)
+            }
           }
 
           this.selection = new SelectionModel<VLineDB>(allowMultiSelect, this.initialSelection);
@@ -281,7 +285,7 @@ export class VLinesTableComponent implements OnInit {
     // list of vlines is truncated of vline before the delete
     this.vlines = this.vlines.filter(h => h !== vline);
 
-    this.vlineService.deleteVLine(vlineID).subscribe(
+    this.vlineService.deleteVLine(vlineID, this.GONG__StackPath).subscribe(
       vline => {
         this.vlineService.VLineServiceChanged.next("delete")
       }
@@ -347,7 +351,7 @@ export class VLinesTableComponent implements OnInit {
 
       // update all vline (only update selection & initial selection)
       for (let vline of toUpdate) {
-        this.vlineService.updateVLine(vline)
+        this.vlineService.updateVLine(vline, this.GONG__StackPath)
           .subscribe(vline => {
             this.vlineService.VLineServiceChanged.next("update")
           });

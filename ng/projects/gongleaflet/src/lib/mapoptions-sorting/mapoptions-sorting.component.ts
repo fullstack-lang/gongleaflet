@@ -100,7 +100,7 @@ export class MapOptionsSortingComponent implements OnInit {
 
     this.associatedMapOptionss.forEach(
       mapoptions => {
-        this.mapoptionsService.updateMapOptions(mapoptions)
+        this.mapoptionsService.updateMapOptions(mapoptions, this.dialogData.GONG__StackPath)
           .subscribe(mapoptions => {
             this.mapoptionsService.MapOptionsServiceChanged.next("update")
           });

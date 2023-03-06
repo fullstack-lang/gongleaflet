@@ -179,7 +179,7 @@ export class LayerGroupUsesTableComponent implements OnInit {
 
   ngOnInit(): void {
     let stackPath = this.activatedRoute.snapshot.paramMap.get('GONG__StackPath')
-    if ( stackPath != undefined) {
+    if (stackPath != undefined) {
       this.GONG__StackPath = stackPath
     }
 
@@ -215,10 +215,14 @@ export class LayerGroupUsesTableComponent implements OnInit {
           let mapOfSourceInstances = this.frontRepo[this.dialogData.SourceStruct + "s" as keyof FrontRepo] as Map<number, LayerGroupUseDB>
           let sourceInstance = mapOfSourceInstances.get(this.dialogData.ID)!
 
-          let sourceField = sourceInstance[this.dialogData.SourceField as keyof typeof sourceInstance]! as unknown as LayerGroupUseDB[]
-          for (let associationInstance of sourceField) {
-            let layergroupuse = associationInstance[this.dialogData.IntermediateStructField as keyof typeof associationInstance] as unknown as LayerGroupUseDB
-            this.initialSelection.push(layergroupuse)
+          // we associates on sourceInstance of type SourceStruct with a MANY MANY associations to LayerGroupUseDB
+          // the field name is sourceField
+          let sourceFieldArray = sourceInstance[this.dialogData.SourceField as keyof typeof sourceInstance]! as unknown as LayerGroupUseDB[]
+          if (sourceFieldArray != null) {
+            for (let associationInstance of sourceFieldArray) {
+              let layergroupuse = associationInstance[this.dialogData.IntermediateStructField as keyof typeof associationInstance] as unknown as LayerGroupUseDB
+              this.initialSelection.push(layergroupuse)
+            }
           }
 
           this.selection = new SelectionModel<LayerGroupUseDB>(allowMultiSelect, this.initialSelection);
@@ -239,7 +243,7 @@ export class LayerGroupUsesTableComponent implements OnInit {
     // list of layergroupuses is truncated of layergroupuse before the delete
     this.layergroupuses = this.layergroupuses.filter(h => h !== layergroupuse);
 
-    this.layergroupuseService.deleteLayerGroupUse(layergroupuseID).subscribe(
+    this.layergroupuseService.deleteLayerGroupUse(layergroupuseID, this.GONG__StackPath).subscribe(
       layergroupuse => {
         this.layergroupuseService.LayerGroupUseServiceChanged.next("delete")
       }
@@ -305,7 +309,7 @@ export class LayerGroupUsesTableComponent implements OnInit {
 
       // update all layergroupuse (only update selection & initial selection)
       for (let layergroupuse of toUpdate) {
-        this.layergroupuseService.updateLayerGroupUse(layergroupuse)
+        this.layergroupuseService.updateLayerGroupUse(layergroupuse, this.GONG__StackPath)
           .subscribe(layergroupuse => {
             this.layergroupuseService.LayerGroupUseServiceChanged.next("update")
           });

@@ -191,7 +191,7 @@ export class CirclesTableComponent implements OnInit {
 
   ngOnInit(): void {
     let stackPath = this.activatedRoute.snapshot.paramMap.get('GONG__StackPath')
-    if ( stackPath != undefined) {
+    if (stackPath != undefined) {
       this.GONG__StackPath = stackPath
     }
 
@@ -227,10 +227,14 @@ export class CirclesTableComponent implements OnInit {
           let mapOfSourceInstances = this.frontRepo[this.dialogData.SourceStruct + "s" as keyof FrontRepo] as Map<number, CircleDB>
           let sourceInstance = mapOfSourceInstances.get(this.dialogData.ID)!
 
-          let sourceField = sourceInstance[this.dialogData.SourceField as keyof typeof sourceInstance]! as unknown as CircleDB[]
-          for (let associationInstance of sourceField) {
-            let circle = associationInstance[this.dialogData.IntermediateStructField as keyof typeof associationInstance] as unknown as CircleDB
-            this.initialSelection.push(circle)
+          // we associates on sourceInstance of type SourceStruct with a MANY MANY associations to CircleDB
+          // the field name is sourceField
+          let sourceFieldArray = sourceInstance[this.dialogData.SourceField as keyof typeof sourceInstance]! as unknown as CircleDB[]
+          if (sourceFieldArray != null) {
+            for (let associationInstance of sourceFieldArray) {
+              let circle = associationInstance[this.dialogData.IntermediateStructField as keyof typeof associationInstance] as unknown as CircleDB
+              this.initialSelection.push(circle)
+            }
           }
 
           this.selection = new SelectionModel<CircleDB>(allowMultiSelect, this.initialSelection);
@@ -251,7 +255,7 @@ export class CirclesTableComponent implements OnInit {
     // list of circles is truncated of circle before the delete
     this.circles = this.circles.filter(h => h !== circle);
 
-    this.circleService.deleteCircle(circleID).subscribe(
+    this.circleService.deleteCircle(circleID, this.GONG__StackPath).subscribe(
       circle => {
         this.circleService.CircleServiceChanged.next("delete")
       }
@@ -317,7 +321,7 @@ export class CirclesTableComponent implements OnInit {
 
       // update all circle (only update selection & initial selection)
       for (let circle of toUpdate) {
-        this.circleService.updateCircle(circle)
+        this.circleService.updateCircle(circle, this.GONG__StackPath)
           .subscribe(circle => {
             this.circleService.CircleServiceChanged.next("update")
           });

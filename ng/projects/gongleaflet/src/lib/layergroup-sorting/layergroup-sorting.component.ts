@@ -100,7 +100,7 @@ export class LayerGroupSortingComponent implements OnInit {
 
     this.associatedLayerGroups.forEach(
       layergroup => {
-        this.layergroupService.updateLayerGroup(layergroup)
+        this.layergroupService.updateLayerGroup(layergroup, this.dialogData.GONG__StackPath)
           .subscribe(layergroup => {
             this.layergroupService.LayerGroupServiceChanged.next("update")
           });

@@ -168,13 +168,13 @@ export class CircleDetailComponent implements OnInit {
 
 		switch (this.state) {
 			case CircleDetailComponentState.UPDATE_INSTANCE:
-				this.circleService.updateCircle(this.circle)
+				this.circleService.updateCircle(this.circle, this.GONG__StackPath)
 					.subscribe(circle => {
 						this.circleService.CircleServiceChanged.next("update")
 					});
 				break;
 			default:
-				this.circleService.postCircle(this.circle).subscribe(circle => {
+				this.circleService.postCircle(this.circle, this.GONG__StackPath).subscribe(circle => {
 					this.circleService.CircleServiceChanged.next("post")
 					this.circle = new (CircleDB) // reset fields
 				});

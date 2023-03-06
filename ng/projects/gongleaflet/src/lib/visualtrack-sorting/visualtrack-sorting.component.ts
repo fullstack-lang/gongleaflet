@@ -100,7 +100,7 @@ export class VisualTrackSortingComponent implements OnInit {
 
     this.associatedVisualTracks.forEach(
       visualtrack => {
-        this.visualtrackService.updateVisualTrack(visualtrack)
+        this.visualtrackService.updateVisualTrack(visualtrack, this.dialogData.GONG__StackPath)
           .subscribe(visualtrack => {
             this.visualtrackService.VisualTrackServiceChanged.next("update")
           });

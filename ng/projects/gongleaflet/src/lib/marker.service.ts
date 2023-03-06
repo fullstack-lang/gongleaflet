@@ -22,10 +22,6 @@ import { DivIconDB } from './divicon-db'
 })
 export class MarkerService {
 
-  httpOptions = {
-    headers: new HttpHeaders({ 'Content-Type': 'application/json' })
-  };
-
   // Kamar Raïmo: Adding a way to communicate between components that share information
   // so that they are notified of a change.
   MarkerServiceChanged: BehaviorSubject<string> = new BehaviorSubject("");
@@ -34,7 +30,6 @@ export class MarkerService {
 
   constructor(
     private http: HttpClient,
-    private location: Location,
     @Inject(DOCUMENT) private document: Document
   ) {
     // path to the service share the same origin with the path to the document
@@ -69,16 +64,20 @@ export class MarkerService {
     );
   }
 
-  //////// Save methods //////////
-
   /** POST: add a new marker to the server */
-  postMarker(markerdb: MarkerDB): Observable<MarkerDB> {
+  postMarker(markerdb: MarkerDB, GONG__StackPath: string): Observable<MarkerDB> {
 
     // insertion point for reset of pointers and reverse pointers (to avoid circular JSON)
     markerdb.LayerGroup = new LayerGroupDB
     markerdb.DivIcon = new DivIconDB
 
-    return this.http.post<MarkerDB>(this.markersUrl, markerdb, this.httpOptions).pipe(
+    let params = new HttpParams().set("GONG__StackPath", GONG__StackPath)
+    let httpOptions = {
+      headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
+      params: params
+    }
+
+	return this.http.post<MarkerDB>(this.markersUrl, markerdb, httpOptions).pipe(
       tap(_ => {
         // insertion point for restoration of reverse pointers
         this.log(`posted markerdb id=${markerdb.ID}`)
@@ -88,18 +87,24 @@ export class MarkerService {
   }
 
   /** DELETE: delete the markerdb from the server */
-  deleteMarker(markerdb: MarkerDB | number): Observable<MarkerDB> {
+  deleteMarker(markerdb: MarkerDB | number, GONG__StackPath: string): Observable<MarkerDB> {
     const id = typeof markerdb === 'number' ? markerdb : markerdb.ID;
     const url = `${this.markersUrl}/${id}`;
 
-    return this.http.delete<MarkerDB>(url, this.httpOptions).pipe(
+    let params = new HttpParams().set("GONG__StackPath", GONG__StackPath)
+    let httpOptions = {
+      headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
+      params: params
+    };
+
+    return this.http.delete<MarkerDB>(url, httpOptions).pipe(
       tap(_ => this.log(`deleted markerdb id=${id}`)),
       catchError(this.handleError<MarkerDB>('deleteMarker'))
     );
   }
 
   /** PUT: update the markerdb on the server */
-  updateMarker(markerdb: MarkerDB): Observable<MarkerDB> {
+  updateMarker(markerdb: MarkerDB, GONG__StackPath: string): Observable<MarkerDB> {
     const id = typeof markerdb === 'number' ? markerdb : markerdb.ID;
     const url = `${this.markersUrl}/${id}`;
 
@@ -107,7 +112,13 @@ export class MarkerService {
     markerdb.LayerGroup = new LayerGroupDB
     markerdb.DivIcon = new DivIconDB
 
-    return this.http.put<MarkerDB>(url, markerdb, this.httpOptions).pipe(
+    let params = new HttpParams().set("GONG__StackPath", GONG__StackPath)
+    let httpOptions = {
+      headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
+      params: params
+    };
+
+    return this.http.put<MarkerDB>(url, markerdb, httpOptions).pipe(
       tap(_ => {
         // insertion point for restoration of reverse pointers
         this.log(`updated markerdb id=${markerdb.ID}`)

@@ -159,7 +159,7 @@ export class LayerGroupsTableComponent implements OnInit {
 
   ngOnInit(): void {
     let stackPath = this.activatedRoute.snapshot.paramMap.get('GONG__StackPath')
-    if ( stackPath != undefined) {
+    if (stackPath != undefined) {
       this.GONG__StackPath = stackPath
     }
 
@@ -195,10 +195,14 @@ export class LayerGroupsTableComponent implements OnInit {
           let mapOfSourceInstances = this.frontRepo[this.dialogData.SourceStruct + "s" as keyof FrontRepo] as Map<number, LayerGroupDB>
           let sourceInstance = mapOfSourceInstances.get(this.dialogData.ID)!
 
-          let sourceField = sourceInstance[this.dialogData.SourceField as keyof typeof sourceInstance]! as unknown as LayerGroupDB[]
-          for (let associationInstance of sourceField) {
-            let layergroup = associationInstance[this.dialogData.IntermediateStructField as keyof typeof associationInstance] as unknown as LayerGroupDB
-            this.initialSelection.push(layergroup)
+          // we associates on sourceInstance of type SourceStruct with a MANY MANY associations to LayerGroupDB
+          // the field name is sourceField
+          let sourceFieldArray = sourceInstance[this.dialogData.SourceField as keyof typeof sourceInstance]! as unknown as LayerGroupDB[]
+          if (sourceFieldArray != null) {
+            for (let associationInstance of sourceFieldArray) {
+              let layergroup = associationInstance[this.dialogData.IntermediateStructField as keyof typeof associationInstance] as unknown as LayerGroupDB
+              this.initialSelection.push(layergroup)
+            }
           }
 
           this.selection = new SelectionModel<LayerGroupDB>(allowMultiSelect, this.initialSelection);
@@ -219,7 +223,7 @@ export class LayerGroupsTableComponent implements OnInit {
     // list of layergroups is truncated of layergroup before the delete
     this.layergroups = this.layergroups.filter(h => h !== layergroup);
 
-    this.layergroupService.deleteLayerGroup(layergroupID).subscribe(
+    this.layergroupService.deleteLayerGroup(layergroupID, this.GONG__StackPath).subscribe(
       layergroup => {
         this.layergroupService.LayerGroupServiceChanged.next("delete")
       }
@@ -285,7 +289,7 @@ export class LayerGroupsTableComponent implements OnInit {
 
       // update all layergroup (only update selection & initial selection)
       for (let layergroup of toUpdate) {
-        this.layergroupService.updateLayerGroup(layergroup)
+        this.layergroupService.updateLayerGroup(layergroup, this.GONG__StackPath)
           .subscribe(layergroup => {
             this.layergroupService.LayerGroupServiceChanged.next("update")
           });

@@ -187,7 +187,7 @@ export class MarkersTableComponent implements OnInit {
 
   ngOnInit(): void {
     let stackPath = this.activatedRoute.snapshot.paramMap.get('GONG__StackPath')
-    if ( stackPath != undefined) {
+    if (stackPath != undefined) {
       this.GONG__StackPath = stackPath
     }
 
@@ -223,10 +223,14 @@ export class MarkersTableComponent implements OnInit {
           let mapOfSourceInstances = this.frontRepo[this.dialogData.SourceStruct + "s" as keyof FrontRepo] as Map<number, MarkerDB>
           let sourceInstance = mapOfSourceInstances.get(this.dialogData.ID)!
 
-          let sourceField = sourceInstance[this.dialogData.SourceField as keyof typeof sourceInstance]! as unknown as MarkerDB[]
-          for (let associationInstance of sourceField) {
-            let marker = associationInstance[this.dialogData.IntermediateStructField as keyof typeof associationInstance] as unknown as MarkerDB
-            this.initialSelection.push(marker)
+          // we associates on sourceInstance of type SourceStruct with a MANY MANY associations to MarkerDB
+          // the field name is sourceField
+          let sourceFieldArray = sourceInstance[this.dialogData.SourceField as keyof typeof sourceInstance]! as unknown as MarkerDB[]
+          if (sourceFieldArray != null) {
+            for (let associationInstance of sourceFieldArray) {
+              let marker = associationInstance[this.dialogData.IntermediateStructField as keyof typeof associationInstance] as unknown as MarkerDB
+              this.initialSelection.push(marker)
+            }
           }
 
           this.selection = new SelectionModel<MarkerDB>(allowMultiSelect, this.initialSelection);
@@ -247,7 +251,7 @@ export class MarkersTableComponent implements OnInit {
     // list of markers is truncated of marker before the delete
     this.markers = this.markers.filter(h => h !== marker);
 
-    this.markerService.deleteMarker(markerID).subscribe(
+    this.markerService.deleteMarker(markerID, this.GONG__StackPath).subscribe(
       marker => {
         this.markerService.MarkerServiceChanged.next("delete")
       }
@@ -313,7 +317,7 @@ export class MarkersTableComponent implements OnInit {
 
       // update all marker (only update selection & initial selection)
       for (let marker of toUpdate) {
-        this.markerService.updateMarker(marker)
+        this.markerService.updateMarker(marker, this.GONG__StackPath)
           .subscribe(marker => {
             this.markerService.MarkerServiceChanged.next("update")
           });

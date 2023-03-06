@@ -171,13 +171,13 @@ export class VLineDetailComponent implements OnInit {
 
 		switch (this.state) {
 			case VLineDetailComponentState.UPDATE_INSTANCE:
-				this.vlineService.updateVLine(this.vline)
+				this.vlineService.updateVLine(this.vline, this.GONG__StackPath)
 					.subscribe(vline => {
 						this.vlineService.VLineServiceChanged.next("update")
 					});
 				break;
 			default:
-				this.vlineService.postVLine(this.vline).subscribe(vline => {
+				this.vlineService.postVLine(this.vline, this.GONG__StackPath).subscribe(vline => {
 					this.vlineService.VLineServiceChanged.next("post")
 					this.vline = new (VLineDB) // reset fields
 				});

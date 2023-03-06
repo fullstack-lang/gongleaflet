@@ -47,23 +47,22 @@ type VisualTrackInput struct {
 // default: genericError
 //
 //	200: visualtrackDBResponse
-func GetVisualTracks(c *gin.Context) {
-	db := orm.BackRepo.BackRepoVisualTrack.GetDB()
+func (controller *Controller) GetVisualTracks(c *gin.Context) {
 
 	// source slice
 	var visualtrackDBs []orm.VisualTrackDB
 
-	// type Values map[string][]string
 	values := c.Request.URL.Query()
+	stackPath := ""
 	if len(values) == 1 {
 		value := values["GONG__StackPath"]
 		if len(value) == 1 {
-			// we have a single parameter
-			// we assume it is the stack
-			stackParam := value[0]
-			log.Println("GONG__StackPath", stackParam)
+			stackPath = value[0]
+			log.Println("GetVisualTracks", "GONG__StackPath", stackPath)
 		}
 	}
+	backRepo := controller.Map_BackRepos[stackPath]
+	db := backRepo.BackRepoVisualTrack.GetDB()
 
 	query := db.Find(&visualtrackDBs)
 	if query.Error != nil {
@@ -108,7 +107,19 @@ func GetVisualTracks(c *gin.Context) {
 //
 //	Responses:
 //	  200: nodeDBResponse
-func PostVisualTrack(c *gin.Context) {
+func (controller *Controller) PostVisualTrack(c *gin.Context) {
+
+	values := c.Request.URL.Query()
+	stackPath := ""
+	if len(values) == 1 {
+		value := values["GONG__StackPath"]
+		if len(value) == 1 {
+			stackPath = value[0]
+			log.Println("PostVisualTracks", "GONG__StackPath", stackPath)
+		}
+	}
+	backRepo := controller.Map_BackRepos[stackPath]
+	db := backRepo.BackRepoVisualTrack.GetDB()
 
 	// Validate input
 	var input orm.VisualTrackAPI
@@ -128,7 +139,6 @@ func PostVisualTrack(c *gin.Context) {
 	visualtrackDB.VisualTrackPointersEnconding = input.VisualTrackPointersEnconding
 	visualtrackDB.CopyBasicFieldsFromVisualTrack(&input.VisualTrack)
 
-	db := orm.BackRepo.BackRepoVisualTrack.GetDB()
 	query := db.Create(&visualtrackDB)
 	if query.Error != nil {
 		var returnError GenericError
@@ -140,16 +150,16 @@ func PostVisualTrack(c *gin.Context) {
 	}
 
 	// get an instance (not staged) from DB instance, and call callback function
-	orm.BackRepo.BackRepoVisualTrack.CheckoutPhaseOneInstance(&visualtrackDB)
-	visualtrack := (*orm.BackRepo.BackRepoVisualTrack.Map_VisualTrackDBID_VisualTrackPtr)[visualtrackDB.ID]
+	backRepo.BackRepoVisualTrack.CheckoutPhaseOneInstance(&visualtrackDB)
+	visualtrack := (*backRepo.BackRepoVisualTrack.Map_VisualTrackDBID_VisualTrackPtr)[visualtrackDB.ID]
 
 	if visualtrack != nil {
-		models.AfterCreateFromFront(&models.Stage, visualtrack)
+		models.AfterCreateFromFront(backRepo.GetStage(), visualtrack)
 	}
 
 	// a POST is equivalent to a back repo commit increase
 	// (this will be improved with implementation of unit of work design pattern)
-	orm.BackRepo.IncrementPushFromFrontNb()
+	backRepo.IncrementPushFromFrontNb()
 
 	c.JSON(http.StatusOK, visualtrackDB)
 }
@@ -164,21 +174,19 @@ func PostVisualTrack(c *gin.Context) {
 // default: genericError
 //
 //	200: visualtrackDBResponse
-func GetVisualTrack(c *gin.Context) {
+func (controller *Controller) GetVisualTrack(c *gin.Context) {
 
-	// type Values map[string][]string
 	values := c.Request.URL.Query()
+	stackPath := ""
 	if len(values) == 1 {
-		value := values["stack"]
+		value := values["GONG__StackPath"]
 		if len(value) == 1 {
-			// we have a single parameter
-			// we assume it is the stack
-			stackParam := value[0]
-			log.Println("GET params", stackParam)
+			stackPath = value[0]
+			log.Println("GetVisualTrack", "GONG__StackPath", stackPath)
 		}
 	}
-
-	db := orm.BackRepo.BackRepoVisualTrack.GetDB()
+	backRepo := controller.Map_BackRepos[stackPath]
+	db := backRepo.BackRepoVisualTrack.GetDB()
 
 	// Get visualtrackDB in DB
 	var visualtrackDB orm.VisualTrackDB
@@ -209,7 +217,19 @@ func GetVisualTrack(c *gin.Context) {
 // default: genericError
 //
 //	200: visualtrackDBResponse
-func UpdateVisualTrack(c *gin.Context) {
+func (controller *Controller) UpdateVisualTrack(c *gin.Context) {
+
+	values := c.Request.URL.Query()
+	stackPath := ""
+	if len(values) == 1 {
+		value := values["GONG__StackPath"]
+		if len(value) == 1 {
+			stackPath = value[0]
+			log.Println("UpdateVisualTrack", "GONG__StackPath", stackPath)
+		}
+	}
+	backRepo := controller.Map_BackRepos[stackPath]
+	db := backRepo.BackRepoVisualTrack.GetDB()
 
 	// Validate input
 	var input orm.VisualTrackAPI
@@ -218,8 +238,6 @@ func UpdateVisualTrack(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-
-	db := orm.BackRepo.BackRepoVisualTrack.GetDB()
 
 	// Get model if exist
 	var visualtrackDB orm.VisualTrackDB
@@ -255,16 +273,16 @@ func UpdateVisualTrack(c *gin.Context) {
 	visualtrackDB.CopyBasicFieldsToVisualTrack(visualtrackNew)
 
 	// get stage instance from DB instance, and call callback function
-	visualtrackOld := (*orm.BackRepo.BackRepoVisualTrack.Map_VisualTrackDBID_VisualTrackPtr)[visualtrackDB.ID]
+	visualtrackOld := (*backRepo.BackRepoVisualTrack.Map_VisualTrackDBID_VisualTrackPtr)[visualtrackDB.ID]
 	if visualtrackOld != nil {
-		models.AfterUpdateFromFront(&models.Stage, visualtrackOld, visualtrackNew)
+		models.AfterUpdateFromFront(backRepo.GetStage(), visualtrackOld, visualtrackNew)
 	}
 
 	// an UPDATE generates a back repo commit increase
 	// (this will be improved with implementation of unit of work design pattern)
 	// in some cases, with the marshalling of the stage, this operation might
 	// generates a checkout
-	orm.BackRepo.IncrementPushFromFrontNb()
+	backRepo.IncrementPushFromFrontNb()
 
 	// return status OK with the marshalling of the the visualtrackDB
 	c.JSON(http.StatusOK, visualtrackDB)
@@ -279,8 +297,19 @@ func UpdateVisualTrack(c *gin.Context) {
 // default: genericError
 //
 //	200: visualtrackDBResponse
-func DeleteVisualTrack(c *gin.Context) {
-	db := orm.BackRepo.BackRepoVisualTrack.GetDB()
+func (controller *Controller) DeleteVisualTrack(c *gin.Context) {
+
+	values := c.Request.URL.Query()
+	stackPath := ""
+	if len(values) == 1 {
+		value := values["GONG__StackPath"]
+		if len(value) == 1 {
+			stackPath = value[0]
+			log.Println("DeleteVisualTrack", "GONG__StackPath", stackPath)
+		}
+	}
+	backRepo := controller.Map_BackRepos[stackPath]
+	db := backRepo.BackRepoVisualTrack.GetDB()
 
 	// Get model if exist
 	var visualtrackDB orm.VisualTrackDB
@@ -301,14 +330,14 @@ func DeleteVisualTrack(c *gin.Context) {
 	visualtrackDB.CopyBasicFieldsToVisualTrack(visualtrackDeleted)
 
 	// get stage instance from DB instance, and call callback function
-	visualtrackStaged := (*orm.BackRepo.BackRepoVisualTrack.Map_VisualTrackDBID_VisualTrackPtr)[visualtrackDB.ID]
+	visualtrackStaged := (*backRepo.BackRepoVisualTrack.Map_VisualTrackDBID_VisualTrackPtr)[visualtrackDB.ID]
 	if visualtrackStaged != nil {
-		models.AfterDeleteFromFront(&models.Stage, visualtrackStaged, visualtrackDeleted)
+		models.AfterDeleteFromFront(backRepo.GetStage(), visualtrackStaged, visualtrackDeleted)
 	}
 
 	// a DELETE generates a back repo commit increase
 	// (this will be improved with implementation of unit of work design pattern)
-	orm.BackRepo.IncrementPushFromFrontNb()
+	backRepo.IncrementPushFromFrontNb()
 
 	c.JSON(http.StatusOK, gin.H{"data": true})
 }

@@ -158,13 +158,13 @@ export class MapOptionsDetailComponent implements OnInit {
 
 		switch (this.state) {
 			case MapOptionsDetailComponentState.UPDATE_INSTANCE:
-				this.mapoptionsService.updateMapOptions(this.mapoptions)
+				this.mapoptionsService.updateMapOptions(this.mapoptions, this.GONG__StackPath)
 					.subscribe(mapoptions => {
 						this.mapoptionsService.MapOptionsServiceChanged.next("update")
 					});
 				break;
 			default:
-				this.mapoptionsService.postMapOptions(this.mapoptions).subscribe(mapoptions => {
+				this.mapoptionsService.postMapOptions(this.mapoptions, this.GONG__StackPath).subscribe(mapoptions => {
 					this.mapoptionsService.MapOptionsServiceChanged.next("post")
 					this.mapoptions = new (MapOptionsDB) // reset fields
 				});

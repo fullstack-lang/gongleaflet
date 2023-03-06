@@ -159,7 +159,7 @@ export class DivIconsTableComponent implements OnInit {
 
   ngOnInit(): void {
     let stackPath = this.activatedRoute.snapshot.paramMap.get('GONG__StackPath')
-    if ( stackPath != undefined) {
+    if (stackPath != undefined) {
       this.GONG__StackPath = stackPath
     }
 
@@ -195,10 +195,14 @@ export class DivIconsTableComponent implements OnInit {
           let mapOfSourceInstances = this.frontRepo[this.dialogData.SourceStruct + "s" as keyof FrontRepo] as Map<number, DivIconDB>
           let sourceInstance = mapOfSourceInstances.get(this.dialogData.ID)!
 
-          let sourceField = sourceInstance[this.dialogData.SourceField as keyof typeof sourceInstance]! as unknown as DivIconDB[]
-          for (let associationInstance of sourceField) {
-            let divicon = associationInstance[this.dialogData.IntermediateStructField as keyof typeof associationInstance] as unknown as DivIconDB
-            this.initialSelection.push(divicon)
+          // we associates on sourceInstance of type SourceStruct with a MANY MANY associations to DivIconDB
+          // the field name is sourceField
+          let sourceFieldArray = sourceInstance[this.dialogData.SourceField as keyof typeof sourceInstance]! as unknown as DivIconDB[]
+          if (sourceFieldArray != null) {
+            for (let associationInstance of sourceFieldArray) {
+              let divicon = associationInstance[this.dialogData.IntermediateStructField as keyof typeof associationInstance] as unknown as DivIconDB
+              this.initialSelection.push(divicon)
+            }
           }
 
           this.selection = new SelectionModel<DivIconDB>(allowMultiSelect, this.initialSelection);
@@ -219,7 +223,7 @@ export class DivIconsTableComponent implements OnInit {
     // list of divicons is truncated of divicon before the delete
     this.divicons = this.divicons.filter(h => h !== divicon);
 
-    this.diviconService.deleteDivIcon(diviconID).subscribe(
+    this.diviconService.deleteDivIcon(diviconID, this.GONG__StackPath).subscribe(
       divicon => {
         this.diviconService.DivIconServiceChanged.next("delete")
       }
@@ -285,7 +289,7 @@ export class DivIconsTableComponent implements OnInit {
 
       // update all divicon (only update selection & initial selection)
       for (let divicon of toUpdate) {
-        this.diviconService.updateDivIcon(divicon)
+        this.diviconService.updateDivIcon(divicon, this.GONG__StackPath)
           .subscribe(divicon => {
             this.diviconService.DivIconServiceChanged.next("update")
           });
