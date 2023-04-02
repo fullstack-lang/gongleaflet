@@ -1,23 +1,21 @@
+/* To learn more about this file see: https://angular.io/config/tsconfig. */
 {
   "compileOnSave": false,
   "compilerOptions": {
     "baseUrl": "./",
     "outDir": "./dist/out-tsc",
-    "sourceMap": true,
-    "declaration": false,
-    "downlevelIteration": true,
-    "experimentalDecorators": true,
-    "moduleResolution": "node",
-    "importHelpers": true,
-    "target": "ES2022",
-    "module": "es2020",
-    "strict": false,
-    "skipLibCheck": true,
-    "lib": [
-      "es2018",
-      "dom"
-    ],
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "noImplicitOverride": true,
     "paths": {
+
+      // 
+      // https://angular.io/guide/creating-libraries#use-typescript-path-mapping-for-peer-dependencies
+      //
+      // Angular libraries should list any @angular/* 
+      // dependencies the library depends on as peer dependencies. This ensures that when modules ask for Angular, 
+      // they all get the exact same module. If a library lists @angular/core in dependencies instead of peerDependencies, 
+      // it might get a different Angular module instead, which would cause your application to break.
       "@angular/*": [
         "./node_modules/@angular/*"
       ],
@@ -51,9 +49,12 @@
       "jointjs": [
         "./node_modules/jointjs"
       ],
-      "gongxlsxspecific": [
-        "projects/gongxlsxspecific/src/public-api.ts",
-        "dist/gongxlsxspecific"
+      "gongleafletspecific": [
+        "projects/gongleafletspecific/src/public-api.ts",
+        "dist/gongleafletspecific"
+      ],
+      "@angular-material-components/datetime-picker": [
+        "./node_modules/@angular-material-components/datetime-picker"
       ],
       "angular-split": [
         "./node_modules/angular-split"
@@ -61,25 +62,42 @@
       "tslib": [
         "./node_modules/tslib"
       ],
-      "@angular-material-components/datetime-picker": [
-        "./node_modules/@angular-material-components/datetime-picker"
-      ],
-      "gongleaflet": [
-        "./projects/gongleaflet/src/public-api.ts"
-      ],
-      "gongleafletspecific": [
-        "./projects/gongleafletspecific/src/public-api.ts"
-      ],
       "gong": [
-        "../vendor/github.com/fullstack-lang/gong/ng/projects/gong/src/public-api.ts"
+      "../vendor/github.com/fullstack-lang/gong/ng/projects/gong/src/public-api.ts"
       ],
       "gongdoc": [
-        "../vendor/github.com/fullstack-lang/gongdoc/ng/projects/gongdoc/src/public-api.ts"
+      "../vendor/github.com/fullstack-lang/gongdoc/ng/projects/gongdoc/src/public-api.ts"
       ],
       "gongdocdiagrams": [
-        "../vendor/github.com/fullstack-lang/gongdoc/ng/projects/gongdocdiagrams/src/public-api.ts"
+      "../vendor/github.com/fullstack-lang/gongdoc/ng/projects/gongdocdiagrams/src/public-api.ts"
       ],
+
+      "gongleaflet": [
+        "projects/gongleaflet/src/public-api.ts",
+        "dist/gongleaflet"
+      ]
     },
-    "useDefineForClassFields": false
+    "noPropertyAccessFromIndexSignature": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "sourceMap": true,
+    "declaration": false,
+    "downlevelIteration": true,
+    "experimentalDecorators": true,
+    "moduleResolution": "node",
+    "importHelpers": true,
+    "target": "ES2022",
+    "module": "ES2022",
+    "useDefineForClassFields": false,
+    "lib": [
+      "ES2022",
+      "dom"
+    ]
+  ,"skipLibCheck":true},
+  "angularCompilerOptions": {
+    "enableI18nLegacyMessageIdFormat": false,
+    "strictInjectionParameters": true,
+    "strictInputAccessModifiers": true,
+    "strictTemplates": true
   }
 }
