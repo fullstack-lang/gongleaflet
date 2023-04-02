@@ -13,10 +13,10 @@ import * as gongleaflet from 'gongleaflet'
 export class AppComponent implements OnInit {
 
   default = 'Gongleaflet Data/Model'
-  carto = 'carto view'
+  carto = 'Carto view'
   view = this.carto
 
-  views: string[] = [this.default];
+  views: string[] = [this.carto, this.default];
 
   GONG__StackPath = "github.com/fullstack-lang/gongleaflet/go/models"
   loading: boolean = true
