@@ -5,11 +5,14 @@ import (
 
 	"github.com/fullstack-lang/gongleaflet/go/fullstack"
 	"github.com/fullstack-lang/gongleaflet/go/models"
+	"github.com/fullstack-lang/gongleaflet/go/static"
 )
 
 func TestGongLeaflet(t *testing.T) {
 
-	stage, _ := fullstack.NewStackInstance(nil, "")
+	r := static.ServeStaticFiles(false)
+
+	stage := fullstack.NewStackInstance(r, "")
 
 	displayTrackHistory := true
 	visualTrack := (&models.VisualTrack{

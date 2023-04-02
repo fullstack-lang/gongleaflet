@@ -17,6 +17,8 @@ export class AppComponent {
   diagrams = 'Diagrams view'
   views: string[] = [this.carto, this.data];
 
+  GONG__StackPath = "github.com/fullstack-lang/gongxlsx/go/models"
+
   userClick(lat: number, lng: number): void {
     console.log("user clicked on lat: " + lat + " lng: " + lng)
   }
