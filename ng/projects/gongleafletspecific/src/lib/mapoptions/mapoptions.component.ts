@@ -143,7 +143,7 @@ export class MapoptionsComponent implements OnInit {
       userClick.Lat = e.latlng.lat
       userClick.Lng = e.latlng.lng
 
-      this.userClickService.postUserClick(userClick, "").subscribe(
+      this.userClickService.postUserClick(userClick, this.GONG__StackPath).subscribe(
         (userClick) => {
           console.log("user clicked")
           this.userClickService.UserClickServiceChanged.next("post")
@@ -585,7 +585,7 @@ export class MapoptionsComponent implements OnInit {
 
   refreshMapWithMarkers() {
 
-    this.frontRepoService.pull().subscribe(
+    this.frontRepoService.pull(this.GONG__StackPath).subscribe(
       frontRepo => {
         this.frontRepo = frontRepo
 
