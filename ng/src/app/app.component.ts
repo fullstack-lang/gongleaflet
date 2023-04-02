@@ -1,23 +1,31 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 
-import * as gongleafletspecific from 'gongleafletspecific'
+import { Observable, combineLatest, timer } from 'rxjs'
+
+import * as gongdoc from 'gongdoc'
 import * as gongleaflet from 'gongleaflet'
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
-})
-export class AppComponent {
-  title = 'ng';
 
-  view = 'Carto view' // the curent view
+})
+export class AppComponent implements OnInit {
+
+  default = 'Gongleaflet Data/Model'
   carto = 'Carto view'
-  data = 'Data view'
-  diagrams = 'Diagrams view'
-  views: string[] = [this.carto, this.data];
+  view = this.carto
+
+  views: string[] = [this.carto, this.default];
+
+  GONG__StackPath = "github.com/fullstack-lang/gongleaflet/go/models"
+  loading: boolean = true
 
   userClick(lat: number, lng: number): void {
     console.log("user clicked on lat: " + lat + " lng: " + lng)
+  }
+
+  ngOnInit(): void {
+    this.loading = false
   }
 }

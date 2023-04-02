@@ -1,6 +1,22 @@
 # github.com/frankban/quicktest v1.13.1
 ## explicit; go 1.13
 github.com/frankban/quicktest
+# github.com/fullstack-lang/gong v0.0.0-20230331131619-83171bcdfc6c
+## explicit; go 1.19
+github.com/fullstack-lang/gong/go/controllers
+github.com/fullstack-lang/gong/go/fullstack
+github.com/fullstack-lang/gong/go/models
+github.com/fullstack-lang/gong/go/orm
+github.com/fullstack-lang/gong/ng/projects
+# github.com/fullstack-lang/gongdoc v0.0.0-20230331094839-7d3ab2a504ec
+## explicit; go 1.19
+github.com/fullstack-lang/gongdoc/go/controllers
+github.com/fullstack-lang/gongdoc/go/fullstack
+github.com/fullstack-lang/gongdoc/go/load
+github.com/fullstack-lang/gongdoc/go/models
+github.com/fullstack-lang/gongdoc/go/node2gongdoc
+github.com/fullstack-lang/gongdoc/go/orm
+github.com/fullstack-lang/gongdoc/ng/projects
 # github.com/gin-contrib/cors v1.4.0
 ## explicit; go 1.13
 github.com/gin-contrib/cors
@@ -136,6 +152,12 @@ github.com/xuri/nfp
 golang.org/x/crypto/md4
 golang.org/x/crypto/ripemd160
 golang.org/x/crypto/sha3
+# golang.org/x/mod v0.5.1
+## explicit; go 1.17
+golang.org/x/mod/internal/lazyregexp
+golang.org/x/mod/modfile
+golang.org/x/mod/module
+golang.org/x/mod/semver
 # golang.org/x/net v0.0.0-20220907135653-1e95f45603a7
 ## explicit; go 1.17
 golang.org/x/net/html
