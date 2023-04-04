@@ -3,28 +3,42 @@ package tests
 import (
 	"testing"
 
-	"github.com/fullstack-lang/gongleaflet/go/fullstack"
-	"github.com/fullstack-lang/gongleaflet/go/models"
-	"github.com/fullstack-lang/gongleaflet/go/static"
+	gongleaflet_fullstack "github.com/fullstack-lang/gongleaflet/go/fullstack"
+	gongleaflet_models "github.com/fullstack-lang/gongleaflet/go/models"
+	gongleaflet_static "github.com/fullstack-lang/gongleaflet/go/static"
 )
 
 func TestGongLeaflet(t *testing.T) {
 
-	r := static.ServeStaticFiles(false)
+	r := gongleaflet_static.ServeStaticFiles(false)
 
-	stage := fullstack.NewStackInstance(r, "")
+	gongleafletStage := gongleaflet_fullstack.NewStackInstance(r, "")
 
 	displayTrackHistory := true
-	visualTrack := (&models.VisualTrack{
+	visualTrack := (&gongleaflet_models.VisualTrack{
 		DisplayTrackHistory: displayTrackHistory,
 	})
 
-	visualTrack.Stage(stage)
+	visualTrack.Stage(gongleafletStage)
 
-	stage.Commit()
+	// update visual track
+	AirportLayer := new(gongleaflet_models.LayerGroup).Stage(gongleafletStage)
+	AirportLayer.Name = "Airport Layer"
+	AirportLayer.DisplayName = "Airport Layer"
 
-	visualTrack.Unstage(stage)
+	gongleaflet_models.ComputeLayerGroupFromLayerGroupName(gongleafletStage, "Airport Layer")
 
-	stage.Commit()
+	// update the visual track from the update of tje underlying object
+	movingObject := new(MovingObject)
+
+	gongleaflet_models.AttachVisualTrack(gongleafletStage, movingObject, nil, gongleaflet_models.GREEN, false, true)
+
+	visualTrack.UpdateTrack()
+
+	gongleafletStage.Commit()
+
+	visualTrack.Unstage(gongleafletStage)
+
+	gongleafletStage.Commit()
 
 }
