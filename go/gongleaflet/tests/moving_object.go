@@ -37,3 +37,13 @@ func (movingObject *MovingObject) GetLevel() float64         { return movingObje
 func (movingObject *MovingObject) GetDisplay() bool { return true }
 
 func (*MovingObject) GetLayerGroupName() (name string) { return "" }
+
+// for line interface
+func (movingObject *MovingObject) GetStartLat() float64            { return movingObject.Lat }
+func (movingObject *MovingObject) GetStartLng() float64            { return movingObject.Lng }
+func (movingObject *MovingObject) GetEndLat() float64              { return movingObject.Lat }
+func (movingObject *MovingObject) GetEndLng() float64              { return movingObject.Lng }
+func (movingObject *MovingObject) GetIsTransmitting() bool         { return true }
+func (movingObject *MovingObject) GetIsTransmittingBackward() bool { return true }
+func (movingObject *MovingObject) GetMessage() string              { return "" }
+func (movingObject *MovingObject) GetMessageBackward() string      { return "" }

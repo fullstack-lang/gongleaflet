@@ -14,13 +14,6 @@ func TestGongLeaflet(t *testing.T) {
 
 	gongleafletStage := gongleaflet_fullstack.NewStackInstance(r, "")
 
-	displayTrackHistory := true
-	visualTrack := (&gongleaflet_models.VisualTrack{
-		DisplayTrackHistory: displayTrackHistory,
-	})
-
-	visualTrack.Stage(gongleafletStage)
-
 	// update visual track
 	AirportLayer := new(gongleaflet_models.LayerGroup).Stage(gongleafletStage)
 	AirportLayer.Name = "Airport Layer"
@@ -31,9 +24,13 @@ func TestGongLeaflet(t *testing.T) {
 	// update the visual track from the update of tje underlying object
 	movingObject := new(MovingObject)
 
-	gongleaflet_models.AttachVisualTrack(gongleafletStage, movingObject, nil, gongleaflet_models.GREEN, false, true)
+	visualTrack := gongleaflet_models.AttachVisualTrack(gongleafletStage, movingObject, nil, gongleaflet_models.GREEN, false, true)
+	visualLine := gongleaflet_models.AttachLine(gongleafletStage, movingObject, gongleaflet_models.FIVE_TEN)
+	visualMarker := gongleaflet_models.AttachMarker(gongleafletStage, movingObject, gongleaflet_models.BLUE, nil)
 
 	visualTrack.UpdateTrack()
+	visualLine.UpdateLine()
+	visualMarker.UpdateMarker()
 
 	gongleafletStage.Commit()
 
