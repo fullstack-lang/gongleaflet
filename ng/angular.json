@@ -169,6 +169,39 @@
           }
         }
       }
+    },
+    "gongleafletdatamodel": {
+      "projectType": "library",
+      "root": "projects/gongleafletdatamodel",
+      "sourceRoot": "projects/gongleafletdatamodel/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:ng-packagr",
+          "options": {
+            "project": "projects/gongleafletdatamodel/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/gongleafletdatamodel/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/gongleafletdatamodel/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "tsConfig": "projects/gongleafletdatamodel/tsconfig.spec.json",
+            "polyfills": [
+              "zone.js",
+              "zone.js/testing"
+            ]
+          }
+        }
+      }
     }
   },
   "version": 1

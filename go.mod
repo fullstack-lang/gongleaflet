@@ -13,26 +13,27 @@ require (
 	github.com/mattn/go-isatty v0.0.16 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/shabbyrobe/xmlwriter v0.0.0-20210324110748-440e98cf0c87 // indirect
-	github.com/tealeg/xlsx/v3 v3.2.3
+	github.com/tealeg/xlsx/v3 v3.2.4
 	golang.org/x/crypto v0.0.0-20220829220503-c86fa9a7ed90 // indirect
 	golang.org/x/sys v0.0.0-20220908164124-27713097b956 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 	google.golang.org/protobuf v1.28.1 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
-	gorm.io/gorm v1.22.5
+	gorm.io/gorm v1.23.10
 )
 
 require (
-	github.com/fullstack-lang/gongdoc v0.0.0-20230331094839-7d3ab2a504ec
-	github.com/glebarez/sqlite v1.3.5
+	github.com/fullstack-lang/gongdoc v0.0.0-20230613211732-bad85975df1d
+	github.com/glebarez/sqlite v1.4.7
 	github.com/xuri/excelize/v2 v2.6.1
 )
 
 require (
-	github.com/fullstack-lang/gong v0.0.0-20230331131619-83171bcdfc6c // indirect
+	github.com/fullstack-lang/gong v0.0.0-20230613210948-2c2013a7d431 // indirect
+	github.com/fullstack-lang/gongsvg v0.0.0-20230613071402-51cc2bb615bd // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
-	github.com/glebarez/go-sqlite v1.14.7 // indirect
+	github.com/glebarez/go-sqlite v1.18.2 // indirect
 	github.com/go-playground/locales v0.14.0 // indirect
 	github.com/go-playground/universal-translator v0.18.0 // indirect
 	github.com/goccy/go-json v0.9.11 // indirect
@@ -57,8 +58,8 @@ require (
 	github.com/xuri/nfp v0.0.0-20220409054826-5e722a1d9e22 // indirect
 	golang.org/x/mod v0.5.1 // indirect
 	golang.org/x/net v0.0.0-20220907135653-1e95f45603a7 // indirect
-	modernc.org/libc v1.14.3 // indirect
-	modernc.org/mathutil v1.4.1 // indirect
-	modernc.org/memory v1.0.5 // indirect
-	modernc.org/sqlite v1.14.5 // indirect
+	modernc.org/libc v1.18.0 // indirect
+	modernc.org/mathutil v1.5.0 // indirect
+	modernc.org/memory v1.3.0 // indirect
+	modernc.org/sqlite v1.18.2 // indirect
 )

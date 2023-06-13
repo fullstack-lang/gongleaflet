@@ -119,7 +119,7 @@ export class LayerGroupService {
     return this.http.put<LayerGroupDB>(url, layergroupdb, httpOptions).pipe(
       tap(_ => {
         // insertion point for restoration of reverse pointers
-        this.log(`updated layergroupdb id=${layergroupdb.ID}`)
+        // this.log(`updated layergroupdb id=${layergroupdb.ID}`)
       }),
       catchError(this.handleError<LayerGroupDB>('updateLayerGroup'))
     );

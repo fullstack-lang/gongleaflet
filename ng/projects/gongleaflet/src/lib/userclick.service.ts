@@ -119,7 +119,7 @@ export class UserClickService {
     return this.http.put<UserClickDB>(url, userclickdb, httpOptions).pipe(
       tap(_ => {
         // insertion point for restoration of reverse pointers
-        this.log(`updated userclickdb id=${userclickdb.ID}`)
+        // this.log(`updated userclickdb id=${userclickdb.ID}`)
       }),
       catchError(this.handleError<UserClickDB>('updateUserClick'))
     );

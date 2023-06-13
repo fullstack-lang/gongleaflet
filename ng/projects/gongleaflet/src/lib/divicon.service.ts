@@ -119,7 +119,7 @@ export class DivIconService {
     return this.http.put<DivIconDB>(url, divicondb, httpOptions).pipe(
       tap(_ => {
         // insertion point for restoration of reverse pointers
-        this.log(`updated divicondb id=${divicondb.ID}`)
+        // this.log(`updated divicondb id=${divicondb.ID}`)
       }),
       catchError(this.handleError<DivIconDB>('updateDivIcon'))
     );

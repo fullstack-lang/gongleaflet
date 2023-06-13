@@ -125,7 +125,7 @@ export class VisualTrackService {
     return this.http.put<VisualTrackDB>(url, visualtrackdb, httpOptions).pipe(
       tap(_ => {
         // insertion point for restoration of reverse pointers
-        this.log(`updated visualtrackdb id=${visualtrackdb.ID}`)
+        // this.log(`updated visualtrackdb id=${visualtrackdb.ID}`)
       }),
       catchError(this.handleError<VisualTrackDB>('updateVisualTrack'))
     );
