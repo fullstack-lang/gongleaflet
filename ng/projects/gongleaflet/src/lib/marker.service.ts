@@ -125,7 +125,7 @@ export class MarkerService {
     return this.http.put<MarkerDB>(url, markerdb, httpOptions).pipe(
       tap(_ => {
         // insertion point for restoration of reverse pointers
-        this.log(`updated markerdb id=${markerdb.ID}`)
+        // this.log(`updated markerdb id=${markerdb.ID}`)
       }),
       catchError(this.handleError<MarkerDB>('updateMarker'))
     );

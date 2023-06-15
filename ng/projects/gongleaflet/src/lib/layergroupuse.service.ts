@@ -129,7 +129,7 @@ export class LayerGroupUseService {
       tap(_ => {
         // insertion point for restoration of reverse pointers
         layergroupusedb.MapOptions_LayerGroupUses_reverse = _MapOptions_LayerGroupUses_reverse
-        this.log(`updated layergroupusedb id=${layergroupusedb.ID}`)
+        // this.log(`updated layergroupusedb id=${layergroupusedb.ID}`)
       }),
       catchError(this.handleError<LayerGroupUseDB>('updateLayerGroupUse'))
     );

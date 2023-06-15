@@ -4,7 +4,7 @@ import { GongleafletspecificComponent } from './gongleafletspecific.component';
 import { DataModelPanelComponent } from './data-model-panel/data-model-panel.component';
 
 import { GongdocModule } from 'gongdoc'
-import { GongdocdiagramsModule } from 'gongdocdiagrams'
+import { GongdocspecificModule } from 'gongdocspecific'
 
 import { GongleafletModule } from 'gongleaflet'
 
@@ -34,8 +34,9 @@ import { MatIconModule } from '@angular/material/icon';
     CartoatcControlSettingsComponent,
   ],
   imports: [
+
     GongdocModule,
-    GongdocdiagramsModule,
+    GongdocspecificModule,
 
     BrowserModule,
     BrowserAnimationsModule,

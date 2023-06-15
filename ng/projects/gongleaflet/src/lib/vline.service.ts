@@ -122,7 +122,7 @@ export class VLineService {
     return this.http.put<VLineDB>(url, vlinedb, httpOptions).pipe(
       tap(_ => {
         // insertion point for restoration of reverse pointers
-        this.log(`updated vlinedb id=${vlinedb.ID}`)
+        // this.log(`updated vlinedb id=${vlinedb.ID}`)
       }),
       catchError(this.handleError<VLineDB>('updateVLine'))
     );

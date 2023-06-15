@@ -122,7 +122,7 @@ export class CircleService {
     return this.http.put<CircleDB>(url, circledb, httpOptions).pipe(
       tap(_ => {
         // insertion point for restoration of reverse pointers
-        this.log(`updated circledb id=${circledb.ID}`)
+        // this.log(`updated circledb id=${circledb.ID}`)
       }),
       catchError(this.handleError<CircleDB>('updateCircle'))
     );

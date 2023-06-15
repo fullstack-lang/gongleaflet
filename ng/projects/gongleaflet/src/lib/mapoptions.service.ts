@@ -121,7 +121,7 @@ export class MapOptionsService {
     return this.http.put<MapOptionsDB>(url, mapoptionsdb, httpOptions).pipe(
       tap(_ => {
         // insertion point for restoration of reverse pointers
-        this.log(`updated mapoptionsdb id=${mapoptionsdb.ID}`)
+        // this.log(`updated mapoptionsdb id=${mapoptionsdb.ID}`)
       }),
       catchError(this.handleError<MapOptionsDB>('updateMapOptions'))
     );
