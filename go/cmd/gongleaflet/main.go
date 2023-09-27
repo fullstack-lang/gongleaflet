@@ -12,6 +12,7 @@ import (
 	gongleaflet_go "github.com/fullstack-lang/gongleaflet/go"
 	gongleaflet_fullstack "github.com/fullstack-lang/gongleaflet/go/fullstack"
 	gongleaflet_models "github.com/fullstack-lang/gongleaflet/go/models"
+	gongleaflet_probe "github.com/fullstack-lang/gongleaflet/go/probe"
 	gongleaflet_static "github.com/fullstack-lang/gongleaflet/go/static"
 
 	gongleaflet_icons "github.com/fullstack-lang/gongleaflet/go/icons"
@@ -64,7 +65,7 @@ func main() {
 	r := gongleaflet_static.ServeStaticFiles(*logGINFlag)
 
 	// setup stack
-	stage := gongleaflet_fullstack.NewStackInstance(r, "github.com/fullstack-lang/gongleaflet/go/models")
+	stage, backRepo := gongleaflet_fullstack.NewStackInstance(r, "gongleaflet")
 
 	// generate injection code from the stage
 	if *marshallOnStartup != "" {
@@ -334,6 +335,9 @@ func main() {
 			}
 		}
 	}()
+
+	gongleaflet_probe.NewProbe(r, gongleaflet_go.GoModelsDir, gongleaflet_go.GoDiagramsDir,
+		*embeddedDiagrams, "gongleaflet", stage, backRepo)
 
 	log.Printf("Server ready serve on localhost:8080")
 	r.Run()

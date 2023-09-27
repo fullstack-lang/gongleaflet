@@ -1,7 +1,6 @@
 import { NgModule } from '@angular/core';
 
 import { GongleafletspecificComponent } from './gongleafletspecific.component';
-import { DataModelPanelComponent } from './data-model-panel/data-model-panel.component';
 
 import { GongdocModule } from 'gongdoc'
 import { GongdocspecificModule } from 'gongdocspecific'
@@ -28,7 +27,6 @@ import { MatIconModule } from '@angular/material/icon';
 @NgModule({
   declarations: [
     GongleafletspecificComponent,
-    DataModelPanelComponent,
 
     MapoptionsComponent,
     CartoatcControlSettingsComponent,
@@ -56,7 +54,6 @@ import { MatIconModule } from '@angular/material/icon';
   ],
   exports: [
     GongleafletspecificComponent,
-    DataModelPanelComponent,
     MapoptionsComponent,
     CartoatcControlSettingsComponent,
   ]

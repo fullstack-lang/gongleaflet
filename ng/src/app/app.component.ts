@@ -5,10 +5,18 @@ import { Observable, combineLatest, timer } from 'rxjs'
 import * as gongdoc from 'gongdoc'
 import * as gongleaflet from 'gongleaflet'
 
+import { GongdocModule } from 'gongdoc'
+import { GongdocspecificModule } from 'gongdocspecific'
+
+import { GongtreeModule } from 'gongtree'
+import { GongtreespecificModule } from 'gongtreespecific'
+
+import { GongtableModule } from 'gongtable'
+import { GongtablespecificModule } from 'gongtablespecific'
+
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-
 })
 export class AppComponent implements OnInit {
 
@@ -18,7 +26,13 @@ export class AppComponent implements OnInit {
 
   views: string[] = [this.carto, this.default];
 
-  GONG__StackPath = "github.com/fullstack-lang/gongleaflet/go/models"
+  scrollStyle = {
+    'overflow- x': 'auto',
+    'width': '100%',  // Ensure the div takes the full width of its parent container
+  }
+
+  StackName = "gongleaflet"
+  StackType = "github.com/fullstack-lang/gongleaflet/go/models"
   loading: boolean = true
 
   userClick(lat: number, lng: number): void {
@@ -26,6 +40,5 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.loading = false
   }
 }

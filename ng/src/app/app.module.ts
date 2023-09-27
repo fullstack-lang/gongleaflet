@@ -27,14 +27,19 @@ import { FormsModule } from '@angular/forms';
 // to split the screen
 import { AngularSplitModule } from 'angular-split';
 
+import { GongModule } from 'gong'
+
 import { GongdocModule } from 'gongdoc'
 import { GongdocspecificModule } from 'gongdocspecific'
 
-import { GongModule } from 'gong'
+import { GongtreeModule } from 'gongtree'
+import { GongtreespecificModule } from 'gongtreespecific'
+
+import { GongtableModule } from 'gongtable'
+import { GongtablespecificModule } from 'gongtablespecific'
 
 import { GongleafletModule } from 'gongleaflet'
 import { GongleafletspecificModule } from 'gongleafletspecific'
-import { GongstructSelectionService } from 'gongleaflet'
 
 // mandatory
 import { HttpClientModule } from '@angular/common/http';
@@ -74,11 +79,16 @@ import { HttpClientModule } from '@angular/common/http';
     GongdocModule,
     GongdocspecificModule,
 
+    GongtreeModule,
+    GongtreespecificModule,
+
+    GongtableModule,
+    GongtablespecificModule,
+
     GongleafletModule,
     GongleafletspecificModule,
   ],
   providers: [
-    GongstructSelectionService
   ],
   bootstrap: [AppComponent]
 })
