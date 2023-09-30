@@ -1,9 +1,9 @@
-import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Injectable } from '@angular/core'
+import { HttpClient, HttpHeaders } from '@angular/common/http'
 
-import { Observable, combineLatest, BehaviorSubject, of } from 'rxjs';
+import { Observable, combineLatest, BehaviorSubject, of } from 'rxjs'
 
-// insertion point sub template for services imports 
+// insertion point sub template for services imports
 import { CircleDB } from './circle-db'
 import { CircleService } from './circle.service'
 
@@ -33,34 +33,99 @@ import { VisualTrackService } from './visualtrack.service'
 
 
 // FrontRepo stores all instances in a front repository (design pattern repository)
-export class FrontRepo { // insertion point sub template 
-  Circles_array = new Array<CircleDB>(); // array of repo instances
-  Circles = new Map<number, CircleDB>(); // map of repo instances
-  Circles_batch = new Map<number, CircleDB>(); // same but only in last GET (for finding repo instances to delete)
-  DivIcons_array = new Array<DivIconDB>(); // array of repo instances
-  DivIcons = new Map<number, DivIconDB>(); // map of repo instances
-  DivIcons_batch = new Map<number, DivIconDB>(); // same but only in last GET (for finding repo instances to delete)
-  LayerGroups_array = new Array<LayerGroupDB>(); // array of repo instances
-  LayerGroups = new Map<number, LayerGroupDB>(); // map of repo instances
-  LayerGroups_batch = new Map<number, LayerGroupDB>(); // same but only in last GET (for finding repo instances to delete)
-  LayerGroupUses_array = new Array<LayerGroupUseDB>(); // array of repo instances
-  LayerGroupUses = new Map<number, LayerGroupUseDB>(); // map of repo instances
-  LayerGroupUses_batch = new Map<number, LayerGroupUseDB>(); // same but only in last GET (for finding repo instances to delete)
-  MapOptionss_array = new Array<MapOptionsDB>(); // array of repo instances
-  MapOptionss = new Map<number, MapOptionsDB>(); // map of repo instances
-  MapOptionss_batch = new Map<number, MapOptionsDB>(); // same but only in last GET (for finding repo instances to delete)
-  Markers_array = new Array<MarkerDB>(); // array of repo instances
-  Markers = new Map<number, MarkerDB>(); // map of repo instances
-  Markers_batch = new Map<number, MarkerDB>(); // same but only in last GET (for finding repo instances to delete)
-  UserClicks_array = new Array<UserClickDB>(); // array of repo instances
-  UserClicks = new Map<number, UserClickDB>(); // map of repo instances
-  UserClicks_batch = new Map<number, UserClickDB>(); // same but only in last GET (for finding repo instances to delete)
-  VLines_array = new Array<VLineDB>(); // array of repo instances
-  VLines = new Map<number, VLineDB>(); // map of repo instances
-  VLines_batch = new Map<number, VLineDB>(); // same but only in last GET (for finding repo instances to delete)
-  VisualTracks_array = new Array<VisualTrackDB>(); // array of repo instances
-  VisualTracks = new Map<number, VisualTrackDB>(); // map of repo instances
-  VisualTracks_batch = new Map<number, VisualTrackDB>(); // same but only in last GET (for finding repo instances to delete)
+export class FrontRepo { // insertion point sub template
+  Circles_array = new Array<CircleDB>() // array of repo instances
+  Circles = new Map<number, CircleDB>() // map of repo instances
+  Circles_batch = new Map<number, CircleDB>() // same but only in last GET (for finding repo instances to delete)
+
+  DivIcons_array = new Array<DivIconDB>() // array of repo instances
+  DivIcons = new Map<number, DivIconDB>() // map of repo instances
+  DivIcons_batch = new Map<number, DivIconDB>() // same but only in last GET (for finding repo instances to delete)
+
+  LayerGroups_array = new Array<LayerGroupDB>() // array of repo instances
+  LayerGroups = new Map<number, LayerGroupDB>() // map of repo instances
+  LayerGroups_batch = new Map<number, LayerGroupDB>() // same but only in last GET (for finding repo instances to delete)
+
+  LayerGroupUses_array = new Array<LayerGroupUseDB>() // array of repo instances
+  LayerGroupUses = new Map<number, LayerGroupUseDB>() // map of repo instances
+  LayerGroupUses_batch = new Map<number, LayerGroupUseDB>() // same but only in last GET (for finding repo instances to delete)
+
+  MapOptionss_array = new Array<MapOptionsDB>() // array of repo instances
+  MapOptionss = new Map<number, MapOptionsDB>() // map of repo instances
+  MapOptionss_batch = new Map<number, MapOptionsDB>() // same but only in last GET (for finding repo instances to delete)
+
+  Markers_array = new Array<MarkerDB>() // array of repo instances
+  Markers = new Map<number, MarkerDB>() // map of repo instances
+  Markers_batch = new Map<number, MarkerDB>() // same but only in last GET (for finding repo instances to delete)
+
+  UserClicks_array = new Array<UserClickDB>() // array of repo instances
+  UserClicks = new Map<number, UserClickDB>() // map of repo instances
+  UserClicks_batch = new Map<number, UserClickDB>() // same but only in last GET (for finding repo instances to delete)
+
+  VLines_array = new Array<VLineDB>() // array of repo instances
+  VLines = new Map<number, VLineDB>() // map of repo instances
+  VLines_batch = new Map<number, VLineDB>() // same but only in last GET (for finding repo instances to delete)
+
+  VisualTracks_array = new Array<VisualTrackDB>() // array of repo instances
+  VisualTracks = new Map<number, VisualTrackDB>() // map of repo instances
+  VisualTracks_batch = new Map<number, VisualTrackDB>() // same but only in last GET (for finding repo instances to delete)
+
+
+  // getArray allows for a get function that is robust to refactoring of the named struct name
+  // for instance frontRepo.getArray<Astruct>( Astruct.GONGSTRUCT_NAME), is robust to a refactoring of Astruct identifier
+  // contrary to frontRepo.Astructs_array which is not refactored when Astruct identifier is modified
+  getArray<Type>(gongStructName: string): Array<Type> {
+    switch (gongStructName) {
+      // insertion point
+      case 'Circle':
+        return this.Circles_array as unknown as Array<Type>
+      case 'DivIcon':
+        return this.DivIcons_array as unknown as Array<Type>
+      case 'LayerGroup':
+        return this.LayerGroups_array as unknown as Array<Type>
+      case 'LayerGroupUse':
+        return this.LayerGroupUses_array as unknown as Array<Type>
+      case 'MapOptions':
+        return this.MapOptionss_array as unknown as Array<Type>
+      case 'Marker':
+        return this.Markers_array as unknown as Array<Type>
+      case 'UserClick':
+        return this.UserClicks_array as unknown as Array<Type>
+      case 'VLine':
+        return this.VLines_array as unknown as Array<Type>
+      case 'VisualTrack':
+        return this.VisualTracks_array as unknown as Array<Type>
+      default:
+        throw new Error("Type not recognized");
+    }
+  }
+
+  // getMap allows for a get function that is robust to refactoring of the named struct name
+  getMap<Type>(gongStructName: string): Map<number, Type> {
+    switch (gongStructName) {
+      // insertion point
+      case 'Circle':
+        return this.Circles_array as unknown as Map<number, Type>
+      case 'DivIcon':
+        return this.DivIcons_array as unknown as Map<number, Type>
+      case 'LayerGroup':
+        return this.LayerGroups_array as unknown as Map<number, Type>
+      case 'LayerGroupUse':
+        return this.LayerGroupUses_array as unknown as Map<number, Type>
+      case 'MapOptions':
+        return this.MapOptionss_array as unknown as Map<number, Type>
+      case 'Marker':
+        return this.Markers_array as unknown as Map<number, Type>
+      case 'UserClick':
+        return this.UserClicks_array as unknown as Map<number, Type>
+      case 'VLine':
+        return this.VLines_array as unknown as Map<number, Type>
+      case 'VisualTrack':
+        return this.VisualTracks_array as unknown as Map<number, Type>
+      default:
+        throw new Error("Type not recognized");
+    }
+  }
 }
 
 // the table component is called in different ways
@@ -161,7 +226,7 @@ export class FrontRepoService {
   }
 
   // typing of observable can be messy in typescript. Therefore, one force the type
-  observableFrontRepo: [ 
+  observableFrontRepo: [
     Observable<null>, // see below for the of(null) observable
     // insertion point sub template 
     Observable<CircleDB[]>,
@@ -173,16 +238,16 @@ export class FrontRepoService {
     Observable<UserClickDB[]>,
     Observable<VLineDB[]>,
     Observable<VisualTrackDB[]>,
-  ] = [ 
-    // Using "combineLatest" with a placeholder observable.
-    //
-    // This allows the typescript compiler to pass when no GongStruct is present in the front API
-    //
-    // The "of(null)" is a "meaningless" observable that emits a single value (null) and completes.
-    // This is used as a workaround to satisfy TypeScript requirements and the "combineLatest" 
-    // expectation for a non-empty array of observables.
-    of(null), // 
-    // insertion point sub template
+  ] = [
+      // Using "combineLatest" with a placeholder observable.
+      //
+      // This allows the typescript compiler to pass when no GongStruct is present in the front API
+      //
+      // The "of(null)" is a "meaningless" observable that emits a single value (null) and completes.
+      // This is used as a workaround to satisfy TypeScript requirements and the "combineLatest" 
+      // expectation for a non-empty array of observables.
+      of(null), // 
+      // insertion point sub template
       this.circleService.getCircles(this.GONG__StackPath),
       this.diviconService.getDivIcons(this.GONG__StackPath),
       this.layergroupService.getLayerGroups(this.GONG__StackPath),
@@ -204,7 +269,7 @@ export class FrontRepoService {
 
     this.GONG__StackPath = GONG__StackPath
 
-    this.observableFrontRepo = [ 
+    this.observableFrontRepo = [
       of(null), // see above for justification
       // insertion point sub template
       this.circleService.getCircles(this.GONG__StackPath),
@@ -223,7 +288,7 @@ export class FrontRepoService {
         combineLatest(
           this.observableFrontRepo
         ).subscribe(
-          ([ 
+          ([
             ___of_null, // see above for the explanation about of
             // insertion point sub template for declarations 
             circles_,

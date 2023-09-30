@@ -2,7 +2,6 @@ import { Type } from '@angular/core';
 import * as gongleaflet from 'gongleaflet';
 
 import * as L from 'leaflet';
-import { map } from 'rxjs/operators';
 
 // return the mapOptions that is passed to the 
 // creation of the map
