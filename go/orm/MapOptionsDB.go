@@ -35,16 +35,19 @@ var dummy_MapOptions_sort sort.Float64Slice
 type MapOptionsAPI struct {
 	gorm.Model
 
-	models.MapOptions
+	models.MapOptions_WOP
 
 	// encoding of pointers
-	MapOptionsPointersEnconding
+	MapOptionsPointersEncoding
 }
 
-// MapOptionsPointersEnconding encodes pointers to Struct and
+// MapOptionsPointersEncoding encodes pointers to Struct and
 // reverse pointers of slice of poitners to Struct
-type MapOptionsPointersEnconding struct {
+type MapOptionsPointersEncoding struct {
 	// insertion for pointer fields encoding declaration
+
+	// field LayerGroupUses is a slice of pointers to another Struct (optional or 0..1)
+	LayerGroupUses IntSlice`gorm:"type:TEXT"`
 }
 
 // MapOptionsDB describes a mapoptions in the database
@@ -90,7 +93,7 @@ type MapOptionsDB struct {
 	// Declation for basic field mapoptionsDB.ZoomSnap
 	ZoomSnap_Data sql.NullInt64
 	// encoding of pointers
-	MapOptionsPointersEnconding
+	MapOptionsPointersEncoding
 }
 
 // MapOptionsDBs arrays mapoptionsDBs
@@ -206,7 +209,7 @@ func (backRepoMapOptions *BackRepoMapOptionsStruct) CommitDeleteInstance(id uint
 	mapoptionsDB := backRepoMapOptions.Map_MapOptionsDBID_MapOptionsDB[id]
 	query := backRepoMapOptions.db.Unscoped().Delete(&mapoptionsDB)
 	if query.Error != nil {
-		return query.Error
+		log.Fatal(query.Error)
 	}
 
 	// update stores
@@ -232,7 +235,7 @@ func (backRepoMapOptions *BackRepoMapOptionsStruct) CommitPhaseOneInstance(mapop
 
 	query := backRepoMapOptions.db.Create(&mapoptionsDB)
 	if query.Error != nil {
-		return query.Error
+		log.Fatal(query.Error)
 	}
 
 	// update stores
@@ -283,9 +286,19 @@ func (backRepoMapOptions *BackRepoMapOptionsStruct) CommitPhaseTwoInstance(backR
 			}
 		}
 
+		// 1. reset
+		mapoptionsDB.MapOptionsPointersEncoding.LayerGroupUses = make([]int, 0)
+		// 2. encode
+		for _, layergroupuseAssocEnd := range mapoptions.LayerGroupUses {
+			layergroupuseAssocEnd_DB :=
+				backRepo.BackRepoLayerGroupUse.GetLayerGroupUseDBFromLayerGroupUsePtr(layergroupuseAssocEnd)
+			mapoptionsDB.MapOptionsPointersEncoding.LayerGroupUses =
+				append(mapoptionsDB.MapOptionsPointersEncoding.LayerGroupUses, int(layergroupuseAssocEnd_DB.ID))
+		}
+
 		query := backRepoMapOptions.db.Save(&mapoptionsDB)
 		if query.Error != nil {
-			return query.Error
+			log.Fatalln(query.Error)
 		}
 
 	} else {
@@ -439,7 +452,7 @@ func (backRepo *BackRepoStruct) CheckoutMapOptions(mapoptions *models.MapOptions
 			mapoptionsDB.ID = id
 
 			if err := backRepo.BackRepoMapOptions.db.First(&mapoptionsDB, id).Error; err != nil {
-				log.Panicln("CheckoutMapOptions : Problem with getting object with id:", id)
+				log.Fatalln("CheckoutMapOptions : Problem with getting object with id:", id)
 			}
 			backRepo.BackRepoMapOptions.CheckoutPhaseOneInstance(&mapoptionsDB)
 			backRepo.BackRepoMapOptions.CheckoutPhaseTwoInstance(backRepo, &mapoptionsDB)
@@ -449,6 +462,41 @@ func (backRepo *BackRepoStruct) CheckoutMapOptions(mapoptions *models.MapOptions
 
 // CopyBasicFieldsFromMapOptions
 func (mapoptionsDB *MapOptionsDB) CopyBasicFieldsFromMapOptions(mapoptions *models.MapOptions) {
+	// insertion point for fields commit
+
+	mapoptionsDB.Lat_Data.Float64 = mapoptions.Lat
+	mapoptionsDB.Lat_Data.Valid = true
+
+	mapoptionsDB.Lng_Data.Float64 = mapoptions.Lng
+	mapoptionsDB.Lng_Data.Valid = true
+
+	mapoptionsDB.Name_Data.String = mapoptions.Name
+	mapoptionsDB.Name_Data.Valid = true
+
+	mapoptionsDB.ZoomLevel_Data.Float64 = mapoptions.ZoomLevel
+	mapoptionsDB.ZoomLevel_Data.Valid = true
+
+	mapoptionsDB.UrlTemplate_Data.String = mapoptions.UrlTemplate
+	mapoptionsDB.UrlTemplate_Data.Valid = true
+
+	mapoptionsDB.Attribution_Data.String = mapoptions.Attribution
+	mapoptionsDB.Attribution_Data.Valid = true
+
+	mapoptionsDB.MaxZoom_Data.Int64 = int64(mapoptions.MaxZoom)
+	mapoptionsDB.MaxZoom_Data.Valid = true
+
+	mapoptionsDB.ZoomControl_Data.Bool = mapoptions.ZoomControl
+	mapoptionsDB.ZoomControl_Data.Valid = true
+
+	mapoptionsDB.AttributionControl_Data.Bool = mapoptions.AttributionControl
+	mapoptionsDB.AttributionControl_Data.Valid = true
+
+	mapoptionsDB.ZoomSnap_Data.Int64 = int64(mapoptions.ZoomSnap)
+	mapoptionsDB.ZoomSnap_Data.Valid = true
+}
+
+// CopyBasicFieldsFromMapOptions_WOP
+func (mapoptionsDB *MapOptionsDB) CopyBasicFieldsFromMapOptions_WOP(mapoptions *models.MapOptions_WOP) {
 	// insertion point for fields commit
 
 	mapoptionsDB.Lat_Data.Float64 = mapoptions.Lat
@@ -532,6 +580,21 @@ func (mapoptionsDB *MapOptionsDB) CopyBasicFieldsToMapOptions(mapoptions *models
 	mapoptions.ZoomSnap = int(mapoptionsDB.ZoomSnap_Data.Int64)
 }
 
+// CopyBasicFieldsToMapOptions_WOP
+func (mapoptionsDB *MapOptionsDB) CopyBasicFieldsToMapOptions_WOP(mapoptions *models.MapOptions_WOP) {
+	// insertion point for checkout of basic fields (back repo to stage)
+	mapoptions.Lat = mapoptionsDB.Lat_Data.Float64
+	mapoptions.Lng = mapoptionsDB.Lng_Data.Float64
+	mapoptions.Name = mapoptionsDB.Name_Data.String
+	mapoptions.ZoomLevel = mapoptionsDB.ZoomLevel_Data.Float64
+	mapoptions.UrlTemplate = mapoptionsDB.UrlTemplate_Data.String
+	mapoptions.Attribution = mapoptionsDB.Attribution_Data.String
+	mapoptions.MaxZoom = int(mapoptionsDB.MaxZoom_Data.Int64)
+	mapoptions.ZoomControl = mapoptionsDB.ZoomControl_Data.Bool
+	mapoptions.AttributionControl = mapoptionsDB.AttributionControl_Data.Bool
+	mapoptions.ZoomSnap = int(mapoptionsDB.ZoomSnap_Data.Int64)
+}
+
 // CopyBasicFieldsToMapOptionsWOP
 func (mapoptionsDB *MapOptionsDB) CopyBasicFieldsToMapOptionsWOP(mapoptions *MapOptionsWOP) {
 	mapoptions.ID = int(mapoptionsDB.ID)
@@ -567,12 +630,12 @@ func (backRepoMapOptions *BackRepoMapOptionsStruct) Backup(dirPath string) {
 	file, err := json.MarshalIndent(forBackup, "", " ")
 
 	if err != nil {
-		log.Panic("Cannot json MapOptions ", filename, " ", err.Error())
+		log.Fatal("Cannot json MapOptions ", filename, " ", err.Error())
 	}
 
 	err = ioutil.WriteFile(filename, file, 0644)
 	if err != nil {
-		log.Panic("Cannot write the json MapOptions file", err.Error())
+		log.Fatal("Cannot write the json MapOptions file", err.Error())
 	}
 }
 
@@ -592,7 +655,7 @@ func (backRepoMapOptions *BackRepoMapOptionsStruct) BackupXL(file *xlsx.File) {
 
 	sh, err := file.AddSheet("MapOptions")
 	if err != nil {
-		log.Panic("Cannot add XL file", err.Error())
+		log.Fatal("Cannot add XL file", err.Error())
 	}
 	_ = sh
 
@@ -617,13 +680,13 @@ func (backRepoMapOptions *BackRepoMapOptionsStruct) RestoreXLPhaseOne(file *xlsx
 	sh, ok := file.Sheet["MapOptions"]
 	_ = sh
 	if !ok {
-		log.Panic(errors.New("sheet not found"))
+		log.Fatal(errors.New("sheet not found"))
 	}
 
 	// log.Println("Max row is", sh.MaxRow)
 	err := sh.ForEachRow(backRepoMapOptions.rowVisitorMapOptions)
 	if err != nil {
-		log.Panic("Err=", err)
+		log.Fatal("Err=", err)
 	}
 }
 
@@ -645,7 +708,7 @@ func (backRepoMapOptions *BackRepoMapOptionsStruct) rowVisitorMapOptions(row *xl
 		mapoptionsDB.ID = 0
 		query := backRepoMapOptions.db.Create(mapoptionsDB)
 		if query.Error != nil {
-			log.Panic(query.Error)
+			log.Fatal(query.Error)
 		}
 		backRepoMapOptions.Map_MapOptionsDBID_MapOptionsDB[mapoptionsDB.ID] = mapoptionsDB
 		BackRepoMapOptionsid_atBckpTime_newID[mapoptionsDB_ID_atBackupTime] = mapoptionsDB.ID
@@ -665,7 +728,7 @@ func (backRepoMapOptions *BackRepoMapOptionsStruct) RestorePhaseOne(dirPath stri
 	jsonFile, err := os.Open(filename)
 	// if we os.Open returns an error then handle it
 	if err != nil {
-		log.Panic("Cannot restore/open the json MapOptions file", filename, " ", err.Error())
+		log.Fatal("Cannot restore/open the json MapOptions file", filename, " ", err.Error())
 	}
 
 	// read our opened jsonFile as a byte array.
@@ -682,14 +745,14 @@ func (backRepoMapOptions *BackRepoMapOptionsStruct) RestorePhaseOne(dirPath stri
 		mapoptionsDB.ID = 0
 		query := backRepoMapOptions.db.Create(mapoptionsDB)
 		if query.Error != nil {
-			log.Panic(query.Error)
+			log.Fatal(query.Error)
 		}
 		backRepoMapOptions.Map_MapOptionsDBID_MapOptionsDB[mapoptionsDB.ID] = mapoptionsDB
 		BackRepoMapOptionsid_atBckpTime_newID[mapoptionsDB_ID_atBackupTime] = mapoptionsDB.ID
 	}
 
 	if err != nil {
-		log.Panic("Cannot restore/unmarshall json MapOptions file", err.Error())
+		log.Fatal("Cannot restore/unmarshall json MapOptions file", err.Error())
 	}
 }
 
@@ -706,7 +769,7 @@ func (backRepoMapOptions *BackRepoMapOptionsStruct) RestorePhaseTwo() {
 		// update databse with new index encoding
 		query := backRepoMapOptions.db.Model(mapoptionsDB).Updates(*mapoptionsDB)
 		if query.Error != nil {
-			log.Panic(query.Error)
+			log.Fatal(query.Error)
 		}
 	}
 
