@@ -38,7 +38,7 @@ type VisualTrackAPI struct {
 	models.VisualTrack_WOP
 
 	// encoding of pointers
-	VisualTrackPointersEncoding
+	VisualTrackPointersEncoding VisualTrackPointersEncoding
 }
 
 // VisualTrackPointersEncoding encodes pointers to Struct and

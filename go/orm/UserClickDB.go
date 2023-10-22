@@ -38,7 +38,7 @@ type UserClickAPI struct {
 	models.UserClick_WOP
 
 	// encoding of pointers
-	UserClickPointersEncoding
+	UserClickPointersEncoding UserClickPointersEncoding
 }
 
 // UserClickPointersEncoding encodes pointers to Struct and

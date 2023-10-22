@@ -38,7 +38,7 @@ type DivIconAPI struct {
 	models.DivIcon_WOP
 
 	// encoding of pointers
-	DivIconPointersEncoding
+	DivIconPointersEncoding DivIconPointersEncoding
 }
 
 // DivIconPointersEncoding encodes pointers to Struct and

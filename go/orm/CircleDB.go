@@ -38,7 +38,7 @@ type CircleAPI struct {
 	models.Circle_WOP
 
 	// encoding of pointers
-	CirclePointersEncoding
+	CirclePointersEncoding CirclePointersEncoding
 }
 
 // CirclePointersEncoding encodes pointers to Struct and

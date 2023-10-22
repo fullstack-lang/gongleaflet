@@ -38,7 +38,7 @@ type LayerGroupAPI struct {
 	models.LayerGroup_WOP
 
 	// encoding of pointers
-	LayerGroupPointersEncoding
+	LayerGroupPointersEncoding LayerGroupPointersEncoding
 }
 
 // LayerGroupPointersEncoding encodes pointers to Struct and

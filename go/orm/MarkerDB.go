@@ -38,7 +38,7 @@ type MarkerAPI struct {
 	models.Marker_WOP
 
 	// encoding of pointers
-	MarkerPointersEncoding
+	MarkerPointersEncoding MarkerPointersEncoding
 }
 
 // MarkerPointersEncoding encodes pointers to Struct and

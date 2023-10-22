@@ -38,7 +38,7 @@ type LayerGroupUseAPI struct {
 	models.LayerGroupUse_WOP
 
 	// encoding of pointers
-	LayerGroupUsePointersEncoding
+	LayerGroupUsePointersEncoding LayerGroupUsePointersEncoding
 }
 
 // LayerGroupUsePointersEncoding encodes pointers to Struct and
@@ -49,12 +49,6 @@ type LayerGroupUsePointersEncoding struct {
 	// field LayerGroup is a pointer to another Struct (optional or 0..1)
 	// This field is generated into another field to enable AS ONE association
 	LayerGroupID sql.NullInt64
-
-	// Implementation of a reverse ID for field MapOptions{}.LayerGroupUses []*LayerGroupUse
-	MapOptions_LayerGroupUsesDBID sql.NullInt64
-
-	// implementation of the index of the withing the slice
-	MapOptions_LayerGroupUsesDBID_Index sql.NullInt64
 }
 
 // LayerGroupUseDB describes a layergroupuse in the database
@@ -595,12 +589,6 @@ func (backRepoLayerGroupUse *BackRepoLayerGroupUseStruct) RestorePhaseTwo() {
 			layergroupuseDB.LayerGroupID.Valid = true
 		}
 
-		// This reindex layergroupuse.LayerGroupUses
-		if layergroupuseDB.MapOptions_LayerGroupUsesDBID.Int64 != 0 {
-			layergroupuseDB.MapOptions_LayerGroupUsesDBID.Int64 =
-				int64(BackRepoMapOptionsid_atBckpTime_newID[uint(layergroupuseDB.MapOptions_LayerGroupUsesDBID.Int64)])
-		}
-
 		// update databse with new index encoding
 		query := backRepoLayerGroupUse.db.Model(layergroupuseDB).Updates(*layergroupuseDB)
 		if query.Error != nil {
@@ -628,15 +616,6 @@ func (backRepoLayerGroupUse *BackRepoLayerGroupUseStruct) ResetReversePointersIn
 		_ = layergroupuseDB // to avoid unused variable error if there are no reverse to reset
 
 		// insertion point for reverse pointers reset
-		if layergroupuseDB.MapOptions_LayerGroupUsesDBID.Int64 != 0 {
-			layergroupuseDB.MapOptions_LayerGroupUsesDBID.Int64 = 0
-			layergroupuseDB.MapOptions_LayerGroupUsesDBID.Valid = true
-
-			// save the reset
-			if q := backRepoLayerGroupUse.db.Save(layergroupuseDB); q.Error != nil {
-				return q.Error
-			}
-		}
 		// end of insertion point for reverse pointers reset
 	}
 

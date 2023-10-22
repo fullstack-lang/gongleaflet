@@ -38,7 +38,7 @@ type VLineAPI struct {
 	models.VLine_WOP
 
 	// encoding of pointers
-	VLinePointersEncoding
+	VLinePointersEncoding VLinePointersEncoding
 }
 
 // VLinePointersEncoding encodes pointers to Struct and

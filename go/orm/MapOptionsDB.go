@@ -38,7 +38,7 @@ type MapOptionsAPI struct {
 	models.MapOptions_WOP
 
 	// encoding of pointers
-	MapOptionsPointersEncoding
+	MapOptionsPointersEncoding MapOptionsPointersEncoding
 }
 
 // MapOptionsPointersEncoding encodes pointers to Struct and
@@ -47,7 +47,7 @@ type MapOptionsPointersEncoding struct {
 	// insertion for pointer fields encoding declaration
 
 	// field LayerGroupUses is a slice of pointers to another Struct (optional or 0..1)
-	LayerGroupUses IntSlice`gorm:"type:TEXT"`
+	LayerGroupUses IntSlice `gorm:"type:TEXT"`
 }
 
 // MapOptionsDB describes a mapoptions in the database
@@ -267,25 +267,6 @@ func (backRepoMapOptions *BackRepoMapOptionsStruct) CommitPhaseTwoInstance(backR
 		mapoptionsDB.CopyBasicFieldsFromMapOptions(mapoptions)
 
 		// insertion point for translating pointers encodings into actual pointers
-		// This loop encodes the slice of pointers mapoptions.LayerGroupUses into the back repo.
-		// Each back repo instance at the end of the association encode the ID of the association start
-		// into a dedicated field for coding the association. The back repo instance is then saved to the db
-		for idx, layergroupuseAssocEnd := range mapoptions.LayerGroupUses {
-
-			// get the back repo instance at the association end
-			layergroupuseAssocEnd_DB :=
-				backRepo.BackRepoLayerGroupUse.GetLayerGroupUseDBFromLayerGroupUsePtr(layergroupuseAssocEnd)
-
-			// encode reverse pointer in the association end back repo instance
-			layergroupuseAssocEnd_DB.MapOptions_LayerGroupUsesDBID.Int64 = int64(mapoptionsDB.ID)
-			layergroupuseAssocEnd_DB.MapOptions_LayerGroupUsesDBID.Valid = true
-			layergroupuseAssocEnd_DB.MapOptions_LayerGroupUsesDBID_Index.Int64 = int64(idx)
-			layergroupuseAssocEnd_DB.MapOptions_LayerGroupUsesDBID_Index.Valid = true
-			if q := backRepoMapOptions.db.Save(layergroupuseAssocEnd_DB); q.Error != nil {
-				return q.Error
-			}
-		}
-
 		// 1. reset
 		mapoptionsDB.MapOptionsPointersEncoding.LayerGroupUses = make([]int, 0)
 		// 2. encode
@@ -408,27 +389,9 @@ func (backRepoMapOptions *BackRepoMapOptionsStruct) CheckoutPhaseTwoInstance(bac
 	// it appends the stage instance
 	// 1. reset the slice
 	mapoptions.LayerGroupUses = mapoptions.LayerGroupUses[:0]
-	// 2. loop all instances in the type in the association end
-	for _, layergroupuseDB_AssocEnd := range backRepo.BackRepoLayerGroupUse.Map_LayerGroupUseDBID_LayerGroupUseDB {
-		// 3. Does the ID encoding at the end and the ID at the start matches ?
-		if layergroupuseDB_AssocEnd.MapOptions_LayerGroupUsesDBID.Int64 == int64(mapoptionsDB.ID) {
-			// 4. fetch the associated instance in the stage
-			layergroupuse_AssocEnd := backRepo.BackRepoLayerGroupUse.Map_LayerGroupUseDBID_LayerGroupUsePtr[layergroupuseDB_AssocEnd.ID]
-			// 5. append it the association slice
-			mapoptions.LayerGroupUses = append(mapoptions.LayerGroupUses, layergroupuse_AssocEnd)
-		}
+	for _, _LayerGroupUseid := range mapoptionsDB.MapOptionsPointersEncoding.LayerGroupUses {
+		mapoptions.LayerGroupUses = append(mapoptions.LayerGroupUses, backRepo.BackRepoLayerGroupUse.Map_LayerGroupUseDBID_LayerGroupUsePtr[uint(_LayerGroupUseid)])
 	}
-
-	// sort the array according to the order
-	sort.Slice(mapoptions.LayerGroupUses, func(i, j int) bool {
-		layergroupuseDB_i_ID := backRepo.BackRepoLayerGroupUse.Map_LayerGroupUsePtr_LayerGroupUseDBID[mapoptions.LayerGroupUses[i]]
-		layergroupuseDB_j_ID := backRepo.BackRepoLayerGroupUse.Map_LayerGroupUsePtr_LayerGroupUseDBID[mapoptions.LayerGroupUses[j]]
-
-		layergroupuseDB_i := backRepo.BackRepoLayerGroupUse.Map_LayerGroupUseDBID_LayerGroupUseDB[layergroupuseDB_i_ID]
-		layergroupuseDB_j := backRepo.BackRepoLayerGroupUse.Map_LayerGroupUseDBID_LayerGroupUseDB[layergroupuseDB_j_ID]
-
-		return layergroupuseDB_i.MapOptions_LayerGroupUsesDBID_Index.Int64 < layergroupuseDB_j.MapOptions_LayerGroupUsesDBID_Index.Int64
-	})
 
 	return
 }
