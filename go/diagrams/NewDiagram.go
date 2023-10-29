@@ -81,7 +81,7 @@ var map_DocLink_Identifier_NewDiagram map[string]any = map[string]any{
 
 	"ref_models.LayerGroupUse": &(ref_models.LayerGroupUse{}),
 
-	"ref_models.LayerGroupUse.Display": (ref_models.LayerGroupUse{}).Display,
+	"ref_models.LayerGroupUse.Display": (ref_models.LayerGroupUse{}).IsDisplayed,
 
 	"ref_models.LayerGroupUse.LayerGroup": (ref_models.LayerGroupUse{}).LayerGroup,
 
@@ -1580,5 +1580,3 @@ func NewDiagramInjection(stage *models.StageStruct) {
 	__Link__000006_LayerGroup.Middlevertice = __Vertice__000001_Verticle_in_class_diagram_NewDiagram_in_middle_between_NewDiagram_LayerGroupUse_and_NewDiagram_LayerGroup
 	__Link__000007_LayerGroupUses.Middlevertice = __Vertice__000002_Verticle_in_class_diagram_NewDiagram_in_middle_between_NewDiagram_MapOptions_and_NewDiagram_LayerGroupUse
 }
-
-

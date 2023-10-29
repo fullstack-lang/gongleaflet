@@ -224,19 +224,19 @@ func main() {
 	Map1AirportLayerUse := new(gongleaflet_models.LayerGroupUse).Stage(stage)
 	Map1AirportLayerUse.Name = "Map1AirportLayerUse"
 	Map1AirportLayerUse.LayerGroup = AirportLayer
-	Map1AirportLayerUse.Display = true
+	Map1AirportLayerUse.IsDisplayed = true
 	Map1.LayerGroupUses = append(Map1.LayerGroupUses, Map1AirportLayerUse)
 
 	Map1RadarLayerUse := new(gongleaflet_models.LayerGroupUse).Stage(stage)
 	Map1RadarLayerUse.Name = "Map1RadarLayerUse"
 	Map1RadarLayerUse.LayerGroup = RadarLayer
-	Map1RadarLayerUse.Display = true
+	Map1RadarLayerUse.IsDisplayed = true
 	Map1.LayerGroupUses = append(Map1.LayerGroupUses, Map1RadarLayerUse)
 
 	Map1TracksLayerUse := new(gongleaflet_models.LayerGroupUse).Stage(stage)
 	Map1TracksLayerUse.Name = "Map1TracksLayerUse"
 	Map1TracksLayerUse.LayerGroup = TracksLayer
-	Map1TracksLayerUse.Display = true
+	Map1TracksLayerUse.IsDisplayed = true
 	Map1.LayerGroupUses = append(Map1.LayerGroupUses, Map1TracksLayerUse)
 
 	Map2 := new(gongleaflet_models.MapOptions).Stage(stage)

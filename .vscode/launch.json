@@ -2,40 +2,18 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Launch firefox localhost:4200",
-            "type": "firefox",
+            "name": "Launch Chrome",
             "request": "launch",
-            "reAttach": true,
-            "url": "http://localhost:4200/",
-            "webRoot": "${workspaceFolder}/ng",
-            "pathMappings": [
-                {
-                    "url": "webpack:///vendor",
-                    "path": "${workspaceFolder}/vendor"
-                },
-                {
-                    "url": "webpack:///projects",
-                    "path": "${workspaceFolder}/ng/projects"
-                }
-            ]
+            "type": "chrome",
+            "url": "http://localhost:4200",
+            "webRoot": "${workspaceFolder}/ng"
         },
         {
-            "name": "Launch firefox localhost:8080",
-            "type": "firefox",
+            "name": "Launch Edge",
             "request": "launch",
-            "reAttach": true,
-            "url": "http://localhost:8080/",
+            "type": "msedge",
+            "url": "http://localhost:4200",
             "webRoot": "${workspaceFolder}/ng",
-            "pathMappings": [
-                {
-                    "url": "webpack:///vendor",
-                    "path": "${workspaceFolder}/vendor"
-                },
-                {
-                    "url": "webpack:///projects",
-                    "path": "${workspaceFolder}/ng/projects"
-                }
-            ]
         },
         {
             "name": "go server -unmarshallFromCode=stage.go -marshallOnCommit=stage",
@@ -54,8 +32,7 @@
             "request": "launch",
             "mode": "debug",
             "program": "${workspaceFolder}/go/cmd/gongleaflet",
-            "args": [
-            ]
+            "args": []
         },
     ]
 }
