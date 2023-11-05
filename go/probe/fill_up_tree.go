@@ -55,12 +55,11 @@ func fillUpTree(
 
 		nodeGongstruct := (&tree.Node{Name: name}).Stage(probe.treeStage)
 
-
 		nodeGongstruct.IsExpanded = false
 		if _, ok := expandedNodesSet[strings.Fields(name)[0]]; ok {
 			nodeGongstruct.IsExpanded = true
 		}
-		
+
 		switch gongStruct.Name {
 		// insertion point
 		case "Circle":
@@ -152,7 +151,7 @@ func fillUpTree(
 				nodeInstance.Impl = NewInstanceNodeCallback(_visualtrack, "VisualTrack", probe)
 
 				nodeGongstruct.Children = append(nodeGongstruct.Children, nodeInstance)
-			}	
+			}
 		}
 
 		nodeGongstruct.IsNodeClickable = true
@@ -171,13 +170,23 @@ func fillUpTree(
 
 		sidebar.RootNodes = append(sidebar.RootNodes, nodeGongstruct)
 	}
+
+	// Add a refresh button
+	nodeRefreshButton := (&tree.Node{Name: ""}).Stage(probe.treeStage)
+	sidebar.RootNodes = append(sidebar.RootNodes, nodeRefreshButton)
+	refreshButton := (&tree.Button{
+		Name: "RefreshButton" + " " + string(gongtree_buttons.BUTTON_refresh),
+		Icon: string(gongtree_buttons.BUTTON_refresh)}).Stage(probe.treeStage)
+	nodeRefreshButton.Buttons = append(nodeRefreshButton.Buttons, refreshButton)
+	refreshButton.Impl = NewButtonImplRefresh(probe)
+
 	probe.treeStage.Commit()
 }
 
 type InstanceNodeCallback[T models.Gongstruct] struct {
 	Instance       *T
 	gongstructName string
-	probe     *Probe
+	probe          *Probe
 }
 
 func NewInstanceNodeCallback[T models.Gongstruct](
