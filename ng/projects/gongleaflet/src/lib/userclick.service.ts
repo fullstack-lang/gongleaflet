@@ -77,6 +77,23 @@ export class UserClickService {
   }
 
   /** POST: add a new userclick to the server */
+  postFront(userclick: UserClick, GONG__StackPath: string): Observable<UserClickDB> {
+    let userclickDB = new UserClickDB
+    CopyUserClickToUserClickDB(userclick, userclickDB)
+    const id = typeof userclickDB === 'number' ? userclickDB : userclickDB.ID
+    const url = `${this.userclicksUrl}/${id}`;
+    let params = new HttpParams().set("GONG__StackPath", GONG__StackPath)
+    let httpOptions = {
+      headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
+      params: params
+    }
+
+    return this.http.post<UserClickDB>(url, userclickDB, httpOptions).pipe(
+      tap(_ => {
+      }),
+      catchError(this.handleError<UserClickDB>('updateUserClick'))
+    );
+  }
   post(userclickdb: UserClickDB, GONG__StackPath: string, frontRepo: FrontRepo): Observable<UserClickDB> {
     return this.postUserClick(userclickdb, GONG__StackPath, frontRepo)
   }
