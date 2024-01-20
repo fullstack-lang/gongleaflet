@@ -101,6 +101,19 @@
 			]
 		},
 		{
+			"label": "01 - gongc gongleaflet -skipNpmInstall -skipGoModCommands",
+			"type": "shell",
+			"options": {
+				"cwd": "${workspaceFolder}/go/models"
+			},
+			"command": "gongc",
+			"group": "build",
+			"args": [
+				"-skipGoModCommands",
+				"-skipNpmInstall"
+			]
+		},
+		{
 			"label": "01 - gongc gongleaflet -skipNg -skipGoModCommands",
 			"type": "shell",
 			"options": {
