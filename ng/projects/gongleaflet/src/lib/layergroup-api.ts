@@ -3,9 +3,9 @@
 // usefull for managing pointer ID values that can be nullable
 import { NullInt64 } from './null-int64'
 
-export class UserClickDB {
+export class LayerGroupAPI {
 
-	static GONGSTRUCT_NAME = "UserClick"
+	static GONGSTRUCT_NAME = "LayerGroup"
 
 	CreatedAt?: string
 	DeletedAt?: string
@@ -13,15 +13,13 @@ export class UserClickDB {
 
 	// insertion point for basic fields declarations
 	Name: string = ""
-	Lat: number = 0
-	Lng: number = 0
-	TimeOfClick: Date = new Date
+	DisplayName: string = ""
 
 	// insertion point for other decls
 
-	UserClickPointersEncoding: UserClickPointersEncoding = new UserClickPointersEncoding
+	LayerGroupPointersEncoding: LayerGroupPointersEncoding = new LayerGroupPointersEncoding
 }
 
-export class UserClickPointersEncoding {
+export class LayerGroupPointersEncoding {
 	// insertion point for pointers and slices of pointers encoding fields
 }

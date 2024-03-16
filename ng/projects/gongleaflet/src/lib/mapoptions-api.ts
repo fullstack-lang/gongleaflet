@@ -1,10 +1,10 @@
 // insertion point for imports
-import { LayerGroupUseDB } from './layergroupuse-db'
+import { LayerGroupUseAPI } from './layergroupuse-api'
 
 // usefull for managing pointer ID values that can be nullable
 import { NullInt64 } from './null-int64'
 
-export class MapOptionsDB {
+export class MapOptionsAPI {
 
 	static GONGSTRUCT_NAME = "MapOptions"
 

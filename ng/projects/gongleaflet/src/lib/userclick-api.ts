@@ -1,32 +1,27 @@
 // insertion point for imports
-import { LayerGroupDB } from './layergroup-db'
 
 // usefull for managing pointer ID values that can be nullable
 import { NullInt64 } from './null-int64'
 
-export class CircleDB {
+export class UserClickAPI {
 
-	static GONGSTRUCT_NAME = "Circle"
+	static GONGSTRUCT_NAME = "UserClick"
 
 	CreatedAt?: string
 	DeletedAt?: string
 	ID: number = 0
 
 	// insertion point for basic fields declarations
+	Name: string = ""
 	Lat: number = 0
 	Lng: number = 0
-	Name: string = ""
-	Radius: number = 0
-	ColorEnum: string = ""
-	DashStyleEnum: string = ""
+	TimeOfClick: Date = new Date
 
 	// insertion point for other decls
 
-	CirclePointersEncoding: CirclePointersEncoding = new CirclePointersEncoding
+	UserClickPointersEncoding: UserClickPointersEncoding = new UserClickPointersEncoding
 }
 
-export class CirclePointersEncoding {
+export class UserClickPointersEncoding {
 	// insertion point for pointers and slices of pointers encoding fields
-	LayerGroupID: NullInt64 = new NullInt64 // if pointer is null, LayerGroup.ID = 0
-
 }

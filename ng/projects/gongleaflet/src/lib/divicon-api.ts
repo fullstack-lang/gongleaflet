@@ -1,12 +1,11 @@
 // insertion point for imports
-import { LayerGroupDB } from './layergroup-db'
 
 // usefull for managing pointer ID values that can be nullable
 import { NullInt64 } from './null-int64'
 
-export class LayerGroupUseDB {
+export class DivIconAPI {
 
-	static GONGSTRUCT_NAME = "LayerGroupUse"
+	static GONGSTRUCT_NAME = "DivIcon"
 
 	CreatedAt?: string
 	DeletedAt?: string
@@ -14,15 +13,13 @@ export class LayerGroupUseDB {
 
 	// insertion point for basic fields declarations
 	Name: string = ""
-	IsDisplayed: boolean = false
+	SVG: string = ""
 
 	// insertion point for other decls
 
-	LayerGroupUsePointersEncoding: LayerGroupUsePointersEncoding = new LayerGroupUsePointersEncoding
+	DivIconPointersEncoding: DivIconPointersEncoding = new DivIconPointersEncoding
 }
 
-export class LayerGroupUsePointersEncoding {
+export class DivIconPointersEncoding {
 	// insertion point for pointers and slices of pointers encoding fields
-	LayerGroupID: NullInt64 = new NullInt64 // if pointer is null, LayerGroup.ID = 0
-
 }

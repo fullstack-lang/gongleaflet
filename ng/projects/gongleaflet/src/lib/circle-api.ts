@@ -1,36 +1,31 @@
 // insertion point for imports
-import { LayerGroupDB } from './layergroup-db'
+import { LayerGroupAPI } from './layergroup-api'
 
 // usefull for managing pointer ID values that can be nullable
 import { NullInt64 } from './null-int64'
 
-export class VLineDB {
+export class CircleAPI {
 
-	static GONGSTRUCT_NAME = "VLine"
+	static GONGSTRUCT_NAME = "Circle"
 
 	CreatedAt?: string
 	DeletedAt?: string
 	ID: number = 0
 
 	// insertion point for basic fields declarations
-	StartLat: number = 0
-	StartLng: number = 0
-	EndLat: number = 0
-	EndLng: number = 0
+	Lat: number = 0
+	Lng: number = 0
 	Name: string = ""
+	Radius: number = 0
 	ColorEnum: string = ""
 	DashStyleEnum: string = ""
-	IsTransmitting: string = ""
-	Message: string = ""
-	IsTransmittingBackward: string = ""
-	MessageBackward: string = ""
 
 	// insertion point for other decls
 
-	VLinePointersEncoding: VLinePointersEncoding = new VLinePointersEncoding
+	CirclePointersEncoding: CirclePointersEncoding = new CirclePointersEncoding
 }
 
-export class VLinePointersEncoding {
+export class CirclePointersEncoding {
 	// insertion point for pointers and slices of pointers encoding fields
 	LayerGroupID: NullInt64 = new NullInt64 // if pointer is null, LayerGroup.ID = 0
 

@@ -1,13 +1,13 @@
 // insertion point for imports
-import { LayerGroupDB } from './layergroup-db'
-import { DivIconDB } from './divicon-db'
+import { LayerGroupAPI } from './layergroup-api'
+import { DivIconAPI } from './divicon-api'
 
 // usefull for managing pointer ID values that can be nullable
 import { NullInt64 } from './null-int64'
 
-export class VisualTrackDB {
+export class MarkerAPI {
 
-	static GONGSTRUCT_NAME = "VisualTrack"
+	static GONGSTRUCT_NAME = "Marker"
 
 	CreatedAt?: string
 	DeletedAt?: string
@@ -16,21 +16,15 @@ export class VisualTrackDB {
 	// insertion point for basic fields declarations
 	Lat: number = 0
 	Lng: number = 0
-	Heading: number = 0
-	Level: number = 0
-	Speed: number = 0
-	VerticalSpeed: number = 0
 	Name: string = ""
 	ColorEnum: string = ""
-	DisplayTrackHistory: boolean = false
-	DisplayLevelAndSpeed: boolean = false
 
 	// insertion point for other decls
 
-	VisualTrackPointersEncoding: VisualTrackPointersEncoding = new VisualTrackPointersEncoding
+	MarkerPointersEncoding: MarkerPointersEncoding = new MarkerPointersEncoding
 }
 
-export class VisualTrackPointersEncoding {
+export class MarkerPointersEncoding {
 	// insertion point for pointers and slices of pointers encoding fields
 	LayerGroupID: NullInt64 = new NullInt64 // if pointer is null, LayerGroup.ID = 0
 
