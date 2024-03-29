@@ -35,6 +35,7 @@ export function CopyUserClickToUserClickAPI(userclick: UserClick, userclickAPI: 
 	userclickAPI.Name = userclick.Name
 	userclickAPI.Lat = userclick.Lat
 	userclickAPI.Lng = userclick.Lng
+	userclickAPI.TimeOfClick = userclick.TimeOfClick
 
 	// insertion point for pointer fields encoding
 
@@ -55,6 +56,7 @@ export function CopyUserClickAPIToUserClick(userclickAPI: UserClickAPI, userclic
 	userclick.Name = userclickAPI.Name
 	userclick.Lat = userclickAPI.Lat
 	userclick.Lng = userclickAPI.Lng
+	userclick.TimeOfClick = userclickAPI.TimeOfClick
 
 	// insertion point for pointer fields encoding
 
