@@ -5,10 +5,17 @@ import { combineLatest, timer, Observable } from 'rxjs'
 import * as L from 'leaflet'
 import 'leaflet-rotatedmarker'
 
-import * as gongleaflet from 'gongleaflet';
+import * as gongleaflet from '../../../../gongleaflet/src/public-api';
 import * as manageLeafletItems from './manage-leaflet-items'
 import { dotBlur } from '../../assets/icons/dot_blur'
-import { UserClick } from 'gongleaflet'
+
+
+import { LeafletModule } from '@asymmetrik/ngx-leaflet';
+import { MatOptionModule } from '@angular/material/core'
+import { CommonModule } from '@angular/common'
+
+import { CartoatcControlSettingsComponent } from './cartoatc-control-settings/cartoatc-control-settings.component'
+
 
 export const DEFAULT_ICON_SIZE = 60
 
@@ -19,6 +26,16 @@ export const DEFAULT_ICON_SIZE = 60
   selector: 'app-mapoptions',
   templateUrl: './mapoptions.component.html',
   styleUrls: ['./mapoptions.component.scss'],
+  standalone: true,
+  imports: [
+
+    MatOptionModule,
+    CommonModule,
+
+    LeafletModule,
+    CartoatcControlSettingsComponent,
+
+  ]
 })
 export class MapoptionsComponent implements OnInit {
 
@@ -99,13 +116,8 @@ export class MapoptionsComponent implements OnInit {
 
   constructor(
     public frontRepoService: gongleaflet.FrontRepoService,
-    private visualTrackService: gongleaflet.VisualTrackService,
-    private lineService: gongleaflet.VLineService,
-    private markerService: gongleaflet.MarkerService,
-    private layerGroupUseService: gongleaflet.LayerGroupUseService,
     private userClickService: gongleaflet.UserClickService,
     private commitNbFromBackService: gongleaflet.CommitNbFromBackService,
-    private pushFromFrontService: gongleaflet.PushFromFrontNbService,
     private router: Router,
     public zone: NgZone
   ) {
@@ -137,7 +149,7 @@ export class MapoptionsComponent implements OnInit {
         this.userInterfactionCallbackFunction(e.latlng.lat, e.latlng.lng)
       }
 
-      let userClick = new UserClick
+      let userClick = new gongleaflet.UserClick
       userClick.Name = "Click !" + this.clickNumber
       this.clickNumber = this.clickNumber + 1
       userClick.Lat = e.latlng.lat
@@ -331,8 +343,10 @@ export class MapoptionsComponent implements OnInit {
         coordinates.lng,
         this.DotLeafletDivIcon
       )
-      dotIcon.addTo(leafletGroupLayer!)
-      arrayOfDotMarkers.push(dotIcon)
+      if (leafletGroupLayer != undefined) {
+        dotIcon.addTo(leafletGroupLayer)
+        arrayOfDotMarkers.push(dotIcon)
+      }
     }
 
     // store the array in the map
@@ -363,6 +377,10 @@ export class MapoptionsComponent implements OnInit {
 
     // populate the map with information from layerGroupUse of this map
     let gongleafletMapOptions = this.frontRepo!.getFrontMap<gongleaflet.MapOptions>(gongleaflet.MapOptions.GONGSTRUCT_NAME).get(this.mapOptionsID)
+
+    if (gongleafletMapOptions == undefined) {
+      return
+    }
     for (let gongLayerGroupUse of gongleafletMapOptions?.LayerGroupUses!) {
       let gongLayerGroup = gongLayerGroupUse.LayerGroup
       if (gongLayerGroup) {

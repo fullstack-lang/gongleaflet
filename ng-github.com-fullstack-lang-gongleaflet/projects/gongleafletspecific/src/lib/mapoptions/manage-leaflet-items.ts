@@ -1,5 +1,5 @@
 import { Type } from '@angular/core';
-import * as gongleaflet from 'gongleaflet';
+import * as gongleaflet from '../../../../gongleaflet/src/public-api'
 
 import * as L from 'leaflet';
 

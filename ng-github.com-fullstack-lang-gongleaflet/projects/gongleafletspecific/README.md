@@ -1,6 +1,6 @@
 # Gongleafletspecific
 
-This library was generated with [Angular CLI](https://github.com/angular/angular-cli) version 11.0.9.
+This library was generated with [Angular CLI](https://github.com/angular/angular-cli) version 17.3.0.
 
 ## Code scaffolding
 

@@ -2,7 +2,12 @@ import { Component, Input, OnInit } from '@angular/core';
 import { MatSlideToggleChange } from '@angular/material/slide-toggle';
 import { setVisibilityHTMLElement } from '../manage-leaflet-items';
 
-import * as gongleaflet from 'gongleaflet'
+import * as gongleaflet from '../../../../../gongleaflet/src/public-api'
+
+import { MatButtonModule } from '@angular/material/button';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatIconModule } from '@angular/material/icon';
+import { CommonModule } from '@angular/common';
 
 class LayerItem {
   id: number = 0
@@ -16,6 +21,14 @@ class LayerItem {
   selector: 'app-cartoatc-control-settings',
   templateUrl: './cartoatc-control-settings.component.html',
   styleUrls: ['./cartoatc-control-settings.component.scss'],
+  standalone: true,
+  imports: [
+    MatButtonModule,
+    MatSlideToggleModule,
+    MatIconModule,
+    CommonModule,
+
+  ],
 })
 export class CartoatcControlSettingsComponent implements OnInit {
 

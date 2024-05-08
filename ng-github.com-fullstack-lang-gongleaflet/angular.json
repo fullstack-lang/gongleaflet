@@ -2,18 +2,15 @@
   "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
   "newProjectRoot": "projects",
   "projects": {
-    "ng": {
+    "ng-github.com-fullstack-lang-gongleaflet": {
       "architect": {
         "build": {
-          "builder": "@angular-devkit/build-angular:browser",
+          "builder": "@angular-devkit/build-angular:application",
           "configurations": {
             "development": {
-              "buildOptimizer": false,
               "extractLicenses": false,
-              "namedChunks": true,
               "optimization": false,
-              "sourceMap": true,
-              "vendorChunk": true
+              "sourceMap": true
             },
             "production": {
               "budgets": [
@@ -37,9 +34,9 @@
               "src/favicon.ico",
               "src/assets"
             ],
+            "browser": "src/main.ts",
             "index": "src/index.html",
-            "main": "src/main.ts",
-            "outputPath": "dist/ng",
+            "outputPath": "dist/ng-github.com-fullstack-lang-gongleaflet",
             "polyfills": [
               "zone.js"
             ],
@@ -47,7 +44,7 @@
             "styles": [
               "@angular/material/prebuilt-themes/indigo-pink.css",
               "src/styles.scss",
-              "node_modules/leaflet/dist/leaflet.css"
+              "leaflet/dist/leaflet.css"
             ],
             "tsConfig": "tsconfig.app.json"
           }
@@ -55,17 +52,17 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "ng:build"
+            "buildTarget": "ng-github.com-fullstack-lang-gongleaflet:build"
           }
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "development": {
-              "browserTarget": "ng:build:development"
+              "buildTarget": "ng-github.com-fullstack-lang-gongleaflet:build:development"
             },
             "production": {
-              "browserTarget": "ng:build:production"
+              "buildTarget": "ng-github.com-fullstack-lang-gongleaflet:build:production"
             }
           },
           "defaultConfiguration": "development"
