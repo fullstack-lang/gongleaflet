@@ -8,3 +8,5 @@ test.db
 test.db-journal
 go/cmd/gongleaflet/gongleaflet
 go/cmd/gongleaflet/__debug_bin*
+
+node_modules
