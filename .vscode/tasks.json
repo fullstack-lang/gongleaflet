@@ -60,9 +60,9 @@
 			"problemMatcher": []
 		},
 		{
-			"label": "04 - ng serve",
+			"label": "04 - ng serve --host=127.0.0.1",
 			"type": "shell",
-			"command": "cd ng-github.com-fullstack-lang-gongleaflet; ng serve",
+			"command": "cd ng-github.com-fullstack-lang-gongleaflet; ng serve --host=127.0.0.1",
 			"group": "build",
 			"problemMatcher": []
 		},

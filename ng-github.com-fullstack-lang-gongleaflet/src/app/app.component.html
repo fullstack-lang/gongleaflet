@@ -12,7 +12,8 @@
         <ng-container *ngTemplateOutlet="radioToolbar"></ng-container>
     </as-split-area>
     <as-split-area [size]="800">
-        <app-mapoptions GONG__StackPath="gongleaflet">
+        <app-mapoptions GONG__StackPath="gongleaflet"
+        [userInterfactionCallbackFunction]="userClick" mapName="Map1">
         </app-mapoptions>
     </as-split-area>
     <as-split-area [size]="$any('*')">

@@ -167,6 +167,8 @@ export class MapoptionsComponent implements OnInit {
 
   ngOnInit(): void {
 
+    console.log("map options", "ngOnInit")
+
     this.frontRepoService.pull(this.GONG__StackPath).subscribe(
       frontRepo => {
         this.frontRepo = frontRepo
@@ -175,7 +177,8 @@ export class MapoptionsComponent implements OnInit {
 
         // if the map name is set, then map options might differ
         if (this.mapName != "") {
-          for (let gongleafletMapOptions of this.frontRepo.getFrontArray<gongleaflet.MapOptions>(gongleaflet.MapOptions.GONGSTRUCT_NAME).values()) {
+          for (let gongleafletMapOptions of this.frontRepo.getFrontArray<gongleaflet.MapOptions>(
+            gongleaflet.MapOptions.GONGSTRUCT_NAME).values()) {
             if (gongleafletMapOptions.Name == this.mapName) {
               this.mapOptionsID = gongleafletMapOptions.ID
               gongMapOptions = gongleafletMapOptions
@@ -189,7 +192,7 @@ export class MapoptionsComponent implements OnInit {
 
         this.commitNbFromBackService.getCommitNbFromBack(500, this.GONG__StackPath).subscribe(
           commitNbFromBack => {
-            // console.log("commit nb in the back " + commitNb + " local commit nb " + this.commitNb)
+            console.log("commit nb in the back " + commitNbFromBack + " local commit nb " + this.commitNb)
             if (commitNbFromBack > this.commitNb) {
               this.refreshMapWithMarkers()
               this.commitNb = commitNbFromBack
@@ -376,7 +379,8 @@ export class MapoptionsComponent implements OnInit {
     this.mapGongLayerGroupID_LayerGroupUse.clear()
 
     // populate the map with information from layerGroupUse of this map
-    let gongleafletMapOptions = this.frontRepo!.getFrontMap<gongleaflet.MapOptions>(gongleaflet.MapOptions.GONGSTRUCT_NAME).get(this.mapOptionsID)
+    let gongleafletMapOptions = this.frontRepo!.getFrontMap<gongleaflet.MapOptions>(
+      gongleaflet.MapOptions.GONGSTRUCT_NAME).get(this.mapOptionsID)
 
     if (gongleafletMapOptions == undefined) {
       return
