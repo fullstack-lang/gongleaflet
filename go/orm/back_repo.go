@@ -11,12 +11,9 @@ import (
 	"sync"
 
 	"github.com/fullstack-lang/gongleaflet/go/models"
+	"github.com/fullstack-lang/gongleaflet/go/orm/dbgorm"
 
 	"github.com/tealeg/xlsx/v3"
-
-	"github.com/glebarez/sqlite"
-	"gorm.io/gorm"
-	"gorm.io/gorm/schema"
 )
 
 // BackRepoStruct supports callback functions
@@ -53,33 +50,7 @@ type BackRepoStruct struct {
 
 func NewBackRepo(stage *models.StageStruct, filename string) (backRepo *BackRepoStruct) {
 
-	// adjust naming strategy to the stack
-	gormConfig := &gorm.Config{
-		NamingStrategy: schema.NamingStrategy{
-			TablePrefix: "github_com_fullstack_lang_gong_test_go_", // table name prefix
-		},
-	}
-	db, err := gorm.Open(sqlite.Open(filename), gormConfig)
-
-	// since testsim is a multi threaded application. It is important to set up
-	// only one open connexion at a time
-	dbDB_inMemory, err := db.DB()
-	if err != nil {
-		panic("cannot access DB of db" + err.Error())
-	}
-	// it is mandatory to allow parallel access, otherwise, bizarre errors occurs
-	dbDB_inMemory.SetMaxOpenConns(1)
-
-	if err != nil {
-		panic("Failed to connect to database!")
-	}
-
-	// adjust naming strategy to the stack
-	db.Config.NamingStrategy = &schema.NamingStrategy{
-		TablePrefix: "github_com_fullstack_lang_gong_test_go_", // table name prefix
-	}
-
-	err = db.AutoMigrate( // insertion point for reference to structs
+	dbWrapper := dbgorm.NewDBWrapper(filename, "github_com_fullstack_lang_gongleaflet_go",
 		&CircleDB{},
 		&DivIconDB{},
 		&LayerGroupDB{},
@@ -91,11 +62,6 @@ func NewBackRepo(stage *models.StageStruct, filename string) (backRepo *BackRepo
 		&VisualTrackDB{},
 	)
 
-	if err != nil {
-		msg := err.Error()
-		panic("problem with migration " + msg + " on package github.com/fullstack-lang/gong/test/go")
-	}
-
 	backRepo = new(BackRepoStruct)
 
 	// insertion point for per struct back repo declarations
@@ -104,7 +70,7 @@ func NewBackRepo(stage *models.StageStruct, filename string) (backRepo *BackRepo
 		Map_CircleDBID_CircleDB:  make(map[uint]*CircleDB, 0),
 		Map_CirclePtr_CircleDBID: make(map[*models.Circle]uint, 0),
 
-		db:    db,
+		db:    dbWrapper,
 		stage: stage,
 	}
 	backRepo.BackRepoDivIcon = BackRepoDivIconStruct{
@@ -112,7 +78,7 @@ func NewBackRepo(stage *models.StageStruct, filename string) (backRepo *BackRepo
 		Map_DivIconDBID_DivIconDB:  make(map[uint]*DivIconDB, 0),
 		Map_DivIconPtr_DivIconDBID: make(map[*models.DivIcon]uint, 0),
 
-		db:    db,
+		db:    dbWrapper,
 		stage: stage,
 	}
 	backRepo.BackRepoLayerGroup = BackRepoLayerGroupStruct{
@@ -120,7 +86,7 @@ func NewBackRepo(stage *models.StageStruct, filename string) (backRepo *BackRepo
 		Map_LayerGroupDBID_LayerGroupDB:  make(map[uint]*LayerGroupDB, 0),
 		Map_LayerGroupPtr_LayerGroupDBID: make(map[*models.LayerGroup]uint, 0),
 
-		db:    db,
+		db:    dbWrapper,
 		stage: stage,
 	}
 	backRepo.BackRepoLayerGroupUse = BackRepoLayerGroupUseStruct{
@@ -128,7 +94,7 @@ func NewBackRepo(stage *models.StageStruct, filename string) (backRepo *BackRepo
 		Map_LayerGroupUseDBID_LayerGroupUseDB:  make(map[uint]*LayerGroupUseDB, 0),
 		Map_LayerGroupUsePtr_LayerGroupUseDBID: make(map[*models.LayerGroupUse]uint, 0),
 
-		db:    db,
+		db:    dbWrapper,
 		stage: stage,
 	}
 	backRepo.BackRepoMapOptions = BackRepoMapOptionsStruct{
@@ -136,7 +102,7 @@ func NewBackRepo(stage *models.StageStruct, filename string) (backRepo *BackRepo
 		Map_MapOptionsDBID_MapOptionsDB:  make(map[uint]*MapOptionsDB, 0),
 		Map_MapOptionsPtr_MapOptionsDBID: make(map[*models.MapOptions]uint, 0),
 
-		db:    db,
+		db:    dbWrapper,
 		stage: stage,
 	}
 	backRepo.BackRepoMarker = BackRepoMarkerStruct{
@@ -144,7 +110,7 @@ func NewBackRepo(stage *models.StageStruct, filename string) (backRepo *BackRepo
 		Map_MarkerDBID_MarkerDB:  make(map[uint]*MarkerDB, 0),
 		Map_MarkerPtr_MarkerDBID: make(map[*models.Marker]uint, 0),
 
-		db:    db,
+		db:    dbWrapper,
 		stage: stage,
 	}
 	backRepo.BackRepoUserClick = BackRepoUserClickStruct{
@@ -152,7 +118,7 @@ func NewBackRepo(stage *models.StageStruct, filename string) (backRepo *BackRepo
 		Map_UserClickDBID_UserClickDB:  make(map[uint]*UserClickDB, 0),
 		Map_UserClickPtr_UserClickDBID: make(map[*models.UserClick]uint, 0),
 
-		db:    db,
+		db:    dbWrapper,
 		stage: stage,
 	}
 	backRepo.BackRepoVLine = BackRepoVLineStruct{
@@ -160,7 +126,7 @@ func NewBackRepo(stage *models.StageStruct, filename string) (backRepo *BackRepo
 		Map_VLineDBID_VLineDB:  make(map[uint]*VLineDB, 0),
 		Map_VLinePtr_VLineDBID: make(map[*models.VLine]uint, 0),
 
-		db:    db,
+		db:    dbWrapper,
 		stage: stage,
 	}
 	backRepo.BackRepoVisualTrack = BackRepoVisualTrackStruct{
@@ -168,7 +134,7 @@ func NewBackRepo(stage *models.StageStruct, filename string) (backRepo *BackRepo
 		Map_VisualTrackDBID_VisualTrackDB:  make(map[uint]*VisualTrackDB, 0),
 		Map_VisualTrackPtr_VisualTrackDBID: make(map[*models.VisualTrack]uint, 0),
 
-		db:    db,
+		db:    dbWrapper,
 		stage: stage,
 	}
 
@@ -201,7 +167,7 @@ func (backRepo *BackRepoStruct) IncrementCommitFromBackNb() uint {
 	backRepo.CommitFromBackNb = backRepo.CommitFromBackNb + 1
 
 	backRepo.broadcastNbCommitToBack()
-	
+
 	return backRepo.CommitFromBackNb
 }
 
