@@ -280,7 +280,7 @@ func (controller *Controller) UpdateVisualTrack(c *gin.Context) {
 	visualtrackDB.VisualTrackPointersEncoding = input.VisualTrackPointersEncoding
 
 	db, _ = db.Model(&visualtrackDB)
-	_, err = db.Updates(visualtrackDB)
+	_, err = db.Updates(&visualtrackDB)
 	if err != nil {
 		var returnError GenericError
 		returnError.Body.Code = http.StatusBadRequest

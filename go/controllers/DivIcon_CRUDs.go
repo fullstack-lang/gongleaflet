@@ -280,7 +280,7 @@ func (controller *Controller) UpdateDivIcon(c *gin.Context) {
 	diviconDB.DivIconPointersEncoding = input.DivIconPointersEncoding
 
 	db, _ = db.Model(&diviconDB)
-	_, err = db.Updates(diviconDB)
+	_, err = db.Updates(&diviconDB)
 	if err != nil {
 		var returnError GenericError
 		returnError.Body.Code = http.StatusBadRequest

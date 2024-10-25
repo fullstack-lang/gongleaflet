@@ -280,7 +280,7 @@ func (controller *Controller) UpdateVLine(c *gin.Context) {
 	vlineDB.VLinePointersEncoding = input.VLinePointersEncoding
 
 	db, _ = db.Model(&vlineDB)
-	_, err = db.Updates(vlineDB)
+	_, err = db.Updates(&vlineDB)
 	if err != nil {
 		var returnError GenericError
 		returnError.Body.Code = http.StatusBadRequest

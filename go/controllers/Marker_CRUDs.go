@@ -280,7 +280,7 @@ func (controller *Controller) UpdateMarker(c *gin.Context) {
 	markerDB.MarkerPointersEncoding = input.MarkerPointersEncoding
 
 	db, _ = db.Model(&markerDB)
-	_, err = db.Updates(markerDB)
+	_, err = db.Updates(&markerDB)
 	if err != nil {
 		var returnError GenericError
 		returnError.Body.Code = http.StatusBadRequest

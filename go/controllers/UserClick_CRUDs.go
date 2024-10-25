@@ -280,7 +280,7 @@ func (controller *Controller) UpdateUserClick(c *gin.Context) {
 	userclickDB.UserClickPointersEncoding = input.UserClickPointersEncoding
 
 	db, _ = db.Model(&userclickDB)
-	_, err = db.Updates(userclickDB)
+	_, err = db.Updates(&userclickDB)
 	if err != nil {
 		var returnError GenericError
 		returnError.Body.Code = http.StatusBadRequest

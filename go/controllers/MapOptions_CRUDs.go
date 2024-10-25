@@ -280,7 +280,7 @@ func (controller *Controller) UpdateMapOptions(c *gin.Context) {
 	mapoptionsDB.MapOptionsPointersEncoding = input.MapOptionsPointersEncoding
 
 	db, _ = db.Model(&mapoptionsDB)
-	_, err = db.Updates(mapoptionsDB)
+	_, err = db.Updates(&mapoptionsDB)
 	if err != nil {
 		var returnError GenericError
 		returnError.Body.Code = http.StatusBadRequest

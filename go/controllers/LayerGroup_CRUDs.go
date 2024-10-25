@@ -280,7 +280,7 @@ func (controller *Controller) UpdateLayerGroup(c *gin.Context) {
 	layergroupDB.LayerGroupPointersEncoding = input.LayerGroupPointersEncoding
 
 	db, _ = db.Model(&layergroupDB)
-	_, err = db.Updates(layergroupDB)
+	_, err = db.Updates(&layergroupDB)
 	if err != nil {
 		var returnError GenericError
 		returnError.Body.Code = http.StatusBadRequest
