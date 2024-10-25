@@ -10,8 +10,12 @@ import (
 	"path/filepath"
 	"sync"
 
+	"github.com/fullstack-lang/gongleaflet/go/db"
 	"github.com/fullstack-lang/gongleaflet/go/models"
+
+	/* THIS IS REMOVED BY GONG COMPILER IF TARGET IS gorm
 	"github.com/fullstack-lang/gongleaflet/go/orm/dbgorm"
+	THIS IS REMOVED BY GONG COMPILER IF TARGET IS gorm */
 
 	"github.com/tealeg/xlsx/v3"
 )
@@ -50,7 +54,12 @@ type BackRepoStruct struct {
 
 func NewBackRepo(stage *models.StageStruct, filename string) (backRepo *BackRepoStruct) {
 
-	dbWrapper := dbgorm.NewDBWrapper(filename, "github_com_fullstack_lang_gongleaflet_go",
+	var db db.DBInterface
+
+	db = NewDBLite()
+
+	/* THIS IS REMOVED BY GONG COMPILER IF TARGET IS gorm
+	db = dbgorm.NewDBWrapper(filename, "github_com_fullstack_lang_gongleaflet_go",
 		&CircleDB{},
 		&DivIconDB{},
 		&LayerGroupDB{},
@@ -61,6 +70,7 @@ func NewBackRepo(stage *models.StageStruct, filename string) (backRepo *BackRepo
 		&VLineDB{},
 		&VisualTrackDB{},
 	)
+	THIS IS REMOVED BY GONG COMPILER IF TARGET IS gorm */
 
 	backRepo = new(BackRepoStruct)
 
@@ -70,7 +80,7 @@ func NewBackRepo(stage *models.StageStruct, filename string) (backRepo *BackRepo
 		Map_CircleDBID_CircleDB:  make(map[uint]*CircleDB, 0),
 		Map_CirclePtr_CircleDBID: make(map[*models.Circle]uint, 0),
 
-		db:    dbWrapper,
+		db:    db,
 		stage: stage,
 	}
 	backRepo.BackRepoDivIcon = BackRepoDivIconStruct{
@@ -78,7 +88,7 @@ func NewBackRepo(stage *models.StageStruct, filename string) (backRepo *BackRepo
 		Map_DivIconDBID_DivIconDB:  make(map[uint]*DivIconDB, 0),
 		Map_DivIconPtr_DivIconDBID: make(map[*models.DivIcon]uint, 0),
 
-		db:    dbWrapper,
+		db:    db,
 		stage: stage,
 	}
 	backRepo.BackRepoLayerGroup = BackRepoLayerGroupStruct{
@@ -86,7 +96,7 @@ func NewBackRepo(stage *models.StageStruct, filename string) (backRepo *BackRepo
 		Map_LayerGroupDBID_LayerGroupDB:  make(map[uint]*LayerGroupDB, 0),
 		Map_LayerGroupPtr_LayerGroupDBID: make(map[*models.LayerGroup]uint, 0),
 
-		db:    dbWrapper,
+		db:    db,
 		stage: stage,
 	}
 	backRepo.BackRepoLayerGroupUse = BackRepoLayerGroupUseStruct{
@@ -94,7 +104,7 @@ func NewBackRepo(stage *models.StageStruct, filename string) (backRepo *BackRepo
 		Map_LayerGroupUseDBID_LayerGroupUseDB:  make(map[uint]*LayerGroupUseDB, 0),
 		Map_LayerGroupUsePtr_LayerGroupUseDBID: make(map[*models.LayerGroupUse]uint, 0),
 
-		db:    dbWrapper,
+		db:    db,
 		stage: stage,
 	}
 	backRepo.BackRepoMapOptions = BackRepoMapOptionsStruct{
@@ -102,7 +112,7 @@ func NewBackRepo(stage *models.StageStruct, filename string) (backRepo *BackRepo
 		Map_MapOptionsDBID_MapOptionsDB:  make(map[uint]*MapOptionsDB, 0),
 		Map_MapOptionsPtr_MapOptionsDBID: make(map[*models.MapOptions]uint, 0),
 
-		db:    dbWrapper,
+		db:    db,
 		stage: stage,
 	}
 	backRepo.BackRepoMarker = BackRepoMarkerStruct{
@@ -110,7 +120,7 @@ func NewBackRepo(stage *models.StageStruct, filename string) (backRepo *BackRepo
 		Map_MarkerDBID_MarkerDB:  make(map[uint]*MarkerDB, 0),
 		Map_MarkerPtr_MarkerDBID: make(map[*models.Marker]uint, 0),
 
-		db:    dbWrapper,
+		db:    db,
 		stage: stage,
 	}
 	backRepo.BackRepoUserClick = BackRepoUserClickStruct{
@@ -118,7 +128,7 @@ func NewBackRepo(stage *models.StageStruct, filename string) (backRepo *BackRepo
 		Map_UserClickDBID_UserClickDB:  make(map[uint]*UserClickDB, 0),
 		Map_UserClickPtr_UserClickDBID: make(map[*models.UserClick]uint, 0),
 
-		db:    dbWrapper,
+		db:    db,
 		stage: stage,
 	}
 	backRepo.BackRepoVLine = BackRepoVLineStruct{
@@ -126,7 +136,7 @@ func NewBackRepo(stage *models.StageStruct, filename string) (backRepo *BackRepo
 		Map_VLineDBID_VLineDB:  make(map[uint]*VLineDB, 0),
 		Map_VLinePtr_VLineDBID: make(map[*models.VLine]uint, 0),
 
-		db:    dbWrapper,
+		db:    db,
 		stage: stage,
 	}
 	backRepo.BackRepoVisualTrack = BackRepoVisualTrackStruct{
@@ -134,7 +144,7 @@ func NewBackRepo(stage *models.StageStruct, filename string) (backRepo *BackRepo
 		Map_VisualTrackDBID_VisualTrackDB:  make(map[uint]*VisualTrackDB, 0),
 		Map_VisualTrackPtr_VisualTrackDBID: make(map[*models.VisualTrack]uint, 0),
 
-		db:    dbWrapper,
+		db:    db,
 		stage: stage,
 	}
 

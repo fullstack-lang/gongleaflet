@@ -159,7 +159,7 @@ func (backRepoLayerGroup *BackRepoLayerGroupStruct) CommitDeleteInstance(id uint
 	// layergroup is not staged anymore, remove layergroupDB
 	layergroupDB := backRepoLayerGroup.Map_LayerGroupDBID_LayerGroupDB[id]
 	db, _ := backRepoLayerGroup.db.Unscoped()
-	_, err := db.Delete(&layergroupDB)
+	_, err := db.Delete(layergroupDB)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -219,7 +219,7 @@ func (backRepoLayerGroup *BackRepoLayerGroupStruct) CommitPhaseTwoInstance(backR
 		layergroupDB.CopyBasicFieldsFromLayerGroup(layergroup)
 
 		// insertion point for translating pointers encodings into actual pointers
-		_, err := backRepoLayerGroup.db.Save(&layergroupDB)
+		_, err := backRepoLayerGroup.db.Save(layergroupDB)
 		if err != nil {
 			log.Fatal(err)
 		}

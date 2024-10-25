@@ -217,7 +217,7 @@ func (backRepoVisualTrack *BackRepoVisualTrackStruct) CommitDeleteInstance(id ui
 	// visualtrack is not staged anymore, remove visualtrackDB
 	visualtrackDB := backRepoVisualTrack.Map_VisualTrackDBID_VisualTrackDB[id]
 	db, _ := backRepoVisualTrack.db.Unscoped()
-	_, err := db.Delete(&visualtrackDB)
+	_, err := db.Delete(visualtrackDB)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -301,7 +301,7 @@ func (backRepoVisualTrack *BackRepoVisualTrackStruct) CommitPhaseTwoInstance(bac
 			visualtrackDB.DivIconID.Valid = true
 		}
 
-		_, err := backRepoVisualTrack.db.Save(&visualtrackDB)
+		_, err := backRepoVisualTrack.db.Save(visualtrackDB)
 		if err != nil {
 			log.Fatal(err)
 		}

@@ -159,7 +159,7 @@ func (backRepoDivIcon *BackRepoDivIconStruct) CommitDeleteInstance(id uint) (Err
 	// divicon is not staged anymore, remove diviconDB
 	diviconDB := backRepoDivIcon.Map_DivIconDBID_DivIconDB[id]
 	db, _ := backRepoDivIcon.db.Unscoped()
-	_, err := db.Delete(&diviconDB)
+	_, err := db.Delete(diviconDB)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -219,7 +219,7 @@ func (backRepoDivIcon *BackRepoDivIconStruct) CommitPhaseTwoInstance(backRepo *B
 		diviconDB.CopyBasicFieldsFromDivIcon(divicon)
 
 		// insertion point for translating pointers encodings into actual pointers
-		_, err := backRepoDivIcon.db.Save(&diviconDB)
+		_, err := backRepoDivIcon.db.Save(diviconDB)
 		if err != nil {
 			log.Fatal(err)
 		}

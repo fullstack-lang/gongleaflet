@@ -212,7 +212,7 @@ func (backRepoMapOptions *BackRepoMapOptionsStruct) CommitDeleteInstance(id uint
 	// mapoptions is not staged anymore, remove mapoptionsDB
 	mapoptionsDB := backRepoMapOptions.Map_MapOptionsDBID_MapOptionsDB[id]
 	db, _ := backRepoMapOptions.db.Unscoped()
-	_, err := db.Delete(&mapoptionsDB)
+	_, err := db.Delete(mapoptionsDB)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -290,7 +290,7 @@ func (backRepoMapOptions *BackRepoMapOptionsStruct) CommitPhaseTwoInstance(backR
 				append(mapoptionsDB.MapOptionsPointersEncoding.LayerGroupUses, int(layergroupuseAssocEnd_DB.ID))
 		}
 
-		_, err := backRepoMapOptions.db.Save(&mapoptionsDB)
+		_, err := backRepoMapOptions.db.Save(mapoptionsDB)
 		if err != nil {
 			log.Fatal(err)
 		}

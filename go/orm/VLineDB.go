@@ -217,7 +217,7 @@ func (backRepoVLine *BackRepoVLineStruct) CommitDeleteInstance(id uint) (Error e
 	// vline is not staged anymore, remove vlineDB
 	vlineDB := backRepoVLine.Map_VLineDBID_VLineDB[id]
 	db, _ := backRepoVLine.db.Unscoped()
-	_, err := db.Delete(&vlineDB)
+	_, err := db.Delete(vlineDB)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -289,7 +289,7 @@ func (backRepoVLine *BackRepoVLineStruct) CommitPhaseTwoInstance(backRepo *BackR
 			vlineDB.LayerGroupID.Valid = true
 		}
 
-		_, err := backRepoVLine.db.Save(&vlineDB)
+		_, err := backRepoVLine.db.Save(vlineDB)
 		if err != nil {
 			log.Fatal(err)
 		}

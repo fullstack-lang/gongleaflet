@@ -171,7 +171,7 @@ func (backRepoUserClick *BackRepoUserClickStruct) CommitDeleteInstance(id uint) 
 	// userclick is not staged anymore, remove userclickDB
 	userclickDB := backRepoUserClick.Map_UserClickDBID_UserClickDB[id]
 	db, _ := backRepoUserClick.db.Unscoped()
-	_, err := db.Delete(&userclickDB)
+	_, err := db.Delete(userclickDB)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -231,7 +231,7 @@ func (backRepoUserClick *BackRepoUserClickStruct) CommitPhaseTwoInstance(backRep
 		userclickDB.CopyBasicFieldsFromUserClick(userclick)
 
 		// insertion point for translating pointers encodings into actual pointers
-		_, err := backRepoUserClick.db.Save(&userclickDB)
+		_, err := backRepoUserClick.db.Save(userclickDB)
 		if err != nil {
 			log.Fatal(err)
 		}

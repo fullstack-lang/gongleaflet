@@ -164,7 +164,7 @@ func (backRepoLayerGroupUse *BackRepoLayerGroupUseStruct) CommitDeleteInstance(i
 	// layergroupuse is not staged anymore, remove layergroupuseDB
 	layergroupuseDB := backRepoLayerGroupUse.Map_LayerGroupUseDBID_LayerGroupUseDB[id]
 	db, _ := backRepoLayerGroupUse.db.Unscoped()
-	_, err := db.Delete(&layergroupuseDB)
+	_, err := db.Delete(layergroupuseDB)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -236,7 +236,7 @@ func (backRepoLayerGroupUse *BackRepoLayerGroupUseStruct) CommitPhaseTwoInstance
 			layergroupuseDB.LayerGroupID.Valid = true
 		}
 
-		_, err := backRepoLayerGroupUse.db.Save(&layergroupuseDB)
+		_, err := backRepoLayerGroupUse.db.Save(layergroupuseDB)
 		if err != nil {
 			log.Fatal(err)
 		}

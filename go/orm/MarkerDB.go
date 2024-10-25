@@ -179,7 +179,7 @@ func (backRepoMarker *BackRepoMarkerStruct) CommitDeleteInstance(id uint) (Error
 	// marker is not staged anymore, remove markerDB
 	markerDB := backRepoMarker.Map_MarkerDBID_MarkerDB[id]
 	db, _ := backRepoMarker.db.Unscoped()
-	_, err := db.Delete(&markerDB)
+	_, err := db.Delete(markerDB)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -263,7 +263,7 @@ func (backRepoMarker *BackRepoMarkerStruct) CommitPhaseTwoInstance(backRepo *Bac
 			markerDB.DivIconID.Valid = true
 		}
 
-		_, err := backRepoMarker.db.Save(&markerDB)
+		_, err := backRepoMarker.db.Save(markerDB)
 		if err != nil {
 			log.Fatal(err)
 		}
