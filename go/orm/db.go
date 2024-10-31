@@ -240,55 +240,55 @@ func (db *DBLite) Updates(instanceDB any) (db.DBInterface, error) {
 		if existing, ok := db.circleDBs[v.ID]; ok {
 			*existing = *v
 		} else {
-			return nil, errors.New("github.com/fullstack-lang/gongleaflet/go, record not found")
+			return nil, errors.New("db Circle github.com/fullstack-lang/gongleaflet/go, record not found")
 		}
 	case *DivIconDB:
 		if existing, ok := db.diviconDBs[v.ID]; ok {
 			*existing = *v
 		} else {
-			return nil, errors.New("github.com/fullstack-lang/gongleaflet/go, record not found")
+			return nil, errors.New("db DivIcon github.com/fullstack-lang/gongleaflet/go, record not found")
 		}
 	case *LayerGroupDB:
 		if existing, ok := db.layergroupDBs[v.ID]; ok {
 			*existing = *v
 		} else {
-			return nil, errors.New("github.com/fullstack-lang/gongleaflet/go, record not found")
+			return nil, errors.New("db LayerGroup github.com/fullstack-lang/gongleaflet/go, record not found")
 		}
 	case *LayerGroupUseDB:
 		if existing, ok := db.layergroupuseDBs[v.ID]; ok {
 			*existing = *v
 		} else {
-			return nil, errors.New("github.com/fullstack-lang/gongleaflet/go, record not found")
+			return nil, errors.New("db LayerGroupUse github.com/fullstack-lang/gongleaflet/go, record not found")
 		}
 	case *MapOptionsDB:
 		if existing, ok := db.mapoptionsDBs[v.ID]; ok {
 			*existing = *v
 		} else {
-			return nil, errors.New("github.com/fullstack-lang/gongleaflet/go, record not found")
+			return nil, errors.New("db MapOptions github.com/fullstack-lang/gongleaflet/go, record not found")
 		}
 	case *MarkerDB:
 		if existing, ok := db.markerDBs[v.ID]; ok {
 			*existing = *v
 		} else {
-			return nil, errors.New("github.com/fullstack-lang/gongleaflet/go, record not found")
+			return nil, errors.New("db Marker github.com/fullstack-lang/gongleaflet/go, record not found")
 		}
 	case *UserClickDB:
 		if existing, ok := db.userclickDBs[v.ID]; ok {
 			*existing = *v
 		} else {
-			return nil, errors.New("github.com/fullstack-lang/gongleaflet/go, record not found")
+			return nil, errors.New("db UserClick github.com/fullstack-lang/gongleaflet/go, record not found")
 		}
 	case *VLineDB:
 		if existing, ok := db.vlineDBs[v.ID]; ok {
 			*existing = *v
 		} else {
-			return nil, errors.New("github.com/fullstack-lang/gongleaflet/go, record not found")
+			return nil, errors.New("db VLine github.com/fullstack-lang/gongleaflet/go, record not found")
 		}
 	case *VisualTrackDB:
 		if existing, ok := db.visualtrackDBs[v.ID]; ok {
 			*existing = *v
 		} else {
-			return nil, errors.New("github.com/fullstack-lang/gongleaflet/go, record not found")
+			return nil, errors.New("db VisualTrack github.com/fullstack-lang/gongleaflet/go, record not found")
 		}
 	default:
 		return nil, errors.New("github.com/fullstack-lang/gongleaflet/go, unsupported type in Updates")
@@ -305,62 +305,62 @@ func (db *DBLite) Find(instanceDBs any) (db.DBInterface, error) {
 	switch ptr := instanceDBs.(type) {
 	// insertion point find
 	case *[]CircleDB:
-        *ptr = make([]CircleDB, 0, len(db.circleDBs))
-        for _, v := range db.circleDBs {
-            *ptr = append(*ptr, *v)
-        }
-        return db, nil
+		*ptr = make([]CircleDB, 0, len(db.circleDBs))
+		for _, v := range db.circleDBs {
+			*ptr = append(*ptr, *v)
+		}
+		return db, nil
 	case *[]DivIconDB:
-        *ptr = make([]DivIconDB, 0, len(db.diviconDBs))
-        for _, v := range db.diviconDBs {
-            *ptr = append(*ptr, *v)
-        }
-        return db, nil
+		*ptr = make([]DivIconDB, 0, len(db.diviconDBs))
+		for _, v := range db.diviconDBs {
+			*ptr = append(*ptr, *v)
+		}
+		return db, nil
 	case *[]LayerGroupDB:
-        *ptr = make([]LayerGroupDB, 0, len(db.layergroupDBs))
-        for _, v := range db.layergroupDBs {
-            *ptr = append(*ptr, *v)
-        }
-        return db, nil
+		*ptr = make([]LayerGroupDB, 0, len(db.layergroupDBs))
+		for _, v := range db.layergroupDBs {
+			*ptr = append(*ptr, *v)
+		}
+		return db, nil
 	case *[]LayerGroupUseDB:
-        *ptr = make([]LayerGroupUseDB, 0, len(db.layergroupuseDBs))
-        for _, v := range db.layergroupuseDBs {
-            *ptr = append(*ptr, *v)
-        }
-        return db, nil
+		*ptr = make([]LayerGroupUseDB, 0, len(db.layergroupuseDBs))
+		for _, v := range db.layergroupuseDBs {
+			*ptr = append(*ptr, *v)
+		}
+		return db, nil
 	case *[]MapOptionsDB:
-        *ptr = make([]MapOptionsDB, 0, len(db.mapoptionsDBs))
-        for _, v := range db.mapoptionsDBs {
-            *ptr = append(*ptr, *v)
-        }
-        return db, nil
+		*ptr = make([]MapOptionsDB, 0, len(db.mapoptionsDBs))
+		for _, v := range db.mapoptionsDBs {
+			*ptr = append(*ptr, *v)
+		}
+		return db, nil
 	case *[]MarkerDB:
-        *ptr = make([]MarkerDB, 0, len(db.markerDBs))
-        for _, v := range db.markerDBs {
-            *ptr = append(*ptr, *v)
-        }
-        return db, nil
+		*ptr = make([]MarkerDB, 0, len(db.markerDBs))
+		for _, v := range db.markerDBs {
+			*ptr = append(*ptr, *v)
+		}
+		return db, nil
 	case *[]UserClickDB:
-        *ptr = make([]UserClickDB, 0, len(db.userclickDBs))
-        for _, v := range db.userclickDBs {
-            *ptr = append(*ptr, *v)
-        }
-        return db, nil
+		*ptr = make([]UserClickDB, 0, len(db.userclickDBs))
+		for _, v := range db.userclickDBs {
+			*ptr = append(*ptr, *v)
+		}
+		return db, nil
 	case *[]VLineDB:
-        *ptr = make([]VLineDB, 0, len(db.vlineDBs))
-        for _, v := range db.vlineDBs {
-            *ptr = append(*ptr, *v)
-        }
-        return db, nil
+		*ptr = make([]VLineDB, 0, len(db.vlineDBs))
+		for _, v := range db.vlineDBs {
+			*ptr = append(*ptr, *v)
+		}
+		return db, nil
 	case *[]VisualTrackDB:
-        *ptr = make([]VisualTrackDB, 0, len(db.visualtrackDBs))
-        for _, v := range db.visualtrackDBs {
-            *ptr = append(*ptr, *v)
-        }
-        return db, nil
-    default:
-        return nil, errors.New("github.com/fullstack-lang/gongleaflet/go, Find: unsupported type")
-    }
+		*ptr = make([]VisualTrackDB, 0, len(db.visualtrackDBs))
+		for _, v := range db.visualtrackDBs {
+			*ptr = append(*ptr, *v)
+		}
+		return db, nil
+	default:
+		return nil, errors.New("github.com/fullstack-lang/gongleaflet/go, Find: unsupported type")
+	}
 }
 
 // First retrieves the first record of a type from the database
@@ -388,75 +388,93 @@ func (db *DBLite) First(instanceDB any, conds ...any) (db.DBInterface, error) {
 	case *CircleDB:
 		tmp, ok := db.circleDBs[uint(i)]
 
+		if !ok {
+			return nil, errors.New(fmt.Sprintf("db.First Circle Unkown entry %d", i))
+		}
+
 		circleDB, _ := instanceDB.(*CircleDB)
 		*circleDB = *tmp
-		if !ok {
-			return nil, errors.New(fmt.Sprintf("Unkown entry %d", i))
-		}
+		
 	case *DivIconDB:
 		tmp, ok := db.diviconDBs[uint(i)]
 
+		if !ok {
+			return nil, errors.New(fmt.Sprintf("db.First DivIcon Unkown entry %d", i))
+		}
+
 		diviconDB, _ := instanceDB.(*DivIconDB)
 		*diviconDB = *tmp
-		if !ok {
-			return nil, errors.New(fmt.Sprintf("Unkown entry %d", i))
-		}
+		
 	case *LayerGroupDB:
 		tmp, ok := db.layergroupDBs[uint(i)]
 
+		if !ok {
+			return nil, errors.New(fmt.Sprintf("db.First LayerGroup Unkown entry %d", i))
+		}
+
 		layergroupDB, _ := instanceDB.(*LayerGroupDB)
 		*layergroupDB = *tmp
-		if !ok {
-			return nil, errors.New(fmt.Sprintf("Unkown entry %d", i))
-		}
+		
 	case *LayerGroupUseDB:
 		tmp, ok := db.layergroupuseDBs[uint(i)]
 
+		if !ok {
+			return nil, errors.New(fmt.Sprintf("db.First LayerGroupUse Unkown entry %d", i))
+		}
+
 		layergroupuseDB, _ := instanceDB.(*LayerGroupUseDB)
 		*layergroupuseDB = *tmp
-		if !ok {
-			return nil, errors.New(fmt.Sprintf("Unkown entry %d", i))
-		}
+		
 	case *MapOptionsDB:
 		tmp, ok := db.mapoptionsDBs[uint(i)]
 
+		if !ok {
+			return nil, errors.New(fmt.Sprintf("db.First MapOptions Unkown entry %d", i))
+		}
+
 		mapoptionsDB, _ := instanceDB.(*MapOptionsDB)
 		*mapoptionsDB = *tmp
-		if !ok {
-			return nil, errors.New(fmt.Sprintf("Unkown entry %d", i))
-		}
+		
 	case *MarkerDB:
 		tmp, ok := db.markerDBs[uint(i)]
 
+		if !ok {
+			return nil, errors.New(fmt.Sprintf("db.First Marker Unkown entry %d", i))
+		}
+
 		markerDB, _ := instanceDB.(*MarkerDB)
 		*markerDB = *tmp
-		if !ok {
-			return nil, errors.New(fmt.Sprintf("Unkown entry %d", i))
-		}
+		
 	case *UserClickDB:
 		tmp, ok := db.userclickDBs[uint(i)]
 
+		if !ok {
+			return nil, errors.New(fmt.Sprintf("db.First UserClick Unkown entry %d", i))
+		}
+
 		userclickDB, _ := instanceDB.(*UserClickDB)
 		*userclickDB = *tmp
-		if !ok {
-			return nil, errors.New(fmt.Sprintf("Unkown entry %d", i))
-		}
+		
 	case *VLineDB:
 		tmp, ok := db.vlineDBs[uint(i)]
 
+		if !ok {
+			return nil, errors.New(fmt.Sprintf("db.First VLine Unkown entry %d", i))
+		}
+
 		vlineDB, _ := instanceDB.(*VLineDB)
 		*vlineDB = *tmp
-		if !ok {
-			return nil, errors.New(fmt.Sprintf("Unkown entry %d", i))
-		}
+		
 	case *VisualTrackDB:
 		tmp, ok := db.visualtrackDBs[uint(i)]
 
+		if !ok {
+			return nil, errors.New(fmt.Sprintf("db.First VisualTrack Unkown entry %d", i))
+		}
+
 		visualtrackDB, _ := instanceDB.(*VisualTrackDB)
 		*visualtrackDB = *tmp
-		if !ok {
-			return nil, errors.New(fmt.Sprintf("Unkown entry %d", i))
-		}
+		
 	default:
 		return nil, errors.New("github.com/fullstack-lang/gongleaflet/go, Unkown type")
 	}
