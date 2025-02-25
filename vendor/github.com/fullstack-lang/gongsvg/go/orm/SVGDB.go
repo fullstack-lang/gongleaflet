@@ -81,6 +81,10 @@ type SVGDB struct {
 	// provide the sql storage for the boolan
 	IsEditable_Data sql.NullBool
 
+	// Declation for basic field svgDB.IsSVGFileGenerated
+	// provide the sql storage for the boolan
+	IsSVGFileGenerated_Data sql.NullBool
+
 	// encoding of pointers
 	// for GORM serialization, it is necessary to embed to Pointer Encoding declaration
 	SVGPointersEncoding
@@ -108,6 +112,8 @@ type SVGWOP struct {
 	DrawingState models.DrawingState `xlsx:"2"`
 
 	IsEditable bool `xlsx:"3"`
+
+	IsSVGFileGenerated bool `xlsx:"4"`
 	// insertion for WOP pointer fields
 }
 
@@ -117,6 +123,7 @@ var SVG_Fields = []string{
 	"Name",
 	"DrawingState",
 	"IsEditable",
+	"IsSVGFileGenerated",
 }
 
 type BackRepoSVGStruct struct {
@@ -401,16 +408,48 @@ func (svgDB *SVGDB) DecodePointers(backRepo *BackRepoStruct, svg *models.SVG) {
 		svg.Layers = append(svg.Layers, backRepo.BackRepoLayer.Map_LayerDBID_LayerPtr[uint(_Layerid)])
 	}
 
-	// StartRect field
-	svg.StartRect = nil
-	if svgDB.StartRectID.Int64 != 0 {
-		svg.StartRect = backRepo.BackRepoRect.Map_RectDBID_RectPtr[uint(svgDB.StartRectID.Int64)]
+	// StartRect field	
+	{
+		id := svgDB.StartRectID.Int64
+		if id != 0 {
+			tmp, ok := backRepo.BackRepoRect.Map_RectDBID_RectPtr[uint(id)]
+
+			// if the pointer id is unknown, it is not a problem, maybe the target was removed from the front
+			if !ok {
+				log.Println("DecodePointers: svg.StartRect, unknown pointer id", id)
+				svg.StartRect = nil
+			} else {
+				// updates only if field has changed
+				if svg.StartRect == nil || svg.StartRect != tmp {
+					svg.StartRect = tmp
+				}
+			}
+		} else {
+			svg.StartRect = nil
+		}
 	}
-	// EndRect field
-	svg.EndRect = nil
-	if svgDB.EndRectID.Int64 != 0 {
-		svg.EndRect = backRepo.BackRepoRect.Map_RectDBID_RectPtr[uint(svgDB.EndRectID.Int64)]
+	
+	// EndRect field	
+	{
+		id := svgDB.EndRectID.Int64
+		if id != 0 {
+			tmp, ok := backRepo.BackRepoRect.Map_RectDBID_RectPtr[uint(id)]
+
+			// if the pointer id is unknown, it is not a problem, maybe the target was removed from the front
+			if !ok {
+				log.Println("DecodePointers: svg.EndRect, unknown pointer id", id)
+				svg.EndRect = nil
+			} else {
+				// updates only if field has changed
+				if svg.EndRect == nil || svg.EndRect != tmp {
+					svg.EndRect = tmp
+				}
+			}
+		} else {
+			svg.EndRect = nil
+		}
 	}
+	
 	return
 }
 
@@ -453,6 +492,9 @@ func (svgDB *SVGDB) CopyBasicFieldsFromSVG(svg *models.SVG) {
 
 	svgDB.IsEditable_Data.Bool = svg.IsEditable
 	svgDB.IsEditable_Data.Valid = true
+
+	svgDB.IsSVGFileGenerated_Data.Bool = svg.IsSVGFileGenerated
+	svgDB.IsSVGFileGenerated_Data.Valid = true
 }
 
 // CopyBasicFieldsFromSVG_WOP
@@ -467,6 +509,9 @@ func (svgDB *SVGDB) CopyBasicFieldsFromSVG_WOP(svg *models.SVG_WOP) {
 
 	svgDB.IsEditable_Data.Bool = svg.IsEditable
 	svgDB.IsEditable_Data.Valid = true
+
+	svgDB.IsSVGFileGenerated_Data.Bool = svg.IsSVGFileGenerated
+	svgDB.IsSVGFileGenerated_Data.Valid = true
 }
 
 // CopyBasicFieldsFromSVGWOP
@@ -481,6 +526,9 @@ func (svgDB *SVGDB) CopyBasicFieldsFromSVGWOP(svg *SVGWOP) {
 
 	svgDB.IsEditable_Data.Bool = svg.IsEditable
 	svgDB.IsEditable_Data.Valid = true
+
+	svgDB.IsSVGFileGenerated_Data.Bool = svg.IsSVGFileGenerated
+	svgDB.IsSVGFileGenerated_Data.Valid = true
 }
 
 // CopyBasicFieldsToSVG
@@ -489,6 +537,7 @@ func (svgDB *SVGDB) CopyBasicFieldsToSVG(svg *models.SVG) {
 	svg.Name = svgDB.Name_Data.String
 	svg.DrawingState.FromString(svgDB.DrawingState_Data.String)
 	svg.IsEditable = svgDB.IsEditable_Data.Bool
+	svg.IsSVGFileGenerated = svgDB.IsSVGFileGenerated_Data.Bool
 }
 
 // CopyBasicFieldsToSVG_WOP
@@ -497,6 +546,7 @@ func (svgDB *SVGDB) CopyBasicFieldsToSVG_WOP(svg *models.SVG_WOP) {
 	svg.Name = svgDB.Name_Data.String
 	svg.DrawingState.FromString(svgDB.DrawingState_Data.String)
 	svg.IsEditable = svgDB.IsEditable_Data.Bool
+	svg.IsSVGFileGenerated = svgDB.IsSVGFileGenerated_Data.Bool
 }
 
 // CopyBasicFieldsToSVGWOP
@@ -506,6 +556,7 @@ func (svgDB *SVGDB) CopyBasicFieldsToSVGWOP(svg *SVGWOP) {
 	svg.Name = svgDB.Name_Data.String
 	svg.DrawingState.FromString(svgDB.DrawingState_Data.String)
 	svg.IsEditable = svgDB.IsEditable_Data.Bool
+	svg.IsSVGFileGenerated = svgDB.IsSVGFileGenerated_Data.Bool
 }
 
 // Backup generates a json file from a slice of all SVGDB instances in the backrepo

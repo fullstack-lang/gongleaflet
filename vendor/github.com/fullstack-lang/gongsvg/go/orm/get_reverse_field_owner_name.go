@@ -5,10 +5,10 @@ import (
 	"github.com/fullstack-lang/gongsvg/go/models"
 )
 
-func GetReverseFieldOwnerName[T models.Gongstruct](
+func GetReverseFieldOwnerName(
 	stage *models.StageStruct,
 	backRepo *BackRepoStruct,
-	instance *T,
+	instance any,
 	reverseField *models.ReverseField) (res string) {
 
 	res = ""
@@ -278,6 +278,11 @@ func GetReverseFieldOwnerName[T models.Gongstruct](
 		// insertion point
 		}
 
+	case *models.SvgText:
+		switch reverseField.GongstructName {
+		// insertion point
+		}
+
 	case *models.Text:
 		switch reverseField.GongstructName {
 		// insertion point
@@ -513,6 +518,11 @@ func GetReverseFieldOwner[T models.Gongstruct](
 		}
 
 	case *models.SVG:
+		switch reverseField.GongstructName {
+		// insertion point
+		}
+
+	case *models.SvgText:
 		switch reverseField.GongstructName {
 		// insertion point
 		}

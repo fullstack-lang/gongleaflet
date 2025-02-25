@@ -12,6 +12,8 @@ type Animate_WOP struct {
 	Name string
 	AttributeName string
 	Values string
+	From string
+	To string
 	Dur string
 	RepeatCount string
 }
@@ -21,6 +23,8 @@ func (from *Animate) CopyBasicFields(to *Animate) {
 	to.Name = from.Name
 	to.AttributeName = from.AttributeName
 	to.Values = from.Values
+	to.From = from.From
+	to.To = from.To
 	to.Dur = from.Dur
 	to.RepeatCount = from.RepeatCount
 }
@@ -556,6 +560,7 @@ type SVG_WOP struct {
 	Name string
 	DrawingState DrawingState
 	IsEditable bool
+	IsSVGFileGenerated bool
 }
 
 func (from *SVG) CopyBasicFields(to *SVG) {
@@ -563,6 +568,19 @@ func (from *SVG) CopyBasicFields(to *SVG) {
 	to.Name = from.Name
 	to.DrawingState = from.DrawingState
 	to.IsEditable = from.IsEditable
+	to.IsSVGFileGenerated = from.IsSVGFileGenerated
+}
+
+type SvgText_WOP struct {
+	// insertion point
+	Name string
+	Text string
+}
+
+func (from *SvgText) CopyBasicFields(to *SvgText) {
+	// insertion point
+	to.Name = from.Name
+	to.Text = from.Text
 }
 
 type Text_WOP struct {
