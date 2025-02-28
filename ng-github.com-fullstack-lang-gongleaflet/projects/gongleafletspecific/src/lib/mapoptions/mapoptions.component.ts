@@ -10,7 +10,7 @@ import * as manageLeafletItems from './manage-leaflet-items'
 import { dotBlur } from '../../assets/icons/dot_blur'
 
 
-import { LeafletModule } from '@asymmetrik/ngx-leaflet';
+import { LeafletModule } from '@bluehalo/ngx-leaflet';
 import { MatOptionModule } from '@angular/material/core'
 import { CommonModule } from '@angular/common'
 
@@ -23,19 +23,15 @@ export const DEFAULT_ICON_SIZE = 60
 // - the component that displays all layers
 // A gong stack can handle multiple Mapoptions and therefore display more than one map.
 @Component({
-  selector: 'app-mapoptions',
-  templateUrl: './mapoptions.component.html',
-  styleUrls: ['./mapoptions.component.scss'],
-  standalone: true,
-  imports: [
-
-    MatOptionModule,
-    CommonModule,
-
-    LeafletModule,
-    CartoatcControlSettingsComponent,
-
-  ]
+    selector: 'app-mapoptions',
+    templateUrl: './mapoptions.component.html',
+    styleUrls: ['./mapoptions.component.scss'],
+    imports: [
+        MatOptionModule,
+        CommonModule,
+        LeafletModule,
+        CartoatcControlSettingsComponent,
+    ]
 })
 export class MapoptionsComponent implements OnInit {
 
